@@ -31,6 +31,8 @@ export const ROUTES = {
     UnlockRoute: 'UnlockRoute',
     RegisterRoute: 'RegisterRoute',
 
+    VaultCreateRoute: 'VaultCreateRoute',
+    RecoverInitRoute: 'RecoverInitRoute',
     //
     HomeRoute: 'HomeRoute',
     MainHubRoute: 'MainHubRoute',

@@ -7,6 +7,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import tw from './lib/tailwind'
 
 import SplashScreen from './screens/SplashScreen';
+import LandingScreen from './screens/LandingScreen';
+import VaultCreateScreen from './screens/VaultCreateScreen';
 
 import { ROUTES } from './config';
 
@@ -23,18 +25,16 @@ export default function App() {
           <Stack.Screen name={ROUTES.SplashRoute}>{props => 
             <SplashScreen {...props} />}
           </Stack.Screen>
+          <Stack.Screen 
+            name={ROUTES.LandingRoute}
+            component={LandingScreen}
+            options={{ title: 'Landing' }} />
+          <Stack.Screen name={ROUTES.VaultCreateRoute}>
+            {props => <VaultCreateScreen {...props} />}
+          </Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>
       <StatusBar style="auto" />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
