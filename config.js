@@ -10,10 +10,10 @@ export const LOCAL = env_local === 'true'
 
 export const SPLASH_ANIMATE_TIME = DEBUG ? 100 : 666
 
-// export const BASE =
-//     LOCAL ? 'http://localhost:8000/api' : 
-//     DEV ? 'https://api.ssi.arxsky.dev/api' : 
-//           'https://api.ssi.arxsky.com/api'
+export const BASE =
+    LOCAL ? 'http://localhost:8000/api' : 
+    DEV ? 'https://api.ssi.arxsky.dev/api' : 
+          'https://api.ssi.arxsky.com/api'
 
 export const ENDPOINTS = {
     
