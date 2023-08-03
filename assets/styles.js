@@ -24,6 +24,8 @@ const ds = StyleSheet.create({
     labelB: tw`text-slate-300 text-xl mb-1`,
     input: tw`grow-1 bg-slate-800 p-3 mb-2 text-xl text-slate-200 border border-slate-500 select:border`,
 
+    ctaButton: tw`py-2 rounded-full bg-sky-600 w-full content-center justify-center items-center`,
+
     button: tw`py-2 rounded-sm bg-slate-600 w-40 content-center justify-center items-center`,
     buttonSm: tw`py-2 rounded-sm bg-slate-600 w-30 content-center justify-center items-center`,
     buttonXs: tw`py-1 rounded-sm bg-slate-600 w-24 content-center justify-center items-center`,

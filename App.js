@@ -9,6 +9,7 @@ import tw from './lib/tailwind'
 import SplashScreen from './screens/SplashScreen';
 import LandingScreen from './screens/LandingScreen';
 import VaultCreateScreen from './screens/VaultCreateScreen';
+import RecoverInitScreen from './screens/RecoverInitScreen';
 
 import { ROUTES } from './config';
 
@@ -31,6 +32,10 @@ export default function App() {
             options={{ title: 'Landing' }} />
           <Stack.Screen name={ROUTES.VaultCreateRoute}>
             {props => <VaultCreateScreen {...props} />}
+          </Stack.Screen>
+          {/* recover init screen */}
+          <Stack.Screen name={ROUTES.RecoverInitRoute}>
+            {props => <RecoverInitScreen {...props} />}
           </Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>

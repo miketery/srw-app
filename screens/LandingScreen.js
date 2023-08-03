@@ -12,14 +12,14 @@ export default function LandingScreen(props) {
         <Text style={ds.text}>Never Lose Your Keys Again</Text>
       </View>
       <View style={tw`flex-grow-1`} />
-      <View style={tw`justify-around mb-10 flex-col`}>
-        <Pressable style={[ds.button, ds.greenButton]}
+      <View style={tw`justify-around mb-10 flex-col items-center`}>
+        <Pressable style={[ds.ctaButton]}
             onPress={() => props.navigation.navigate(ROUTES.VaultCreateRoute)}>
           <Text style={ds.buttonText}>Create Vault</Text>
         </Pressable>
-        <Pressable style={[ds.button, ds.lightblueButton]}
-            onPress={() => props.navigation.navigate(ROUTES.LoginRoute)}>
-          <Text style={ds.buttonText}>Recover Vault</Text>
+        <Pressable style={tw`mt-10`}
+            onPress={() => props.navigation.navigate(ROUTES.RecoverInitRoute)}>
+          <Text style={ds.textSm}>Recover Vault</Text>
         </Pressable>
       </View>
     </View>
