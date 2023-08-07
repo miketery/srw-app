@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "SkyCastle",
+    "slug": "SkyCastle",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0d1020"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.miketery.skycastletery",
+      "icon": "./assets/icon.png"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0d1020"
+      },
+      "package": "com.miketery.skycastletery"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "display": "fullscreen",
+      "backgroundColor": "#0d1020"
+    }
+  },
+  "icon": "./assets/icon.png"
+}

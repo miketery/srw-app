@@ -1,11 +1,12 @@
-import { existsSync, readdirSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'fs';
-import { join } from 'path';
+import base58 from 'bs58'
+const bip39 = require('bip39')
+
 import { randomBytes } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 
 // Import the required classes, modules or types here
 import { SigningKey, VerifyKey, PrivateKey, PublicKey, SignedMessage } from '../lib/nacl';
-import { b58encodeKey } from '../lib/utils'
+import { sign_msg } from '../lib/utils'
 // ContactManager, ObjectManager
 
 class Vault {
@@ -45,25 +46,20 @@ class Vault {
     // this.contact_manager = new ContactManager(this, join(this.base_dir, this.b58_verify_key, 'contacts.json'));
     // this.object_manager = new ObjectManager(join(this.base_dir, this.b58_verify_key, 'objects.json'));
   }
-
   get did(): string {
     return `did:arx:${this.b58_verify_key}`;
   }
-
   get b58_verify_key(): string { // public signing key in base58
-    return b58encodeKey(this.verify_key);
+    return base58.encode(this.verify_key);
   }
-
   get b58_signing_key(): string {
-    return b58encodeKey(this.signing_key);
+    return base58.encode(this.signing_key);
   }
-
   get b58_private_key(): string {
-    return b58encodeKey(this.private_key);
+    return base58.encode(this.private_key);
   }
-
   get b58_public_key(): string {
-    return b58encodeKey(this.public_key);
+    return base58.encode(this.public_key);
   }
 
   to_dict() {
@@ -82,25 +78,24 @@ class Vault {
   }
 
   static from_dict(data: any, base_dir: string): Vault {
-    data['signing_key'] = new SigningKey(b58decode(data['signing_key']));
-    data['verify_key'] = new VerifyKey(b58decode(data['verify_key']));
-    data['private_key'] = new PrivateKey(b58decode(data['private_key']));
-    data['public_key'] = new PublicKey(b58decode(data['public_key']));
+    data['signing_key'] = base58.decode(data['signing_key']);
+    data['verify_key'] = base58.decode(data['verify_key']);
+    data['private_key'] = base58.decode(data['private_key']);
+    data['public_key'] =  base58.decode(data['public_key']);
     data['base_dir'] = base_dir;
     return new Vault(data['uuid'], data['name'], data['email'], data['display_name'], data['digital_agent_host'], data['words'], data['signing_key'], data['verify_key'], data['private_key'], data['public_key'], base_dir);
   }
 
   sign_payload(payload: any) {
-    const data_bytes = JSON.stringify(payload).encode('utf-8');
+    const data_bytes = JSON.stringify(payload); //.encode('utf-8');
     const signed = this.sign(data_bytes);
     return {
       'signed': Buffer.from(signed).toString('base64'),
       'verify_key': this.b58_verify_key
     };
   }
-
   sign(data: any): SignedMessage {
-    return this.signing_key.sign(data);
+    return sign_msg(data, this.signing_key);
   }
 }
 
@@ -108,23 +103,14 @@ class VaultManager {
   base_dir: string;
   vaults: Vault[];
 
-  constructor(base_dir: string, load_vaults = true) {
-    this.base_dir = base_dir;
+  constructor(load_vaults = true) {
     this.vaults = load_vaults ? this.load_vaults() : [];
   }
 
   load_vaults(): Vault[] {
-    let vaults: Vault[] = [];
-    if (existsSync(this.base_dir)) {
-      const dir_names = readdirSync(this.base_dir);
-      for (let dir_name of dir_names) {
-        let vaultData = JSON.parse(readFileSync(join(this.base_dir, dir_name, 'vault.json'), 'utf-8'));
-        let vault = Vault.from_dict(vaultData, this.base_dir);
-        vault.object_manager = new ObjectManager(join(this.base_dir, dir_name, 'objects.json'));
-        vault.contact_manager = new ContactManager(vault, join(this.base_dir, dir_name, 'contacts.json'));
-        vaults.push(vault);
-      }
-    }
+    // load vaults from async storage
+    let vaults = [];
+
     return vaults;
   }
 
