@@ -1,10 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage"
 
-
-// TODO
-// class cache {
-// }
-
 const data_template = {
     initialized: false,
     default_vault: null,
@@ -26,6 +21,7 @@ export const TYPE_MAP = {
     'Ck': 'contact_keyshares',
 }
 const typeFromPk = (pk) => TYPE_MAP[pk.slice(0,2)]
+const typeToPrefix = (t) => Object.keys(TYPE_MAP).find(k => TYPE_MAP[k] == t)
 
 const SI = {
     constructor: () => console.log('[SI.constructor]'),

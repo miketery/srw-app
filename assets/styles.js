@@ -3,6 +3,8 @@ import { StyleSheet } from 'react-native'
 import tw from '../lib/tailwind'
 
 const ds = StyleSheet.create({
+    inputContainer: tw`mb-2`,
+
     fullContainer: tw`bg-midnight h-full p-3`,
     landingContainer: tw`bg-midnight h-full p-3 pt-14`,
     mainContainerPt: tw`bg-midnight h-full p-3 pb-20 pt-14`,
@@ -25,6 +27,7 @@ const ds = StyleSheet.create({
     input: tw`grow-1 bg-slate-800 p-3 mb-2 text-xl text-slate-200 border border-slate-500 select:border`,
 
     ctaButton: tw`py-2 rounded-full bg-sky-600 w-full content-center justify-center items-center`,
+    createButton: tw`py-2 rounded-full bg-midpurple w-full content-center justify-center items-center`,
 
     button: tw`py-2 rounded-sm bg-slate-600 w-40 content-center justify-center items-center`,
     buttonSm: tw`py-2 rounded-sm bg-slate-600 w-30 content-center justify-center items-center`,
