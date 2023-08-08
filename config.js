@@ -60,3 +60,15 @@ export const TAB_BAR_ROUTES = {
     // ProfileRoute: {header: false, tabBarIconHide: true, tabBarHide: true},
     // KeySharesRoute: {header: false, tabBarIconHide: true, tabBarHide: true},
 }
+
+export const primary_route = (routes=[]) => ({
+    routes: [
+        {
+            name: ROUTES.HomeRoute,
+            // params: {key: value},
+            state: {
+                routes: routes
+            }
+        },
+    ]
+})
