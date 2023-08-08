@@ -2,37 +2,34 @@ import React, { useState, useEffect } from 'react';
 import { CommonActions } from '@react-navigation/native'
 import { StyleSheet, Text, View, Button, Pressable } from 'react-native'
 
-import { ROUTES, SPLASH_ANIMATE_TIME, DEV } from '../config'
+import { ROUTES, SPLASH_ANIMATE_TIME, DEV, primary_route } from '../config'
 import SessionManager from '../classes/SessionManager'
 
+import SI from '../classes/SI';
+import Cache
+ from '../classes/Cache';
 import ds from '../assets/styles'
 import tw from '../lib/tailwind'
 import test_route from '../testdata/testroute'
 
-export const primary_route = (routes=[]) => ({
-    routes: [
-        {
-            name: ROUTES.HomeRoute,
-            // params: {key: value},
-            state: {
-                routes: routes
-            }
-        },
-    ]
-})
 
 export default function SplashScreen({navigation}) {    
     const [initialized, setInitialized] = useState(false);
     const [animationComplete, setAnimationComplete] = useState(false);
-    const [loggedIn, setLoggedIn] = useState(false);
+    const [hasVault, setHasVault] = useState(false);
     const [counter, setCounter] = useState(0); // just for fun!
 
-    const checkSession = () => {
-        console.log('[SplashScreen.js] checkSession()')
-        const session = SessionManager.init().then(() =>
-            SessionManager.checkSession()
-        )
-        return session
+    const checkHasVault = () => {
+        console.log('[SplashScreen.js] checkHasVault()')
+        let vault_index = SI.getIndex('vaults')
+        console.log('[SplashScreen.js] found '+vault_index.length+' vaults')
+        if(vault_index.length > 0) {
+            Cache.setVaultPk(vault_index[0])
+            const routes = primary_route(DEV ? test_route : [])
+            return Promise.resolve(true)
+        } else {
+            return Promise.resolve(false)
+        }
     }
     const animate = () => {
         console.log('[SplashScreen.js] animate()')
@@ -56,23 +53,26 @@ export default function SplashScreen({navigation}) {
     useEffect(() => {
         console.log('[SplashScreen.js] componentDidMount()')
         animate()
-        checkSession().then((logged_in) => {
-            setInitialized(true);
-            setLoggedIn(logged_in);
-        }).catch((err) => {
-            console.log(err);
-            setInitialized(true);
-            setLoggedIn(false);
-        });
+        SI.init().then(() => {
+            checkHasVault().then((logged_in) => {
+                setInitialized(true);
+                setHasVault(logged_in);
+            }).catch((err) => {
+                console.log(err);
+                setInitialized(true);
+                setHasVault(false);
+            });
+        })
     }, []);
 
     useEffect(() => {
         if (initialized && animationComplete) {
-            if(loggedIn) {
+            if(hasVault) {
                 const routes = primary_route(DEV ? test_route : []);
+                console.log(routes)
                 navigation.dispatch(CommonActions.reset(routes));    
             } else {
-                navigation.navigate(ROUTES.LandingRoute);
+                navigation.navigate(ROUTES.VaultCreateRoute); // ROUTES.LandingRoute
             }
         }
     }, [initialized, animationComplete]);
