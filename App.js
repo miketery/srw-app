@@ -6,7 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 // import { StyleSheet, Text, View } from 'react-native';
 
 import tw from './lib/tailwind'
-import { ROUTES } from './config';
+import { ROUTES, DEV } from './config';
 
 import SplashScreen from './screens/SplashScreen';
 import LandingScreen from './screens/LandingScreen';
@@ -14,6 +14,7 @@ import VaultCreateScreen from './screens/VaultCreateScreen';
 import RecoverInitScreen from './screens/RecoverInitScreen';
 
 import HomeScreen from './screens/HomeScreen';
+import DevTest from './screens/DevTest';
 
 window.Buffer = window.Buffer || require("buffer").Buffer; 
 
@@ -30,6 +31,9 @@ export default function App() {
                     <Stack.Screen name={ROUTES.SplashRoute}>{props => 
                         <SplashScreen {...props} />}
                     </Stack.Screen>
+                    {DEV && <Stack.Screen name={ROUTES.DevTestRoute}>{props => 
+                        <DevTest {...props} />}
+                    </Stack.Screen>}
                     <Stack.Screen 
                         name={ROUTES.LandingRoute}
                         component={LandingScreen}

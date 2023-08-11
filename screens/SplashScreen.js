@@ -10,7 +10,7 @@ import Cache
  from '../classes/Cache';
 import ds from '../assets/styles'
 import tw from '../lib/tailwind'
-import test_route from '../testdata/testroute'
+import { vault_test_route, no_vault_test_route } from '../testdata/testroute'
 
 
 export default function SplashScreen({navigation}) {    
@@ -25,7 +25,6 @@ export default function SplashScreen({navigation}) {
         console.log('[SplashScreen.js] found '+vault_index.length+' vaults')
         if(vault_index.length > 0) {
             Cache.setVaultPk(vault_index[0])
-            const routes = primary_route(DEV ? test_route : [])
             return Promise.resolve(true)
         } else {
             return Promise.resolve(false)
@@ -54,9 +53,9 @@ export default function SplashScreen({navigation}) {
         console.log('[SplashScreen.js] componentDidMount()')
         animate()
         SI.init().then(() => {
-            checkHasVault().then((logged_in) => {
+            checkHasVault().then((hasVault) => {
                 setInitialized(true);
-                setHasVault(logged_in);
+                setHasVault(hasVault);
             }).catch((err) => {
                 console.log(err);
                 setInitialized(true);
@@ -67,12 +66,13 @@ export default function SplashScreen({navigation}) {
 
     useEffect(() => {
         if (initialized && animationComplete) {
+            // if DEV then follow test routes
             if(hasVault) {
-                const routes = primary_route(DEV ? test_route : []);
+                const routes = primary_route(DEV ? vault_test_route : []);
                 console.log(routes)
                 navigation.dispatch(CommonActions.reset(routes));    
             } else {
-                navigation.navigate(ROUTES.VaultCreateRoute); // ROUTES.LandingRoute
+                navigation.navigate(DEV ? no_vault_test_route : ROUTES.LandingRoute); 
             }
         }
     }, [initialized, animationComplete]);
