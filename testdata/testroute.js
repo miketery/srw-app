@@ -33,7 +33,7 @@ const switch_routes = {
   ]
 }
 
-const test_route = [
+const vault_test_route = [
   {
     name: top_level,
     state: {
@@ -41,8 +41,12 @@ const test_route = [
     }
   }
 ]
+const no_vault_test_route = ROUTES.DevTestRoute
 
-export default test_route;
+export {
+  vault_test_route,
+  no_vault_test_route,
+} 
 
 
 // EXAMPLE OF TWO VALID FORMATS
