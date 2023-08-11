@@ -24,7 +24,9 @@ DEBUG && console.log('DEBUG: ', {
 })
 
 export const ROUTES = {
-    TestRoute: 'TestRoute',
+    DevTestRoute: 'DevTestRoute',
+    DevTestMainRoute: 'DevTestMainRoute',
+    DevTestVaultsRoute: 'DevTestVaultsRoute',
     //
     SplashRoute: 'SplashRoute',
     LandingRoute: 'LandingRoute',
