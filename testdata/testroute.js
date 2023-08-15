@@ -1,13 +1,13 @@
 import { ROUTES } from "../config";
 
-const top_level = ROUTES.HomeRoute;
+const top_level = ROUTES.HomeNavRoute;
 
 const switch_routes = {
-  [ROUTES.TestRoute]: [
-    {name: ROUTES.TestRoute},
+  [ROUTES.TestDevRoute]: [
+    {name: ROUTES.TestDevRoute},
   ],
-  [ROUTES.HomeRoute]: [
-    {name: ROUTES.HomeRoute}
+  [ROUTES.HomeNavRoute]: [
+    {name: ROUTES.HomeNavRoute}
   ],
   [ROUTES.OrganizationRoute]: [
     {name: ROUTES.OrganizationListRoute},

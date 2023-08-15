@@ -13,7 +13,7 @@ import LandingScreen from './screens/LandingScreen';
 import VaultCreateScreen from './screens/VaultCreateScreen';
 import RecoverInitScreen from './screens/RecoverInitScreen';
 
-import HomeScreen from './screens/HomeScreen';
+import HomeNav from './screens/HomeNav';
 import DevTest from './screens/DevTest';
 
 window.Buffer = window.Buffer || require("buffer").Buffer; 
@@ -45,8 +45,8 @@ export default function App() {
                     <Stack.Screen name={ROUTES.RecoverInitRoute}>
                         {props => <RecoverInitScreen {...props} />}
                     </Stack.Screen>
-                    <Stack.Screen name={ROUTES.HomeRoute}>
-                        {props => <HomeScreen {...props} />}
+                    <Stack.Screen name={ROUTES.HomeNavRoute}>
+                        {props => <HomeNav {...props} />}
                     </Stack.Screen>
                     
                 </Stack.Navigator>
