@@ -7,7 +7,7 @@ import tw from '../lib/tailwind'
 
 import VaultManager from '../classes/VaultManager'
 
-import { trim_and_lower, validateEmail } from '../lib/utils'
+import { trimAndLower, validateEmail } from '../lib/utils'
 import { FieldError } from '../components/'
 
 export default function VaultCreateScreen(props) {
@@ -26,7 +26,7 @@ export default function VaultCreateScreen(props) {
     }
     const checkForm = () => {
         const errors = {}
-        if (!displayName || trim_and_lower(displayName) === '') {
+        if (!displayName || trimAndLower(displayName) === '') {
             errors.displayName = 'Display name is required'
         }
         if (!validateEmail(email)) {

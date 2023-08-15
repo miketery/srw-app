@@ -23,7 +23,7 @@ class VaultManager {
     let vaults: Vault[] = [];
     let vaults_data = await SI.getAllAsync();
     for (let vault_data of Object.values(vaults_data)) {
-      vaults.push(Vault.from_dict(vault_data));
+      vaults.push(this.from_dict(vault_data));
     }
     this.vaults = vaults;
     return vaults;
@@ -31,8 +31,11 @@ class VaultManager {
   async save_vault(vault: Vault): Promise<void> {
     return SI.saveAsync(vault.pk, vault.to_dict());
   }
-
-  async create_vault(name: string, display_name: string, email: string = '', words: string = '', digital_agent_host: string, save: boolean = true): Promise<Vault> {
+  from_dict(vault_data: any): Vault {
+    return Vault.from_dict(vault_data);
+  }
+  async create_vault(name: string, display_name: string, email: string = '',
+  words: string = '', digital_agent_host: string = '', save: boolean = true): Promise<Vault> {
     let vault_uuid = uuidv4();
     if (words == '') {
       let entropy = await getRandom(16)

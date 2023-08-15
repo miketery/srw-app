@@ -66,6 +66,7 @@ export default class Vault {
 
   to_dict() {
     return {
+      'pk': this.pk,
       'uuid': this.uuid,
       'name': this.name,
       'email': this.email,
@@ -80,15 +81,15 @@ export default class Vault {
   }
 
   static from_dict(data: any): Vault {
-    data['signing_key'] = base58.decode(data['signing_key']);
-    data['verify_key'] = base58.decode(data['verify_key']);
-    data['private_key'] = base58.decode(data['private_key']);
-    data['public_key'] =  base58.decode(data['public_key']);
+    let signing_key = base58.decode(data['signing_key']);
+    let verify_key = base58.decode(data['verify_key']);
+    let private_key = base58.decode(data['private_key']);
+    let public_key =  base58.decode(data['public_key']);
     return new Vault(
       data['uuid'], data['name'], data['email'], data['display_name'],
       data['digital_agent_host'], data['words'],
-      data['signing_key'], data['verify_key'],
-      data['private_key'], data['public_key']
+      signing_key, verify_key,
+      private_key, public_key
     );
   }
 
