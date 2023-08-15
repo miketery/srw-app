@@ -36,7 +36,7 @@ export const ROUTES = {
     VaultCreateRoute: 'VaultCreateRoute',
     RecoverInitRoute: 'RecoverInitRoute',
     //
-    HomeRoute: 'HomeRoute',
+    HomeNavRoute: 'HomeNavRoute',
     MainHubRoute: 'MainHubRoute',
     ProfileRoute: 'ProfileRoute',
     SettingsRoute: 'SettingsRoute',
@@ -66,7 +66,7 @@ export const TAB_BAR_ROUTES = {
 export const primary_route = (routes=[]) => ({
     routes: [
         {
-            name: ROUTES.HomeRoute,
+            name: ROUTES.HomeNavRoute,
             // params: {key: value},
             state: {
                 routes: routes
