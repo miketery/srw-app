@@ -1,21 +1,21 @@
-import { createNativeStackNavigator } from '@react-navigation/native-stack'
-
-import { ROUTES } from '../config';
-
-const Stack = createNativeStackNavigator();
-
 import { Text, View, Pressable } from 'react-native'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 
 import tw from '../lib/tailwind'
 import ds from '../assets/styles'
+import { ROUTES } from '../config';
 
+import TabNavBar from './TabNavBar'
+
+const Tab = createBottomTabNavigator();
 
 function Test(props) {
+    const current_route = props.route.name 
     return (
         <View style={ds.landingContainer}>
             <Text style={ds.header}>Home</Text>
             <View>
-                <Text style={ds.text}>Blah</Text>
+                <Text style={ds.text}>Route: {current_route}</Text>
             </View>
             <View style={tw`flex-grow-1`} />
             <View style={tw`justify-around mb-10 flex-col items-center`}>
@@ -32,23 +32,50 @@ function Test(props) {
     )
 }
 
-export default function HomeNav({navigation}) {
-    return <Stack.Navigator screenOptions={{headerShown: false}} navigation={navigation} initialRouteName={ROUTES.MainHubRoute}>
-        <Stack.Screen name={ROUTES.MainHubRoute} options={{title:'Dev Test'}}>
-            {props => 
-                <Test {...props} />}
-        </Stack.Screen>
-        <Stack.Screen name={ROUTES.NotificationsRoute} options={{title:'Notifications'}}>
-            {props => 
-                <View><Text style={ds.textXl}>navigation</Text></View>}
-        </Stack.Screen>
-        <Stack.Screen name={ROUTES.ContactsRoute} options={{title:'Notifications'}}>
-            {props => 
-                <View><Text style={ds.textXl}>Contacts</Text></View>}
-        </Stack.Screen>
-        {/* <Stack.Screen name={ROUTES.DevTestVaultsRoute} options={{title:'Dev Test Vaults'}}>
-            {props => 
-                <DevTestVaultsScreen {...props} />}
-        </Stack.Screen> */}
-    </Stack.Navigator>
+export default function HomeNavTest({props}) {
+    const possible_offline = false
+    return (
+        <Tab.Navigator initialRouteName={ROUTES.MainHubRoute}
+            tabBar={(props) => <TabNavBar {...props} possible_offline={possible_offline} />}
+            screenOptions={({route}) => {
+                return { headerShown: false }
+        }}>
+            <Tab.Screen name={ROUTES.MainHubRoute} >
+                {(props) => <Test {...props} />}
+            </Tab.Screen>
+            <Tab.Screen name={ROUTES.ContactsRoute} >
+                {(props) => <Test {...props} />}
+            </Tab.Screen>
+            
+            <Tab.Screen name={ROUTES.NotificationsRoute} >
+                {(props) => <Test {...props} />}
+            </Tab.Screen>
+            <Tab.Screen name={ROUTES.StoredObjectsRoute} >
+                {(props) => <Test {...props} />}
+            </Tab.Screen>{/* 
+            {/* <Tab.Screen name='ProfileRoute' >
+                {(props) => <ProfileScreen vault={this.vault} {...props} />}
+            </Tab.Screen>
+            <Tab.Screen name='StorageRoute' title='Secrets'>
+                {(props) => <StorageNav vault={this.vault} {...props} />}
+            </Tab.Screen>
+            <Tab.Screen name="ContactsRoute">
+                {(props) => <ContactNav vault={this.vault} {...props} />}
+            </Tab.Screen>
+            <Tab.Screen name="KeySharesRoute">
+                {(props) => <KeyShareNav vault={this.vault} {...props} />}
+            </Tab.Screen>
+            <Tab.Screen name="WalletsRoute">
+                {(props) => <WalletNav vault={this.vault} {...props} />}
+            </Tab.Screen>
+            <Tab.Screen name="NotificationsRoute"
+                options={{ tabBarBadge: this.state.total_count }}>
+                {(props) => <NotificationsListScreen
+                    notifications={this.state.notifications}
+                    vault={this.vault}
+                    setNotifications={this.setNotifications}
+                    {...props} />}
+            </Tab.Screen> */}
+        </Tab.Navigator>
+    )
 }
