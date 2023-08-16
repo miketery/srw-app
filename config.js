@@ -49,18 +49,19 @@ export const ROUTES = {
 }
 
 export const TAB_BAR_ROUTES = {
-    // MainHubRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
+    MainHubRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
+    ContactsRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
     // ProfileRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
     // OrganizationRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
     // CredentialRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
     // TestRoute: {header: false, tabBarIconHide: true, tabBarHide: false},
     // WalletsRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
-    // NotificationsRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
+    NotificationsRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
     
-    // StorageRoute: {header: false, tabBarIconHide: true, tabBarHide: false},
+    StoredObjectsRoute: {header: false, tabBarIconHide: true, tabBarHide: false},
     // SettingsRoute: {header: false, tabBarIconHide: true, tabBarHide: true},
     // ProfileRoute: {header: false, tabBarIconHide: true, tabBarHide: true},
-    // KeySharesRoute: {header: false, tabBarIconHide: true, tabBarHide: true},
+    KeySharesRoute: {header: false, tabBarIconHide: true, tabBarHide: true},
 }
 
 export const primary_route = (routes=[]) => ({
