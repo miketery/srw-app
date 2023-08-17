@@ -43,9 +43,33 @@ export const ROUTES = {
     NotificationsRoute: 'NotificationsRoute',
 
     //
-    ContactsRoute: 'ContactsRoute',
+    ContactRoute: 'ContactsRoute',
+    ContactListRoute: 'ContactsListRoute',
+    ContactCreateRoute: 'ContactCreateRoute',
+    ContactViewRoute: 'ContactViewRoute',
+    ContactEditRoute: 'ContactEditRoute',
+
+    //
     StoredObjectsRoute: 'StoredObjectsRoute',
     RecoveriesRoute: 'RecoveriesRoute',
+}
+
+// route which is a dictrionary with a name and params
+// device type for route
+interface Route {
+    name: string
+    params?: any
+    state?: any
+}
+
+// useful for redirecting, for example, (Home, nestedRoute(Contacsts, [ContactsList, ContactView]))
+export const nestedRoute = (route: string, nested: Route[]): Route => {
+    return {
+        name: route,
+        state: {
+            routes: nested
+        }
+    }
 }
 
 export const TAB_BAR_ROUTES = {
@@ -64,7 +88,7 @@ export const TAB_BAR_ROUTES = {
     KeySharesRoute: {header: false, tabBarIconHide: true, tabBarHide: true},
 }
 
-export const primary_route = (routes=[]) => ({
+export const primary_route = (routes: Route[]=[]): {routes: Route[]} => ({
     routes: [
         {
             name: ROUTES.HomeNavRoute,

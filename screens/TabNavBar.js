@@ -12,7 +12,7 @@ const screenOptions = (route, isFocused, options) => {
         case ROUTES.MainHubRoute:
             iconName = isFocused ? 'flash' : 'flash-outline';
             break;
-        case ROUTES.ContactsRoute:
+        case ROUTES.ContactRoute:
             iconName = isFocused ? 'people' : 'people-outline';
             break;
         case ROUTES.StoredObjectsRoute:
