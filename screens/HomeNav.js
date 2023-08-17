@@ -6,6 +6,7 @@ import ds from '../assets/styles'
 import { ROUTES, TAB_BAR_ROUTES } from '../config';
 
 import TabNavBar from './TabNavBar'
+import ContactNav from './Contacts'
 
 const Tab = createBottomTabNavigator();
 
@@ -43,10 +44,9 @@ export default function HomeNavTest({props}) {
             <Tab.Screen name={ROUTES.MainHubRoute} >
                 {(props) => <Test {...props} />}
             </Tab.Screen>
-            <Tab.Screen name={ROUTES.ContactsRoute} >
-                {(props) => <Test {...props} />}
+            <Tab.Screen name={ROUTES.ContactRoute} >
+                {(props) => <ContactNav {...props} />}
             </Tab.Screen>
-            
             <Tab.Screen name={ROUTES.NotificationsRoute} >
                 {(props) => <Test {...props} />}
             </Tab.Screen>
