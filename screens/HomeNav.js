@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 
 import tw from '../lib/tailwind'
 import ds from '../assets/styles'
-import { ROUTES } from '../config';
+import { ROUTES, TAB_BAR_ROUTES } from '../config';
 
 import TabNavBar from './TabNavBar'
 
@@ -38,7 +38,7 @@ export default function HomeNavTest({props}) {
         <Tab.Navigator initialRouteName={ROUTES.MainHubRoute}
             tabBar={(props) => <TabNavBar {...props} possible_offline={possible_offline} />}
             screenOptions={({route}) => {
-                return { headerShown: false }
+                return { headerShown: TAB_BAR_ROUTES[route.name].header }
         }}>
             <Tab.Screen name={ROUTES.MainHubRoute} >
                 {(props) => <Test {...props} />}
