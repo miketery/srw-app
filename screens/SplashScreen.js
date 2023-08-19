@@ -21,6 +21,7 @@ export default function SplashScreen({navigation}) {
 
     const checkHasVault = () => {
         console.log('[SplashScreen.js] checkHasVault()')
+        // TODO: should via VaultManager
         let vault_index = SI.getIndex('vaults')
         console.log('[SplashScreen.js] found '+vault_index.length+' vaults')
         if(vault_index.length > 0) {
