@@ -2,7 +2,7 @@ import base58 from 'bs58';
 import { Platform } from 'react-native'
 import nacl, { randomBytes } from 'tweetnacl-sealed-box'
 // import CryptoJS from 'crypto-js';
-import { mnemonicToSeedSync } from 'bip39';
+import { mnemonicToSeedSync, entropyToMnemonic } from 'bip39';
 // const bip39 = require('bip39') // why is this via require and can't do import??
 import { generateSecureRandom } from 'react-native-securerandom';
 const NONCE_LENGTH = 24
@@ -29,13 +29,20 @@ export const signingKeyFromWords = (words: string): nacl.SignKeyPair => {
     // Given a mnemonic generate ed25519 nacl.sign.keyPair
     // returns {secretKey: [Uint8Array], publicKey: [Uint8Array]}
     const seed = mnemonicToSeedSync(words, 'signing');
-    return nacl.sign.keyPair.fromSeed(seed.slice(0, 32));
+    // changed slice to subarray - pray that it works...
+    return nacl.sign.keyPair.fromSeed(seed.subarray(0, 32));
 }
 export const encryptionKeyFromWords = (words: string): nacl.BoxKeyPair => {
     // Given a mnemonic generate curve25519 nacl.box.keyPair
     // returns {secretKey: [Uint8Array], publicKey: [Uint8Array]}
     const seed = mnemonicToSeedSync(words, 'encryption');
-    return nacl.box.keyPair.fromSecretKey(seed.slice(0, 32));
+    return nacl.box.keyPair.fromSecretKey(seed.subarray(0, 32));
+}
+export const encryptionKey = async (): Promise<nacl.BoxKeyPair> => {
+    const entropy = await getRandom(32)
+    const words = entropyToMnemonic(Buffer.from(entropy))
+    const stretched_seed = mnemonicToSeedSync(words)
+    return nacl.box.keyPair.fromSecretKey(stretched_seed.subarray(0, 32))
 }
 export const getRandom = async (strength: number): Promise<Uint8Array> => {
     console.log('getRandom(strength): ', strength)

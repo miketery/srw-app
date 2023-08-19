@@ -4,24 +4,47 @@ const data_template = {
     initialized: false,
     default_vault: null,
     // vaults_index: [], // array of vault ids
-    // wallets_index: [], // array of wallet ids
     // objects_index: [], // array of object ids
     // contacts_index: [], // array of object ids
     // notifications_index: [], // array of object ids
     last_backup: null
 }
 const _data = {...data_template}
-
-export const TYPE_MAP = {
-    'v_': 'vaults',
-    'c_': 'contacts',
-    'n_': 'notifications',
-    'o_': 'objects',
-    'k_': 'keyshares',
-    'Ck': 'contact_keyshares',
+export enum StoredTypes {
+    vaults = 'vaults',
+    contacts = 'contacts',
+    notifications = 'notifications',
+    objects = 'objects',
+    keyshares = 'keyshares',
+    contact_keyshares = 'contact_keyshares',
 }
-const typeFromPk = (pk) => TYPE_MAP[pk.slice(0,2)]
-const typeToPrefix = (t) => Object.keys(TYPE_MAP).find(k => TYPE_MAP[k] == t)
+export enum StoredTypesPrefix {
+    vaults = 'v__',
+    contacts = 'c__',
+    notifications = 'n__',
+    objects = 'o__',
+    keyshares = 'k__',
+    contact_keyshares = 'ck_',
+}
+export const TYPE_MAP = {
+    'v__': StoredTypes.vaults,
+    'c__': StoredTypes.contacts,
+    'n__': StoredTypes.notifications,
+    'o__': StoredTypes.objects,
+    'k__': StoredTypes.keyshares,
+    'ck_': StoredTypes.contact_keyshares,
+}
+export const PREFIX_TO_TYPE = {
+    'v__': StoredTypes.vaults,
+    'c__': StoredTypes.contacts,
+    'n__': StoredTypes.notifications,
+    'o__': StoredTypes.objects,
+    'k__': StoredTypes.keyshares,
+    'ck_': StoredTypes.contact_keyshares,
+}
+const prefixToType = (prefix: string): string|undefined => Object.keys(StoredTypesPrefix).find(k => StoredTypesPrefix[k] == prefix)
+const typeFromPk = (pk: string): string|undefined => prefixToType(pk.slice(0,3))
+const typeToPrefix = (t: string): string|undefined => Object.keys(TYPE_MAP).find(k => TYPE_MAP[k] == t)
 
 const SI = {
     constructor: () => console.log('[SI.constructor]'),
@@ -53,7 +76,7 @@ const SI = {
     inIndex: (t, pk) => _data[t + '_index'].includes(pk),
     addToIndex: (t, pk) => !SI.inIndex(t, pk) ? 
             SI.getIndex(t).push(pk) : null,
-    save: (pk, data, success=null, error=null) => {
+    save: (pk, data, success: Function|null=null, error: Function|null=null) => {
         const t = typeFromPk(pk)
         console.log('[SI.save]', pk)
         AsyncStorage.setItem(pk, JSON.stringify(data))
@@ -71,13 +94,15 @@ const SI = {
         SI.addToIndex(t, pk)
         return AsyncStorage.setItem(pk, JSON.stringify(data))
     },
-    get: async(pk) => {
+    get: async(pk: string) => {
         console.log('[SI.get]', pk)
         return AsyncStorage.getItem(pk).then(r => {
+            if(r == null)
+                return null
             return JSON.parse(r)
         })        
     },
-    delete: (pk, success=null, error=null) => {
+    delete: (pk, success: Function|null=null, error: Function|null=null) => {
         console.log('[SI.delete]', pk)
         const t = typeFromPk(pk)
         AsyncStorage.removeItem(pk).then(() => {
@@ -88,13 +113,19 @@ const SI = {
             if(error!=null) error()
         })
     },
-    getAll: async(t, vault_pk=null) => {
+    getAll: async(t: StoredTypes, vault_pk: string|null=null) => {
         console.log('[SI.getAll]', t)
         if(vault_pk == null)
             return AsyncStorage.multiGet(SI.getIndex(t))
-        let arr = await AsyncStorage.multiGet(SI.getIndex(t))
-        return arr.map(a => JSON.parse(a[1])).filter(a => 
-            a !== null && 'vault_pk' in a && a.vault_pk == vault_pk)
+        const results = await AsyncStorage.multiGet(SI.getIndex(t))
+        return results.map(([key, data]) => {
+            try {
+                return data != null ? JSON.parse(data) : null;
+            } catch (error) {
+                console.error(`Error parsing value for key ${key}: ${error}`);
+                return null;
+            }
+        }).filter(obj => obj !== null && obj.vault_pk === vault_pk);
     },
 }
 Object.freeze(SI)
