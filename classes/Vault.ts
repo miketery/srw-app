@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 // Import the required classes, modules or types here
 import { SigningKey, VerifyKey, PrivateKey, PublicKey, SignedMessage } from '../lib/nacl';
 import { sign_msg, signingKeyFromWords, encryptionKeyFromWords, getRandom } from '../lib/utils'
+import SI, { StoredType, StoredTypePrefix } from './StorageInterface';
 // ContactManager, ObjectManager
 
 export default class Vault {
@@ -46,7 +47,7 @@ export default class Vault {
         // this.object_manager = new ObjectManager(join(this.base_dir, this.b58_verify_key, 'objects.json'));
     }
     get pk(): string {
-        return 'v_' + this.b58_verify_key;
+        return StoredTypePrefix[StoredType.vault] + this.b58_verify_key;
     }
     get did(): string {
         return `did:arx:${this.b58_verify_key}`;
@@ -103,5 +104,8 @@ export default class Vault {
     }
     sign(data: any): SignedMessage {
         return sign_msg(data, this.signing_key);
+    }
+    async save() {
+        return SI.save(this.pk, this.to_dict());
     }
 }

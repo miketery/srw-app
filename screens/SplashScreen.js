@@ -5,7 +5,7 @@ import { StyleSheet, Text, View, Button, Pressable } from 'react-native'
 import { ROUTES, SPLASH_ANIMATE_TIME, DEV, primary_route } from '../config'
 import SessionManager from '../classes/SessionManager'
 
-import SI from '../classes/SI';
+import SI, { StoredType } from '../classes/StorageInterface';
 import Cache
  from '../classes/Cache';
 import ds from '../assets/styles'
@@ -22,7 +22,7 @@ export default function SplashScreen({navigation}) {
     const checkHasVault = () => {
         console.log('[SplashScreen.js] checkHasVault()')
         // TODO: should via VaultManager
-        let vault_index = SI.getIndex('vaults')
+        let vault_index = SI.getIndex(StoredType.vault)
         console.log('[SplashScreen.js] found '+vault_index.length+' vaults')
         if(vault_index.length > 0) {
             Cache.setVaultPk(vault_index[0])
@@ -53,7 +53,7 @@ export default function SplashScreen({navigation}) {
     useEffect(() => {
         console.log('[SplashScreen.js] componentDidMount()')
         animate()
-        SI.init().then(() => {
+        SI.init().then((res) => {
             checkHasVault().then((hasVault) => {
                 setInitialized(true);
                 setHasVault(hasVault);
