@@ -5,9 +5,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { SigningKey, VerifyKey, PrivateKey, PublicKey, SignedMessage } from '../lib/nacl';
 import { sign_msg, signingKeyFromWords, encryptionKeyFromWords, encryptionKey, getRandom } from '../lib/utils'
-import { StoredTypes, StoredTypesPrefix } from './SI';
+import { StoredType, StoredTypePrefix } from './StorageInterface';
 
-enum ContactState {
+export enum ContactState {
     INIT = 'init',
     REQUESTED = 'requested',
     INBOUND = 'inbound',
@@ -29,7 +29,7 @@ interface ContactDict {
     metadata?: any
 }
 
-export default class Contact {
+class Contact {
     pk: string
     did: string // TODO: change to DID
     name: string
@@ -58,7 +58,7 @@ export default class Contact {
         this.state = state
     }
     static async create(did: string, name: string, their_public_key: PublicKey|null, their_verify_key: VerifyKey|null) {
-        let pk = StoredTypesPrefix.contacts + uuidv4()
+        let pk = StoredTypePrefix.contact + uuidv4()
         let enc_key_pair = await encryptionKey()
         return new Contact(pk, did, name, 
             enc_key_pair.secretKey, enc_key_pair.publicKey,
@@ -94,4 +94,4 @@ export default class Contact {
     }
 }
 
-
+export default Contact

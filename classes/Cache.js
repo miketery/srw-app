@@ -1,6 +1,6 @@
-import SI from "./SI"
-import Vault from "./Vault"
-// import Contact from "./Contact"
+import SI from './StorageInterface'
+import Vault from './Vault'
+
 
 const __CACHE = {
     vault_pk: '', //current vault primary key

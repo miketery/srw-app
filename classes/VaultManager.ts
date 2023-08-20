@@ -1,5 +1,5 @@
 import Vault from './Vault';
-import SI from './SI';
+import SI, { StoredType } from './StorageInterface';
 import { signingKeyFromWords, encryptionKeyFromWords, getRandom } from '../lib/utils'
 import { v4 as uuidv4 } from 'uuid';
 import { entropyToMnemonic } from 'bip39';
@@ -17,28 +17,23 @@ class VaultManager {
         this.vaults = [];
         VaultManager.instance = this;
     }
-
-    async load_vaults(): Promise<null> { //Promise<Vault[]> {
-        // load vaults from async storage
-        return null
-        //TODO all BS
+    async load_vaults(): Promise<Vault[]> {
         let vaults: Vault[] = [];
-        let vaults_data = await SI.getAllAsync();
+        let vaults_data = await SI.getAll(StoredType.vault);
         for (let vault_data of Object.values(vaults_data)) {
-            vaults.push(this.from_dict(vault_data));
+            vaults.push(Vault.from_dict(vault_data));
         }
         this.vaults = vaults;
         return vaults;
     }
     async save_vault(vault: Vault): Promise<void> {
-        return SI.saveAsync(vault.pk, vault.to_dict());
+        return SI.save(vault.pk, vault.to_dict());
     }
     from_dict(vault_data: any): Vault {
         return Vault.from_dict(vault_data);
     }
     async create_vault(name: string, display_name: string, email: string = '',
-    words: string = '', digital_agent_host: string = '', save: boolean = true): Promise<Vault> {
-        let vault_uuid = uuidv4();
+            words: string = '', digital_agent_host: string = '', save: boolean = true): Promise<Vault> {
         if (words == '') {
             let entropy = await getRandom(16)
             words = entropyToMnemonic(Buffer.from(entropy))
@@ -47,7 +42,7 @@ class VaultManager {
         let signingKeyPair = signingKeyFromWords(words);
         let encKeyPair = encryptionKeyFromWords(words);
         let new_vault = new Vault(
-            vault_uuid, name, email, display_name, digital_agent_host,
+            uuidv4(), name, email, display_name, digital_agent_host,
             words,
             signingKeyPair.secretKey, signingKeyPair.publicKey,
             encKeyPair.secretKey, encKeyPair.publicKey);
@@ -56,9 +51,9 @@ class VaultManager {
             throw new Error(`Vault with Verify Key ${vault.pk} already exists`);
         }
         if (save) {
-            await SI.saveAsync(new_vault.pk, new_vault.to_dict());
+            await SI.save(new_vault.pk, new_vault.to_dict());
             // check that saved
-            let vault_data = await SI.getAsync(new_vault.pk);
+            let vault_data = await SI.get(new_vault.pk);
             if (!vault_data) {
                 throw new Error(`Could not save vault ${new_vault.pk}`);
             } else {
