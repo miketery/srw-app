@@ -35,6 +35,8 @@ const _indexes: {[k in StoredType]: string[]}= Object.fromEntries(
 )
 
 const SI = {
+    // types: StoredType,
+    // prefix: (t: StoredType) => StoredTypePrefix[t], 
     constructor: () => console.log('[SI.constructor]'),
     init: async (force=false): Promise<Boolean> => {
         if(_state['initialized'] && !force)
