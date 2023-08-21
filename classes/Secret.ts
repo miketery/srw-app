@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import SI, { StoredType } from "./StorageInterface"
+import SI, { StoredType, StoredTypePrefix } from "./StorageInterface"
 
 export enum SecretType {
     login = 'login',
@@ -49,7 +49,7 @@ class Secret {
     }
     static async create(secret_type: SecretType, name: string, 
             description: string, data: any, vault_pk: string) {
-        let pk = StoredType.secret + uuidv4()
+        let pk = StoredTypePrefix[StoredType.secret] + uuidv4()
         return new Secret(pk, secret_type, name, description, data, null, null, vault_pk)
     }
     to_dict(): SecretDict {
@@ -70,5 +70,9 @@ class Secret {
             data.updated, data.created, data.vault_pk
         )
     }
-
+    async save() {
+        return await SI.save(this.pk, this.to_dict())
+    }
 }
+
+export default Secret

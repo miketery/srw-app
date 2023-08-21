@@ -52,6 +52,8 @@ const ds = StyleSheet.create({
     rowEvenly: tw`flex-row justify-evenly`,
     rowAround: tw`flex-row justify-around`,
 
+    headerRow: tw`flex-row justify-between items-center mb-2`,
+
     neoDarkPurpleButton: tw`bg-darkpurple border border-lightpurple p-2 w-40 items-center justify-center content-center`,
     neoDarkGreenButton: tw`bg-darkgreen border border-[#0C0] p-2 w-40 items-center justify-center content-center`,
     neoDarkRedButton: tw`bg-darkred border border-lightred p-2 w-40 items-center justify-center content-center`,
