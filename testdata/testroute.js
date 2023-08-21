@@ -1,6 +1,6 @@
 import { ROUTES } from "../config";
 
-const top_level = ROUTES.HomeNavRoute;
+const top_level = ROUTES.ContactRoute;
 
 const switch_routes = {
   [ROUTES.TestDevRoute]: [
@@ -8,6 +8,12 @@ const switch_routes = {
   ],
   [ROUTES.HomeNavRoute]: [
     {name: ROUTES.HomeNavRoute}
+  ],
+  [ROUTES.ContactsRoute]: [
+    {name: ROUTES.ContactsListRoute},
+    // {name: ROUTES.ContactViewRoute, params: {
+    //   contact_uuid: 'a0b1c2d3-e4f5-6a7b-8c9d-0e1f2a3b4c5d'
+    // }},
   ],
   [ROUTES.OrganizationRoute]: [
     {name: ROUTES.OrganizationListRoute},
@@ -22,14 +28,14 @@ const switch_routes = {
     //   template_uuid: 'c41c9099-d70f-4834-bd10-53f184f3e5ec', // ARXsky - Employee
     // }},
   ],
-  [ROUTES.CredentialRoute]: [
-    {name: ROUTES.CredentialListRoute},
-    {name: ROUTES.CredentialPresentRoute, params: {
-      verifier_uuid: '2b02dc2c-4d75-43c7-b953-ec303fa4d369',
+  [ROUTES.SecretsRoute]: [
+    {name: ROUTES.SecretsListRoute},
+    {name: ROUTES.SecretViewRoute, params: {
+      secret_pk: '2b02dc2c-4d75-43c7-b953-ec303fa4d369',
     }},
-    // {name: ROUTES.CredentialViewRoute, params: {
-    //   credential_uuid: '39a93352-e7e8-4eb3-ad19-351addd0fa62',
-    // }},
+    {name: ROUTES.SecretEditRoute, params: {
+      credential_uuid: '39a93352-e7e8-4eb3-ad19-351addd0fa62',
+    }},
   ]
 }
 

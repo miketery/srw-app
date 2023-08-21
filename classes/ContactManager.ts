@@ -28,6 +28,9 @@ class ContactManager {
         this.contacts = contacts;
         return contacts;
     }
+    get_contacts(): Contact[] {
+        return this.contacts;
+    }
     get_contact(did: string, raise_exception = false) {
         const contact = this.contacts.find(contact => contact.did === did);
         if (!contact && raise_exception) {
