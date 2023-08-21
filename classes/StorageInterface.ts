@@ -4,7 +4,7 @@ export enum StoredType {
     vault = 'vault',
     contact = 'contact',
     notification = 'notification',
-    object = 'object',
+    secret = 'secret',
     keyshare = 'keyshare',
     contact_keyshare = 'contact_keyshare',
 }
@@ -13,7 +13,7 @@ export const StoredTypePrefix: { [k in StoredType]: string } = {
     [StoredType.vault]: 'v__',
     [StoredType.contact]: 'c__',
     [StoredType.notification]: 'n__',
-    [StoredType.object]: 'o__',
+    [StoredType.secret]: 's__',
     [StoredType.keyshare]: 'k__',
     [StoredType.contact_keyshare]: 'ck_',
 }

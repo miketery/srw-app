@@ -27,6 +27,8 @@ export const ROUTES = {
     DevTestRoute: 'DevTestRoute',
     DevTestMainRoute: 'DevTestMainRoute',
     DevTestVaultsRoute: 'DevTestVaultsRoute',
+    DevContactsRoute: 'DevContactsRoute',
+    DevSecretsRoute: 'DevSecretsRoute',
     //
     SplashRoute: 'SplashRoute',
     LandingRoute: 'LandingRoute',
@@ -43,14 +45,20 @@ export const ROUTES = {
     NotificationsRoute: 'NotificationsRoute',
 
     //
-    ContactRoute: 'ContactsRoute',
-    ContactListRoute: 'ContactsListRoute',
+    ContactsRoute: 'ContactsRoute',
+    ContactsListRoute: 'ContactsListRoute',
     ContactCreateRoute: 'ContactCreateRoute',
     ContactViewRoute: 'ContactViewRoute',
     ContactEditRoute: 'ContactEditRoute',
 
     //
-    StoredObjectsRoute: 'StoredObjectsRoute',
+    SecretsRoute: 'SecretsRoute',
+    SecretsListRoute: 'SecretsListRoute',
+    SecretViewRoute: 'SecretViewRoute',
+    SecretEditRoute: 'SecretEditRoute',
+    SecretCreateRoute: 'SecretCreateRoute',
+
+    //
     RecoveriesRoute: 'RecoveriesRoute',
 }
 
@@ -75,14 +83,15 @@ export const nestedRoute = (route: string, nested: Route[]): Route => {
 export const TAB_BAR_ROUTES = {
     MainHubRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
     ContactsRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
+    SecretsRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
+    NotificationsRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
+
     // ProfileRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
     // OrganizationRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
     // CredentialRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
     // TestRoute: {header: false, tabBarIconHide: true, tabBarHide: false},
     // WalletsRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
-    NotificationsRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
     
-    StoredObjectsRoute: {header: false, tabBarIconHide: true, tabBarHide: false},
     // SettingsRoute: {header: false, tabBarIconHide: true, tabBarHide: true},
     // ProfileRoute: {header: false, tabBarIconHide: true, tabBarHide: true},
     KeySharesRoute: {header: false, tabBarIconHide: true, tabBarHide: true},
