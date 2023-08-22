@@ -5,13 +5,13 @@ import { test_secrets } from '../../testdata/test_secrets'
 import tw from '../../lib/tailwind'
 import ds from '../../assets/styles'
 
-import Cache from '../../classes/Cache'
+// import Cache from '../../classes/Cache'
 
 function ClearSecrets() {
 
 }
 async function AddTestSecrets() {
-    const vault_pk = Cache.getVaultPk()
+    const vault_pk = VM.current_vault_pk
     const secret = await Secret.create(
         SecretType.Text,
         'Test Text Secret',
@@ -21,7 +21,7 @@ async function AddTestSecrets() {
     return secret.save()
 }
 async function AddManyTestSecrets() {
-    const vault_pk = Cache.getVaultPk()
+    const vault_pk = VM.current_vault_pk
     return test_secrets.forEach(async (secret) => {
         const secret_obj = await Secret.create(
             SecretType.Text,

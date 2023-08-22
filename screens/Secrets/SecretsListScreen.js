@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react';
 import ds from '../../assets/styles';
 import tw from '../../lib/tailwind';
 import Cache from '../../classes/Cache';
-import SI, { StoredType } from '../../classes/StorageInterface';
+// import SI, { StoredType } from '../../classes/StorageInterface';
 
-import Secret from '../../classes/Secret';
+// import Secret from '../../classes/Secret';
+import SecretsManager from '../../classes/SecretsManager';
 
 function SecretIcon(props) {
     return <View style={tw`bg-gray-400 rounded-full h-16 w-16`} />
@@ -31,9 +32,10 @@ function SecretsListScreen(props) {
     const [secrets, setSecrets] = useState([])
 
     useEffect(() => {
-        const vault_pk = Cache.getVaultPk()
+        const vault_pk = Cache.vault_pk
         const unsubscribe = props.navigation.addListener('focus', async() => {
-            const secrets = await SI.getAll(StoredType.secret, vault_pk)
+            const secrets = await SecretsManager.get_secrets(vault_pk)
+            //SI.getAll(StoredType.secret, vault_pk)
             setSecrets(secrets)
           });
         return unsubscribe;
