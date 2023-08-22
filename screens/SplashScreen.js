@@ -73,6 +73,7 @@ export default function SplashScreen({navigation}) {
                 console.log(routes)
                 navigation.dispatch(CommonActions.reset(routes));    
             } else {
+                console.log(DEV, no_vault_test_route)
                 navigation.navigate(DEV ? no_vault_test_route : ROUTES.LandingRoute); 
             }
         }

@@ -6,7 +6,7 @@ import { ROUTES } from '../../config'
 import tw from '../../lib/tailwind'
 import ds from '../../assets/styles'
 
-export default function DevTestScreen({navigation}) {
+export default function DevGeneralScreen({navigation}) {
     return <View style={ds.landingContainer}>
         <Text style={ds.header}>Dev Test</Text>
         <View style={ds.col}>
@@ -14,12 +14,12 @@ export default function DevTestScreen({navigation}) {
                 <Text style={ds.buttonText}>Test</Text>
             </Pressable>
             <Pressable style={[ds.button, ds.greenButton]} onPress={() => 
-                    navigation.navigate(ROUTES.DevTestRoute, 
+                    navigation.navigate(ROUTES.DevNoVaultRoute, 
                         {
                             // params: {vault_pk: this.vault_pk}, 
                             state: {
                                 routes: [
-                                    {name: ROUTES.DevTestVaultsRoute}
+                                    {name: ROUTES.DevLoadVaultsRoute}
                                 ]
                             },
                         })}>

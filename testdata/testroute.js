@@ -48,7 +48,7 @@ const vault_test_route = [
     }
   }
 ]
-const no_vault_test_route = ROUTES.DevTestRoute
+const no_vault_test_route = ROUTES.DevNoVaultRoute
 
 export {
   vault_test_route,

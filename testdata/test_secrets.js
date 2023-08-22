@@ -1,7 +1,7 @@
 export const test_secrets = [
     {
         "pk": "s__fda7ae63-d6bd-4693-be57-665d0c84229c",
-        "name": "Test Text Secret",
+        "name": "Alpha Text Secret",
         "description": "This is a test secret",
         "data": "Secret Data",
         "updated": 1692612012,
@@ -10,7 +10,7 @@ export const test_secrets = [
     },
     {
         "pk": "s__15b4abec-9e78-4827-8547-92d0c98f01c1",
-        "name": "Test Text Secret",
+        "name": "America Text Secret",
         "description": "This is a test secret",
         "data": "Secret Data",
         "updated": 1692622012,
@@ -19,7 +19,7 @@ export const test_secrets = [
     },
     {
         "pk": "s__4c500131-7f72-4f0b-83ff-f25a9b5ee267",
-        "name": "Test Text Secret",
+        "name": "Bravo Text Secret",
         "description": "This is a test secret",
         "data": "Secret Data",
         "updated": 1692632013,
@@ -28,7 +28,7 @@ export const test_secrets = [
     },
     {
         "pk": "s__b9baa69d-eac1-49d8-9b11-fb72bbcb9829",
-        "name": "Test Text Secret",
+        "name": "Battleship Text Secret",
         "description": "This is a test secret",
         "data": "Secret Data",
         "updated": 1692632013,
@@ -37,7 +37,7 @@ export const test_secrets = [
     },
     {
         "pk": "s__58d1e28a-d6d6-45dd-b2a3-490c7a2aa077",
-        "name": "Test Text Secret",
+        "name": "Charlie Text Secret",
         "description": "This is a test secret",
         "data": "Secret Data",
         "updated": 1692631771,
@@ -46,7 +46,7 @@ export const test_secrets = [
     },
     {
         "pk": "s__12a7c756-a6ab-456c-a859-fc436ba52346",
-        "name": "Test Text Secret",
+        "name": "Delta Text Secret",
         "description": "This is a test secret",
         "data": "Secret Data",
         "updated": 1692631790,
