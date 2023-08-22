@@ -56,7 +56,7 @@ class VaultManager {
         if (!this._current_vault)
             throw new Error('Current vault not set');
         SM.init(this._current_vault);
-        // CM.init(this._current_vault);
+        CM.init(this._current_vault);
     }
     async save_vault(vault: Vault): Promise<void> {
         return SI.save(vault.pk, vault.to_dict());

@@ -5,6 +5,8 @@ import { test_secrets } from '../../testdata/test_secrets'
 import tw from '../../lib/tailwind'
 import ds from '../../assets/styles'
 
+import VM from '../../classes/VaultManager'
+
 // import Cache from '../../classes/Cache'
 
 function ClearSecrets() {
