@@ -1,4 +1,4 @@
-import base58 from 'bs58'
+// import base58 from 'bs58'
 
 import Contact, { ContactState } from './Contact';
 import SI, { StoredType } from './StorageInterface';
@@ -14,7 +14,7 @@ class ContactsManager {
         this._contacts = [];
     }
     public static getInstance(): ContactsManager {
-        if (ContactsManager._instance) {
+        if (!ContactsManager._instance) {
             ContactsManager._instance = new ContactsManager();
         }
         return ContactsManager._instance;
