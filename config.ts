@@ -24,11 +24,15 @@ DEBUG && console.log('DEBUG: ', {
 })
 
 export const ROUTES = {
-    DevTestRoute: 'DevTestRoute',
-    DevTestMainRoute: 'DevTestMainRoute',
-    DevTestVaultsRoute: 'DevTestVaultsRoute',
+    DevNoVaultRoute: 'DevNoVaultRoute',
+    DevGeneralRoute: 'DevGeneralRoute',
+    DevLoadVaultsRoute: 'DevLoadVaultsRoute',
+
+    DevHasVaultRoute: 'DevHasVaultRoute',
     DevContactsRoute: 'DevContactsRoute',
     DevSecretsRoute: 'DevSecretsRoute',
+    DevRecoveriesRoute: 'DevRecoveriesRoute',
+    // DevTestVaultsRoute: 'DevTestVaultsRoute',
     //
     SplashRoute: 'SplashRoute',
     LandingRoute: 'LandingRoute',
@@ -85,6 +89,8 @@ export const TAB_BAR_ROUTES = {
     ContactsRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
     SecretsRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
     NotificationsRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
+
+    DevHasVaultRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
 
     // ProfileRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
     // OrganizationRoute: {header: false, tabBarIconHide: false, tabBarHide: false},

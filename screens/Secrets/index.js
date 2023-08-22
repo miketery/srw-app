@@ -6,7 +6,7 @@ import SecretsListScreen from './SecretsListScreen'
 // import SecretViewScreen from './SecretViewScreen'
 // import SecretEditScreen from './SecretEditScreen'
 // import SecretDeleteScreen from './SecretDeleteScreen'
-import DevSecrets from '../DevTest/DevSecrets'
+import DevSecrets from './DevSecrets'
 
 const Stack = createNativeStackNavigator();
 
