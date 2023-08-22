@@ -111,17 +111,16 @@ const SI = {
     },
     getAll: async(t: StoredType, vault_pk: string|null=null) => {
         console.log('[SI.getAll]', t)
-        if(vault_pk == null)
-            return AsyncStorage.multiGet(SI.getIndex(t))
         const results = await AsyncStorage.multiGet(SI.getIndex(t))
-        return results.map(([key, data]) => {
+        const array = results.map(([key, data]) => {
             try {
                 return data != null ? JSON.parse(data) : null;
             } catch (error) {
                 console.error(`Error parsing value for key ${key}: ${error}`);
                 return null;
             }
-        }).filter(obj => obj !== null && obj.vault_pk === vault_pk);
+        })
+        return vault_pk === null ? array : array.filter(obj => obj !== null && obj.vault_pk === vault_pk);
     },
 }
 Object.freeze(SI)

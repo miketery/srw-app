@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { SigningKey, VerifyKey, PrivateKey, PublicKey, SignedMessage } from '../lib/nacl';
 import { sign_msg, signingKeyFromWords, encryptionKeyFromWords, getRandom } from '../lib/utils'
 import SI, { StoredType, StoredTypePrefix } from './StorageInterface';
-// ContactManager, ObjectManager
+
 
 export default class Vault {
     uuid: string;
@@ -21,8 +21,6 @@ export default class Vault {
     verify_key: VerifyKey;
     private_key: PrivateKey; // appends 'encryption' to ${words}
     public_key: PublicKey;
-//     contact_manager: ContactManager;
-//     object_manager: ObjectManager;
 
     constructor(
             uuid: string,
@@ -43,8 +41,6 @@ export default class Vault {
         this.verify_key = verify_key;
         this.private_key = private_key;
         this.public_key = public_key;
-        // this.contact_manager = new ContactManager(this, join(this.base_dir, this.b58_verify_key, 'contacts.json'));
-        // this.object_manager = new ObjectManager(join(this.base_dir, this.b58_verify_key, 'objects.json'));
     }
     get pk(): string {
         return StoredTypePrefix[StoredType.vault] + this.b58_verify_key;
