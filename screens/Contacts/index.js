@@ -6,7 +6,7 @@ import ContactsListScreen from './ContactsListScreen'
 // import ContactViewScreen from './ContactViewScreen'
 // import ContactEditScreen from './ContactEditScreen'
 // import ContactDeleteScreen from './ContactDeleteScreen'
-import DevContacts from '../DevTest/DevContacts'
+import DevContacts from './DevContacts'
 
 const Stack = createNativeStackNavigator();
 
