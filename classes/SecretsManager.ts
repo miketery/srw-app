@@ -55,4 +55,5 @@ class SecretsManager {
 }
 
 const SM = SecretsManager.getInstance();
+
 export default SM; // singleton

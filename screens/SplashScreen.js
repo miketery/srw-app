@@ -9,7 +9,7 @@ import { ROUTES, SPLASH_ANIMATE_TIME, DEV, primary_route } from '../config'
 import { vault_test_route, no_vault_test_route } from '../testdata/testroute'
 
 // import SessionManager from '../classes/SessionManager'
-import SI, { StoredType } from '../classes/StorageInterface';
+import SI from '../classes/StorageInterface';
 import VM from '../classes/VaultManager';
 
 export default function SplashScreen({navigation}) {    
