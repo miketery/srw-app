@@ -2,16 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { CommonActions } from '@react-navigation/native'
 import { StyleSheet, Text, View, Button, Pressable } from 'react-native'
 
-import { ROUTES, SPLASH_ANIMATE_TIME, DEV, primary_route } from '../config'
-import SessionManager from '../classes/SessionManager'
-
-import SI, { StoredType } from '../classes/StorageInterface';
-import Cache
- from '../classes/Cache';
 import ds from '../assets/styles'
 import tw from '../lib/tailwind'
+
+import { ROUTES, SPLASH_ANIMATE_TIME, DEV, primary_route } from '../config'
 import { vault_test_route, no_vault_test_route } from '../testdata/testroute'
 
+// import SessionManager from '../classes/SessionManager'
+import SI, { StoredType } from '../classes/StorageInterface';
+import VM from '../classes/VaultManager';
 
 export default function SplashScreen({navigation}) {    
     const [initialized, setInitialized] = useState(false);
@@ -19,13 +18,14 @@ export default function SplashScreen({navigation}) {
     const [hasVault, setHasVault] = useState(false);
     const [counter, setCounter] = useState(0); // just for fun!
 
-    const checkHasVault = () => {
-        console.log('[SplashScreen.js] checkHasVault()')
-        // TODO: should via VaultManager
-        let vault_index = SI.getIndex(StoredType.vault)
-        console.log('[SplashScreen.js] found '+vault_index.length+' vaults')
-        if(vault_index.length > 0) {
-            Cache.setVaultPk(vault_index[0])
+    const checkHasVault = async () => {
+        console.log('[SplashScreen.checkHasVault]')
+        await VM.init()
+        console.log(VM.vault_is_set())
+        if(VM.vault_is_set()) {
+            console.log('[SplashScreen.js] vault is set')
+            // if has a vault then init the managers
+            VM.init_managers()
             return Promise.resolve(true)
         } else {
             return Promise.resolve(false)

@@ -13,6 +13,7 @@
         "**/node_modules": true,
         "package-lock.json": true,
     },
+    "javascript.preferences.quoteStyle": "single",
     "editor.fontSize": 12,
     "editor.tabSize": 4,
     "files.watcherExclude": {

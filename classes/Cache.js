@@ -10,15 +10,14 @@ const __CACHE = {
 
 // So that dont have to reference LocalStorage (SI.js)
 const Cache = {
-    setVaultPk: (vault_pk) => __CACHE.vault_pk = vault_pk,
-    getVaultPk: () => __CACHE.vault_pk,
-
-    _getAndSetVault: async () => Vault.load(__CACHE.vault_pk).then(vault => {
+    setVault: (vault) => {
         __CACHE.vault = vault
-        return vault
-    }),
-    getVault: async (force=false) => __CACHE.vault === null || force ?
-        Cache._getAndSetVault() : __CACHE.vault,
+        __CACHE.vault_pk = vault_pk
+    },
+    get vault_pk() { return __CACHE.vault_pk },
+    get vault() { return __CACHE.vault },
+    // getVault: async (force=false) => __CACHE.vault === null || force ?
+    //     Cache._getAndSetVault() : __CACHE.vault,
 
     // _getAndSetContacts: async () => Contact.getAll(__CACHE.vault_pk).then(contacts => {
     //     __CACHE.contacts = contacts
