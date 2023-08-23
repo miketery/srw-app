@@ -10,7 +10,7 @@ const ds = StyleSheet.create({
     mainContainerPt: tw`bg-midnight h-full p-3 pb-20 pt-14`,
 
     mainContainerPtNoNav: tw`bg-midnight h-full p-3 pb-7 pt-14`,
-    mainContainerPtGradient: tw`bg-midnight h-full p-3 pb-20`,
+    mainContainerPtGradient: tw`bg-midnight h-full p-3 pb-15`,
     mainContainer: tw`bg-midnight h-full p-3 pb-24`,
     scrollViewGradient: tw`pb-26 pt-11`,
 

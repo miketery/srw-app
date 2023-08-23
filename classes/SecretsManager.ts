@@ -52,6 +52,9 @@ class SecretsManager {
         }
         return secret;
     }
+    get vault(): Vault | null {
+        return this._vault;
+    }
 }
 
 const SM = SecretsManager.getInstance();

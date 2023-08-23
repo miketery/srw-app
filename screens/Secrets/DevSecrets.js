@@ -6,34 +6,33 @@ import tw from '../../lib/tailwind'
 import ds from '../../assets/styles'
 
 import VM from '../../classes/VaultManager'
-
+import SM from '../../classes/SecretsManager'
 // import Cache from '../../classes/Cache'
 
-function ClearSecrets() {
-
+async function DeleteAllSecrets() {
+    return (await SM.get_secrets()).forEach(async (secret) => {
+        return secret.delete()
+    })
 }
 async function AddTestSecrets() {
-    const vault_pk = VM.current_vault_pk
     const secret = await Secret.create(
         SecretType.Text,
         'Test Text Secret',
         'This is a test secret',
         'Secret Data',
-        vault_pk)
+        SM.vault.pk)
     return secret.save()
 }
 async function AddManyTestSecrets() {
-    const vault_pk = VM.current_vault_pk
     return test_secrets.forEach(async (secret) => {
         const secret_obj = await Secret.create(
             SecretType.Text,
             secret.name,
             secret.description,
             secret.data,
-            vault_pk)
+            SM.vault.pk)
         return secret_obj.save()
-    }
-    )
+    })
 }
 
 
@@ -57,6 +56,12 @@ export default function DevSecrets(props) {
                 <Pressable style={[ds.ctaButton, ds.greenButton]}
                     onPress={() => AddManyTestSecrets()}>
                     <Text style={ds.buttonText}>Add Many Secrets</Text>
+                </Pressable>
+            </View>
+            <View style={tw`mt-8`}>
+                <Pressable style={[ds.ctaButton, ds.redButton]}
+                    onPress={() => DeleteAllSecrets()}>
+                    <Text style={ds.buttonText}>Delete all secrets</Text>
                 </Pressable>
             </View>
             <View style={tw`flex-grow-1`} />
