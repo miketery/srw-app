@@ -1,5 +1,8 @@
 import { Text, View } from 'react-native'
 
+import ds from '../../assets/styles'
+import tw from '../../lib/tailwind'
+
 export default function DevContacts(props) {
     const current_route = props.route.name
     return (
