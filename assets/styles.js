@@ -45,6 +45,8 @@ const ds = StyleSheet.create({
     rows: tw`flex-col w-full`,
     row: tw`flex flex-row rounded-lg p-3 mb-2 bg-slate-700`,
     buttonRow: tw`w-full flex-row justify-between items-center my-2`,
+    buttonRowB: tw`-mt-16 items-end pb-4 flex-row`,
+    
     rowEnd: tw`flex-row justify-end`,
     rowStart: tw`flex-row justify-start`,
     rowSpaceBetween: tw`flex flex-row justify-between`,

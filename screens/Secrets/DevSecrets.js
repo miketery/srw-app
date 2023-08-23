@@ -5,11 +5,11 @@ import { test_secrets } from '../../testdata/test_secrets'
 import tw from '../../lib/tailwind'
 import ds from '../../assets/styles'
 
-import SM from '../../classes/SecretsManager'
+import SecretsManager from '../../classes/SecretsManager'
 
 async function DeleteAllSecrets() {
-    return SM.get_secrets_array().forEach(async (secret) => {
-        return SM.delete_secret(secret)
+    return SecretsManager.get_secrets_array().forEach(async (secret) => {
+        return SecretsManager.delete_secret(secret)
     })
 }
 async function AddTestSecrets() {
@@ -18,8 +18,8 @@ async function AddTestSecrets() {
         'Test Text Secret',
         'This is a test secret',
         'Secret Data',
-        SM.vault.pk)
-    return SM.save_secret(secret)
+        SecretsManager.vault.pk)
+    return SecretsManager.save_secret(secret)
 }
 async function AddManyTestSecrets() {
     return test_secrets.forEach(async (s) => {
@@ -28,8 +28,8 @@ async function AddManyTestSecrets() {
             s.name,
             s.description,
             s.data,
-            SM.vault.pk)
-        return SM.save_secret(secret)
+            SecretsManager.vault.pk)
+        return SecretsManager.save_secret(secret)
     })
 }
 
