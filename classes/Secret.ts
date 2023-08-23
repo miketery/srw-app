@@ -73,6 +73,9 @@ class Secret {
     async save() {
         return await SI.save(this.pk, this.to_dict())
     }
+    async delete() {
+        return await SI.delete(this.pk)
+    }
 }
 
 export default Secret

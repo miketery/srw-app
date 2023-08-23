@@ -1,9 +1,10 @@
-import { View, Text } from 'react-native';
+import { Pressable, Text, ScrollView, View } from 'react-native';
 import { useEffect, useState } from 'react';
 
 import ds from '../../assets/styles';
 import tw from '../../lib/tailwind';
 import Cache from '../../classes/Cache';
+import { BottomGradient, TopGradient } from '../../components';
 // import SI, { StoredType } from '../../classes/StorageInterface';
 
 // import Secret from '../../classes/Secret';
@@ -41,14 +42,25 @@ function SecretsListScreen(props) {
         return unsubscribe;
     }, [])
 
-    return <View style={ds.mainContainerPt}>
-        <View style={ds.headerRow}>
-            <Text style={ds.header}>Secrets</Text>
-        </View>
-        <View>
-            {secrets.map((secret) => {
-                return <SecretRow key={secret.pk} secret={secret} />
-            })}
+    return <View style={ds.mainContainerPtGradient}>
+        <ScrollView style={ds.scrollViewGradient}>
+            <View style={ds.headerRow}>
+                <Text style={ds.header}>Secrets</Text>
+            </View>
+            <View>
+                {secrets.map((secret) => {
+                    return <SecretRow key={secret.pk} secret={secret} />
+                })}
+            </View>
+            
+        </ScrollView>
+        <TopGradient />
+        {/* <BottomGradient /> */}
+        <View style={tw`-mt-16 items-end pb-4 pr-2`}>
+            <Pressable style={[ds.button, ds.greenButton, tw`rounded-full`]}
+                onPress={() => props.navigation.navigate('SecretAddRoute')}>
+                <Text style={ds.buttonText}>Add Secret</Text>
+            </Pressable>
         </View>
     </View>
 }
