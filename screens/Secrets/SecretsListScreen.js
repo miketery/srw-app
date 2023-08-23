@@ -3,12 +3,10 @@ import { useEffect, useState } from 'react';
 
 import ds from '../../assets/styles';
 import tw from '../../lib/tailwind';
-import { BottomGradient, TopGradient } from '../../components';
-// import SI, { StoredType } from '../../classes/StorageInterface';
-
-// import Secret from '../../classes/Secret';
-import SecretsManager from '../../classes/SecretsManager';
 import { DEV, ROUTES } from '../../config';
+import { TopGradient } from '../../components';
+
+import SecretsManager from '../../classes/SecretsManager';
 
 function SecretIcon(props) {
     return <View style={tw`bg-gray-400 rounded-full h-16 w-16`} />
@@ -54,7 +52,7 @@ function SecretsListScreen(props) {
         </ScrollView>
         <TopGradient />
         {/* <BottomGradient /> */}
-        <View style={tw`-mt-16 items-end pb-4 flex-row`}>
+        <View style={ds.buttonRowB}>
             {DEV && <Pressable style={[ds.button, tw`rounded-full`]}
                 onPress={() => props.navigation.navigate(ROUTES.DevSecretsRoute)}>
                 <Text style={ds.buttonText}>Dev</Text>

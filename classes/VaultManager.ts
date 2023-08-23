@@ -4,8 +4,8 @@ import { signingKeyFromWords, encryptionKeyFromWords, getRandom } from '../lib/u
 import { v4 as uuidv4 } from 'uuid';
 import { entropyToMnemonic } from 'bip39';
 
-import CM from './ContactsManager';
-import SM from './SecretsManager';
+import ContactsManager from './ContactsManager';
+import SecretsManager from './SecretsManager';
 
 class VaultManager {
     private static _instance: VaultManager;
@@ -55,8 +55,8 @@ class VaultManager {
         console.log('[VaultManager.init_managers]')
         if (!this._current_vault)
             throw new Error('Current vault not set');
-        SM.init(this._current_vault);
-        CM.init(this._current_vault);
+        SecretsManager.init(this._current_vault);
+        ContactsManager.init(this._current_vault);
     }
     async save_vault(vault: Vault): Promise<void> {
         return SI.save(vault.pk, vault.to_dict());
