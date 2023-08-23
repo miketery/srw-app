@@ -5,13 +5,11 @@ import { test_secrets } from '../../testdata/test_secrets'
 import tw from '../../lib/tailwind'
 import ds from '../../assets/styles'
 
-import VM from '../../classes/VaultManager'
 import SM from '../../classes/SecretsManager'
-// import Cache from '../../classes/Cache'
 
 async function DeleteAllSecrets() {
-    return (await SM.get_secrets()).forEach(async (secret) => {
-        return secret.delete()
+    return SM.get_secrets_array().forEach(async (secret) => {
+        return SM.delete_secret(secret)
     })
 }
 async function AddTestSecrets() {
@@ -21,17 +19,17 @@ async function AddTestSecrets() {
         'This is a test secret',
         'Secret Data',
         SM.vault.pk)
-    return secret.save()
+    return SM.save_secret(secret)
 }
 async function AddManyTestSecrets() {
-    return test_secrets.forEach(async (secret) => {
-        const secret_obj = await Secret.create(
+    return test_secrets.forEach(async (s) => {
+        const secret = await Secret.create(
             SecretType.Text,
-            secret.name,
-            secret.description,
-            secret.data,
+            s.name,
+            s.description,
+            s.data,
             SM.vault.pk)
-        return secret_obj.save()
+        return SM.save_secret(secret)
     })
 }
 

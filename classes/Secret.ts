@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import SI, { StoredType, StoredTypePrefix } from "./StorageInterface"
+import { StoredType, StoredTypePrefix } from "./StorageInterface"
 
 export enum SecretType {
     login = 'login',
@@ -70,12 +70,7 @@ class Secret {
             data.updated, data.created, data.vault_pk
         )
     }
-    async save() {
-        return await SI.save(this.pk, this.to_dict())
-    }
-    async delete() {
-        return await SI.delete(this.pk)
-    }
+    // SAVE and DELETE done SecretManager
 }
 
 export default Secret

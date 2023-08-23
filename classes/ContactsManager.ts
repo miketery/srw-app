@@ -7,54 +7,73 @@ import Vault from './Vault';
 
 class ContactsManager {
     private static _instance: ContactsManager;
-    private _contacts: Contact[];
+    private _contacts: {string?: Contact};
     private _vault: Vault | null;
     // singleton constructor
-    constructor() {
-        this._contacts = [];
-    }
+    constructor() { this._contacts = {}; }
     public static getInstance(): ContactsManager {
         if (!ContactsManager._instance) {
             ContactsManager._instance = new ContactsManager();
         }
         return ContactsManager._instance;
     }
-    clear() {
-        this._contacts = [];
-    }
+    clear() { this._contacts = {}; }
     init(vault: Vault) {
         console.log('[ContactsManager.init]')
         this._vault = vault;
         this.load_contacts();
     }
-    async load_contacts(): Promise<Contact[]> {
+    // delete
+    // save
+    async load_contacts(): Promise<{string?: Contact}> {
         if(!this._vault)
             throw new Error('Vault not set');
-        // load contacts from async storage
-        let contacts: Contact[] = [];
+        let contacts: {string?: Contact} = {};
         let contacts_data = await SI.getAll(StoredType.contact, this._vault.pk);
         for (let contact_data of Object.values(contacts_data)) {
-            contacts.push(Contact.from_dict(contact_data));
+            let c = Contact.from_dict(contact_data);
+            contacts[c.pk] = c;
         }
         this._contacts = contacts;
         return contacts;
     }
-    get_contacts(): Contact[] {
+    get_contacts(): {string?: Contact} {
         return this._contacts;
     }
-    get_contact(did: string, raise_exception = false) {
-        const contact = this._contacts.find(contact => contact.did === did);
+    get_contacts_array(): Contact[] {
+        return Object.values(this._contacts);
+    }
+    get_contact(pk: string, raise_exception = false): Contact|null {
+        if(pk in this._contacts)
+            return this._contacts[pk];
+        if(raise_exception)
+            throw new Error(`Secret not found: ${pk}`);
+        return null;
+    }
+    get_contact_by_did(did: string, raise_exception = false): Contact|undefined {
+        const contact = this.get_contacts_array().find(contact => contact.did === did);
         if (!contact && raise_exception) {
             throw new Error(`Contact not found: ${did}`);
         }
         return contact;
     }
-    get_contact_by_name(name: string, raise_exception = false) {
-        const contact = this._contacts.find(contact => contact.name === name);
+    get_contact_by_name(name: string, raise_exception = false): Contact|undefined {
+        const contact = this.get_contacts_array().find(contact => contact.name === name);
         if (!contact && raise_exception) {
             throw new Error(`Contact not found: ${name}`);
         }
         return contact;
+    }
+    get vault(): Vault {
+        if(!this._vault)
+            throw new Error('Vault not set');
+        return this._vault;
+    }
+    get contacts_count(): number {
+        return Object.keys(this._contacts).length;
+    }
+    get index(): string[] {
+        return Object.keys(this._contacts);
     }
 }
 
