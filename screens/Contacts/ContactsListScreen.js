@@ -9,11 +9,8 @@ export default function ContactsListScreen(props) {
 
     useEffect(() => {
         console.log('[ContactsListScreen.js] componentDidMount()')
-        CM.load_contacts().then((contacts) => {
-            setContacts(contacts)
-        }).catch((err) => {
-            console.log(err)
-        })
+        const contacts = CM.get_contacts_array()
+        setContacts(contacts)
     }, [])
 
     return <View>

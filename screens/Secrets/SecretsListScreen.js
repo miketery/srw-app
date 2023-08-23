@@ -3,12 +3,12 @@ import { useEffect, useState } from 'react';
 
 import ds from '../../assets/styles';
 import tw from '../../lib/tailwind';
-import Cache from '../../classes/Cache';
 import { BottomGradient, TopGradient } from '../../components';
 // import SI, { StoredType } from '../../classes/StorageInterface';
 
 // import Secret from '../../classes/Secret';
 import SecretsManager from '../../classes/SecretsManager';
+import { DEV, ROUTES } from '../../config';
 
 function SecretIcon(props) {
     return <View style={tw`bg-gray-400 rounded-full h-16 w-16`} />
@@ -33,11 +33,9 @@ function SecretsListScreen(props) {
     const [secrets, setSecrets] = useState([])
 
     useEffect(() => {
-        const vault_pk = Cache.vault_pk
         const unsubscribe = props.navigation.addListener('focus', async() => {
-            const secrets = await SecretsManager.get_secrets(vault_pk)
-            //SI.getAll(StoredType.secret, vault_pk)
-            setSecrets(secrets)
+            const secrets = SecretsManager.get_secrets_array()
+            setSecrets(secrets.sort((a, b) => a.name.localeCompare(b.name)))
           });
         return unsubscribe;
     }, [])
@@ -56,9 +54,14 @@ function SecretsListScreen(props) {
         </ScrollView>
         <TopGradient />
         {/* <BottomGradient /> */}
-        <View style={tw`-mt-16 items-end pb-4 pr-2`}>
+        <View style={tw`-mt-16 items-end pb-4 flex-row`}>
+            {DEV && <Pressable style={[ds.button, tw`rounded-full`]}
+                onPress={() => props.navigation.navigate(ROUTES.DevSecretsRoute)}>
+                <Text style={ds.buttonText}>Dev</Text>
+            </Pressable>}
+            <View style={tw`flex-grow-1`} />
             <Pressable style={[ds.button, ds.greenButton, tw`rounded-full`]}
-                onPress={() => props.navigation.navigate('SecretAddRoute')}>
+                onPress={() => props.navigation.navigate(ROUTES.SecretCreateRoute)}>
                 <Text style={ds.buttonText}>Add Secret</Text>
             </Pressable>
         </View>
