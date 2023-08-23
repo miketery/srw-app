@@ -30,7 +30,8 @@ const switch_routes = {
   ],
   [ROUTES.SecretsRoute]: [
     {name: ROUTES.SecretsListRoute},
-    {name: ROUTES.DevSecretsRoute},
+    {name: ROUTES.SecretCreateRoute},
+    // {name: ROUTES.DevSecretsRoute},
     // {name: ROUTES.SecretViewRoute, params: {
     //   secret_pk: '2b02dc2c-4d75-43c7-b953-ec303fa4d369',
     // }},
