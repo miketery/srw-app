@@ -3,10 +3,15 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 
 import tw from '../lib/tailwind'
 import ds from '../assets/styles'
-import { ROUTES, TAB_BAR_ROUTES } from '../config';
+import { DEV, ROUTES, TAB_BAR_ROUTES } from '../config';
 
 import TabNavBar from './TabNavBar'
-import ContactNav from './Contacts'
+
+import MainHub from './MainHubScreen'
+
+import ContactsNav from './Contacts'
+import SecretsNav from './Secrets'
+import { DevHasVaultNav } from './Dev'
 
 const Tab = createBottomTabNavigator();
 
@@ -14,7 +19,7 @@ function Test(props) {
     const current_route = props.route.name 
     return (
         <View style={ds.landingContainer}>
-            <Text style={ds.header}>Home</Text>
+            <Text style={ds.header}>{props.title}</Text>
             <View>
                 <Text style={ds.text}>Route: {current_route}</Text>
             </View>
@@ -39,20 +44,24 @@ export default function HomeNavTest({props}) {
         <Tab.Navigator initialRouteName={ROUTES.MainHubRoute}
             tabBar={(props) => <TabNavBar {...props} possible_offline={possible_offline} />}
             screenOptions={({route}) => {
-                return { headerShown: TAB_BAR_ROUTES[route.name].header }
+                return { headerShown: route.name in TAB_BAR_ROUTES ? TAB_BAR_ROUTES[route.name].header : false}
         }}>
             <Tab.Screen name={ROUTES.MainHubRoute} >
-                {(props) => <Test {...props} />}
+                {(props) => <MainHub {...props} />}
             </Tab.Screen>
-            <Tab.Screen name={ROUTES.ContactRoute} >
-                {(props) => <ContactNav {...props} />}
+            <Tab.Screen name={ROUTES.ContactsRoute} >
+                {(props) => <ContactsNav {...props} />}
             </Tab.Screen>
+            <Tab.Screen name={ROUTES.SecretsRoute} >
+                {(props) => <SecretsNav {...props} />}
+            </Tab.Screen> 
             <Tab.Screen name={ROUTES.NotificationsRoute} >
-                {(props) => <Test {...props} />}
+                {(props) => <Test {...props} title={'Notifications'}/>}
             </Tab.Screen>
-            <Tab.Screen name={ROUTES.StoredObjectsRoute} >
-                {(props) => <Test {...props} />}
-            </Tab.Screen>{/* 
+            {DEV && <Tab.Screen name={ROUTES.DevHasVaultRoute} >
+                {(props) => <DevHasVaultNav {...props} />}
+            </Tab.Screen>}
+            {/*
             {/* <Tab.Screen name='ProfileRoute' >
                 {(props) => <ProfileScreen vault={this.vault} {...props} />}
             </Tab.Screen>

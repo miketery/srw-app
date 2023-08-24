@@ -2,3 +2,14 @@ npm i react-native-web --legacy-peer-deps
 npm i react-dom --legacy-peer-deps
 
 expo start --web
+
+Might not need the following:
+
+"react-native-safe-area-context": "^4.7.1",
+"@expo/webpack-config": "^18.1.2",
+"@testing-library/jest-native": "^5.4.2",
+"@testing-library/react-native": "^12.2.2",
+"babel-plugin-react-svg": "^3.0.3",
+"jest": "^29.6.2",
+
+or webpack file

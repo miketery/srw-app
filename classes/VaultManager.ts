@@ -1,90 +1,128 @@
 import Vault from './Vault';
-import SI from './SI';
+import SI, { StoredType } from './StorageInterface';
 import { signingKeyFromWords, encryptionKeyFromWords, getRandom } from '../lib/utils'
 import { v4 as uuidv4 } from 'uuid';
 import { entropyToMnemonic } from 'bip39';
 
-// import Buffer
+import ContactsManager from './ContactsManager';
+import SecretsManager from './SecretsManager';
 
 class VaultManager {
-  private static instance: VaultManager;
-  private vaults: Vault[];
+    private static _instance: VaultManager;
+    private _vaults: Vault[];
+    private _current_vault: Vault | null;
 
-  constructor() {
-    if (VaultManager.instance) {
-      return VaultManager.instance;
+    constructor() {
+        this._vaults = [];
+        this._current_vault = null;
     }
-    this.vaults = [];
-    VaultManager.instance = this;
-  }
+    public static get_instance(): VaultManager {
+        if (!VaultManager._instance) {
+            VaultManager._instance = new VaultManager();
+        }
+        return VaultManager._instance;
+    }
+    async init(): Promise<void> {
+        console.log('[VaultManager.init]')
+        await this.load_vaults();
+        console.log('[VaultManager.init2]')
 
-  async load_vaults(): Promise<Vault[]> {
-    // load vaults from async storage
-    let vaults: Vault[] = [];
-    let vaults_data = await SI.getAllAsync();
-    for (let vault_data of Object.values(vaults_data)) {
-      vaults.push(this.from_dict(vault_data));
+        if (this._vaults.length > 0) {
+            console.log('[VaultManager.init3]')
+            this.set_vault();
+            this.init_managers();
+            console.log('[VaultManager.init4]')
+        }
     }
-    this.vaults = vaults;
-    return vaults;
-  }
-  async save_vault(vault: Vault): Promise<void> {
-    return SI.saveAsync(vault.pk, vault.to_dict());
-  }
-  from_dict(vault_data: any): Vault {
-    return Vault.from_dict(vault_data);
-  }
-  async create_vault(name: string, display_name: string, email: string = '',
-  words: string = '', digital_agent_host: string = '', save: boolean = true): Promise<Vault> {
-    let vault_uuid = uuidv4();
-    if (words == '') {
-      let entropy = await getRandom(16)
-      words = entropyToMnemonic(Buffer.from(entropy))
+    async load_vaults(): Promise<Vault[]> {
+        let vaults: Vault[] = [];
+        let vaults_data = await SI.getAll(StoredType.vault);
+        console.log(vaults_data)
+        for (let vault_data of Object.values(vaults_data)) {
+            console.log(vault_data)
+            vaults.push(Vault.from_dict(vault_data));
+        }
+        this._vaults = vaults;
+        return vaults;
     }
-    console.log(words)
-    let signingKeyPair = signingKeyFromWords(words);
-    let encKeyPair = encryptionKeyFromWords(words);
-    let new_vault = new Vault(
-      vault_uuid, name, email, display_name, digital_agent_host,
-      words,
-      signingKeyPair.secretKey, signingKeyPair.publicKey,
-      encKeyPair.secretKey, encKeyPair.publicKey);
-    let vault = this.get_vault(new_vault.pk);
-    if (vault) {
-      throw new Error(`Vault with Verify Key ${vault.pk} already exists`);
+    set_vault(vault_pk: string|null=null) {
+        if(!vault_pk)
+            this._current_vault = this._vaults[0]
+        else
+            this._current_vault = this.get_vault(vault_pk);
     }
-    if (save) {
-      await SI.saveAsync(new_vault.pk, new_vault.to_dict());
-      // check that saved
-      let vault_data = await SI.getAsync(new_vault.pk);
-      if (!vault_data) {
-        throw new Error(`Could not save vault ${new_vault.pk}`);
-      } else {
-        this.vaults.push(new_vault);
-        return new_vault;
-      }
-    } else {
-      this.vaults.push(new_vault);
-      return new_vault;
+    init_managers() {
+        console.log('[VaultManager.init_managers]')
+        if (!this._current_vault)
+            throw new Error('Current vault not set');
+        SecretsManager.init(this._current_vault);
+        ContactsManager.init(this._current_vault);
     }
-  }
-  get_vault(pk: string): Vault | null {
-    for (let vault of this.vaults) {
-      if (vault.pk == pk) {
-        return vault;
-      }
+    async save_vault(vault: Vault): Promise<void> {
+        return SI.save(vault.pk, vault.to_dict());
     }
-    return null;
-  }
-  get_vault_by_did(did: string): Vault | null {
-    for (let vault of this.vaults) {
-      if (vault.did == did) {
-        return vault;
-      }
+    from_dict(vault_data: any): Vault {
+        return Vault.from_dict(vault_data);
     }
-    return null;
-  }
+    async create_vault(name: string, display_name: string, email: string = '',
+            words: string = '', digital_agent_host: string = '', save: boolean = true): Promise<Vault> {
+        if (words == '') {
+            let entropy = await getRandom(16)
+            words = entropyToMnemonic(Buffer.from(entropy))
+        }
+        console.log(words)
+        let signingKeyPair = signingKeyFromWords(words);
+        let encKeyPair = encryptionKeyFromWords(words);
+        let new_vault = new Vault(
+            uuidv4(), name, email, display_name, digital_agent_host,
+            words,
+            signingKeyPair.secretKey, signingKeyPair.publicKey,
+            encKeyPair.secretKey, encKeyPair.publicKey);
+        let vault = this.get_vault(new_vault.pk);
+        if (vault) {
+            throw new Error(`Vault with Verify Key ${vault.pk} already exists`);
+        }
+        if (save) {
+            await SI.save(new_vault.pk, new_vault.to_dict());
+            // check that saved
+            let vault_data = await SI.get(new_vault.pk);
+            if (!vault_data) {
+                throw new Error(`Could not save vault ${new_vault.pk}`);
+            } else {
+                this._vaults.push(new_vault);
+                return new_vault;
+            }
+        } else {
+            this._vaults.push(new_vault);
+            this._current_vault = new_vault;
+            return new_vault;
+        }
+    }
+    get_vault(pk: string): Vault | null {
+        for (let vault of this._vaults) {
+            if (vault.pk == pk) {
+                return vault;
+            }
+        }
+        return null;
+    }
+    get_vault_by_did(did: string): Vault | null {
+        for (let vault of this._vaults) {
+            if (vault.did == did) {
+                return vault;
+            }
+        }
+        return null;
+    }
+    vault_is_set(): boolean {
+        return this._current_vault !== null;
+    }
+    get current_vault_pk(): string {
+        if (!this._current_vault)
+            throw new Error('Current vault not set');
+        return this._current_vault.pk;
+    }
 }
 
-const VM = new VaultManager();
+const VM = VaultManager.get_instance();
 export default VM; // singleton
