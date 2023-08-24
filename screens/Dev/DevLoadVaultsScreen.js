@@ -8,13 +8,13 @@ import ds from '../../assets/styles'
 
 import { test_vaults } from '../../testdata/testVaults'
 
-import VM from '../../classes/VaultManager'
+import VaultManager from '../../classes/VaultManager'
 
 const loadAndSaveVault = (key) => {
     console.log('loadVault', key, test_vaults[key].name)
-    // const vault = await VM.create_vault(v.name, v.display_name, v.email, v.words, '', false)
-    let vault = VM.from_dict(test_vaults[key])
-    VM.save_vault(vault)
+    // const vault = await VaultManager.create_vault(v.name, v.display_name, v.email, v.words, '', false)
+    let vault = VaultManager.from_dict(test_vaults[key])
+    VaultManager.save_vault(vault)
     console.log('vault', vault.to_dict())
 }
 
