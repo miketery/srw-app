@@ -24,15 +24,9 @@ DEBUG && console.log('DEBUG: ', {
 })
 
 export const ROUTES = {
-    DevNoVaultRoute: 'DevNoVaultRoute',
-    DevGeneralRoute: 'DevGeneralRoute',
-    DevLoadVaultsRoute: 'DevLoadVaultsRoute',
-
-    DevHasVaultRoute: 'DevHasVaultRoute',
-    DevContactsRoute: 'DevContactsRoute',
-    DevSecretsRoute: 'DevSecretsRoute',
-    DevRecoveriesRoute: 'DevRecoveriesRoute',
-    // DevTestVaultsRoute: 'DevTestVaultsRoute',
+    DevTestRoute: 'DevTestRoute',
+    DevTestMainRoute: 'DevTestMainRoute',
+    DevTestVaultsRoute: 'DevTestVaultsRoute',
     //
     SplashRoute: 'SplashRoute',
     LandingRoute: 'LandingRoute',
@@ -49,20 +43,14 @@ export const ROUTES = {
     NotificationsRoute: 'NotificationsRoute',
 
     //
-    ContactsRoute: 'ContactsRoute',
-    ContactsListRoute: 'ContactsListRoute',
+    ContactRoute: 'ContactsRoute',
+    ContactListRoute: 'ContactsListRoute',
     ContactCreateRoute: 'ContactCreateRoute',
     ContactViewRoute: 'ContactViewRoute',
     ContactEditRoute: 'ContactEditRoute',
 
     //
-    SecretsRoute: 'SecretsRoute',
-    SecretsListRoute: 'SecretsListRoute',
-    SecretViewRoute: 'SecretViewRoute',
-    SecretEditRoute: 'SecretEditRoute',
-    SecretCreateRoute: 'SecretCreateRoute',
-
-    //
+    StoredObjectsRoute: 'StoredObjectsRoute',
     RecoveriesRoute: 'RecoveriesRoute',
 }
 
@@ -87,17 +75,14 @@ export const nestedRoute = (route: string, nested: Route[]): Route => {
 export const TAB_BAR_ROUTES = {
     MainHubRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
     ContactsRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
-    SecretsRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
-    NotificationsRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
-
-    DevHasVaultRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
-
     // ProfileRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
     // OrganizationRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
     // CredentialRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
     // TestRoute: {header: false, tabBarIconHide: true, tabBarHide: false},
     // WalletsRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
+    NotificationsRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
     
+    StoredObjectsRoute: {header: false, tabBarIconHide: true, tabBarHide: false},
     // SettingsRoute: {header: false, tabBarIconHide: true, tabBarHide: true},
     // ProfileRoute: {header: false, tabBarIconHide: true, tabBarHide: true},
     KeySharesRoute: {header: false, tabBarIconHide: true, tabBarHide: true},
