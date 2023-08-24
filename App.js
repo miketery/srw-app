@@ -14,7 +14,7 @@ import VaultCreateScreen from './screens/VaultCreateScreen';
 import RecoverInitScreen from './screens/RecoverInitScreen';
 
 import HomeNav from './screens/HomeNav';
-import DevTest from './screens/DevTest';
+import { DevNoVaultNav } from './screens/Dev';
 
 window.Buffer = window.Buffer || require("buffer").Buffer; 
 
@@ -31,8 +31,8 @@ export default function App() {
                     <Stack.Screen name={ROUTES.SplashRoute}>{props => 
                         <SplashScreen {...props} />}
                     </Stack.Screen>
-                    {DEV && <Stack.Screen name={ROUTES.DevTestRoute}>{props => 
-                        <DevTest {...props} />}
+                    {DEV && <Stack.Screen name={ROUTES.DevNoVaultRoute}>{props => 
+                        <DevNoVaultNav {...props} />}
                     </Stack.Screen>}
                     <Stack.Screen 
                         name={ROUTES.LandingRoute}

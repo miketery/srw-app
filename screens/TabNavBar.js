@@ -12,23 +12,19 @@ const screenOptions = (route, isFocused, options) => {
         case ROUTES.MainHubRoute:
             iconName = isFocused ? 'flash' : 'flash-outline';
             break;
-        case ROUTES.ContactRoute:
+        case ROUTES.ContactsRoute:
             iconName = isFocused ? 'people' : 'people-outline';
             break;
-        case ROUTES.StoredObjectsRoute:
+        case ROUTES.SecretsRoute:
             iconName = isFocused ? 'key' : 'key-outline';
             break;
         case ROUTES.NotificationsRoute:
             iconName = isFocused ? 'notifications' : 'notifications-outline';
             break;
-        // case 'WalletsRoute':
-        //     iconName = isFocused ? 'wallet' : 'wallet-outline';
-        //     break;
         default:
             iconName = 'logo-react'
             break;
     }
-  
     return <Icon name={iconName} color={color} size={22}>
         {options.tabBarBadge ? 
         <View style={tw`absolute right-2 top-1 rounded-full bg-violet-800 p-2 h-3`}>

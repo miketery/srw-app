@@ -1,7 +1,7 @@
 
 export const test_vaults = [
     {
-        "pk": "v_9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS",
+        "pk": "v__9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS",
         "uuid": "654e4196-3d74-4b89-86b0-c5f45f426701",
         "name": "Alice",
         "email": "alice@arxsky.com",
@@ -14,7 +14,7 @@ export const test_vaults = [
         "public_key": "BVVHk6i8MNDjo78YM7uUFedtGPYgeXnXiNNxmFkP9i6T"
     },
     {
-        "pk": "v_EtCnZqvnQ4qNq1wV5yjK2hMTrg1i3iPFESrD6w7mGP3E",
+        "pk": "v__EtCnZqvnQ4qNq1wV5yjK2hMTrg1i3iPFESrD6w7mGP3E",
         "uuid": "5953d028-3acf-461d-aa38-54aa6199624d",
         "name": "Bob",
         "email": "bob@arxsky.com",
@@ -27,7 +27,7 @@ export const test_vaults = [
         "public_key": "D2AgAghipD9jgZcg7DZgZNAy2EfE9a8MjeXkZAaezW6S"
     },
     {
-        "pk": "v_D5EBA8cZDo7kQGCqepKGGkkWGy9b1c5oXnQE5N9T1xnK",
+        "pk": "v__D5EBA8cZDo7kQGCqepKGGkkWGy9b1c5oXnQE5N9T1xnK",
         "uuid": "afbd4cba-6e30-4857-b477-88255e5bcb1e",
         "name": "Charlotte",
         "email": "charlotte@arxsky.com",
