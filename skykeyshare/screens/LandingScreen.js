@@ -14,13 +14,13 @@ import { LoadingScreen } from '../components'
 import { landing_route, vault_route } from '../testdata/test_route'
 import Cache from '../classes/Cache'
 
-import VM from '../classes/VaultManager'
+import VaultManager from '../classes/VaultManager'
 
 export const primary_route = (routes=[]) => ({
     routes: [
         {
             name: 'HomeRoute',
-            params: {vault_pk: VM.current_vault_pk},
+            params: {vault_pk: VaultManager.current_vault_pk},
             state: {
                 routes: routes
             }
