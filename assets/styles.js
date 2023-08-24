@@ -10,7 +10,7 @@ const ds = StyleSheet.create({
     mainContainerPt: tw`bg-midnight h-full p-3 pb-20 pt-14`,
 
     mainContainerPtNoNav: tw`bg-midnight h-full p-3 pb-7 pt-14`,
-    mainContainerPtGradient: tw`bg-midnight h-full p-3 pb-20`,
+    mainContainerPtGradient: tw`bg-midnight h-full p-3 pb-15`,
     mainContainer: tw`bg-midnight h-full p-3 pb-24`,
     scrollViewGradient: tw`pb-26 pt-11`,
 
@@ -45,12 +45,16 @@ const ds = StyleSheet.create({
     rows: tw`flex-col w-full`,
     row: tw`flex flex-row rounded-lg p-3 mb-2 bg-slate-700`,
     buttonRow: tw`w-full flex-row justify-between items-center my-2`,
+    buttonRowB: tw`-mt-16 items-end pb-4 flex-row`,
+    
     rowEnd: tw`flex-row justify-end`,
     rowStart: tw`flex-row justify-start`,
     rowSpaceBetween: tw`flex flex-row justify-between`,
     rowCenter: tw`flex-row justify-center`,
     rowEvenly: tw`flex-row justify-evenly`,
     rowAround: tw`flex-row justify-around`,
+
+    headerRow: tw`flex-row justify-between items-center mb-2`,
 
     neoDarkPurpleButton: tw`bg-darkpurple border border-lightpurple p-2 w-40 items-center justify-center content-center`,
     neoDarkGreenButton: tw`bg-darkgreen border border-[#0C0] p-2 w-40 items-center justify-center content-center`,

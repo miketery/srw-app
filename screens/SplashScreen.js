@@ -2,16 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { CommonActions } from '@react-navigation/native'
 import { StyleSheet, Text, View, Button, Pressable } from 'react-native'
 
-import { ROUTES, SPLASH_ANIMATE_TIME, DEV, primary_route } from '../config'
-import SessionManager from '../classes/SessionManager'
-
-import SI from '../classes/SI';
-import Cache
- from '../classes/Cache';
 import ds from '../assets/styles'
 import tw from '../lib/tailwind'
+
+import { ROUTES, SPLASH_ANIMATE_TIME, DEV, primary_route } from '../config'
 import { vault_test_route, no_vault_test_route } from '../testdata/testroute'
 
+// import SessionManager from '../classes/SessionManager'
+import SI from '../classes/StorageInterface';
+import VaultManager from '../classes/VaultManager';
 
 export default function SplashScreen({navigation}) {    
     const [initialized, setInitialized] = useState(false);
@@ -19,12 +18,14 @@ export default function SplashScreen({navigation}) {
     const [hasVault, setHasVault] = useState(false);
     const [counter, setCounter] = useState(0); // just for fun!
 
-    const checkHasVault = () => {
-        console.log('[SplashScreen.js] checkHasVault()')
-        let vault_index = SI.getIndex('vaults')
-        console.log('[SplashScreen.js] found '+vault_index.length+' vaults')
-        if(vault_index.length > 0) {
-            Cache.setVaultPk(vault_index[0])
+    const checkHasVault = async () => {
+        console.log('[SplashScreen.checkHasVault]')
+        await VaultManager.init()
+        console.log(VaultManager.vault_is_set())
+        if(VaultManager.vault_is_set()) {
+            console.log('[SplashScreen.js] vault is set')
+            // if has a vault then init the managers
+            VaultManager.init_managers()
             return Promise.resolve(true)
         } else {
             return Promise.resolve(false)
@@ -52,7 +53,7 @@ export default function SplashScreen({navigation}) {
     useEffect(() => {
         console.log('[SplashScreen.js] componentDidMount()')
         animate()
-        SI.init().then(() => {
+        SI.init().then((res) => {
             checkHasVault().then((hasVault) => {
                 setInitialized(true);
                 setHasVault(hasVault);
@@ -72,6 +73,7 @@ export default function SplashScreen({navigation}) {
                 console.log(routes)
                 navigation.dispatch(CommonActions.reset(routes));    
             } else {
+                console.log(DEV, no_vault_test_route)
                 navigation.navigate(DEV ? no_vault_test_route : ROUTES.LandingRoute); 
             }
         }
