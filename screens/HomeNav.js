@@ -6,6 +6,9 @@ import ds from '../assets/styles'
 import { DEV, ROUTES, TAB_BAR_ROUTES } from '../config';
 
 import TabNavBar from './TabNavBar'
+
+import MainHub from './MainHubScreen'
+
 import ContactsNav from './Contacts'
 import SecretsNav from './Secrets'
 import { DevHasVaultNav } from './Dev'
@@ -44,7 +47,7 @@ export default function HomeNavTest({props}) {
                 return { headerShown: route.name in TAB_BAR_ROUTES ? TAB_BAR_ROUTES[route.name].header : false}
         }}>
             <Tab.Screen name={ROUTES.MainHubRoute} >
-                {(props) => <Test {...props} title={'Main Hub'} />}
+                {(props) => <MainHub {...props} />}
             </Tab.Screen>
             <Tab.Screen name={ROUTES.ContactsRoute} >
                 {(props) => <ContactsNav {...props} />}
