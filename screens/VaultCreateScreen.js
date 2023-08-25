@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Text, View, Pressable, ScrollView, TextInput } from 'react-native'
+import { CommonActions } from '@react-navigation/native'
 
 import ds from '../assets/styles'
 import { DEV, ROUTES, primary_route } from '../config'
 import tw from '../lib/tailwind'
 
+import Cache from '../classes/Cache'
 import VaultManager from '../classes/VaultManager'
 
 import { trimAndLower, validateEmail } from '../lib/utils'
@@ -20,8 +22,7 @@ export default function VaultCreateScreen(props) {
     const navigation = props.navigation
 
     const finishSubmit = (vault) => {
-        console.log('[VaultCreateScreen.finishSubmit] ' + vault.getPk())
-        Cache.setVaultPk(vault.getPk())
+        console.log('[VaultCreateScreen.finishSubmit] ' + vault.pk)
         navigation.dispatch(CommonActions.reset(primary_route()))
     }
     const checkForm = () => {
@@ -44,8 +45,10 @@ export default function VaultCreateScreen(props) {
         setCreateLoading(true)
         setTimeout(async () => {
             try {
-                const vault = await VaultManager.create_vault(name, displayName, email)
-                VaultManager.init_managers()
+                const vault_manager = new VaultManager()
+                const vault = await vault_manager.create_vault(name, displayName, email)
+                await vault_manager.init_managers()
+                Cache.setVaultAndManager(vault_manager.current_vault, vault_manager)
                 finishSubmit(vault)
             } catch (err) {
                 console.log(err)

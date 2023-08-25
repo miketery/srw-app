@@ -6,23 +6,21 @@ import SI, { StoredType } from './StorageInterface';
 import Vault from './Vault';
 
 class ContactsManager {
-    private static _instance: ContactsManager;
+    // private static _instance: ContactsManager;
     private _contacts: {string?: Contact};
     private _vault: Vault | null;
     // singleton constructor
-    constructor() { this._contacts = {}; }
-    public static getInstance(): ContactsManager {
-        if (!ContactsManager._instance) {
-            ContactsManager._instance = new ContactsManager();
-        }
-        return ContactsManager._instance;
-    }
-    clear() { this._contacts = {}; }
-    init(vault: Vault) {
-        console.log('[ContactsManager.init]')
+    constructor(vault: Vault) { 
+        this._contacts = {}; 
         this._vault = vault;
-        this.load_contacts();
     }
+    // public static getInstance(): ContactsManager {
+    //     if (!ContactsManager._instance) {
+    //         ContactsManager._instance = new ContactsManager();
+    //     }
+    //     return ContactsManager._instance;
+    // }
+    clear() { this._contacts = {}; }
     // delete
     // save
     async load_contacts(): Promise<{string?: Contact}> {
@@ -77,5 +75,5 @@ class ContactsManager {
     }
 }
 
-const CM = ContactsManager.getInstance();
-export default CM; // singleton
+// const CM = ContactsManager.getInstance();
+export default ContactsManager; // singleton

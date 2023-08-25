@@ -49,7 +49,7 @@ const vault_test_route = [
     }
   }
 ]
-const no_vault_test_route = ROUTES.DevNoVaultRoute
+const no_vault_test_route = ROUTES.LandingRoute // Default is Landing Route
 
 export {
   vault_test_route,

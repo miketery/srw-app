@@ -11,6 +11,7 @@ import { vault_test_route, no_vault_test_route } from '../testdata/testroute'
 // import SessionManager from '../classes/SessionManager'
 import SI from '../classes/StorageInterface';
 import VaultManager from '../classes/VaultManager';
+import Cache from '../classes/Cache';
 
 export default function SplashScreen({navigation}) {    
     const [initialized, setInitialized] = useState(false);
@@ -20,14 +21,16 @@ export default function SplashScreen({navigation}) {
 
     const checkHasVault = async () => {
         console.log('[SplashScreen.checkHasVault]')
-        await VaultManager.init()
-        console.log(VaultManager.vault_is_set())
-        if(VaultManager.vault_is_set()) {
+        const vault_manager = new VaultManager()
+        await vault_manager.init()
+        if(vault_manager.vault_is_set()) {
             console.log('[SplashScreen.js] vault is set')
+            Cache.setVaultAndManager(vault_manager.current_vault, vault_manager)
             // if has a vault then init the managers
-            VaultManager.init_managers()
+            await vault_manager.init_managers()
             return Promise.resolve(true)
         } else {
+            console.log('[SplashScreen.js] vault is not set')
             return Promise.resolve(false)
         }
     }

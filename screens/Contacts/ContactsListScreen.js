@@ -6,14 +6,14 @@ import tw from '../../lib/tailwind';
 import { DEV, ROUTES } from '../../config';
 import { TopGradient } from '../../components';
 
-import ContactsManager from '../../classes/ContactsManager';
+import { get_contacts_manager } from '../../classes/Cache';
 
 export default function ContactsListScreen(props) {
     const [contacts, setContacts] = useState([])
 
     useEffect(() => {
         console.log('[ContactsListScreen.js] componentDidMount()')
-        const contacts = ContactsManager.get_contacts_array()
+        const contacts = get_contacts_manager().get_contacts_array()
         setContacts(contacts.sort((a, b) => a.name.localeCompare(b.name)))
     }, [])
 

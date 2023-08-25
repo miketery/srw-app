@@ -13,8 +13,9 @@ import VaultManager from '../../classes/VaultManager'
 const loadAndSaveVault = (key) => {
     console.log('loadVault', key, test_vaults[key].name)
     // const vault = await VaultManager.create_vault(v.name, v.display_name, v.email, v.words, '', false)
-    let vault = VaultManager.from_dict(test_vaults[key])
-    VaultManager.save_vault(vault)
+    const vault_manager = new VaultManager()
+    let vault = vault_manager.from_dict(test_vaults[key])
+    vault_manager.save_vault(vault)
     console.log('vault', vault.to_dict())
 }
 

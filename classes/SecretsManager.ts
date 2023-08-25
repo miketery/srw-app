@@ -4,23 +4,25 @@ import SI, { StoredType } from './StorageInterface'
 import Vault from './Vault';
 
 class SecretsManager {
-    private static _instance: SecretsManager;
+    // private static _instance: SecretsManager;
     private _secrets: {string?: Secret};
     private _vault: Vault | null;
 
-    constructor() { this._secrets = {}; }
-    public static getInstance(): SecretsManager {
-        if (!SecretsManager._instance) {
-            SecretsManager._instance = new SecretsManager();
-        }
-        return SecretsManager._instance;
-    }
-    clear() { this._secrets = {}; }
-    init(vault: Vault) {
-        console.log('[SecretsManager.init]')
+    constructor(vault: Vault) { 
+        console.log('[SecretsManager.constructor]')
+        this._secrets = {};
         this._vault = vault;
-        this.load_secrets();
     }
+    // public static getInstance(): SecretsManager {
+    //     if (!SecretsManager._instance) {
+    //         SecretsManager._instance = new SecretsManager();
+    //     }
+    //     return SecretsManager._instance;
+    // }
+    clear() { this._secrets = {}; }
+    // init() {
+    //     console.log('[SecretsManager.init]')
+    // }
     async delete_secret(secret: Secret): Promise<void> {
         await SI.delete(secret.pk);
         delete this._secrets[secret.pk];
@@ -65,6 +67,4 @@ class SecretsManager {
     }
 }
 
-const SM = SecretsManager.getInstance();
-
-export default SM; // singleton
+export default SecretsManager; // singleton
