@@ -20,6 +20,15 @@ window.Buffer = window.Buffer || require("buffer").Buffer;
 
 const Stack = createNativeStackNavigator();
 
+// const originalWarn = console.warn;
+
+// console.warn = (...args) => {
+//   if (args[0].includes('selectable prop is deprecated')) {
+//     console.trace(); // print stack trace
+//   }
+//   originalWarn(...args);
+// };
+
 export default function App() {
     return (
         <SafeAreaView style={tw`bg-midnight h-full w-full`}>
