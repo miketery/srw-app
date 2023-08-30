@@ -11,6 +11,13 @@ export const bytesToHex = (byteArray: Uint8Array): string => Array.from(byteArra
 export const hexToBytes = (hexString: string): Uint8Array => Buffer.from(hexString, 'hex');
 export const hash = function(m: Uint8Array) {return nacl.hash(m)} // sha512
 
+export const base64toBytes = (s: string) => Uint8Array.from(atob(s), c => c.charCodeAt(0))
+export const bytesToBase64 = (b: Uint8Array) => btoa(String.fromCharCode.apply(null, b))
+
+// https://github.com/facebook/react-native/issues/29195#issuecomment-648157628
+// export const toBase64 = (input) => Buffer.from(input, 'utf-8').toString('base64')  
+// export const fromBase64 = (encoded) => Buffer.from(encoded, 'base64').toString('utf8')
+
 import { Buffer } from 'buffer';
 
 // format unix timestamp to date MM/DD/YYYY
@@ -70,30 +77,49 @@ export const verify_msg = (msg: Uint8Array, key: Uint8Array): Uint8Array | null 
 //     // replace with getRandom and then genKey manually from is to ensure we 
 //     return nacl.box.keyPair()
 // }
+
+// type SignedPayload = {
+//     signed: string,
+//     verify_key: string
+// }
+
+// export const verifySignedPayload = (payload: SignedPayload): Uint8Array => {
+//     if (!payload.signed || !payload.verify_key)
+//         throw new Error('Invalid payload');
+//     const msg = Buffer.from(payload.signed, 'base64');
+//     const verify_key = base58.decode(payload.verify_key);
+//     const verified = verify_msg(msg, verify_key);
+//     if (!verified)
+//         throw new Error('Invalid signature');
+//     return verified;
+// }
+
+// ASSYMETRIC
 export function box(msg: Uint8Array, public_key: Uint8Array, private_key: Uint8Array): Uint8Array {
     let nonce = nacl.randomBytes(NONCE_LENGTH)
     let box = nacl.box(msg, nonce, public_key, private_key)
     return joinByteArrays(nonce, box)
 }
-export function open_box(sealed_box, public_key, private_key) {
+export function open_box(sealed_box: Uint8Array, public_key: Uint8Array, private_key: Uint8Array): Uint8Array | null {
     let nonce = new Uint8Array(NONCE_LENGTH)
     for(let i = 0; i < NONCE_LENGTH; i++) nonce[i] = sealed_box[i]
     let enc = new Uint8Array(sealed_box.length - NONCE_LENGTH)
     for(let i = 0; i < enc.length; i++) enc[i] = sealed_box[i + NONCE_LENGTH]
     return nacl.box.open(enc, nonce, public_key, private_key) 
 }
-export function sealed_box(msg, public_key) {
+export function sealed_box(msg: Uint8Array, public_key: Uint8Array): Uint8Array {
     let nonce = nacl.randomBytes(NONCE_LENGTH)
     let box = nacl.secretbox(msg, nonce, public_key)
     return joinByteArrays(nonce, box)
 }
-export function open_sealed_box(sealed_box, private_key) {
+export function open_sealed_box(sealed_box: Uint8Array, private_key: Uint8Array): Uint8Array | null {
     let nonce = new Uint8Array(NONCE_LENGTH)
     for(let i = 0; i < NONCE_LENGTH; i++) nonce[i] = sealed_box[i]
     let enc = new Uint8Array(sealed_box.length - NONCE_LENGTH)
     for(let i = 0; i < enc.length; i++) enc[i] = sealed_box[i + NONCE_LENGTH]
     return nacl.secretbox.open(enc, nonce, private_key)
 }
+// SYMMETRIC
 export function secret_box(message, key) { // key size 32bytes / 256bits
     let nonce = nacl.randomBytes(NONCE_LENGTH)
     let box = nacl.secretbox(message, nonce, key)
