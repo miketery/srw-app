@@ -133,7 +133,6 @@ class VaultManager {
         return this._current_vault;
     }
     get secrets_manager(): SecretsManager {
-        console.log('secret manager get')
         if (!this._secrets_manager)
             throw new Error('Secrets Manager not set');
         return this._secrets_manager;

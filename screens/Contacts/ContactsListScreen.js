@@ -8,13 +8,37 @@ import { TopGradient } from '../../components';
 
 import { getContactsManager } from '../../classes/Cache';
 
+
+function ContactIcon(props) {
+    return <View style={tw`bg-gray-400 rounded-full h-16 w-16`} />
+}
+
+function ContactRow(props) {
+    const { name, did, state } = props.contact
+    return <View style={tw`flex flex-row items-center py-1 mb-1 bg-slate-600`}>
+        <View style={tw`mr-1`}>
+            <ContactIcon />
+        </View>
+        <View style={tw`flex flex-col`}>
+
+            <Text style={ds.text}>{name}</Text>
+            <Text style={ds.text}>{did}</Text>
+            <Text style={ds.text}>{state}</Text>
+        </View>
+    </View>
+}
+
+
 export default function ContactsListScreen(props) {
     const [contacts, setContacts] = useState([])
 
     useEffect(() => {
-        console.log('[ContactsListScreen.js] componentDidMount()')
-        const contacts = getContactsManager().getContactsArray()
-        setContacts(contacts.sort((a, b) => a.name.localeCompare(b.name)))
+        const unsubscribe = props.navigation.addListener('focus', async() => {
+            console.log('[ContactsListScreen.js] focus()')
+            const contacts = getContactsManager().getContactsArray()
+            setContacts(contacts.sort((a, b) => a.name.localeCompare(b.name)))
+        });
+        return unsubscribe;
     }, [])
 
     return <View style={ds.mainContainerPtGradient}>
@@ -24,7 +48,7 @@ export default function ContactsListScreen(props) {
             </View>
             <View>
                 {contacts.map((contact) => {
-                    return <View><Text>{contact.name}</Text></View>
+                    return <ContactRow contact={contact} key={contact.pk} />
                 })}
             </View>
         </ScrollView>
