@@ -52,7 +52,7 @@ class Secret {
         let pk = StoredTypePrefix[StoredType.secret] + uuidv4()
         return new Secret(pk, secret_type, name, description, data, null, null, vault_pk)
     }
-    to_dict(): SecretDict {
+    toDict(): SecretDict {
         return {
             pk: this.pk,
             secret_type: this.secret_type,
@@ -64,7 +64,7 @@ class Secret {
             vault_pk: this.vault_pk
         }
     }
-    static from_dict(data: SecretDict): Secret {
+    static fromDict(data: SecretDict): Secret {
         return new Secret(
             data.pk, data.secret_type, data.name, data.description, data.data,
             data.updated, data.created, data.vault_pk

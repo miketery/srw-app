@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, TextInput, Button, ScrollView } from 'react-native';
+import { View, Text, TextInput, ScrollView, Pressable } from 'react-native';
 
 import ds from '../../assets/styles';
 
@@ -49,7 +49,11 @@ const CreateSecretScreen = () => {
                 onChangeText={setSecretValue}
                 multiline={true}
             />
-            <Button title="Create Secret" onPress={handleSubmit} />
+            <Pressable title="Create Secret" onPress={handleSubmit}>
+                <View style={ds.button}>
+                    <Text style={ds.buttonText}>Create Secret</Text>
+                </View>
+            </Pressable>
         </ScrollView>
     </View>
 };
