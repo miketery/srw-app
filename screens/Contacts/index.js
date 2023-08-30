@@ -12,7 +12,7 @@ const Stack = createNativeStackNavigator();
 
 export default function ContactsNavigator({navigation}) {
     return <Stack.Navigator screenOptions={{headerShown: false}}
-    navigation={navigation} initialRouteName={ROUTES.ContactListRoute}>
+    navigation={navigation} initialRouteName={ROUTES.ContactsListRoute}>
         <Stack.Screen name={ROUTES.ContactsListRoute} options={{title:'List Contacts'}}>
             {props => 
                 <ContactsListScreen {...props} />}

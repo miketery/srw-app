@@ -7,3 +7,4 @@ export {
 export { GoBackButton } from './GoBackButton'
 export { TopGradient, BottomGradient } from './Gradients'
 export { Card, TopCard, BottomCard } from './Card'
+export { Button } from './Button'

@@ -61,7 +61,7 @@ export default class Vault {
         return base58.encode(this.public_key);
     }
     // TODO: move create vault to here
-    to_dict() {
+    toDict() {
         return {
             'pk': this.pk,
             'uuid': this.uuid,
@@ -76,8 +76,7 @@ export default class Vault {
             'public_key': this.b58_public_key,
         };
     }
-
-    static from_dict(data: any): Vault {
+    static fromDict(data: any): Vault {
         let signing_key = base58.decode(data['signing_key']);
         let verify_key = base58.decode(data['verify_key']);
         let private_key = base58.decode(data['private_key']);
@@ -89,8 +88,7 @@ export default class Vault {
             private_key, public_key
         );
     }
-
-    sign_payload(payload: any) {
+    signPayload(payload: any) {
         const data_bytes = JSON.stringify(payload); //.encode('utf-8');
         const signed = this.sign(data_bytes);
         return {
@@ -102,6 +100,6 @@ export default class Vault {
         return sign_msg(data, this.signing_key);
     }
     async save() {
-        return SI.save(this.pk, this.to_dict());
+        return SI.save(this.pk, this.toDict());
     }
 }

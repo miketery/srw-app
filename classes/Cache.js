@@ -5,15 +5,18 @@ import Vault from './Vault'
 const __CACHE = {
     vault_pk: '', //current vault primary key
     vault: null,
-    contacts: null, //contacts in vault
+    vault_manager: null, //vault manager
 }
 
 // So that dont have to reference LocalStorage (SI.js)
 const Cache = {
-    setVault: (vault) => {
+    setVaultAndManager: (vault, vault_manager) => {
         __CACHE.vault = vault
-        __CACHE.vault_pk = vault_pk
+        __CACHE.vault_pk = vault.pk
+        __CACHE.vault_manager = vault_manager
+        console.log(Cache.vault_manager, 'is null')
     },
+    get vault_manager() { return __CACHE.vault_manager },
     get vault_pk() { return __CACHE.vault_pk },
     get vault() { return __CACHE.vault },
     // getVault: async (force=false) => __CACHE.vault === null || force ?
@@ -28,5 +31,14 @@ const Cache = {
 }
 
 Object.freeze(Cache)
+
+export function getContactsManager() {
+    return __CACHE.vault_manager ?
+        __CACHE.vault_manager.contacts_manager : null
+}
+export function getSecretsManager() {
+    return __CACHE.vault_manager ?
+        __CACHE.vault_manager.secrets_manager : null
+}
 
 export default Cache
