@@ -23,11 +23,11 @@ export default function SplashScreen({navigation}) {
         console.log('[SplashScreen.checkHasVault]')
         const vault_manager = new VaultManager()
         await vault_manager.init()
-        if(vault_manager.vault_is_set()) {
+        if(vault_manager.vaultIsSet()) {
             console.log('[SplashScreen.js] vault is set')
             Cache.setVaultAndManager(vault_manager.current_vault, vault_manager)
             // if has a vault then init the managers
-            await vault_manager.init_managers()
+            await vault_manager.initManagers()
             return Promise.resolve(true)
         } else {
             console.log('[SplashScreen.js] vault is not set')

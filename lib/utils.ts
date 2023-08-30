@@ -78,6 +78,22 @@ export const verify_msg = (msg: Uint8Array, key: Uint8Array): Uint8Array | null 
 //     return nacl.box.keyPair()
 // }
 
+// type SignedPayload = {
+//     signed: string,
+//     verify_key: string
+// }
+
+// export const verifySignedPayload = (payload: SignedPayload): Uint8Array => {
+//     if (!payload.signed || !payload.verify_key)
+//         throw new Error('Invalid payload');
+//     const msg = Buffer.from(payload.signed, 'base64');
+//     const verify_key = base58.decode(payload.verify_key);
+//     const verified = verify_msg(msg, verify_key);
+//     if (!verified)
+//         throw new Error('Invalid signature');
+//     return verified;
+// }
+
 // ASSYMETRIC
 export function box(msg: Uint8Array, public_key: Uint8Array, private_key: Uint8Array): Uint8Array {
     let nonce = nacl.randomBytes(NONCE_LENGTH)

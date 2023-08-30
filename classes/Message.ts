@@ -4,6 +4,7 @@ import base58 from 'bs58'
 
 import Vault from "./Vault";
 import { base64toBytes, box, bytesToBase64, open_box, open_sealed_box, sealed_box } from "../lib/utils";
+import Contact from "./Contact";
 // Interfaces for TypedDicts
 
 interface SenderDict {
@@ -19,10 +20,10 @@ interface MessageDict {
     sender: SenderDict;
     receiver: ReceiverDict;
     encryption: string | null;
-    data: Record<string, any> | string; // base64 string if encrypted
+    data: any | string; // base64 string if encrypted
     type_name: string;
     type_version: string;
-    sig_ts: number;
+    sig_ts?: number;
 }
 
 interface SignedPayloadDict {
@@ -68,7 +69,16 @@ class Sender {
     }
 }
 
-class Receiver extends Sender {}
+class Receiver extends Sender {
+    static fromContact(contact: Contact): Receiver {
+        return new Receiver(
+            contact.did,
+            contact.their_verify_key,
+            contact.their_public_key,
+            contact.name
+        );
+    }
+}
 
 class Message {
     sender: Sender;
@@ -82,7 +92,11 @@ class Message {
     decrypted: any | null;
     encrypted: Uint8Array | null;
 
-    constructor(sender: Sender, receiver: Receiver, data: Record<string, any> | Uint8Array | string, type_name: string, type_version: string, encryption: string | null = null, encrypt: boolean = true, sig_ts: number = 0) {
+    constructor(sender: Sender, receiver: Receiver, 
+            data: Record<string, any> | Uint8Array | string, 
+            type_name: string, type_version: string,
+            encryption: string | null = null, encrypt: boolean = true,
+            sig_ts: number = 0) {
         this.sender = sender;
         this.receiver = receiver;
         this.data = data;
@@ -134,7 +148,6 @@ class Message {
             sender: this.sender.toDict(),
             receiver: this.receiver.toDict(),
             encryption: this.encryption,
-            // decode base64 to bytearray
             data: data,
             type_name: this.type_name,
             type_version: this.type_version,
@@ -166,3 +179,6 @@ class Message {
         );
     }
 }
+
+export { MessageDict, SignedPayloadDict, SenderDict, ReceiverDict}
+export { Sender, Receiver, Message };

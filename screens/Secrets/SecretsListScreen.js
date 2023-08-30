@@ -6,7 +6,7 @@ import tw from '../../lib/tailwind';
 import { DEV, ROUTES } from '../../config';
 import { TopGradient } from '../../components';
 
-import { get_secrets_manager } from '../../classes/Cache';
+import { getSecretsManager } from '../../classes/Cache';
 
 function SecretIcon(props) {
     return <View style={tw`bg-gray-400 rounded-full h-16 w-16`} />
@@ -32,7 +32,7 @@ function SecretsListScreen(props) {
 
     useEffect(() => {
         const unsubscribe = props.navigation.addListener('focus', async() => {
-            const secrets = get_secrets_manager().get_secrets_array()
+            const secrets = getSecretsManager().getSecretsArray()
             setSecrets(secrets.sort((a, b) => a.name.localeCompare(b.name)))
           });
         return unsubscribe;

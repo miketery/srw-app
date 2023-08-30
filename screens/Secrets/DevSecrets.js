@@ -5,26 +5,26 @@ import { test_secrets } from '../../testdata/test_secrets'
 import tw from '../../lib/tailwind'
 import ds from '../../assets/styles'
 
-import { get_secrets_manager } from '../../classes/Cache';
+import { getSecretsManager } from '../../classes/Cache';
 
 async function DeleteAllSecrets() {
-    const secret_manager = get_secrets_manager()
-    return secret_manager.get_secrets_array().forEach(async (secret) => {
-        return secret_manager.delete_secret(secret)
+    const secret_manager = getSecretsManager()
+    return secret_manager.getSecretsArray().forEach(async (secret) => {
+        return secret_manager.deleteSecret(secret)
     })
 }
 async function AddTestSecrets() {
-    const secret_manager = get_secrets_manager()
+    const secret_manager = getSecretsManager()
     const secret = await Secret.create(
         SecretType.Text,
         'Test Text Secret',
         'This is a test secret',
         'Secret Data',
         secret_manager.vault.pk)
-    return secret_manager.save_secret(secret)
+    return secret_manager.saveSecret(secret)
 }
 async function AddManyTestSecrets() {
-    const secret_manager = get_secrets_manager()
+    const secret_manager = getSecretsManager()
     return test_secrets.forEach(async (s) => {
         const secret = await Secret.create(
             SecretType.Text,

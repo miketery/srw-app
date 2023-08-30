@@ -32,11 +32,11 @@ const Cache = {
 
 Object.freeze(Cache)
 
-export function get_contacts_manager() {
+export function getContactsManager() {
     return __CACHE.vault_manager ?
         __CACHE.vault_manager.contacts_manager : null
 }
-export function get_secrets_manager() {
+export function getSecretsManager() {
     return __CACHE.vault_manager ?
         __CACHE.vault_manager.secrets_manager : null
 }

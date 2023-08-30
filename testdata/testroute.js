@@ -1,6 +1,13 @@
 import { ROUTES } from "../config";
 
-const top_level = ROUTES.SecretsRoute;
+// When NO Vault && DEV pick route:
+// Default -- ROUTES.LandingRoute
+// Test    -- ROUTES.DevNoVaultRoute
+const no_vault_test_route = ROUTES.LandingRoute
+
+// When HAS Vault && DEV pick route:
+// choose from Object.keys(switch_routes)
+const top_level = ROUTES.ContactsRoute; 
 
 const switch_routes = {
   [ROUTES.TestDevRoute]: [
@@ -11,6 +18,7 @@ const switch_routes = {
   ],
   [ROUTES.ContactsRoute]: [
     {name: ROUTES.ContactsListRoute},
+    {name: ROUTES.DevContactsRoute}
     // {name: ROUTES.ContactViewRoute, params: {
     //   contact_uuid: 'a0b1c2d3-e4f5-6a7b-8c9d-0e1f2a3b4c5d'
     // }},
@@ -49,7 +57,6 @@ const vault_test_route = [
     }
   }
 ]
-const no_vault_test_route = ROUTES.LandingRoute // Default is Landing Route
 
 export {
   vault_test_route,

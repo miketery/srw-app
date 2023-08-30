@@ -46,8 +46,8 @@ export default function VaultCreateScreen(props) {
         setTimeout(async () => {
             try {
                 const vault_manager = new VaultManager()
-                const vault = await vault_manager.create_vault(name, displayName, email)
-                await vault_manager.init_managers()
+                const vault = await vault_manager.createVault(name, displayName, email)
+                await vault_manager.initManagers()
                 Cache.setVaultAndManager(vault_manager.current_vault, vault_manager)
                 finishSubmit(vault)
             } catch (err) {
