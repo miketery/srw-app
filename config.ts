@@ -16,7 +16,9 @@ export const BASE =
           'https://api.ssi.arxsky.com/api'
 
 export const ENDPOINTS = {
-    
+    ME: '/user/me/',
+    REGISTER: '/user/register/',
+    LOGIN: '/login',
 }
 
 DEBUG && console.log('DEBUG: ', {
@@ -32,8 +34,8 @@ export const ROUTES = {
     DevContactsRoute: 'DevContactsRoute',
     DevSecretsRoute: 'DevSecretsRoute',
     DevRecoveriesRoute: 'DevRecoveriesRoute',
-    // DevTestVaultsRoute: 'DevTestVaultsRoute',
-    //
+    DevDigitalAgentRoute: 'DevDigitalAgentRoute',
+
     SplashRoute: 'SplashRoute',
     LandingRoute: 'LandingRoute',
     UnlockRoute: 'UnlockRoute',

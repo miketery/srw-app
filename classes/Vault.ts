@@ -88,8 +88,9 @@ export default class Vault {
             private_key, public_key
         );
     }
-    signPayload(payload: any) {
-        const data_bytes = JSON.stringify(payload); //.encode('utf-8');
+    signPayload(payload: any): {signed: string, verify_key: string} {
+        const data = JSON.stringify(payload);//.encode('utf-8');
+        const data_bytes = Buffer.from(data, 'utf-8');
         const signed = this.sign(data_bytes);
         return {
             'signed': Buffer.from(signed).toString('base64'),
