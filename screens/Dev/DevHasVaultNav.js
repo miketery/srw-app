@@ -5,8 +5,15 @@ import { ROUTES } from '../../config';
 import DevDigitalAgentScreen from './DevDigitalAgentScreen';
 import ds from '../../assets/styles';
 import tw from '../../lib/tailwind';
+import { GoBackButton } from '../../components';
 
 const Stack = createNativeStackNavigator();
+
+function deleteAllLocalStorage() {
+    console.log('DeleteAllLocalStorage')
+    localStorage.clear()
+    window.location.reload()
+}
 
 export function DevHasVaultNav({navigation}) {
     return <Stack.Navigator screenOptions={{headerShown: false}} navigation={navigation} initialRouteName={ROUTES.DevGeneralRoute}>
@@ -18,10 +25,12 @@ export function DevHasVaultNav({navigation}) {
                         onPress={() => props.navigation.navigate(ROUTES.DevDigitalAgentRoute)}>
                         <Text style={ds.buttonText}>Digital Agent</Text>
                     </Pressable>
-                    <Pressable style={[ds.button, ds.greenButton, tw`mt-4`]}
-                        onPress={() => props.navigation.goBack()}>
-                        <Text style={ds.buttonText}>Back</Text>
+                    <Pressable style={[ds.button, ds.redButton, tw`mt-4`]}
+                        onPress={() => deleteAllLocalStorage()}>
+                        <Text style={ds.buttonText}>Delete All</Text>
                     </Pressable>
+                    <View style={tw`flex-grow-1`} />
+                    <GoBackButton onPressOut={() => props.navigation.goBack()} />
                 </View>}
         </Stack.Screen>
         <Stack.Screen name={ROUTES.DevDigitalAgentRoute} options={{title:'Digital Agent'}}>

@@ -7,6 +7,7 @@ import ds from '../../assets/styles'
 
 import Cache from '../../classes/Cache'
 import DAI from '../../classes/DigitalAgentInterface'
+import { GoBackButton } from '../../components'
 
 function registerVault() {
     console.log('registerVault')
@@ -25,8 +26,7 @@ function amIRegistered() {
 export default function DevDigitalAgentScreen(props) {
     return <View style={ds.mainContainerPt}>
         <Text style={ds.header}>Dev Digital Agent Test</Text>
-        <View style={tw`flex-col flex-grow-1`}>
-            <View>
+        <View>
             <Pressable style={[ds.button, ds.blueButton, tw`mt-4`]}
             onPress={() => registerVault()}>
                 <Text style={ds.buttonText}>Register Vault</Text>
@@ -35,14 +35,10 @@ export default function DevDigitalAgentScreen(props) {
             onPress={() => amIRegistered()}>
                 <Text style={ds.buttonText}>Am I Registered</Text>
             </Pressable>
-            </View>
-            <View style={tw`flex-grow-1`} />
-            <View>
-                <Pressable style={[ds.button, ds.greenButton, tw`rounded-full`]}
-                    onPress={() => props.navigation.goBack()}>
-                    <Text style={ds.buttonText}>Back</Text>
-                </Pressable>
-            </View>
+        </View>
+        <View style={tw`flex-grow-1`} />
+        <View>
+            <GoBackButton onPressOut={() => props.navigation.goBack()} />
         </View>
     </View>
 }
