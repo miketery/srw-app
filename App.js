@@ -20,14 +20,11 @@ window.Buffer = window.Buffer || require("buffer").Buffer;
 
 const Stack = createNativeStackNavigator();
 
-// const originalWarn = console.warn;
+const originalWarn = console.warn;
 
-// console.warn = (...args) => {
-//   if (args[0].includes('selectable prop is deprecated')) {
-//     console.trace(); // print stack trace
-//   }
-//   originalWarn(...args);
-// };
+console.warn = (...args) => { // console.trace(); // print stack trace
+    if (args[0].includes('selectable prop is deprecated')) {} else { originalWarn(...args); }};
+console.error = (...args) => { if (args[0].includes('BackHandler ')) {} else { originalWarn(...args); }};
 
 export default function App() {
     return (

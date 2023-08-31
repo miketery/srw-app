@@ -5,8 +5,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 // Import the required classes, modules or types here
 import { SigningKey, VerifyKey, PrivateKey, PublicKey, SignedMessage } from '../lib/nacl';
-import { sign_msg, signingKeyFromWords, encryptionKeyFromWords, getRandom } from '../lib/utils'
+import { signMsg, signingKeyFromWords, encryptionKeyFromWords, getRandom } from '../lib/utils'
 import SI, { StoredType, StoredTypePrefix } from './StorageInterface';
+import { entropyToMnemonic } from 'bip39';
 
 
 export default class Vault {
@@ -60,7 +61,19 @@ export default class Vault {
     get b58_public_key(): string {
         return base58.encode(this.public_key);
     }
-    // TODO: move create vault to here
+    static async create(name: string, email: string, display_name: string, 
+            digital_agent_host: string, words: string): Promise<Vault> {
+        if(!words || words.length === 0) {
+            const entropy = await getRandom(32);
+            words = entropyToMnemonic(Buffer.from(entropy));
+        }
+        const signing_key = signingKeyFromWords(words);
+        const encryption_key = encryptionKeyFromWords(words);
+        return new Vault(
+            uuidv4(), name, email, display_name, digital_agent_host, words,
+            signing_key.secretKey, signing_key.publicKey,
+            encryption_key.secretKey, encryption_key.publicKey);
+    }
     toDict() {
         return {
             'pk': this.pk,
@@ -98,7 +111,7 @@ export default class Vault {
         };
     }
     sign(data: any): SignedMessage {
-        return sign_msg(data, this.signing_key);
+        return signMsg(data, this.signing_key);
     }
     async save() {
         return SI.save(this.pk, this.toDict());

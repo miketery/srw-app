@@ -26,6 +26,8 @@ DEBUG && console.log('DEBUG: ', {
 })
 
 export const ROUTES = {
+    DefaultRoute: 'DefaultRoute',
+
     DevNoVaultRoute: 'DevNoVaultRoute',
     DevGeneralRoute: 'DevGeneralRoute',
     DevLoadVaultsRoute: 'DevLoadVaultsRoute',

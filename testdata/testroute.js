@@ -11,7 +11,7 @@ const top_level = ROUTES.DevHasVaultRoute;
 
 const switch_routes = {
   [ROUTES.DevHasVaultRoute]: [
-    // {name: ROUTES.DevGeneralRoute},
+    {name: ROUTES.DefaultRoute},
     {name: ROUTES.DevDigitalAgentRoute},
   ],
   [ROUTES.HomeNavRoute]: [

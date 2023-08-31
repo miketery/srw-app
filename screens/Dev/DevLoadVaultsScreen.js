@@ -9,6 +9,7 @@ import ds from '../../assets/styles'
 import { test_vaults } from '../../testdata/testVaults'
 
 import VaultManager from '../../classes/VaultManager'
+import { GoBackButton } from '../../components'
 
 const loadAndSaveVault = (key) => {
     console.log('loadVault', key, test_vaults[key].name)
@@ -25,11 +26,14 @@ const vault_buttons = test_vaults.map((v, i) =>
     </Pressable>
 )
 
-export default function DevTestVaultsScreen(props) {
+export default function DevLoadVaultsScreen(props) {
     return <View style={ds.landingContainer}>
-        <Text style={ds.header}>Dev Test Vaults</Text>
-        <View>
+        <Text style={ds.header}>Dev - Load Vaults</Text>
+        <View style={tw`flex-grow-1`}>
             {vault_buttons}
+        </View>
+        <View>
+            <GoBackButton onPressOut={() => props.navigation.goBack()} />
         </View>
     </View>
 }

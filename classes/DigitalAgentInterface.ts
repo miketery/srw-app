@@ -5,7 +5,8 @@ import { BASE, ENDPOINTS } from '../config';
 
 
 class DigitalAgentInterface {
-    static digital_agent_host: string = BASE
+    digital_agent_host: string
+
 
 /*
 name
@@ -17,7 +18,9 @@ verify_key
 public_key
 
 */
-
+    constructor(vault: Vault) {
+        this.digital_agent_host = BASE; // vault.digital_agent_host;
+    }
 
     static async registerVault(vault: Vault) {
         const payload = {

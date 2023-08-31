@@ -68,40 +68,24 @@ class VaultManager {
     fromDict(vault_data: any): Vault {
         return Vault.fromDict(vault_data);
     }
-    async createVault(name: string, display_name: string, email: string = '',
-            words: string = '', digital_agent_host: string = '', save: boolean = true): Promise<Vault> {
-        if (words == '') {
-            let entropy = await getRandom(16)
-            words = entropyToMnemonic(Buffer.from(entropy))
-        }
-        console.log(words)
-        let signingKeyPair = signingKeyFromWords(words);
-        let encKeyPair = encryptionKeyFromWords(words);
-        let new_vault = new Vault(
-            uuidv4(), name, email, display_name, digital_agent_host,
-            words,
-            signingKeyPair.secretKey, signingKeyPair.publicKey,
-            encKeyPair.secretKey, encKeyPair.publicKey);
-        let vault = this.getVault(new_vault.pk);
-        if (vault) {
+    async createVault(name: string, display_name: string, email: string,
+            digital_agent_host: string, words: string,
+            save: boolean = true): Promise<Vault> {
+        const new_vault = await Vault.create(name, display_name, email, 
+            digital_agent_host, words);
+        const vault = this.getVault(new_vault.pk);
+        if (vault)
             throw new Error(`Vault with Verify Key ${vault.pk} already exists`);
-        }
         if (save) {
             await SI.save(new_vault.pk, new_vault.toDict());
             // check that saved
-            let vault_data = await SI.get(new_vault.pk);
-            if (!vault_data) {
+            const vault_data = await SI.get(new_vault.pk);
+            if (!vault_data)
                 throw new Error(`Could not save vault ${new_vault.pk}`);
-            } else {
-                this._vaults.push(new_vault);
-                this._current_vault = new_vault;
-                return new_vault;
-            }
-        } else {
-            this._vaults.push(new_vault);
-            this._current_vault = new_vault;
-            return new_vault;
         }
+        this._vaults.push(new_vault);
+        this._current_vault = new_vault;
+        return new_vault;
     }
     getVault(pk: string): Vault | null {
         for (let vault of this._vaults) {
