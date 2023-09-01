@@ -5,40 +5,29 @@ import { BASE, ENDPOINTS } from '../config';
 
 
 class DigitalAgentInterface {
-    digital_agent_host: string
+    static digital_agent_host: string = BASE;
 
-
-/*
-name
-display name
-location
-email
-phone
-verify_key
-public_key
-
-*/
     constructor(vault: Vault) {
-        this.digital_agent_host = BASE; // vault.digital_agent_host;
+        DigitalAgentInterface.digital_agent_host = BASE; // vault.digital_agent_host;
     }
-
     static async registerVault(vault: Vault) {
         const payload = {
             'name': vault.name,
             'display_name': vault.display_name,
             'email': vault.email,
+            // 'phone': vault.phone,
+            // 'localtion': vault.location,
             'verify_key': vault.b58_verify_key,
             'public_key': vault.b58_public_key,
             'public_key_signature': Buffer.from(vault.sign(vault.public_key)).subarray(0, 64).toString('hex'),
             'sig_ts': Math.floor(Date.now() / 1000)
         }
         const signed_payload = vault.signPayload(payload);
-        let data = await axios.post(this.digital_agent_host + ENDPOINTS.REGISTER, signed_payload).catch(
-            (error) => {
-                console.log(error)
-                throw new Error(error);
-            }
-        );
+        let data = await axios.post(this.digital_agent_host + ENDPOINTS.REGISTER, signed_payload)
+        .catch((error) => {
+            console.log(error)
+            throw new Error(error);
+        });
         if (data['status'] == 201) {
             return data['data'];
         } else {
