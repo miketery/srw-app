@@ -6,50 +6,72 @@ import { entropyToMnemonic } from 'bip39';
 
 import ContactsManager from './ContactsManager';
 import SecretsManager from './SecretsManager';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+interface SessionInterface {
+    vault_pk?: string;
+}
 
 class VaultManager {
     // private static _instance: VaultManager;
-    private _vaults: Vault[];
+    private _vaults: {string?: Vault};
     private _current_vault: Vault | null;
     private _secrets_manager: SecretsManager | null;
     private _contacts_manager: ContactsManager | null;
+    private _session: SessionInterface;
 
     constructor() {
-        this._vaults = [];
+        this._vaults = {};
         this._current_vault = null;
+        this._session = {}
     }
-    // public static get_instance(): VaultManager {
-    //     if (!VaultManager._instance) {
-    //         VaultManager._instance = new VaultManager();
-    //     }
-    //     return VaultManager._instance;
-    // }
     async init(): Promise<void> {
         console.log('[VaultManager.init]')
         await this.loadVaults();
-        if (this._vaults.length > 0) {
-            console.log('[VaultManager.init] _vaults.length > 0')
-            this.setVault();
+        const did_load = await this.loadSession();
+        console.log('did_load', did_load)
+        if(did_load && this._session.vault_pk) {
+            this.setVault(this._session.vault_pk);
             this.initManagers();
+        } else {
+            if (Object.keys(this._vaults).length > 0) {
+                this.setVault(Object.keys(this._vaults)[0]); // first one
+                this.saveSession();
+                this.initManagers();
+            }
         }
     }
-    async loadVaults(): Promise<Vault[]> {
+    async loadSession(): Promise<Boolean> {
+        console.log('[VaultManager.loadSession]')
+        const res = await AsyncStorage.getItem('SESSION');
+        if(res) {
+            const data = JSON.parse(res);
+            this._session = data;
+            return true
+        }
+        return false
+    }
+    async saveSession(): Promise<void> {
+        console.log('[VaultManager.saveSession]')
+        await AsyncStorage.setItem('SESSION', JSON.stringify(this._session));
+    }
+    async loadVaults(): Promise<{string?: Vault}> {
         console.log('[VaultManager.loadVaults]')
-        let vaults: Vault[] = [];
-        let vaults_data = await SI.getAll(StoredType.vault);
-        console.log(vaults_data)
+        const vaults = {};
+        const vaults_data = await SI.getAll(StoredType.vault);
         for (let vault_data of Object.values(vaults_data)) {
-            console.log(vault_data)
-            vaults.push(Vault.fromDict(vault_data));
+            const v = Vault.fromDict(vault_data);
+            vaults[v.pk] = v;
         }
         this._vaults = vaults;
         return vaults;
     }
-    setVault(vault_pk: string|null=null) {
-        if(!vault_pk)
-            this._current_vault = this._vaults[0]
-        else
-            this._current_vault = this.getVault(vault_pk);
+    getVaultsArray(): Vault[] {
+        return Object.values(this._vaults);
+    }
+    setVault(vault_pk: string) {
+        this._session.vault_pk = vault_pk;
+        this._current_vault = this.getVault(vault_pk);
     }
     async initManagers(): Promise<void> {
         console.log('[VaultManager.initManagers]')
@@ -64,9 +86,6 @@ class VaultManager {
     }
     async saveVault(vault: Vault): Promise<void> {
         return SI.save(vault.pk, vault.toDict());
-    }
-    fromDict(vault_data: any): Vault {
-        return Vault.fromDict(vault_data);
     }
     async createVault(name: string, display_name: string, email: string,
             digital_agent_host: string, words: string,
@@ -83,20 +102,17 @@ class VaultManager {
             if (!vault_data)
                 throw new Error(`Could not save vault ${new_vault.pk}`);
         }
-        this._vaults.push(new_vault);
+        this._vaults[new_vault.pk] = new_vault;
         this._current_vault = new_vault;
+        this._session.vault_pk = new_vault.pk;
+        this.saveSession();
         return new_vault;
     }
-    getVault(pk: string): Vault | null {
-        for (let vault of this._vaults) {
-            if (vault.pk == pk) {
-                return vault;
-            }
-        }
-        return null;
+    getVault(pk: string): Vault {
+        return this._vaults[pk];
     }
     getVaultByDid(did: string): Vault | null {
-        for (let vault of this._vaults) {
+        for (let vault of this.getVaultsArray()) {
             if (vault.did == did) {
                 return vault;
             }
@@ -128,5 +144,15 @@ class VaultManager {
     }
 }
 
+export default VaultManager;
+
+// singleton example
+// Class VaultManager {
+//     public static get_instance(): VaultManager {
+//         if (!VaultManager._instance) {
+//             VaultManager._instance = new VaultManager();
+//         }
+//         return VaultManager._instance;
+//     }
+// }
 // const VM = VaultManager.get_instance();
-export default VaultManager; // singleton
