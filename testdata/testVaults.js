@@ -3,7 +3,7 @@ export const test_vaults = [
     {
         "pk": "v__9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS",
         "uuid": "654e4196-3d74-4b89-86b0-c5f45f426701",
-        "name": "Alice",
+        "name": "alice",
         "email": "alice@arxsky.com",
         "display_name": "TV—Alice",
         "digital_agent_host": "",
@@ -16,7 +16,7 @@ export const test_vaults = [
     {
         "pk": "v__EtCnZqvnQ4qNq1wV5yjK2hMTrg1i3iPFESrD6w7mGP3E",
         "uuid": "5953d028-3acf-461d-aa38-54aa6199624d",
-        "name": "Bob",
+        "name": "bob",
         "email": "bob@arxsky.com",
         "display_name": "TV—Bob",
         "digital_agent_host": "",
@@ -29,7 +29,7 @@ export const test_vaults = [
     {
         "pk": "v__D5EBA8cZDo7kQGCqepKGGkkWGy9b1c5oXnQE5N9T1xnK",
         "uuid": "afbd4cba-6e30-4857-b477-88255e5bcb1e",
-        "name": "Charlotte",
+        "name": "charlotte",
         "email": "charlotte@arxsky.com",
         "display_name": "TV—Charlotte",
         "digital_agent_host": "",

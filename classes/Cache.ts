@@ -1,26 +1,40 @@
-import SI from './StorageInterface'
 import Vault from './Vault'
+import VaultManager from './VaultManager'
 
+interface CacheInterface {
+    vault: Vault | null;
+    vault_manager: VaultManager | null;
+}
 
-const __CACHE = {
-    vault_pk: '', //current vault primary key
-    vault: null,
+const __CACHE: CacheInterface = {
+    vault: null, // current vault
     vault_manager: null, //vault manager
 }
 
-// So that dont have to reference LocalStorage (SI.js)
 const Cache = {
-    setVaultAndManager: (vault, vault_manager) => {
+    setVaultAndManager: (vault: Vault, vault_manager: VaultManager) => {
         console.log('[Cache.setVaultAndManager] ' + vault.pk)
         __CACHE.vault = vault
-        __CACHE.vault_pk = vault.pk
         __CACHE.vault_manager = vault_manager
     },
-    get vault_manager() { return __CACHE.vault_manager },
-    get vault_pk() { return __CACHE.vault_pk },
-    get vault() { return __CACHE.vault },
-    // getVault: async (force=false) => __CACHE.vault === null || force ?
-    //     Cache._getAndSetVault() : __CACHE.vault,
+    get vault_manager(): VaultManager {
+        if(__CACHE.vault_manager)
+            return __CACHE.vault_manager;
+        else
+            throw new Error('VaultManager not set')
+    },
+    get vault_pk(): string {
+        if(__CACHE.vault)
+            return __CACHE.vault.pk;
+        else
+            throw new Error('Vault not set')
+    },
+    get vault(): Vault {
+        if(__CACHE.vault)
+            return __CACHE.vault;
+        else
+            throw new Error('Vault not set')
+    },
 
     // _getAndSetContacts: async () => Contact.getAll(__CACHE.vault_pk).then(contacts => {
     //     __CACHE.contacts = contacts
