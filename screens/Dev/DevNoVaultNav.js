@@ -1,17 +1,32 @@
+import { Text, View, Pressable } from 'react-native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 import { ROUTES } from '../../config';
 
-import DevGeneralScreen from './DevGeneralScreen';
 import DevLoadVaultsScreen from './DevLoadVaultsScreen';
 
 const Stack = createNativeStackNavigator();
 
+import ds from '../../assets/styles'
+import tw from '../../lib/tailwind';
+import { GoBackButton } from '../../components';
+
 export function DevNoVaultNav({navigation}) {
-    return <Stack.Navigator screenOptions={{headerShown: false}} navigation={navigation} initialRouteName={ROUTES.DevGeneralRoute}>
-        <Stack.Screen name={ROUTES.DevGeneralRoute} options={{title:'Dev Test'}}>
-            {props => 
-                <DevGeneralScreen {...props} />}
+    return <Stack.Navigator screenOptions={{headerShown: false}} navigation={navigation} initialRouteName={ROUTES.DefaultRoute}>
+        <Stack.Screen name={ROUTES.DefaultRoute} options={{title:'Dev Test'}}>
+            {props => <View style={ds.landingContainer}>
+                <Text style={ds.header}>Dev Test</Text>
+                <View style={[ds.col, tw`flex-grow-1`]}>
+                    <Pressable style={[ds.button, ds.blueButton, tw`mt-4`]} onPress={() => console.log('Pressed')}>
+                        <Text style={ds.buttonText}>Test</Text>
+                    </Pressable>
+                    <Pressable style={[ds.button, ds.greenButton, tw`mt-4`]} onPress={() => 
+                            navigation.navigate(ROUTES.DevLoadVaultsRoute)} >
+                        <Text style={ds.buttonText}>Load Vaults</Text>
+                    </Pressable>
+                </View>
+                <GoBackButton onPressOut={() => navigation.goBack()} />
+            </View>}
         </Stack.Screen>
         <Stack.Screen name={ROUTES.DevLoadVaultsRoute} options={{title:'Dev Load Vaults'}}>
             {props => 

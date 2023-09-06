@@ -60,7 +60,7 @@ export const getRandom = async (strength: number): Promise<Uint8Array> => {
         return randomBytes(strength)
     }
 }
-export const sign_msg = (msg: Uint8Array, key: Uint8Array): Uint8Array => {
+export const signMsg = (msg: Uint8Array, key: Uint8Array): Uint8Array => {
     let signed = nacl.sign(msg, key)
     return signed
 }

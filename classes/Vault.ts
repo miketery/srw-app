@@ -5,8 +5,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 // Import the required classes, modules or types here
 import { SigningKey, VerifyKey, PrivateKey, PublicKey, SignedMessage } from '../lib/nacl';
-import { sign_msg, signingKeyFromWords, encryptionKeyFromWords, getRandom } from '../lib/utils'
+import { signMsg, signingKeyFromWords, encryptionKeyFromWords, getRandom } from '../lib/utils'
 import SI, { StoredType, StoredTypePrefix } from './StorageInterface';
+import { entropyToMnemonic } from 'bip39';
 
 
 export default class Vault {
@@ -21,6 +22,8 @@ export default class Vault {
     verify_key: VerifyKey;
     private_key: PrivateKey; // appends 'encryption' to ${words}
     public_key: PublicKey;
+    registered: boolean;
+    short_code: string;
 
     constructor(
             uuid: string,
@@ -30,7 +33,8 @@ export default class Vault {
             digital_agent_host: string,
             words: string,
             signing_key: SigningKey, verify_key: VerifyKey,
-            private_key: PrivateKey, public_key: PublicKey) {
+            private_key: PrivateKey, public_key: PublicKey,
+            registered: boolean, short_code: string) {
         this.uuid = uuid;
         this.name = name;
         this.email = email;
@@ -41,6 +45,8 @@ export default class Vault {
         this.verify_key = verify_key;
         this.private_key = private_key;
         this.public_key = public_key;
+        this.registered = registered;
+        this.short_code = short_code;
     }
     get pk(): string {
         return StoredTypePrefix[StoredType.vault] + this.b58_verify_key;
@@ -60,7 +66,20 @@ export default class Vault {
     get b58_public_key(): string {
         return base58.encode(this.public_key);
     }
-    // TODO: move create vault to here
+    static async create(name: string, email: string, display_name: string,
+            digital_agent_host: string, words: string): Promise<Vault> {
+        if(!words || words.length === 0) {
+            const entropy = await getRandom(32);
+            words = entropyToMnemonic(Buffer.from(entropy));
+        }
+        const signing_key = signingKeyFromWords(words);
+        const encryption_key = encryptionKeyFromWords(words);
+        return new Vault(
+            uuidv4(), name, email, display_name, digital_agent_host, words,
+            signing_key.secretKey, signing_key.publicKey,
+            encryption_key.secretKey, encryption_key.publicKey,
+            false, '');
+    }
     toDict() {
         return {
             'pk': this.pk,
@@ -74,6 +93,8 @@ export default class Vault {
             'verify_key': this.b58_verify_key,
             'private_key': this.b58_private_key,
             'public_key': this.b58_public_key,
+            'registered': this.registered,
+            'short_code': this.short_code
         };
     }
     static fromDict(data: any): Vault {
@@ -84,12 +105,13 @@ export default class Vault {
         return new Vault(
             data['uuid'], data['name'], data['email'], data['display_name'],
             data['digital_agent_host'], data['words'],
-            signing_key, verify_key,
-            private_key, public_key
+            signing_key, verify_key, private_key, public_key,
+            data['registered'], data['short_code']
         );
     }
-    signPayload(payload: any) {
-        const data_bytes = JSON.stringify(payload); //.encode('utf-8');
+    signPayload(payload: any): {signed: string, verify_key: string} {
+        const data = JSON.stringify(payload);//.encode('utf-8');
+        const data_bytes = Buffer.from(data, 'utf-8');
         const signed = this.sign(data_bytes);
         return {
             'signed': Buffer.from(signed).toString('base64'),
@@ -97,7 +119,7 @@ export default class Vault {
         };
     }
     sign(data: any): SignedMessage {
-        return sign_msg(data, this.signing_key);
+        return signMsg(data, this.signing_key);
     }
     async save() {
         return SI.save(this.pk, this.toDict());

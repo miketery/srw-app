@@ -32,7 +32,7 @@ async function AddManyTestSecrets() {
             s.description,
             s.data,
             secret_manager.vault.pk)
-        return secret_manager.save_secret(secret)
+        return secret_manager.saveSecret(secret)
     })
 }
 
