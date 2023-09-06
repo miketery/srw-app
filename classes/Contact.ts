@@ -4,7 +4,7 @@ const bip39 = require('bip39')
 import { v4 as uuidv4 } from 'uuid';
 
 import { SigningKey, VerifyKey, PrivateKey, PublicKey, SignedMessage } from '../lib/nacl';
-import { sign_msg, signingKeyFromWords, encryptionKeyFromWords, encryptionKey, getRandom } from '../lib/utils'
+import { signMsg, signingKeyFromWords, encryptionKeyFromWords, encryptionKey, getRandom } from '../lib/utils'
 import { StoredType, StoredTypePrefix } from './StorageInterface';
 
 export enum ContactState {

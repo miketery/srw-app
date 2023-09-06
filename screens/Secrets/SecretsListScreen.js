@@ -32,6 +32,7 @@ function SecretsListScreen(props) {
 
     useEffect(() => {
         const unsubscribe = props.navigation.addListener('focus', async() => {
+            console.log('[SecretsListScreen.js] focus()')
             const secrets = getSecretsManager().getSecretsArray()
             setSecrets(secrets.sort((a, b) => a.name.localeCompare(b.name)))
           });

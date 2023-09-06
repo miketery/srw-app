@@ -11,10 +11,10 @@ const __CACHE = {
 // So that dont have to reference LocalStorage (SI.js)
 const Cache = {
     setVaultAndManager: (vault, vault_manager) => {
+        console.log('[Cache.setVaultAndManager] ' + vault.pk)
         __CACHE.vault = vault
         __CACHE.vault_pk = vault.pk
         __CACHE.vault_manager = vault_manager
-        console.log(Cache.vault_manager, 'is null')
     },
     get vault_manager() { return __CACHE.vault_manager },
     get vault_pk() { return __CACHE.vault_pk },
