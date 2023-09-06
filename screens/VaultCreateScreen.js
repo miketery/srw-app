@@ -49,7 +49,7 @@ export default function VaultCreateScreen(props) {
                 const words = DEV ? 
                     'alley maze evoke auto pull skull run credit margin ignore dune brisk' : ''
                 const vault = await vault_manager.createVault(
-                    name, displayName, email, '', words, true)
+                    name, email, displayName, '', words, true)
                 await vault_manager.initManagers()
                 Cache.setVaultAndManager(vault_manager.current_vault, vault_manager)
                 finishSubmit(vault)
