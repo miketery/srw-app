@@ -12,8 +12,8 @@ class ContactsManager {
     private _contacts: {string?: Contact};
     private _vault: Vault | null;
     // singleton constructor
-    constructor(vault: Vault) { 
-        this._contacts = {}; 
+    constructor(vault: Vault, contacts: {string?: Contact} = {}) { 
+        this._contacts = contacts; 
         this._vault = vault;
     }
     // public static getInstance(): ContactsManager {

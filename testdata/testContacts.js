@@ -27,7 +27,7 @@ const vaults = Object.fromEntries(test_vaults.map((vault) => {
 }).map((vault) => [vault.name, vault]))
 
 
-async function getTestContacts() {
+async function getTestVaultsAndContacts() {
     const contacts = {}
     for(let i = 0; i < participants.length; i++) {
         const name = participants[i]
@@ -50,7 +50,7 @@ async function getTestContacts() {
             contacts[name][their_name] = contact
         }
     }
-    return contacts
+    return [vaults, contacts]
 }
 
-export default getTestContacts
+export default getTestVaultsAndContacts
