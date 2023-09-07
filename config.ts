@@ -31,6 +31,7 @@ export const ROUTES = {
     DevNoVaultRoute: 'DevNoVaultRoute',
     DevGeneralRoute: 'DevGeneralRoute',
     DevLoadVaultsRoute: 'DevLoadVaultsRoute',
+    DevMessagesRoute: 'DevMessagesRoute',
 
     DevHasVaultRoute: 'DevHasVaultRoute',
     DevContactsRoute: 'DevContactsRoute',

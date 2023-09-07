@@ -71,11 +71,14 @@ export default function SplashScreen({navigation}) {
             // if DEV then follow test routes
             if(hasVault) {
                 const routes = primary_route(DEV ? vault_test_route : []);
-                console.log(routes)
+                DEV && console.log('DEV vault_test_route', routes)
                 navigation.dispatch(CommonActions.reset(routes));    
             } else {
-                console.log(DEV, no_vault_test_route)
-                navigation.navigate(DEV ? no_vault_test_route : ROUTES.LandingRoute); 
+                if(DEV) {
+                    DEV && console.log('DEV no_vault_test_coute', no_vault_test_route)
+                    navigation.dispatch(CommonActions.reset(no_vault_test_route));
+                } else
+                    navigation.navigate(ROUTES.LandingRoute); 
             }
         }
     }, [initialized, animationComplete]);
