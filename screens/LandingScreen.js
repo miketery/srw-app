@@ -18,11 +18,11 @@ export default function LandingScreen(props) {
             <View style={tw`flex-grow-1`} />
             <View style={tw`justify-around mb-10 flex-col items-center`}>
                 <Pressable style={[ds.ctaButton]}
-                        onPress={() => props.navigation.navigate(ROUTES.VaultCreateRoute)}>
+                        onPressOut={() => props.navigation.navigate(ROUTES.VaultCreateRoute)}>
                     <Text style={ds.buttonText}>Create Vault</Text>
                 </Pressable>
                 <Pressable style={tw`mt-10`}
-                        onPress={() => props.navigation.navigate(ROUTES.RecoverInitRoute)}>
+                        onPressOut={() => props.navigation.navigate(ROUTES.RecoverInitRoute)}>
                     <Text style={ds.textSm}>Recover Vault</Text>
                 </Pressable>
             </View>

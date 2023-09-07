@@ -3,8 +3,22 @@ import { ROUTES } from "../config";
 // When NO Vault && DEV pick route:
 // Default -- ROUTES.LandingRoute
 // Test    -- ROUTES.DevNoVaultRoute
-const no_vault_test_route = ROUTES.LandingRoute
-
+const no_vault_test_route = {
+  routes: [
+    {
+      name: ROUTES.LandingRoute,
+    },
+    {
+      name: ROUTES.DevNoVaultRoute,
+      state: {
+        routes: [
+          {name: ROUTES.DevNoVaultRoute},
+          {name: ROUTES.DevMessagesRoute}
+        ]
+      }
+    }
+  ]
+}
 // When HAS Vault && DEV pick route:
 // choose from Object.keys(switch_routes)
 const top_level = ROUTES.DevHasVaultRoute; 

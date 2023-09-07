@@ -5,6 +5,7 @@ import base58 from 'bs58'
 import Vault from "./Vault";
 import { base64toBytes, box, bytesToBase64, open_box, open_sealed_box, sealed_box } from "../lib/utils";
 import Contact from "./Contact";
+import { DEBUG } from "../config";
 // Interfaces for TypedDicts
 
 interface SenderDict {
@@ -67,6 +68,14 @@ class Sender {
             vault.name
         );
     }
+    static fromVaultForContact(vault: Vault, contact: Contact): Sender {
+        return new Sender(
+            vault.did,
+            vault.verify_key,
+            contact.public_key, // my public key for this contact
+            vault.name
+        );
+    }
 }
 
 class Receiver extends Sender {
@@ -84,6 +93,7 @@ class Message {
     sender: Sender;
     receiver: Receiver;
     data: Record<string, any> | Uint8Array | string;
+    private _data: Record<string, any> | Uint8Array | string | null; // hold outbound encrypted or not
     type_name: string;
     type_version: string;
     sig_ts: number;
@@ -102,10 +112,12 @@ class Message {
         this.data = data;
         this.type_name = type_name;
         this.type_version = type_version;
-        this.sig_ts = 0; // will be set by SignedPayload class
+        this.sig_ts = sig_ts; // place holder will be set at signing
         this.encrypt = encrypt;
         this.encryption = encryption;
         this.decrypted = null;
+        this._data = this.encrypt ? null : data;
+        // TODO: expiry (valid after / before)
     }
 
     decrypt(receiver_private_key: PrivateKey, sender_public_key: PublicKey | null): boolean {
@@ -129,34 +141,36 @@ class Message {
 
     encryptSealedBox(): void {
         const data_bytes = new TextEncoder().encode(JSON.stringify(this.data));
-        this.encrypted = sealed_box(data_bytes, this.receiver.public_key);
+        this._data = sealed_box(data_bytes, this.receiver.public_key);
         this.encryption = 'X25519SealedBox';
     }
 
     encryptBox(sender_private_key: PrivateKey): void {
         const data_bytes = new TextEncoder().encode(JSON.stringify(this.data));
-        this.encrypted = box(data_bytes, this.receiver.public_key ,sender_private_key);
+        this._data = bytesToBase64(
+            box(data_bytes, this.receiver.public_key ,sender_private_key));
         this.encryption = 'X25519Box';
     }
 
     outboundFinal(): MessageDict {
-        if (this.encrypt && !this.encryption) {
+        if (!this._data) {
             throw new Error("Encrypt set to true but not yet encrypted");
         }
-        let data = this.encrypt && this.encrypted != null ? bytesToBase64(this.encrypted) : this.data;
         return {
             sender: this.sender.toDict(),
             receiver: this.receiver.toDict(),
             encryption: this.encryption,
-            data: data,
+            data: this._data,
             type_name: this.type_name,
             type_version: this.type_version,
-            sig_ts: 0 // will be set by SignedPayload class
+            sig_ts: 0, // will be set by SignedPayload class
+            ...(DEBUG ? {'__DEBUG': this.data} : {})
         };
     }
 
     static inbound(message: MessageDict): Message {
-        let data = message.encryption && typeof(message.data) === 'string' ? base64toBytes(message.data) : message.data;
+        const data = message.encryption && typeof(message.data) === 'string' ?
+                base64toBytes(message.data) : message.data;
         return new Message(
             new Sender(
                 message.sender.did,
@@ -176,6 +190,17 @@ class Message {
             message.encryption || null,
             !!message.encryption,
             message.sig_ts
+        );
+    }
+    static forContact(vault: Vault, contact: Contact,
+            data: Record<string, any>,
+            type_name: string, type_version: string): Message {
+        return new Message(
+            Sender.fromVaultForContact(vault, contact),
+            Receiver.fromContact(contact),
+            data,
+            type_name, type_version,
+            'X25519Box', true
         );
     }
 }
