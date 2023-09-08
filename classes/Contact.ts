@@ -69,17 +69,20 @@ class Contact {
         this.digital_agent = digital_agent
         this.state = state
     }
-    get b58_public_key(): string {
-        return base58.encode(this.public_key)
-    }
     get b58_private_key(): string {
         return base58.encode(this.private_key)
+    }
+    get b58_public_key(): string {
+        return base58.encode(this.public_key)
     }
     get b58_their_public_key(): string {
         return base58.encode(this.their_public_key)
     }
     get b58_their_verify_key(): string {
         return base58.encode(this.their_verify_key)
+    }
+    get b58_their_contact_public_key(): string {
+        return base58.encode(this.their_contact_public_key)
     }
     static async create(vault_pk: string, did: string, name: string, 
             their_public_key: PublicKey, their_verify_key: VerifyKey, their_contact_public_key: PublicKey,

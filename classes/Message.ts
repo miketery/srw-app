@@ -12,6 +12,7 @@ interface SenderDict {
     did: string;
     verify_key: string;
     public_key: string;
+    sub_public_key?: string;
     name: string;
 }
 
@@ -34,56 +35,65 @@ interface SignedPayloadDict {
 
 // Assuming DID, VerifyKey, PublicKey, b58encodeKey, and json are already defined somewhere in your TypeScript code
 
-class Sender {
+class SenderReceiver {
     did: string;
     verify_key: VerifyKey;
-    public_key: PublicKey;
+    public_key: PublicKey; 
+    sub_public_key: PublicKey | null;
     name: string;
 
-    constructor(did: string, verify_key: VerifyKey, public_key: PublicKey, name: string) {
+    constructor(did: string, verify_key: VerifyKey, public_key: PublicKey, sub_public_key: PublicKey | null, name: string) {
         this.did = did;
         this.verify_key = verify_key;
-        this.public_key = public_key;
+        this.public_key = public_key; // general / high level
+        this.sub_public_key = sub_public_key; // specific / low level
         this.name = name;
     }
-
     toString(): string {
         return JSON.stringify(this.toDict(), null, 4);
     }
-
     toDict(): SenderDict {
         return {
             did: this.did.toString(),
             verify_key: base58.encode(this.verify_key),
             public_key: base58.encode(this.public_key),
+            sub_public_key: this.sub_public_key ? base58.encode(this.sub_public_key) : undefined,
             name: this.name
         };
     }
-
+    getEncryptionPublicKey(): PublicKey {
+        if(this.sub_public_key && this.sub_public_key.length > 0)
+            return this.sub_public_key
+        return this.public_key
+    }
+}
+class Sender extends SenderReceiver {
     static fromVault(vault: Vault): Sender {
         return new Sender(
             vault.did,
             vault.verify_key,
             vault.public_key,
+            Uint8Array.from([]),
             vault.name
         );
     }
-    static fromVaultForContact(vault: Vault, contact: Contact): Sender {
+    static fromContact(vault: Vault, contact: Contact): Sender {
         return new Sender(
             vault.did,
             vault.verify_key,
-            contact.public_key, // my public key for this contact
+            vault.public_key,
+            contact.public_key,
             vault.name
         );
     }
 }
-
-class Receiver extends Sender {
+class Receiver extends SenderReceiver {
     static fromContact(contact: Contact): Receiver {
         return new Receiver(
             contact.did,
             contact.their_verify_key,
             contact.their_public_key,
+            contact.their_contact_public_key,
             contact.name
         );
     }
@@ -119,11 +129,12 @@ class Message {
         this._data = this.encrypt ? null : data;
         // TODO: expiry (valid after / before)
     }
-
-    decrypt(receiver_private_key: PrivateKey, sender_public_key: PublicKey | null): boolean {
+    decrypt(receiver_private_key: PrivateKey): boolean {
+        const sender_public_key = this.sender.getEncryptionPublicKey();
         if (!(this.data instanceof Uint8Array))
             throw new Error("Message data is not a Uint8Array");
         if (this.encryption === 'X25519Box') {
+            console.log("Decrypting with X25519Box")
             if (!sender_public_key)
                 throw new Error("Sender public key required to decrypt")
             const data_bytes = open_box(this.data, sender_public_key, receiver_private_key);
@@ -138,17 +149,16 @@ class Message {
         }
         return true;
     }
-
     encryptSealedBox(): void {
         const data_bytes = new TextEncoder().encode(JSON.stringify(this.data));
         this._data = sealed_box(data_bytes, this.receiver.public_key);
         this.encryption = 'X25519SealedBox';
     }
-
     encryptBox(sender_private_key: PrivateKey): void {
         const data_bytes = new TextEncoder().encode(JSON.stringify(this.data));
+        const reciever_public_key = this.receiver.getEncryptionPublicKey()
         this._data = bytesToBase64(
-            box(data_bytes, this.receiver.public_key ,sender_private_key));
+            box(data_bytes, reciever_public_key, sender_private_key));
         this.encryption = 'X25519Box';
     }
 
@@ -176,12 +186,14 @@ class Message {
                 message.sender.did,
                 base58.decode(message.sender.verify_key),
                 base58.decode(message.sender.public_key),
+                message.sender.sub_public_key ? base58.decode(message.sender.sub_public_key) : null,
                 message.sender.name
             ),
             new Receiver(
                 message.receiver.did,
                 base58.decode(message.receiver.verify_key),
                 base58.decode(message.receiver.public_key),
+                message.receiver.sub_public_key ? base58.decode(message.receiver.sub_public_key) : null,
                 message.receiver.name
             ),
             data,
@@ -196,7 +208,7 @@ class Message {
             data: Record<string, any>,
             type_name: string, type_version: string): Message {
         return new Message(
-            Sender.fromVaultForContact(vault, contact),
+            Sender.fromContact(vault, contact),
             Receiver.fromContact(contact),
             data,
             type_name, type_version,

@@ -112,8 +112,9 @@ class ContactsManager {
         };
         const message = new Message(
             Sender.fromVault(this.vault), Receiver.fromContact(contact),
-            requestee, 'contact_request', '0.0.1', null, false
+            requestee, 'contact_request', '0.0.1', 'X25519Box', true
         )
+        message.encryptBox(this.vault.private_key)
         contact.state = ContactState.REQUESTED;
         await this.saveContact(contact);
         // console.log(message.outboundFinal())
@@ -124,14 +125,17 @@ class ContactsManager {
         // }
         return message.outboundFinal();
     }
-    async processInboundContactRequest(message: MessageDict): Promise<Contact> {
+    async processInboundContactRequest(inbound: MessageDict): Promise<Contact> {
         // thros Invalid Singature on payload
         console.log('[ContactsManager.processInboundContactRequest]')
-        if (message.type_name !== 'contact_request')
+        if (inbound.type_name !== 'contact_request')
             throw new Error('Invalid data type');
-        const requestee = message.data;
-        if (requestee.did !== 'did:arx:' + requestee.verify_key)
-            throw new Error('Invalid DID');
+        const message = Message.inbound(inbound);
+        message.decrypt(this.vault.private_key);
+        // TODO: did not decrypt... throw
+        const requestee = message.decrypted;
+        // if (requestee.did !== 'did:arx:' + requestee.verify_key)
+        //     throw new Error('Invalid DID');
         const their_public_key = base58.decode(requestee.public_key);
         const their_verify_key = base58.decode(requestee.verify_key);
         const their_contact_public_key = base58.decode(requestee.contact_public_key);

@@ -31,6 +31,7 @@ async function ContactRequestFrom() {
     bob_cm.printContacts()
     alice_cm.printContacts()
 
+    /// START
     const bob_contact =  await alice_cm.addContact('Bob', bob_vault.did, 
         bob_vault.public_key, bob_vault.verify_key, Uint8Array.from([]))
     console.log(bob_contact)
@@ -42,7 +43,10 @@ async function ContactRequestFrom() {
     
     
     console.log('\n###################### A2 - alice_cm.contactRequest()')
+    console.log(bob_contact.their_contact_public_key)
     const contact_request = await alice_cm.contactRequest(bob_contact)
+    console.log(contact_request) //.encrypted
+
     // self.assertEqual(alice_cm.getContact(bob.did).state, ContactState.REQUESTED)
     // alice_cm.print_contacts()
     

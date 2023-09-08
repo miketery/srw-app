@@ -21,8 +21,8 @@ class VaultManager {
     private _contacts_manager: ContactsManager | null;
     private _session: SessionInterface;
 
-    constructor() {
-        this._vaults = {};
+    constructor(vaults: {string?: Vault} = {}) {
+        this._vaults = vaults;
         this._current_vault = null;
         this._session = {vault_pk: ''}
     }
