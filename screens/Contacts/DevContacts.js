@@ -45,7 +45,7 @@ async function ContactRequestFrom() {
     console.log('\n###################### A2 - alice_cm.contactRequest()')
     console.log(bob_contact.their_contact_public_key)
     const contact_request = await alice_cm.contactRequest(bob_contact)
-    console.log(contact_request) //.encrypted
+    console.log('=======', contact_request) // encrypted
 
     // self.assertEqual(alice_cm.getContact(bob.did).state, ContactState.REQUESTED)
     // alice_cm.print_contacts()
@@ -62,6 +62,7 @@ async function ContactRequestFrom() {
     const response = await bob_cm.acceptContactRequestResponse(alice_contact)
     // self.assertEqual(bob_cm.getContact(alice.did).state, ContactState.ACCEPTED)
     bob_cm.printContacts()
+    console.log('=======', response) // encrypted
 
     console.log('\n###################### A5 - alice_cm.process_inbound_accept_contact_request_response()')
     alice_cm.processInboundAcceptContactRequestResponse(response)

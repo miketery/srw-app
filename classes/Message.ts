@@ -155,6 +155,7 @@ class Message {
         this.encryption = 'X25519SealedBox';
     }
     encryptBox(sender_private_key: PrivateKey): void {
+        // TODO check that sender getEncryptionPublicKey matches sender_private_key
         const data_bytes = new TextEncoder().encode(JSON.stringify(this.data));
         const reciever_public_key = this.receiver.getEncryptionPublicKey()
         this._data = bytesToBase64(

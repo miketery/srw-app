@@ -126,7 +126,6 @@ class ContactsManager {
         return message.outboundFinal();
     }
     async processInboundContactRequest(inbound: MessageDict): Promise<Contact> {
-        // thros Invalid Singature on payload
         console.log('[ContactsManager.processInboundContactRequest]')
         if (inbound.type_name !== 'contact_request')
             throw new Error('Invalid data type');
@@ -157,26 +156,31 @@ class ContactsManager {
         if(contact.state != ContactState.INBOUND)
             throw new Error('Invalid contact state: ' + contact.state);
         const message = new Message(
-            Sender.fromVault(this.vault), Receiver.fromContact(contact),
+            Sender.fromContact(this.vault, contact), Receiver.fromContact(contact),
             {
                 did: this.vault.did,
                 verify_key: this.vault.b58_verify_key,
                 public_key: this.vault.b58_public_key,
                 contact_public_key: contact.b58_public_key,
             },
-            'accept_contact_request_response', '0.0.1', null, false
+            'accept_contact_request_response', '0.0.1', 'X25519Box', true
         )
+        message.encryptBox(contact.private_key)
         contact.state = ContactState.ACCEPTED;
         await this.saveContact(contact);
         return message.outboundFinal();
     }
 
-    async processInboundAcceptContactRequestResponse(message: MessageDict): Promise<void> {
+    async processInboundAcceptContactRequestResponse(inbound: MessageDict): Promise<void> {
         console.log('[ContactsManager.processInboundAcceptContactRequestResponse]')
-        if(message.type_name !== 'accept_contact_request_response')
+        if (inbound.type_name !== 'accept_contact_request_response')
             throw new Error('Invalid data type');
-        const data = message.data;
-        const contact = this.getContactByDid(data.did);
+        const sender_did = inbound.sender.did;
+        const contact = this.getContactByDid(sender_did);
+        const message = Message.inbound(inbound);
+        message.decrypt(contact.private_key);
+        // TODO: did not decrypt... throw
+        const data = message.decrypted;
         if(contact.state == ContactState.ACCEPTED)
             // already accepted...
             return;
