@@ -1,11 +1,13 @@
 import { VerifyKey, PublicKey, PrivateKey } from "../lib/nacl";
 import base58 from 'bs58'
+import { v4 as uuidv4 } from 'uuid';
 
 
 import Vault from "./Vault";
 import { base64toBytes, box, bytesToBase64, open_box, open_sealed_box, sealed_box } from "../lib/utils";
 import Contact from "./Contact";
 import { DEBUG } from "../config";
+import { StoredTypePrefix } from "./StorageInterface";
 // Interfaces for TypedDicts
 
 interface SenderDict {
@@ -19,13 +21,13 @@ interface SenderDict {
 interface ReceiverDict extends SenderDict {}
 
 interface MessageDict {
+    pk: string;
     sender: SenderDict;
     receiver: ReceiverDict;
     encryption: string | null;
-    data: any | string; // base64 string if encrypted
+    data: Record<string, any> | string; // base64 string if encrypted
     type_name: string;
     type_version: string;
-    sig_ts?: number;
 }
 
 interface SignedPayloadDict {
@@ -100,89 +102,141 @@ class Receiver extends SenderReceiver {
 }
 
 class Message {
+    pk: string;
+    type: 'inbound' | 'outbound';
+    
     sender: Sender;
     receiver: Receiver;
-    data: Record<string, any> | Uint8Array | string;
-    private _data: Record<string, any> | Uint8Array | string | null; // hold outbound encrypted or not
+
+    // hold decrytped data (i.e. inbound after decrypt, or outbound before encrypt)
+    _data: Record<string, any>;
+    
+    // _inbound --> decrypt() --> data
+    _inbound: string; // from someone, could be encrytped
+    
+    // data --> encrypt() --> _outbound
+    _outbound: string; // to someone, could be encrypted
+
+    // mostly metadata for debugging, could be made private later and removed
     type_name: string;
     type_version: string;
-    sig_ts: number;
+    
     encrypt: boolean;
     encryption: string | null;
-    decrypted: any | null;
-    encrypted: Uint8Array | null;
+    _decrypted: any | null;
 
-    constructor(sender: Sender, receiver: Receiver, 
-            data: Record<string, any> | Uint8Array | string, 
+    constructor(pk: string|null, type: 'inbound'|'outbound',
+            sender: Sender, receiver: Receiver,
             type_name: string, type_version: string,
-            encryption: string | null = null, encrypt: boolean = true,
-            sig_ts: number = 0) {
+            encryption: string | null = null, encrypt: boolean = true) {
+        this.pk = pk === null ? StoredTypePrefix.message + uuidv4() : pk;
+        this.type = type;
         this.sender = sender;
         this.receiver = receiver;
-        this.data = data;
         this.type_name = type_name;
         this.type_version = type_version;
-        this.sig_ts = sig_ts; // place holder will be set at signing
         this.encrypt = encrypt;
         this.encryption = encryption;
-        this.decrypted = null;
-        this._data = this.encrypt ? null : data;
         // TODO: expiry (valid after / before)
     }
+    setData(data: Record<string, any>): void {
+        this._data = data;
+    }
+    setOutboundFromDataNoEncryption(): void {
+        if(this.encrypt)
+            throw new Error("Cannot set outbound unecrypted data when encrypt is true");
+        this.setOutbound(JSON.stringify(this._data));
+    }
+    setInbound(data: string): void {
+        this._inbound = data;
+    }
+    setOutbound(data: string): void {
+        this._outbound = data;
+    }
+    getData(): Record<string, any> {
+        if(!this._data)
+            throw new Error("No data set");
+        return this._data;
+    }
     decrypt(receiver_private_key: PrivateKey): boolean {
+        if(!this._inbound)
+            throw new Error("No inbound data to decrypt");
+        if(!this.encryption || !this.encrypt)
+            throw new Error("No encryption type set or encrypt set to false");
+        if(typeof(this._inbound) != 'string') // todo: check for base64
+            throw new Error("Message data is not a string");
+        const enctypted_bytes = base64toBytes(this._inbound);
         const sender_public_key = this.sender.getEncryptionPublicKey();
-        if (!(this.data instanceof Uint8Array))
-            throw new Error("Message data is not a Uint8Array");
+        console.log("Decrypting encryption type " + this.encryption + " with sender public key " + base58.encode(sender_public_key));
         if (this.encryption === 'X25519Box') {
-            console.log("Decrypting with X25519Box")
             if (!sender_public_key)
                 throw new Error("Sender public key required to decrypt")
-            const data_bytes = open_box(this.data, sender_public_key, receiver_private_key);
+            const data_bytes = open_box(enctypted_bytes, sender_public_key, receiver_private_key);
             if (!data_bytes)
                 return false;
-            this.decrypted = JSON.parse(new TextDecoder().decode(data_bytes));
+            this._data = JSON.parse(new TextDecoder().decode(data_bytes));
         } else if (this.encryption === 'X25519SealedBox') {
-            const data_bytes = open_sealed_box(this.data, receiver_private_key)
+            const data_bytes = open_sealed_box(enctypted_bytes, receiver_private_key)
             if (!data_bytes)
                 return false;
-            this.decrypted = JSON.parse(new TextDecoder().decode(data_bytes));
+            this._data = JSON.parse(new TextDecoder().decode(data_bytes));
         }
         return true;
     }
     encryptSealedBox(): void {
-        const data_bytes = new TextEncoder().encode(JSON.stringify(this.data));
-        this._data = sealed_box(data_bytes, this.receiver.public_key);
+        const data_bytes = new TextEncoder().encode(JSON.stringify(this._data));
+        this._outbound = bytesToBase64(
+            sealed_box(data_bytes, this.receiver.public_key));
         this.encryption = 'X25519SealedBox';
     }
     encryptBox(sender_private_key: PrivateKey): void {
         // TODO check that sender getEncryptionPublicKey matches sender_private_key
-        const data_bytes = new TextEncoder().encode(JSON.stringify(this.data));
+        const data_bytes = new TextEncoder().encode(JSON.stringify(this._data));
         const reciever_public_key = this.receiver.getEncryptionPublicKey()
-        this._data = bytesToBase64(
+        this._outbound = bytesToBase64(
             box(data_bytes, reciever_public_key, sender_private_key));
         this.encryption = 'X25519Box';
     }
-
     outboundFinal(): MessageDict {
-        if (!this._data) {
+        if (this.encrypt && !this._outbound) {
             throw new Error("Encrypt set to true but not yet encrypted");
         }
+        const data = this.encrypt ? this._outbound : this._data
+        const outbound = {
+            pk: this.pk,
+            sender: this.sender.toDict(),
+            receiver: this.receiver.toDict(),
+            encryption: this.encryption,
+            data: data,
+            type_name: this.type_name,
+            type_version: this.type_version,
+            ...(DEBUG && !this.encrypt ? {'__DEBUG': this._data} : {})
+        };
+        return outbound;
+    }
+    toDict(): MessageDict {
         return {
+            pk: this.pk,
             sender: this.sender.toDict(),
             receiver: this.receiver.toDict(),
             encryption: this.encryption,
             data: this._data,
             type_name: this.type_name,
             type_version: this.type_version,
-            sig_ts: 0, // will be set by SignedPayload class
-            ...(DEBUG ? {'__DEBUG': this.data} : {})
-        };
+        }
     }
-
     static inbound(message: MessageDict): Message {
-        const data = message.encryption && typeof(message.data) === 'string' ?
-                base64toBytes(message.data) : message.data;
-        return new Message(
+        return Message.fromDict({
+            ...message, 
+            inbound: message.data,
+            type: 'inbound',
+            data: {} // we know it's inbound so we blank out the data
+        });
+    }
+    static fromDict(message: any): Message {
+        const msg = new Message(
+            message.pk,
+            message.type,
             new Sender(
                 message.sender.did,
                 base58.decode(message.sender.verify_key),
@@ -197,24 +251,32 @@ class Message {
                 message.receiver.sub_public_key ? base58.decode(message.receiver.sub_public_key) : null,
                 message.receiver.name
             ),
-            data,
             message.type_name,
             message.type_version,
             message.encryption || null,
-            !!message.encryption,
-            message.sig_ts
+            !!message.encryption
         );
+        if (message.type === 'inbound' && message.inbound)
+            msg.setInbound(message.inbound)
+        if (message.data)
+            msg.setData(message.data)
+        if (message.outboud)
+            msg.setOutbound(message.outbound)
+        return msg
     }
     static forContact(vault: Vault, contact: Contact,
             data: Record<string, any>,
             type_name: string, type_version: string): Message {
-        return new Message(
+        const msg = new Message(
+            null,
+            'outbound',
             Sender.fromContact(vault, contact),
             Receiver.fromContact(contact),
-            data,
             type_name, type_version,
             'X25519Box', true
         );
+        msg.setData(data);
+        return msg;
     }
 }
 

@@ -102,7 +102,7 @@ class ContactsManager {
     }
     async contactRequest(contact: Contact): Promise<MessageDict> {
         console.log('[ContactsManager.contactRequest]')
-        const requestee = {
+        const data = { // requestee
             did: this.vault.did,
             name: this.vault.name,
             verify_key: this.vault.b58_verify_key,
@@ -110,11 +110,20 @@ class ContactsManager {
             contact_public_key: contact.b58_public_key,
             // TODO: add digital agent
         };
-        const message = new Message(
+        const message = new Message(null, 'outbound',
             Sender.fromVault(this.vault), Receiver.fromContact(contact),
-            requestee, 'contact_request', '0.0.1', 'X25519Box', true
+            'contact_request', '0.0.1',
+            'X25519Box', true
         )
+        message.setData(data)
         message.encryptBox(this.vault.private_key)
+        // const messageB = Message.forContact(this.vault, contact,
+        //     requestee, 'contact_request', '0.0.1');
+        // messageB.encryptBox(this.vault.private_key)
+        
+        // console.log(message.outboundFinal())
+        // console.log(messageB.outboundFinal())
+
         contact.state = ContactState.REQUESTED;
         await this.saveContact(contact);
         // console.log(message.outboundFinal())
@@ -132,7 +141,7 @@ class ContactsManager {
         const message = Message.inbound(inbound);
         message.decrypt(this.vault.private_key);
         // TODO: did not decrypt... throw
-        const requestee = message.decrypted;
+        const requestee = message.getData();
         // if (requestee.did !== 'did:arx:' + requestee.verify_key)
         //     throw new Error('Invalid DID');
         const their_public_key = base58.decode(requestee.public_key);
@@ -155,16 +164,19 @@ class ContactsManager {
         console.log(contact.toString())
         if(contact.state != ContactState.INBOUND)
             throw new Error('Invalid contact state: ' + contact.state);
-        const message = new Message(
-            Sender.fromContact(this.vault, contact), Receiver.fromContact(contact),
-            {
-                did: this.vault.did,
-                verify_key: this.vault.b58_verify_key,
-                public_key: this.vault.b58_public_key,
-                contact_public_key: contact.b58_public_key,
-            },
-            'accept_contact_request_response', '0.0.1', 'X25519Box', true
+        const data = {
+            did: this.vault.did,
+            verify_key: this.vault.b58_verify_key,
+            public_key: this.vault.b58_public_key,
+            contact_public_key: contact.b58_public_key,
+        }
+        const message = new Message(null, 'outbound',
+            Sender.fromContact(this.vault, contact),
+            Receiver.fromContact(contact),
+            'accept_contact_request_response', '0.0.1',
+            'X25519Box', true
         )
+        message.setData(data)
         message.encryptBox(contact.private_key)
         contact.state = ContactState.ACCEPTED;
         await this.saveContact(contact);
@@ -180,7 +192,7 @@ class ContactsManager {
         const message = Message.inbound(inbound);
         message.decrypt(contact.private_key);
         // TODO: did not decrypt... throw
-        const data = message.decrypted;
+        const data = message.getData();
         if(contact.state == ContactState.ACCEPTED)
             // already accepted...
             return;

@@ -7,6 +7,7 @@ export enum StoredType {
     secret = 'secret',
     keyshare = 'keyshare',
     contact_keyshare = 'contact_keyshare',
+    message = 'message',
 }
 export const StoredTypePrefix: { [k in StoredType]: string } = {
     // MUST have all the same keys as StoredType
@@ -16,6 +17,7 @@ export const StoredTypePrefix: { [k in StoredType]: string } = {
     [StoredType.secret]: 's__',
     [StoredType.keyshare]: 'k__',
     [StoredType.contact_keyshare]: 'ck_',
+    [StoredType.message]: 'm__',
 }
 // map prefix to StoredType
 //  ↳ i.e. { 'v__': StoredType.vault, 'c__': StoredType.contact, ... }

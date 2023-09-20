@@ -110,6 +110,7 @@ export default class Vault {
         );
     }
     signPayload(payload: any): {signed: string, verify_key: string} {
+        payload.sig_ts = Math.floor(Date.now() / 1000);
         const data = JSON.stringify(payload);//.encode('utf-8');
         const data_bytes = Buffer.from(data, 'utf-8');
         const signed = this.sign(data_bytes);

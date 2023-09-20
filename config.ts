@@ -19,6 +19,9 @@ export const ENDPOINTS = {
     ME: '/user/me/',
     REGISTER: '/user/register/',
     LOGIN: '/login',
+
+    POST_MESSAGE: '/message/post/',
+    GET_MESSAGES: '/message/get/',
 }
 
 DEBUG && console.log('DEBUG: ', {

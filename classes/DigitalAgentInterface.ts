@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import Vault from './Vault';
-import { BASE, ENDPOINTS } from '../config';
+import { BASE, DEBUG, ENDPOINTS } from '../config';
 // import Contact from './Contact';
 
 
@@ -57,6 +57,38 @@ class DigitalAgentInterface {
             return response['data'];
         } else {
             return false
+        }
+    }
+    static async postMessage(vault: Vault, message: any): Promise<any> {
+        const signed_payload = vault.signPayload(message);
+        const response = await axios.post(this.digital_agent_host + ENDPOINTS.POST_MESSAGE, signed_payload)
+        .catch((error) => {
+            console.log(error)
+            return false
+        });
+        if(!response)
+            return false
+        console.log('[postMessage]', response)
+        if (response['status'] == 200) {
+            return response['data'];
+        }
+    }
+    static async getMessages(vault: Vault, after?: number): Promise<any> {
+        const payload = {
+            'after': after,
+            'sig_ts': Math.floor(Date.now() / 1000)
+        }
+        const signed_payload = vault.signPayload(payload);
+        const response = await axios.post(this.digital_agent_host + ENDPOINTS.GET_MESSAGES, signed_payload)
+        .catch((error) => {
+            console.log(error)
+            return false
+        });
+        if(!response)
+            return false
+        DEBUG && console.log('[getMessages]', response)
+        if (response['status'] == 200) {
+            return response['data'];
         }
     }
     // static async msgForContact(
