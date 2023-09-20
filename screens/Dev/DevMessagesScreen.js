@@ -32,7 +32,7 @@ async function sendTestMessages(vaults, contacts) {
     console.log(base58.encode(alice_contact.their_contact_public_key))
     const res = for_bob.decrypt(alice_contact.private_key)
     console.log('Decrypt: ', res)
-    console.log('Decrypt: ', for_bob.decrypted)
+    console.log('Decrypt: ', for_bob.getData())
 }
 
 export default function DevMessagesScreen(props) {
