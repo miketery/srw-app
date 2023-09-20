@@ -20,14 +20,28 @@ interface SenderDict {
 
 interface ReceiverDict extends SenderDict {}
 
-interface MessageDict {
-    pk: string;
+interface GenericMessageDict {
     sender: SenderDict;
     receiver: ReceiverDict;
     encryption: string | null;
-    data: Record<string, any> | string; // base64 string if encrypted
+    data: string | {}; // base64 string if encrypted
     type_name: string;
     type_version: string;
+}
+interface MessageDict extends GenericMessageDict {
+    // internal representation
+    pk: string | null;
+    server_uuid: string | null
+    inbound: string | {};
+    outbound: string | {};
+    type: 'inbound' | 'outbound';
+}
+interface OutboundMessageDict extends GenericMessageDict {
+    // going to server
+}
+interface InboundMessageDict extends GenericMessageDict {
+    // comes from server
+    uuid: string;
 }
 
 interface SignedPayloadDict {
@@ -103,19 +117,20 @@ class Receiver extends SenderReceiver {
 
 class Message {
     pk: string;
+    server_uuid: string | null;
     type: 'inbound' | 'outbound';
     
     sender: Sender;
     receiver: Receiver;
 
     // hold decrytped data (i.e. inbound after decrypt, or outbound before encrypt)
-    _data: Record<string, any>;
+    _data: {};
     
     // _inbound --> decrypt() --> data
-    _inbound: string; // from someone, could be encrytped
+    _inbound: string | {}; // from someone, could be encrytped
     
     // data --> encrypt() --> _outbound
-    _outbound: string; // to someone, could be encrypted
+    _outbound: string | {}; // to someone, could be encrypted
 
     // mostly metadata for debugging, could be made private later and removed
     type_name: string;
@@ -125,11 +140,13 @@ class Message {
     encryption: string | null;
     _decrypted: any | null;
 
-    constructor(pk: string|null, type: 'inbound'|'outbound',
+    constructor(pk: string|null, server_uuid: string|null,
+            type: 'inbound'|'outbound',
             sender: Sender, receiver: Receiver,
             type_name: string, type_version: string,
             encryption: string | null = null, encrypt: boolean = true) {
         this.pk = pk === null ? StoredTypePrefix.message + uuidv4() : pk;
+        this.server_uuid = server_uuid; // only matters for inbound
         this.type = type;
         this.sender = sender;
         this.receiver = receiver;
@@ -139,7 +156,7 @@ class Message {
         this.encryption = encryption;
         // TODO: expiry (valid after / before)
     }
-    setData(data: Record<string, any>): void {
+    setData(data: {}): void {
         this._data = data;
     }
     setOutboundFromDataNoEncryption(): void {
@@ -147,10 +164,10 @@ class Message {
             throw new Error("Cannot set outbound unecrypted data when encrypt is true");
         this.setOutbound(JSON.stringify(this._data));
     }
-    setInbound(data: string): void {
+    setInbound(data: string | {}): void {
         this._inbound = data;
     }
-    setOutbound(data: string): void {
+    setOutbound(data: string | {}): void {
         this._outbound = data;
     }
     getData(): Record<string, any> {
@@ -197,13 +214,13 @@ class Message {
             box(data_bytes, reciever_public_key, sender_private_key));
         this.encryption = 'X25519Box';
     }
-    outboundFinal(): MessageDict {
+    outboundFinal(): OutboundMessageDict {
         if (this.encrypt && !this._outbound) {
             throw new Error("Encrypt set to true but not yet encrypted");
         }
         const data = this.encrypt ? this._outbound : this._data
         const outbound = {
-            pk: this.pk,
+            // pk: this.pk,
             sender: this.sender.toDict(),
             receiver: this.receiver.toDict(),
             encryption: this.encryption,
@@ -217,25 +234,34 @@ class Message {
     toDict(): MessageDict {
         return {
             pk: this.pk,
+            server_uuid: this.server_uuid,
+            type: this.type,
             sender: this.sender.toDict(),
             receiver: this.receiver.toDict(),
             encryption: this.encryption,
             data: this._data,
+            inbound: this._inbound,
+            outbound: this._outbound,
             type_name: this.type_name,
             type_version: this.type_version,
         }
     }
-    static inbound(message: MessageDict): Message {
-        return Message.fromDict({
+    static inbound(message: InboundMessageDict): Message {
+        const msg = Message.fromDict({
+            pk: null,
+            server_uuid: message.uuid,
             ...message, 
             inbound: message.data,
+            outbound: {},
             type: 'inbound',
             data: {} // we know it's inbound so we blank out the data
         });
+        return msg
     }
-    static fromDict(message: any): Message {
+    static fromDict(message: MessageDict): Message {
         const msg = new Message(
             message.pk,
+            message.server_uuid,
             message.type,
             new Sender(
                 message.sender.did,
@@ -260,16 +286,16 @@ class Message {
             msg.setInbound(message.inbound)
         if (message.data)
             msg.setData(message.data)
-        if (message.outboud)
+        if (message.outbound)
             msg.setOutbound(message.outbound)
         return msg
     }
     static forContact(vault: Vault, contact: Contact,
             data: Record<string, any>,
             type_name: string, type_version: string): Message {
+        // TODO: assert Contacted has accepted since using their public key
         const msg = new Message(
-            null,
-            'outbound',
+            null, null, 'outbound',
             Sender.fromContact(vault, contact),
             Receiver.fromContact(contact),
             type_name, type_version,
@@ -279,6 +305,6 @@ class Message {
         return msg;
     }
 }
-
-export { MessageDict, SignedPayloadDict, SenderDict, ReceiverDict}
+export { MessageDict, InboundMessageDict, OutboundMessageDict }
+export { SignedPayloadDict, SenderDict, ReceiverDict}
 export { Sender, Receiver, Message };

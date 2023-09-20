@@ -4,7 +4,7 @@ import { PublicKey, VerifyKey } from '../lib/nacl';
 import Vault from './Vault';
 import Contact, { ContactState } from './Contact';
 import SI, { StoredType } from './StorageInterface';
-import { Message, MessageDict, Receiver, Sender } from './Message';
+import { Message, InboundMessageDict, OutboundMessageDict, Receiver, Sender } from './Message';
 
 
 class ContactsManager {
@@ -100,7 +100,7 @@ class ContactsManager {
         await this.saveContact(contact);
         return contact;
     }
-    async contactRequest(contact: Contact): Promise<MessageDict> {
+    async contactRequest(contact: Contact): Promise<OutboundMessageDict> {
         console.log('[ContactsManager.contactRequest]')
         const data = { // requestee
             did: this.vault.did,
@@ -110,31 +110,18 @@ class ContactsManager {
             contact_public_key: contact.b58_public_key,
             // TODO: add digital agent
         };
-        const message = new Message(null, 'outbound',
-            Sender.fromVault(this.vault), Receiver.fromContact(contact),
-            'contact_request', '0.0.1',
-            'X25519Box', true
-        )
-        message.setData(data)
+        const message = Message.forContact(this.vault, contact,
+            data, 'contact_request', '0.0.1');
+        // even though we have key pair generated for this contact
+        // zero out that sub key since we're using our vault key for initial contact
+        message.sender.sub_public_key = Uint8Array.from([])
         message.encryptBox(this.vault.private_key)
-        // const messageB = Message.forContact(this.vault, contact,
-        //     requestee, 'contact_request', '0.0.1');
-        // messageB.encryptBox(this.vault.private_key)
-        
-        // console.log(message.outboundFinal())
-        // console.log(messageB.outboundFinal())
 
         contact.state = ContactState.REQUESTED;
         await this.saveContact(contact);
-        // console.log(message.outboundFinal())
-        // const signedPayload = this.vault.signPayload(payload);
-        // contact.state = ContactState.REQUESTED;
-        // if (DEBUG) {
-        //     signedPayload['__DEBUG'] = payload;
-        // }
         return message.outboundFinal();
     }
-    async processInboundContactRequest(inbound: MessageDict): Promise<Contact> {
+    async processInboundContactRequest(inbound: InboundMessageDict): Promise<Contact> {
         console.log('[ContactsManager.processInboundContactRequest]')
         if (inbound.type_name !== 'contact_request')
             throw new Error('Invalid data type');
@@ -159,7 +146,7 @@ class ContactsManager {
         await this.saveContact(contact);
         return contact;
     }
-    async acceptContactRequestResponse(contact: Contact): Promise<MessageDict> {
+    async acceptContactRequestResponse(contact: Contact): Promise<OutboundMessageDict> {
         console.log('[ContactsManager.acceptContactRequestResponse]')
         console.log(contact.toString())
         if(contact.state != ContactState.INBOUND)
@@ -170,23 +157,19 @@ class ContactsManager {
             public_key: this.vault.b58_public_key,
             contact_public_key: contact.b58_public_key,
         }
-        const message = new Message(null, 'outbound',
-            Sender.fromContact(this.vault, contact),
-            Receiver.fromContact(contact),
-            'accept_contact_request_response', '0.0.1',
-            'X25519Box', true
-        )
-        message.setData(data)
+        const message = Message.forContact(
+            this.vault, contact,
+            data, 'accept_contact_request_response', '0.0.1');
         message.encryptBox(contact.private_key)
         contact.state = ContactState.ACCEPTED;
         await this.saveContact(contact);
         return message.outboundFinal();
     }
 
-    async processInboundAcceptContactRequestResponse(inbound: MessageDict): Promise<void> {
+    async processInboundAcceptContactRequestResponse(inbound: InboundMessageDict): Promise<void> {
         console.log('[ContactsManager.processInboundAcceptContactRequestResponse]')
         if (inbound.type_name !== 'accept_contact_request_response')
-            throw new Error('Invalid data type');
+            throw new Error('Invalid data type, required: "accept_contact_request_response"');
         const sender_did = inbound.sender.did;
         const contact = this.getContactByDid(sender_did);
         const message = Message.inbound(inbound);
