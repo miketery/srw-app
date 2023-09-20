@@ -35,6 +35,7 @@ interface MessageDict extends GenericMessageDict {
     inbound: string | {};
     outbound: string | {};
     type: 'inbound' | 'outbound';
+    created: number;
 }
 interface OutboundMessageDict extends GenericMessageDict {
     // going to server
@@ -42,6 +43,7 @@ interface OutboundMessageDict extends GenericMessageDict {
 interface InboundMessageDict extends GenericMessageDict {
     // comes from server
     uuid: string;
+    created: number;
 }
 
 interface SignedPayloadDict {
@@ -138,13 +140,15 @@ class Message {
     
     encrypt: boolean;
     encryption: string | null;
-    _decrypted: any | null;
+
+    created: number;
 
     constructor(pk: string|null, server_uuid: string|null,
             type: 'inbound'|'outbound',
             sender: Sender, receiver: Receiver,
             type_name: string, type_version: string,
-            encryption: string | null = null, encrypt: boolean = true) {
+            encryption: string | null = null, encrypt: boolean = true,
+            created = Math.floor(Date.now() / 1000)) {
         this.pk = pk === null ? StoredTypePrefix.message + uuidv4() : pk;
         this.server_uuid = server_uuid; // only matters for inbound
         this.type = type;
@@ -154,6 +158,7 @@ class Message {
         this.type_version = type_version;
         this.encrypt = encrypt;
         this.encryption = encryption;
+        this.created = created;
         // TODO: expiry (valid after / before)
     }
     setData(data: {}): void {
@@ -227,6 +232,7 @@ class Message {
             data: data,
             type_name: this.type_name,
             type_version: this.type_version,
+            created: this.created,
             ...(DEBUG && !this.encrypt ? {'__DEBUG': this._data} : {})
         };
         return outbound;
@@ -238,12 +244,13 @@ class Message {
             type: this.type,
             sender: this.sender.toDict(),
             receiver: this.receiver.toDict(),
-            encryption: this.encryption,
             data: this._data,
             inbound: this._inbound,
             outbound: this._outbound,
+            encryption: this.encryption,
             type_name: this.type_name,
             type_version: this.type_version,
+            created: this.created
         }
     }
     static inbound(message: InboundMessageDict): Message {
@@ -280,7 +287,8 @@ class Message {
             message.type_name,
             message.type_version,
             message.encryption || null,
-            !!message.encryption
+            !!message.encryption,
+            message.created
         );
         if (message.type === 'inbound' && message.inbound)
             msg.setInbound(message.inbound)

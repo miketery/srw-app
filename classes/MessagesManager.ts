@@ -49,7 +49,6 @@ class InboundMessageManager {
         }
         const promises: Promise<void>[] = []
         for(let message of messages){
-            message['pk'] = StoredTypePrefix.message + message['uuid']
             const msg = Message.inbound(message)
             promises.push(this.saveMessage(msg))
             this._inbound_messages[msg.pk] = msg
