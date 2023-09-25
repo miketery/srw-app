@@ -2,11 +2,13 @@ import axios from 'axios';
 
 import Vault from './Vault';
 import { BASE, DEBUG, ENDPOINTS } from '../config';
+import { OutboundMessageDict } from './Message';
 // import Contact from './Contact';
 
 
 class DigitalAgentInterface {
     static digital_agent_host: string = BASE;
+    static _messages: OutboundMessageDict[] = [];
 
     constructor(vault: Vault) {
         DigitalAgentInterface.digital_agent_host = BASE; // vault.digital_agent_host;
@@ -63,8 +65,8 @@ class DigitalAgentInterface {
         const signed_payload = vault.signPayload(message);
         const response = await axios.post(this.digital_agent_host + ENDPOINTS.POST_MESSAGE, signed_payload)
         .catch((error) => {
-            console.log(error)
-            return false
+            console.log('[DigitalAgentInterface.postMessage]', error)
+            throw new Error(error);
         });
         if(!response)
             return false
@@ -72,6 +74,18 @@ class DigitalAgentInterface {
         if (response['status'] == 200) {
             return response['data'];
         }
+    }
+    static getPostMessageFunction(vault: Vault): (message: any) => Promise<any> {
+        return async (message: OutboundMessageDict) => {
+            if(DEBUG)
+                this._messages.push(message)
+            return await this.postMessage(vault, message)
+        }
+    }
+    static getLastMessage(): OutboundMessageDict | null { // for local testing
+        if(this._messages.length == 0)
+            return null
+        return this._messages[this._messages.length - 1]
     }
     static async getMessages(vault: Vault, after?: number): Promise<any> {
         const payload = {
@@ -81,8 +95,8 @@ class DigitalAgentInterface {
         const signed_payload = vault.signPayload(payload);
         const response = await axios.post(this.digital_agent_host + ENDPOINTS.GET_MESSAGES, signed_payload)
         .catch((error) => {
-            console.log(error)
-            return false
+            console.log('[DigitalAgentInterface.getMessages]', error)
+            throw new Error(error);
         });
         if(!response)
             return false

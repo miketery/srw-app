@@ -8,7 +8,7 @@ import DAI from '../../classes/DigitalAgentInterface'
 import { GoBackButton } from '../../components'
 import getTestVaultsAndContacts from '../../testdata/testContacts'
 import { Message } from '../../classes/Message'
-import ContactsManager from '../../classes/ContactsManager'
+import ContactsManager from '../../classes/contacts/ContactsManager'
 import base58 from 'bs58'
 
 async function sendTestMessages(vaults, contacts) {

@@ -3,19 +3,27 @@ const bip39 = require('bip39')
 
 import { v4 as uuidv4 } from 'uuid';
 
-import { SigningKey, VerifyKey, PrivateKey, PublicKey, SignedMessage } from '../lib/nacl';
-import { signMsg, signingKeyFromWords, encryptionKeyFromWords, encryptionKey, getRandom } from '../lib/utils'
-import { StoredType, StoredTypePrefix } from './StorageInterface';
+import { SigningKey, VerifyKey, PrivateKey, PublicKey, SignedMessage } from '../../lib/nacl';
+import { signMsg, signingKeyFromWords, encryptionKeyFromWords, encryptionKey, getRandom } from '../../lib/utils'
+import SI, { StoredType, StoredTypePrefix } from '../StorageInterface';
+import ContactMachine from './ContactMachine';
+import { useMachine } from '@xstate/react';
+import { State, interpret } from 'xstate';
+import Vault from '../Vault';
+import { Message, OutboundMessageDict } from '../Message';
+import DigitalAgentInterface from '../DigitalAgentInterface';
 
 export enum ContactState {
     INIT = 'INIT',
-    REQUESTED = 'REQUESTED',
     INBOUND = 'INBOUND',
-    ACCEPTED = 'ACCEPTED',
+    PENDING = 'PENDING',
+    // ADD CAN RESEND INVITE
+    ESTABLISHED = 'ESTABLISHED',
     REJECTED = 'REJECTED',
-    EXPIRED = 'EXPIRED',
+    ARCHIVED = 'ARCHIVED',
     BLOCKED = 'BLOCKED',
 }
+
 interface ContactDict {
     pk: string,
     vault_pk: string,
@@ -27,7 +35,7 @@ interface ContactDict {
     their_verify_key: string,
     their_contact_public_key: string,
     digital_agent: string,
-    state: string,
+    state: ContactState,
     //TODO created updated
     metadata?: any
 }
@@ -43,7 +51,9 @@ class Contact {
     their_verify_key: VerifyKey
     their_contact_public_key: PublicKey
     digital_agent: string
-    state: ContactState
+    _state: ContactState
+    vault: Vault
+    fsm: any
 
     constructor(
             pk: string,
@@ -56,7 +66,8 @@ class Contact {
             their_verify_key: VerifyKey,
             their_contact_public_key: PublicKey,
             digital_agent: string,
-            state: ContactState) {
+            state: ContactState,
+            vault: Vault) {
         this.pk = pk
         this.vault_pk = vault_pk
         this.did = did
@@ -67,7 +78,28 @@ class Contact {
         this.their_verify_key = their_verify_key
         this.their_contact_public_key = their_contact_public_key
         this.digital_agent = digital_agent
-        this.state = state
+        this._state = state
+        this.vault = vault
+        const resolvedState = ContactMachine.resolveState({
+            ...ContactMachine.initialState,
+            value: this._state,
+            context: {
+                contact: this,
+                sender: DigitalAgentInterface.getPostMessageFunction(this.vault),
+            }
+        })
+        // this.fsm = useMachine(ContactMachine, {state: resolvedState})
+        this.fsm = interpret(ContactMachine)
+        this.fsm.onTransition((context: {contact: Contact}, event) => {
+            if(context.contact)
+                console.log('[Contact.fsm.onTransition]', context.contact.toString())
+            console.log('[Contact.fsm.onTransition]', event)
+        }) 
+        this.fsm.start(resolvedState)
+        console.log('FSM', this.name, this.state)
+    }
+    get state(): ContactState {
+        return this.fsm.getSnapshot().value
     }
     get b58_private_key(): string {
         return base58.encode(this.private_key)
@@ -86,13 +118,17 @@ class Contact {
     }
     static async create(vault_pk: string, did: string, name: string, 
             their_public_key: PublicKey, their_verify_key: VerifyKey, their_contact_public_key: PublicKey,
-            digital_agent: string, state: ContactState=ContactState.INIT) {
+            digital_agent: string,
+            state: ContactState, vault: Vault) {
         let pk = StoredTypePrefix.contact + uuidv4()
         let enc_key_pair = await encryptionKey()
         return new Contact(pk, vault_pk, did, name, 
             enc_key_pair.secretKey, enc_key_pair.publicKey,
             their_public_key, their_verify_key, their_contact_public_key,
-            digital_agent, state)
+            digital_agent, state, vault)
+    }
+    async save(): Promise<void> {
+        return SI.save(this.pk, this.toDict())
     }
     toString(): string {
         return [this.pk, this.did, this.name, this.state].join(' ')
@@ -109,10 +145,10 @@ class Contact {
             their_verify_key: this.their_verify_key ? base58.encode(this.their_verify_key) : '',
             their_contact_public_key: this.their_contact_public_key ? base58.encode(this.their_contact_public_key) : '',
             digital_agent: this.digital_agent || '',
-            state: this.state
+            state: this.state,
         }
     }
-    static fromDict(data: ContactDict): Contact {
+    static fromDict(data: ContactDict, vault: Vault): Contact {
         const private_key = base58.decode(data.private_key)
         const public_key = base58.decode(data.public_key)
         const their_public_key = data.their_public_key == '' ? base58.decode(data.their_public_key) : Uint8Array.from([])
@@ -123,8 +159,42 @@ class Contact {
             private_key, public_key,
             their_public_key, their_verify_key, their_contact_public_key,
             data.digital_agent,
-            ContactState[data.state]
+            data.state, vault
         )
+    }
+    isInviteExpired(): boolean {
+        throw new Error('Not implemented')
+    }
+    // invite message
+    inviteMsg(): OutboundMessageDict {
+        const data = {
+            did: this.vault.did,
+            name: this.vault.name,
+            verify_key: this.vault.b58_verify_key,
+            public_key: this.vault.b58_public_key,
+            contact_public_key: this.b58_public_key,
+        }
+        const message = Message.forContact(this, data,
+            'contact_request', '0.0.1');
+        // null the sender sub key becausew we're not using it (even though
+        // the contact will receive it inside the encrypted msg, will use in future
+        message.sender.sub_public_key = Uint8Array.from([])
+        // they don't have our contact public key for verification yet so we use our vault key for box verif
+        message.encryptBox(this.vault.private_key)
+        return message.outboundFinal();
+    }
+    // accept message
+    acceptInviteMsg(): OutboundMessageDict {
+        const data = {
+            did: this.vault.did,
+            verify_key: this.vault.b58_verify_key,
+            public_key: this.vault.b58_public_key,
+            contact_public_key: this.b58_public_key,
+        }
+        const message = Message.forContact(this, data,
+            'accept_contact_request_response', '0.0.1');
+        message.encryptBox(this.private_key)
+        return message.outboundFinal();
     }
 }
 

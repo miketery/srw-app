@@ -4,7 +4,7 @@ import { signingKeyFromWords, encryptionKeyFromWords, getRandom } from '../lib/u
 import { v4 as uuidv4 } from 'uuid';
 import { entropyToMnemonic } from 'bip39';
 
-import ContactsManager from './ContactsManager';
+import ContactsManager from './contacts/ContactsManager';
 import SecretsManager from './SecretsManager';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DigitalAgentInterface from './DigitalAgentInterface';

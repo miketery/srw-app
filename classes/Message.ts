@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import Vault from "./Vault";
 import { base64toBytes, box, bytesToBase64, open_box, open_sealed_box, sealed_box } from "../lib/utils";
-import Contact from "./Contact";
+import Contact from "./contacts/Contact";
 import { DEBUG } from "../config";
 import { StoredTypePrefix } from "./StorageInterface";
 // Interfaces for TypedDicts
@@ -95,13 +95,13 @@ class Sender extends SenderReceiver {
             vault.name
         );
     }
-    static fromContact(vault: Vault, contact: Contact): Sender {
+    static fromContact(contact: Contact): Sender {
         return new Sender(
-            vault.did,
-            vault.verify_key,
-            vault.public_key,
+            contact.vault.did,
+            contact.vault.verify_key,
+            contact.vault.public_key,
             contact.public_key,
-            vault.name
+            contact.vault.name
         );
     }
 }
@@ -298,13 +298,13 @@ class Message {
             msg.setOutbound(message.outbound)
         return msg
     }
-    static forContact(vault: Vault, contact: Contact,
+    static forContact(contact: Contact,
             data: Record<string, any>,
             type_name: string, type_version: string): Message {
         // TODO: assert Contacted has accepted since using their public key
         const msg = new Message(
             null, null, 'outbound',
-            Sender.fromContact(vault, contact),
+            Sender.fromContact(contact),
             Receiver.fromContact(contact),
             type_name, type_version,
             'X25519Box', true

@@ -3,6 +3,11 @@ import {
     env_debug, env_local,
 } from '@env';
 
+// const env_test = 'true'
+// const env_dev = 'true'
+// const env_debug = 'true'
+// const env_local = 'true'
+
 export const TEST = env_test === 'true'
 export const DEV = env_dev === 'true'
 export const DEBUG = env_debug === 'true'

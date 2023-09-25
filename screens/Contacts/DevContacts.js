@@ -9,10 +9,11 @@ import { Button } from '../../components'
 import Vault from '../../classes/Vault'
 // import { getContactsManager } from '../../classes/Cache'
 import { test_vaults } from '../../testdata/testVaults'
-import ContactsManager from '../../classes/ContactsManager'
-import { ContactState } from '../../classes/Contact'
+import ContactsManager from '../../classes/contacts/ContactsManager'
+import { ContactState } from '../../classes/contacts/Contact'
 import DAI from '../../classes/DigitalAgentInterface'
 import InboundMessageManager from '../../classes/MessagesManager'
+import DigitalAgentInterface from '../../classes/DigitalAgentInterface'
 
 // Create contact request from Bob to Alice
 async function ContactRequestFrom() {
@@ -33,41 +34,33 @@ async function ContactRequestFrom() {
 
     /// START
     const bob_contact =  await alice_cm.addContact('Bob', bob_vault.did, 
-        bob_vault.public_key, bob_vault.verify_key, Uint8Array.from([]))
+        bob_vault.public_key, bob_vault.verify_key, Uint8Array.from([]), '')
     console.log(bob_contact)
     console.log(alice_cm.getContactByDid(bob_contact.did).state == ContactState.INIT)
-    console.log(alice_cm.length == 1)
-    // assertEqual(alice_cm.length, 1)
-    // self.assertEqual(alice_cm.getContact(bob.did).state, ContactState.INIT)
     alice_cm.printContacts()
     
     console.log('\n###################### A2 - alice_cm.contactRequest()')
     console.log(bob_contact.their_contact_public_key)
-    const contact_request = await alice_cm.contactRequest(bob_contact)
-    console.log('=======', contact_request) // encrypted
-
-    // self.assertEqual(alice_cm.getContact(bob.did).state, ContactState.REQUESTED)
-    // alice_cm.print_contacts()
-    // self.assertEqual(len(bob_cm.contacts), 0)
+    bob_contact.fsm.send('SUBMIT')
+    await new Promise(r => setTimeout(r, 300));
+    const contact_request = DigitalAgentInterface.getLastMessage()
+    console.log('[DevContacts] contact_request', contact_request) // encrypted
 
     console.log('\n###################### B3 - bob_cm.process_inbound_contactRequest()')
     const alice_contact = await bob_cm.processInboundContactRequest(contact_request)
-    // self.assertEqual(len(bob_cm.contacts), 1)
-    // self.assertEqual(bob_cm.getContact(alice.did).state, ContactState.INBOUND)
     bob_cm.printContacts()
 
     console.log('\n###################### B4 - bob_cm.accept_contact_request_response()')
-    const response = await bob_cm.acceptContactRequestResponse(alice_contact)
-    // self.assertEqual(bob_cm.getContact(alice.did).state, ContactState.ACCEPTED)
+    alice_contact.fsm.send('ACCEPT')
+    await new Promise(r => setTimeout(r, 300));
     bob_cm.printContacts()
-    console.log('=======', response) // encrypted
+    const response = DigitalAgentInterface.getLastMessage()
+    console.log('[DevContacts] accept_response', response) // encrypted
 
     console.log('\n###################### A5 - alice_cm.process_inbound_accept_contact_request_response()')
     alice_cm.processInboundAcceptContactRequestResponse(response)
     console.log(bob_contact.toString())
-    // self.assertEqual(alice_cm.getContact(bob.did).state, ContactState.ACCEPTED)
     alice_cm.printContacts()
-    // vm.saveVault(alice)
 }
 
 async function AliceToCharlieRequest() {
