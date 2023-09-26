@@ -4,9 +4,7 @@ import { PublicKey, VerifyKey } from '../lib/nacl';
 import Vault from '../models/Vault';
 import Contact, { ContactState } from '../models/Contact';
 import SS, { StoredType } from '../services/StorageService';
-import { Message, InboundMessageDict, OutboundMessageDict, Receiver, Sender } from '../models/Message';
-import DigitalAgentService from '../services/DigitalAgentService';
-
+import { Message, InboundMessageDict } from '../models/Message';
 
 class ContactsManager {
     // private static _instance: ContactsManager;

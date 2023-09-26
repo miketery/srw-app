@@ -7,7 +7,7 @@ import Vault from '../models/Vault';
 import { Message, OutboundMessageDict } from '../models/Message';
 
 const ContactMachine = createMachine({
-    /** @xstate-layout N4IgpgJg5mDOIC5QGMD2A7ALgQ2ZgYrALYB0AkgHJkAqAxAMoCqAQgLI0DaADALqKgAHVLACWmERn4gAHogC0ATgAsJAMwAOAEwKAbJoCM+gOwn1AVgUAaEAE9E5-SSVcdSky66GuSgL4-raFi4BMTkVHSUzADyjBQAItx8SCBCouKSybIIckbqarkGZppmZqoKmuqq1nYImlxcJPpKqtpc6g46+t5+ARg4eISk9ACi8ZQA4gD6lABqNMO0EBhgJCLoAG6oANYrsGDoEGQbYmBkEIlSqWIS6FJZxkYkRqVmzjp6pZrN1Yidj-W6IyqJRmLgKDT6HogQL9EJDUZxCbTChzagLMAAJwxqAxJAEABtsJgAGY40h7A5HdYnM4XZJXdK3TK-EEkBzqNqVTSqIxKKy2RC8xxcMw6IxfBTGfQKCxQmHBQZhaKxOK0ACCAGENcMAArUOmCYTXDKge5mR7qJRKPQGLjaVRFH7ZfRmRzAh2abRKYoVOV9BWhSIxeK0ABKwwAUsMNfreJcjYy7ohnGYnEV9J0mpKFEZ9E6dAo1KpVCKjAXjF9tH6ggNAxRlSHmAAZKIagDSBpSCZuSYQShdJF0OhaqgzJnFmid+gqg80ub0zmlvLc1dhipGYwoU012r1i2Wqw2212+wgauQyDAAkwtLj9O7Jpk9m5JB0ryUWlBJfKVQFzrKbL1KorhGJKOiVE0q4BvCm7blqup0Ji2K4gSRKkhi5Knuel7XreSSGmkPbMn2dokKKZiVJ+1qinmf5yPaahWtOyjPGBUG1qQOoIhM6rwXqwwJHeBHGkyprJg6g7qK4CiVN65q6E6o6qE8FQaJob65MWJTsXCJBcbBtDYPiADu2A2LAnYMkRYkIHoDRaNaZYmP27RKE6VoqOohh8ty5RzpUZg6Yqwz0NQarNmQ9AABICbQzath2QldoRj5ZJmJAil0FigWUUpTs8ZEFi0zjAZUXCqEFoQhWFEXRbFaqhhqUVkDMwyWQ+olPggkp5Mu0plLoxhcEYil6Go0paO8lHNJC-jQv6HEkBqaoUJM4YbnEyKogs60Ilt8ztSlnX3G0ylzi0FSlOVWjqPmMmDgoniSl+XmvH4c3oKgEBwFI8ocfGR29nITSaGoWi6AYDy5DoTpyBoDRFBYUm8rypTqJVpCUDQAMiUDb5PCBw25jJ5hAop2hFsBoqjtOriBXNf26RtSKzPMOOJsRrgNHOnTNOorEur+NSWjoTjvHUnqvNyLoY0qwZxOz1ldTkosyeCw0gp61oFrDLqOBDnjek9uQKLLzNbpMO4IYrqWIKO9kuOUoF6MCFi6+aajlPzLoUSKMq+AzC26fpiJbjbx2IPo6iFs44qZTm3heW5f7aHk-bqTo9SlAoz0B70Na6dV4VNpFMUK-egPERR-w+coyjldyMN-kpjRgtHvlgpKmiy+GUYxgJ4e9hRjgZv54IWPowK3X+Ypi2KBiTWWDpGLL8XtgPFe41Xlpppn06d96wFTnOGWZ-ze-cqK1qyw1TUtRvwkczZXTlSQnrFv2MoZq6081OpeR1ArDJUo7wsqy2WqtXa8R9pokHpzCmGgKIcmaM5cwToJ4qRLHyc0HJXizT8EAA */
+    /** @xstate-layout N4IgpgJg5mDOIC5QGMD2A7ALgQ2ZgYrALYB0AkgHJkAqAxAMoCqAQgLI0DaADALqKgAHVLACWmERn4gAHogC0ATgAsJAMwAOAEwKAbJoCM+gOwn1AVgUAaEAE9E5-SSVcdSky66GuSgL4-raFi4BMTkVHSUzADyjBQAItx8SCBCouKSybIIcvpcXCT6mtom+kpueUrWdgj6CkYkLvo66s0t+maa6kZ+ARg4eISk9ACi8ZQA4gD6lABqNMO0EBhgJCLoAG6oANYrsGDoEGQbYmBkEIlSqWIS6FJZxvVGZqpmzjp6z5pKqlWIOsYNLi6IyqJRmIEafQ9ECBfohIajOITaYUObUBZgABOmNQmJIAgANthMAAzXGkPYHI7rE5nC7JK7pW6ZP5gkgOdRcdTqVSaVRGJRWWyIAWOLhmHRGL4KYy1CzQ2HBQZhaKxOK0ACCAGEtcMAArUemCYTXDKge5merqMp6AxcbQvTS-bLtRygx3aJSaDrqBV9JWhSIxeK0ABKwwAUsMtYbeJcTUy7ohnGYnB0moZBbUjPpnToFGpVKpxUZ88Yvto-UEBoGKKqQ8wADJRLUAaSNKQTNyTCCU7RIuh0vNUTRMUqdwpqnQHmhzemc2bK3X8MP9NYRYwoU21uoNi2Wqw2212+wgGuQyDAAkwdLjDK7Zpk9j5JB0ryUWnBxYUfOdOVUBaclwqiuEYMrNCOvgroq64kCMm7bjq+p0FiOJ4oSxJkpiFKnuel7XreSTGmk3Ysr29okBKZg8p+Shvv8f4OmoZSFMoTzgVWcLKnqiITJqSEGsMCR3sRprMuayYvAOLSCjyXqWrozojqoJBSjRmhvkYPIvGYnEBqQPEIbQ2AEgA7tgNiwB2jKkRJCB6PkWh0aWJh9tylSTmUKjqJmP4AUUWkvHpsHDPQ1Aak2ZD0AAEkJtBNi27YiZ2JGPlk-ximYuQWGBAGys6xiphKCi8s4IE8sBwXwiQoXhZFMVxRqoZatFZAzMM1kPuJT4IDK6iqSxJUKLoxhcEYSl6GotRaO8NHfFC0FrtVWoahQkzhvBcQomiCwbYi23zJ1qXdfcXIqbOvKdM8wFaOoeYKP1w2eDKX4+a8fgrugqAQHAUgwfC8bHT2OQfgURR1DmS4VH+Gj5B0Fg8u8TQOFVyqUDQgNicDLTspy+gtJoz0fnoSkGANRjATKI5fFoqOhJtyKzPMmOJmRrj5LO-zfF0FjtD8k7WjoTjvITRSvHy7R06QQZqiztk9XIpbSSVY1gkUdH5n+roDg5pSE9m6gKFLcG8Vukw7shctpYgI6OS4P5gXooIWFrlpqD+XTtNR4oKO9i3VtVhlIluVsnYg+MFs4Uritm3g+R51TaP1fYaToeTPMN7RQb0AfKrVEWNlFsVxKHPbUfU3g-soyjAXyOhKfoKm5A9fkKECMqaMb4ZRjGQml2R1GOE0s6Gy8VMfnm9Qa1K+MaaWLzLjnXGhAlbZ9-eQMD9aaZp4U7deiBBWzg0addLvfISnRxtNS1bXr6JrN2bkwEkEURZ9r7TRZXdk4af1+tSges8JG4pjYrTWnteIB10T9zsnoAsGhqKcm+K5cwzpeaqT5JXS0nJXgLT8EAA */
     id: 'contactFsm',
     initial: 'INIT',
     tsTypes: {} as import("./ContactMachine.typegen").Typegen0,
@@ -28,6 +28,7 @@ const ContactMachine = createMachine({
                 INBOUND: 'INBOUND',
             },
         },
+ 
         SENDING_INVITE: {
             invoke: {
                 src: 'sendInvite',
@@ -41,6 +42,7 @@ const ContactMachine = createMachine({
                 },
             }
         },
+
         INBOUND: {
             on: {
                 ACCEPT: 'SENDING_ACCEPT',
@@ -48,6 +50,7 @@ const ContactMachine = createMachine({
                 BLOCK: 'BLOCKED',
             },
         },
+
         SENDING_ACCEPT: {
             invoke: {
                 src: 'sendAccept',
@@ -61,6 +64,7 @@ const ContactMachine = createMachine({
                 }
             }
         },
+
         PENDING: {
             entry: ['save'],
             on: {
@@ -74,6 +78,7 @@ const ContactMachine = createMachine({
             },
             
         },
+
         ESTABLISHED: {
             entry: ['save'],
             on: {
@@ -81,20 +86,24 @@ const ContactMachine = createMachine({
                 ARCHIVE: 'ARCHIVED',
             },
         },
+
         REJECTED: {
             type: 'final',
         },
+
         BLOCKED: {
             type: 'final',
         },
+
         ARCHIVED: {
             type: 'final',
         },
+
         CAN_RESEND_INVITE: {
             on: {
                 RESEND_INVITE: 'SENDING_INVITE',
             },
-        },
+        }
     },
 }, {
     actions: {
