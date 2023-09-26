@@ -1,5 +1,5 @@
-import Vault from '../classes/Vault';
-import VM from '../classes/VaultManager';
+import Vault from '../models/Vault';
+import VM from '../managers/VaultManager';
 
 describe('Vault Class', () => {
   it('prints the vault name', () => {

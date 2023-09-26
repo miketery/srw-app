@@ -8,14 +8,15 @@ import ds from '../../assets/styles'
 
 import { test_vaults } from '../../testdata/testVaults'
 
-import VaultManager from '../../classes/VaultManager'
+import VaultManager from '../../managers/VaultManager'
 import { GoBackButton } from '../../components'
+import Vault from '../../models/Vault'
 
 const loadAndSaveVault = (key) => {
     console.log('loadVault', key, test_vaults[key].name)
     // const vault = await VaultManager.createVault(v.name, v.display_name, v.email, v.words, '', false)
-    const vault_manager = new VaultManager()
-    let vault = vault_manager.fromDict(test_vaults[key])
+    const vault = Vault.fromDict(test_vaults[key])
+    const vault_manager = new VaultManager({[vault.pk]: vault})
     vault_manager.saveVault(vault)
     console.log('vault', vault.toDict())
 }

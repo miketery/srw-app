@@ -6,8 +6,8 @@ import ds from '../assets/styles'
 import { DEV, ROUTES, primary_route } from '../config'
 import tw from '../lib/tailwind'
 
-import Cache from '../classes/Cache'
-import VaultManager from '../classes/VaultManager'
+import Cache from '../services/Cache'
+import VaultManager from '../managers/VaultManager'
 
 import { trimAndLower, validateEmail } from '../lib/utils'
 import { FieldError } from '../components/'

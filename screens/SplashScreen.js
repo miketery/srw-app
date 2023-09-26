@@ -9,9 +9,9 @@ import { ROUTES, SPLASH_ANIMATE_TIME, DEV, primary_route } from '../config'
 import { vault_test_route, no_vault_test_route } from '../testdata/testroute'
 
 // import SessionManager from '../classes/SessionManager'
-import SI from '../classes/StorageInterface';
-import VaultManager from '../classes/VaultManager';
-import Cache from '../classes/Cache';
+import SS from '../services/StorageService';
+import VaultManager from '../managers/VaultManager';
+import Cache from '../services/Cache';
 
 export default function SplashScreen({navigation}) {    
     const [initialized, setInitialized] = useState(false);
@@ -54,7 +54,7 @@ export default function SplashScreen({navigation}) {
     useEffect(() => {
         console.log('[SplashScreen.js] componentDidMount()')
         animate()
-        SI.init().then((res) => {
+        SS.init().then((res) => {
             checkHasVault().then((hasVault) => {
                 setInitialized(true);
                 setHasVault(hasVault);

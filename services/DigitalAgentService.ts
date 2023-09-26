@@ -1,15 +1,17 @@
 import axios from 'axios';
 
-import Vault from './Vault';
-import { BASE, ENDPOINTS } from '../config';
+import Vault from '../models/Vault';
+import { BASE, DEBUG, ENDPOINTS } from '../config';
+import { OutboundMessageDict } from '../models/Message';
 // import Contact from './Contact';
 
 
-class DigitalAgentInterface {
+class DigitalAgentService {
     static digital_agent_host: string = BASE;
+    static _messages: OutboundMessageDict[] = [];
 
     constructor(vault: Vault) {
-        DigitalAgentInterface.digital_agent_host = BASE; // vault.digital_agent_host;
+        DigitalAgentService.digital_agent_host = BASE; // vault.digital_agent_host;
     }
     static async registerVault(vault: Vault): Promise<{}|false> {
         const payload = {
@@ -28,7 +30,7 @@ class DigitalAgentInterface {
         .catch((error) => {
             console.log(error)
             if('response' in error && error.response.status == 409)
-                console.log('[DigitalAgentInterface.registerVault] Already registered')
+                console.log('[DigitalAgentService.registerVault] Already registered')
             return false
         });
         if(!response)
@@ -57,6 +59,50 @@ class DigitalAgentInterface {
             return response['data'];
         } else {
             return false
+        }
+    }
+    static async postMessage(vault: Vault, message: any): Promise<any> {
+        const signed_payload = vault.signPayload(message);
+        const response = await axios.post(this.digital_agent_host + ENDPOINTS.POST_MESSAGE, signed_payload)
+        .catch((error) => {
+            console.log('[DigitalAgentService.postMessage]', error)
+            throw new Error(error);
+        });
+        if(!response)
+            return false
+        console.log('[postMessage]', response)
+        if (response['status'] == 200) {
+            return response['data'];
+        }
+    }
+    static getPostMessageFunction(vault: Vault): (message: any) => Promise<any> {
+        return async (message: OutboundMessageDict) => {
+            if(DEBUG)
+                this._messages.push(message)
+            return await this.postMessage(vault, message)
+        }
+    }
+    static getLastMessage(): OutboundMessageDict | null { // for local testing
+        if(this._messages.length == 0)
+            return null
+        return this._messages[this._messages.length - 1]
+    }
+    static async getMessages(vault: Vault, after?: number): Promise<any> {
+        const payload = {
+            'after': after,
+            'sig_ts': Math.floor(Date.now() / 1000)
+        }
+        const signed_payload = vault.signPayload(payload);
+        const response = await axios.post(this.digital_agent_host + ENDPOINTS.GET_MESSAGES, signed_payload)
+        .catch((error) => {
+            console.log('[DigitalAgentService.getMessages]', error)
+            throw new Error(error);
+        });
+        if(!response)
+            return false
+        DEBUG && console.log('[getMessages]', response)
+        if (response['status'] == 200) {
+            return response['data'];
         }
     }
     // static async msgForContact(
@@ -100,4 +146,4 @@ class DigitalAgentInterface {
     // }
 }
 
-export default DigitalAgentInterface;
+export default DigitalAgentService;
