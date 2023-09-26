@@ -4,11 +4,10 @@ import { useState, useEffect } from 'react'
 import tw from '../../lib/tailwind'
 import ds from '../../assets/styles'
 
-import DAI from '../../classes/DigitalAgentInterface'
 import { GoBackButton } from '../../components'
 import getTestVaultsAndContacts from '../../testdata/testContacts'
-import { Message } from '../../classes/Message'
-import ContactsManager from '../../classes/contacts/ContactsManager'
+import { Message } from '../../models/Message'
+import ContactsManager from '../../managers/ContactsManager'
 import base58 from 'bs58'
 
 async function sendTestMessages(vaults, contacts) {

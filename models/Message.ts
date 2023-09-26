@@ -5,9 +5,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 import Vault from "./Vault";
 import { base64toBytes, box, bytesToBase64, open_box, open_sealed_box, sealed_box } from "../lib/utils";
-import Contact from "./contacts/Contact";
+import Contact from "./Contact";
 import { DEBUG } from "../config";
-import { StoredTypePrefix } from "./StorageInterface";
+import { StoredTypePrefix } from "../services/StorageService";
 // Interfaces for TypedDicts
 
 interface SenderDict {

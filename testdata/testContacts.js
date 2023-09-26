@@ -1,6 +1,5 @@
-import { ContactState } from '../classes/contacts/Contact';
-import Vault from '../classes/Vault';
-import Contact from '../classes/contacts/Contact';
+import Contact, { ContactState } from '../models/Contact';
+import Vault from '../models/Vault';
 import { test_vaults } from './testVaults.js';
 
 import { encryptionKeyFromWords } from '../lib/utils';

@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { StoredType, StoredTypePrefix } from "./StorageInterface"
+import { StoredType, StoredTypePrefix } from "../services/StorageService"
 
 export enum SecretType {
     login = 'login',

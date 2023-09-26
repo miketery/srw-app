@@ -8,9 +8,9 @@ import ds from '../../assets/styles'
 
 import { test_vaults } from '../../testdata/testVaults'
 
-import VaultManager from '../../classes/VaultManager'
+import VaultManager from '../../managers/VaultManager'
 import { GoBackButton } from '../../components'
-import Vault from '../../classes/Vault'
+import Vault from '../../models/Vault'
 
 const loadAndSaveVault = (key) => {
     console.log('loadVault', key, test_vaults[key].name)

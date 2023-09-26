@@ -36,10 +36,10 @@ const _indexes: {[k in StoredType]: string[]}= Object.fromEntries(
     Object.keys(StoredType).map((k) => [StoredType[k], []])
 )
 
-const SI = {
+const SS = {
     // types: StoredType,
     // prefix: (t: StoredType) => StoredTypePrefix[t], 
-    constructor: () => console.log('[SI.constructor]'),
+    constructor: () => console.log('[SS.constructor]'),
     init: async (force=false): Promise<Boolean> => {
         if(_state['initialized'] && !force)
             return true
@@ -48,7 +48,7 @@ const SI = {
             Object.keys(StoredType).map(k => {
                 _indexes[k] = res.filter(pk => pk.slice(0,3) == StoredTypePrefix[k])
             })
-            console.log('[SI.init]', _state, _indexes)
+            console.log('[SS.init]', _state, _indexes)
             return true
         }).catch((e) => {
             console.log(e)
@@ -66,15 +66,15 @@ const SI = {
     // getCache: () => _state,
     getIndex: (t: StoredType) => _indexes[t],
     isInitialized: () => _state['initalized'],
-    inIndex: (t: StoredType, pk: string): Boolean => SI.getIndex(t).includes(pk),
-    addToIndex: (t: StoredType, pk: string) => !SI.inIndex(t, pk) ? 
-            SI.getIndex(t).push(pk) : null,
+    inIndex: (t: StoredType, pk: string): Boolean => SS.getIndex(t).includes(pk),
+    addToIndex: (t: StoredType, pk: string) => !SS.inIndex(t, pk) ? 
+            SS.getIndex(t).push(pk) : null,
     saveSync: (pk: string, data: any, success: Function|null=null, error: Function|null=null) => {
         const t = pkToStoredType(pk)
-        console.log('[SI.saveAsync]', pk)
+        console.log('[SS.saveAsync]', pk)
         AsyncStorage.setItem(pk, JSON.stringify(data))
         .then(r => {
-            SI.addToIndex(t, pk)
+            SS.addToIndex(t, pk)
             success!=null && success()
         }).catch(e => {
             console.error(e)
@@ -83,12 +83,12 @@ const SI = {
     },
     save: async(pk: string, data: any) => {
         const t = pkToStoredType(pk)        
-        console.log('[SI.save]', pk)
-        SI.addToIndex(t, pk)
+        console.log('[SS.save]', pk)
+        SS.addToIndex(t, pk)
         return AsyncStorage.setItem(pk, JSON.stringify(data))
     },
     get: async(pk: string) => {
-        console.log('[SI.get]', pk)
+        console.log('[SS.get]', pk)
         return AsyncStorage.getItem(pk).then(r => {
             if(r == null)
                 return null
@@ -96,15 +96,15 @@ const SI = {
         })        
     },
     delete: async(pk: string) => {
-        console.log('[SI.deleteAsync]', pk)
+        console.log('[SS.deleteAsync]', pk)
         const t = pkToStoredType(pk)
         return AsyncStorage.removeItem(pk)
     },
     deleteSync: (pk: string, success: Function|null=null, error: Function|null=null) => {
-        console.log('[SI.delete]', pk)
+        console.log('[SS.delete]', pk)
         const t = pkToStoredType(pk)
         AsyncStorage.removeItem(pk).then(() => {
-            SI.getIndex(t).splice(SI.getIndex(t).indexOf(pk), 1)
+            SS.getIndex(t).splice(SS.getIndex(t).indexOf(pk), 1)
             if(success!=null) success()
         }).catch(e => {
             console.error(e)
@@ -112,8 +112,8 @@ const SI = {
         })
     },
     getAll: async(t: StoredType, vault_pk: string|null=null) => {
-        console.log('[SI.getAll]', t)
-        const results = await AsyncStorage.multiGet(SI.getIndex(t))
+        console.log('[SS.getAll]', t)
+        const results = await AsyncStorage.multiGet(SS.getIndex(t))
         const array = results.map(([key, data]) => {
             try {
                 return data != null ? JSON.parse(data) : null;
@@ -125,6 +125,6 @@ const SI = {
         return vault_pk === null ? array : array.filter(obj => obj !== null && obj.vault_pk === vault_pk);
     },
 }
-Object.freeze(SI)
+Object.freeze(SS)
 
-export default SI
+export default SS

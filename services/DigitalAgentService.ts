@@ -1,17 +1,17 @@
 import axios from 'axios';
 
-import Vault from './Vault';
+import Vault from '../models/Vault';
 import { BASE, DEBUG, ENDPOINTS } from '../config';
-import { OutboundMessageDict } from './Message';
+import { OutboundMessageDict } from '../models/Message';
 // import Contact from './Contact';
 
 
-class DigitalAgentInterface {
+class DigitalAgentService {
     static digital_agent_host: string = BASE;
     static _messages: OutboundMessageDict[] = [];
 
     constructor(vault: Vault) {
-        DigitalAgentInterface.digital_agent_host = BASE; // vault.digital_agent_host;
+        DigitalAgentService.digital_agent_host = BASE; // vault.digital_agent_host;
     }
     static async registerVault(vault: Vault): Promise<{}|false> {
         const payload = {
@@ -30,7 +30,7 @@ class DigitalAgentInterface {
         .catch((error) => {
             console.log(error)
             if('response' in error && error.response.status == 409)
-                console.log('[DigitalAgentInterface.registerVault] Already registered')
+                console.log('[DigitalAgentService.registerVault] Already registered')
             return false
         });
         if(!response)
@@ -65,7 +65,7 @@ class DigitalAgentInterface {
         const signed_payload = vault.signPayload(message);
         const response = await axios.post(this.digital_agent_host + ENDPOINTS.POST_MESSAGE, signed_payload)
         .catch((error) => {
-            console.log('[DigitalAgentInterface.postMessage]', error)
+            console.log('[DigitalAgentService.postMessage]', error)
             throw new Error(error);
         });
         if(!response)
@@ -95,7 +95,7 @@ class DigitalAgentInterface {
         const signed_payload = vault.signPayload(payload);
         const response = await axios.post(this.digital_agent_host + ENDPOINTS.GET_MESSAGES, signed_payload)
         .catch((error) => {
-            console.log('[DigitalAgentInterface.getMessages]', error)
+            console.log('[DigitalAgentService.getMessages]', error)
             throw new Error(error);
         });
         if(!response)
@@ -146,4 +146,4 @@ class DigitalAgentInterface {
     // }
 }
 
-export default DigitalAgentInterface;
+export default DigitalAgentService;

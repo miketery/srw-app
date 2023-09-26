@@ -5,8 +5,8 @@ import { ROUTES } from '../../config'
 import tw from '../../lib/tailwind'
 import ds from '../../assets/styles'
 
-import Cache from '../../classes/Cache'
-import DAI from '../../classes/DigitalAgentInterface'
+import Cache from '../../services/Cache'
+import DAS from '../../services/DigitalAgentService'
 import { GoBackButton } from '../../components'
 import getTestVaultsAndContacts from '../../testdata/testContacts'
 
@@ -14,13 +14,13 @@ function registerVault() {
     console.log('registerVault')
     const vm = Cache.vault_manager
     const vault = vm.current_vault
-    DAI.registerVault(vault)
+    DAS.registerVault(vault)
 }
 function amIRegistered() {
     console.log('amIRegistered')
     const vm = Cache.vault_manager
     const vault = vm.current_vault
-    DAI.amIRegistered(vault)
+    DAS.amIRegistered(vault)
 }
 async function postMessage() {
     console.log('postMessage')
@@ -29,7 +29,7 @@ async function postMessage() {
     // const bob = cm.getContactByDid('Bob')
     // const vault = vm.current_vault
     // const msg = Message.forContact(vault, )
-    // DAI.postMessage(vault)
+    // DAS.postMessage(vault)
     const [vaults, contacts] = await getTestVaultsAndContacts()
     console.log(vaults)
     console.log(contacts)

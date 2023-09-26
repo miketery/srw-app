@@ -6,7 +6,7 @@ import tw from '../../lib/tailwind';
 import { DEV, ROUTES } from '../../config';
 import { TopGradient } from '../../components';
 
-import { getSecretsManager } from '../../classes/Cache';
+import { getSecretsManager } from '../../services/Cache';
 
 function SecretIcon(props) {
     return <View style={tw`bg-gray-400 rounded-full h-16 w-16`} />

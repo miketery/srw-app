@@ -1,11 +1,11 @@
 import base58 from 'bs58';
 
-import { PublicKey, VerifyKey } from '../../lib/nacl';
-import Vault from '../Vault';
-import Contact, { ContactState } from './Contact';
-import SI, { StoredType } from '../StorageInterface';
-import { Message, InboundMessageDict, OutboundMessageDict, Receiver, Sender } from '../Message';
-import DigitalAgentInterface from '../DigitalAgentInterface';
+import { PublicKey, VerifyKey } from '../lib/nacl';
+import Vault from '../models/Vault';
+import Contact, { ContactState } from '../models/Contact';
+import SS, { StoredType } from '../services/StorageService';
+import { Message, InboundMessageDict, OutboundMessageDict, Receiver, Sender } from '../models/Message';
+import DigitalAgentService from '../services/DigitalAgentService';
 
 
 class ContactsManager {
@@ -25,18 +25,18 @@ class ContactsManager {
     // }
     clear() { this._contacts = {}; }
     async deleteContact(contact: Contact): Promise<void> {
-        await SI.delete(contact.pk);
+        await SS.delete(contact.pk);
         delete this._contacts[contact.pk];
     }
     async saveContact(contact: Contact): Promise<void> {
-        await SI.save(contact.pk, contact.toDict())
+        await SS.save(contact.pk, contact.toDict())
         this._contacts[contact.pk] = contact;
     }
     async loadContacts(): Promise<{string?: Contact}> {
         if(!this._vault)
             throw new Error('Vault not set');
         const contacts: {string?: Contact} = {};
-        const contacts_data = await SI.getAll(StoredType.contact, this._vault.pk);
+        const contacts_data = await SS.getAll(StoredType.contact, this._vault.pk);
         for (let contact_data of Object.values(contacts_data)) {
             const c = Contact.fromDict(contact_data, this.vault);
             contacts[c.pk] = c;

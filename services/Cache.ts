@@ -1,5 +1,5 @@
-import Vault from './Vault'
-import VaultManager from './VaultManager'
+import Vault from '../models/Vault'
+import VaultManager from '../managers/VaultManager'
 
 interface CacheInterface {
     vault: Vault | null;

@@ -3,15 +3,15 @@ const bip39 = require('bip39')
 
 import { v4 as uuidv4 } from 'uuid';
 
-import { SigningKey, VerifyKey, PrivateKey, PublicKey, SignedMessage } from '../../lib/nacl';
-import { signMsg, signingKeyFromWords, encryptionKeyFromWords, encryptionKey, getRandom } from '../../lib/utils'
-import SI, { StoredType, StoredTypePrefix } from '../StorageInterface';
-import ContactMachine from './ContactMachine';
+import { SigningKey, VerifyKey, PrivateKey, PublicKey, SignedMessage } from '../lib/nacl';
+import { signMsg, signingKeyFromWords, encryptionKeyFromWords, encryptionKey, getRandom } from '../lib/utils'
+import SS, { StoredType, StoredTypePrefix } from '../services/StorageService';
+import ContactMachine from '../machines/ContactMachine';
 import { useMachine } from '@xstate/react';
 import { State, interpret } from 'xstate';
-import Vault from '../Vault';
-import { Message, OutboundMessageDict } from '../Message';
-import DigitalAgentInterface from '../DigitalAgentInterface';
+import Vault from './Vault';
+import { Message, OutboundMessageDict } from './Message';
+import DigitalAgentService from '../services/DigitalAgentService';
 
 export enum ContactState {
     INIT = 'INIT',
@@ -85,7 +85,7 @@ class Contact {
             value: this._state,
             context: {
                 contact: this,
-                sender: DigitalAgentInterface.getPostMessageFunction(this.vault),
+                sender: DigitalAgentService.getPostMessageFunction(this.vault),
             }
         })
         // this.fsm = useMachine(ContactMachine, {state: resolvedState})
@@ -128,7 +128,7 @@ class Contact {
             digital_agent, state, vault)
     }
     async save(): Promise<void> {
-        return SI.save(this.pk, this.toDict())
+        return SS.save(this.pk, this.toDict())
     }
     toString(): string {
         return [this.pk, this.did, this.name, this.state].join(' ')

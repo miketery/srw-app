@@ -1,7 +1,7 @@
 /*
-    Need to interface with DAI for messages outbound and inbound
-    - outbound: create message, encrypt, send to DAI
-    - inbound: receive message from DAI, decrypt, process
+    Need to interface with DAS for messages outbound and inbound
+    - outbound: create message, encrypt, send to DAS
+    - inbound: receive message from DAS, decrypt, process
 
     Need to keep track of last received, and IDs that have received
     - last received: used to get messages since last received
@@ -10,10 +10,10 @@
 
 */
 
-import DigitalAgentInterface from "./DigitalAgentInterface";
-import { Message } from "./Message";
-import SI, { StoredTypePrefix } from "./StorageInterface";
-import Vault from "./Vault";
+import DigitalAgentService from "../services/DigitalAgentService";
+import { Message } from "../models/Message";
+import SS, { StoredTypePrefix } from "../services/StorageService";
+import Vault from "../models/Vault";
 
 interface LastReceivedStateDict {
     uuid: string;
@@ -37,7 +37,7 @@ class InboundMessageManager {
             }
     }
     async getMessages() {
-        const messages = await DigitalAgentInterface.getMessages(this._vault, this._last.timestamp)
+        const messages = await DigitalAgentService.getMessages(this._vault, this._last.timestamp)
         if(!messages)
             return false
         console.log('[InboundManager.getMessages]', messages.length)
@@ -56,7 +56,7 @@ class InboundMessageManager {
         return messages.length
     }
     async saveMessage(message: Message): Promise<void> {
-        return SI.save(message.pk, message.toDict())
+        return SS.save(message.pk, message.toDict())
     }
     // async processInboundAndPass() {
 
