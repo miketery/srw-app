@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 // Import the required classes, modules or types here
 import { SigningKey, VerifyKey, PrivateKey, PublicKey, SignedMessage } from '../lib/nacl';
 import { signMsg, signingKeyFromWords, encryptionKeyFromWords, getRandom } from '../lib/utils'
-import SI, { StoredType, StoredTypePrefix } from './StorageInterface';
+import SS, { StoredType, StoredTypePrefix } from '../services/StorageService';
 import { entropyToMnemonic } from 'bip39';
 
 
@@ -110,6 +110,7 @@ export default class Vault {
         );
     }
     signPayload(payload: any): {signed: string, verify_key: string} {
+        payload.sig_ts = Math.floor(Date.now() / 1000);
         const data = JSON.stringify(payload);//.encode('utf-8');
         const data_bytes = Buffer.from(data, 'utf-8');
         const signed = this.sign(data_bytes);
@@ -122,6 +123,6 @@ export default class Vault {
         return signMsg(data, this.signing_key);
     }
     async save() {
-        return SI.save(this.pk, this.toDict());
+        return SS.save(this.pk, this.toDict());
     }
 }

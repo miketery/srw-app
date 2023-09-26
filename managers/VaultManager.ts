@@ -1,5 +1,5 @@
-import Vault from './Vault';
-import SI, { StoredType } from './StorageInterface';
+import Vault from '../models/Vault';
+import SS, { StoredType } from '../services/StorageService';
 import { signingKeyFromWords, encryptionKeyFromWords, getRandom } from '../lib/utils'
 import { v4 as uuidv4 } from 'uuid';
 import { entropyToMnemonic } from 'bip39';
@@ -7,7 +7,7 @@ import { entropyToMnemonic } from 'bip39';
 import ContactsManager from './ContactsManager';
 import SecretsManager from './SecretsManager';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import DigitalAgentInterface from './DigitalAgentInterface';
+import DigitalAgentService from '../services/DigitalAgentService';
 
 interface SessionInterface {
     vault_pk: string;
@@ -21,8 +21,8 @@ class VaultManager {
     private _contacts_manager: ContactsManager | null;
     private _session: SessionInterface;
 
-    constructor() {
-        this._vaults = {};
+    constructor(vaults: {string?: Vault} = {}) {
+        this._vaults = vaults;
         this._current_vault = null;
         this._session = {vault_pk: ''}
     }
@@ -50,7 +50,7 @@ class VaultManager {
     }
     async loadSession(): Promise<SessionInterface> {
         console.log('[VaultManager.loadSession]')
-        const res = await AsyncStorage.getItem('SESSION');
+        const res = await AsyncStorage.getItem('SESSSON');
         if(res) {
             const data = JSON.parse(res);
             this._session = data;
@@ -60,12 +60,12 @@ class VaultManager {
     }
     async saveSession(): Promise<void> {
         console.log('[VaultManager.saveSession]')
-        await AsyncStorage.setItem('SESSION', JSON.stringify(this._session));
+        await AsyncStorage.setItem('SESSSON', JSON.stringify(this._session));
     }
     async loadVaults(): Promise<{string?: Vault}> {
         console.log('[VaultManager.loadVaults]')
         const vaults = {};
-        const vaults_data = await SI.getAll(StoredType.vault);
+        const vaults_data = await SS.getAll(StoredType.vault);
         for (let vault_data of Object.values(vaults_data)) {
             const v = Vault.fromDict(vault_data);
             vaults[v.pk] = v;
@@ -82,7 +82,7 @@ class VaultManager {
     }
     async checkRegistered(vault: Vault, ifNotRegister: boolean): Promise<Boolean> {
         console.log('[VaultManager.checkRegistered]')
-        const data = await DigitalAgentInterface.amIRegistered(vault);
+        const data = await DigitalAgentService.amIRegistered(vault);
         if(data) {
             vault.registered = true;
             vault.short_code = data['short_code'];
@@ -90,7 +90,7 @@ class VaultManager {
             return true
         } else if (ifNotRegister) {
             // try to register
-            const res = await DigitalAgentInterface.registerVault(vault);
+            const res = await DigitalAgentService.registerVault(vault);
             if(res) {
                 vault.registered = true;
                 vault.short_code = res['short_code'];
@@ -114,7 +114,7 @@ class VaultManager {
         ])
     }
     async saveVault(vault: Vault): Promise<void> {
-        return SI.save(vault.pk, vault.toDict());
+        return SS.save(vault.pk, vault.toDict());
     }
     async createVault(name: string, email: string, display_name: string,
             digital_agent_host: string, words: string,
@@ -126,11 +126,11 @@ class VaultManager {
         if (save) {
             await this.saveVault(new_vault);
             // check that saved
-            const vault_data = await SI.get(new_vault.pk);
+            const vault_data = await SS.get(new_vault.pk);
             if (!vault_data)
                 throw new Error(`Could not save vault ${new_vault.pk}`);
         }
-        const res = await DigitalAgentInterface.registerVault(new_vault);
+        const res = await DigitalAgentService.registerVault(new_vault);
         if(res) {
             new_vault.registered = true;
             new_vault.short_code = res['short_code'];
@@ -138,7 +138,7 @@ class VaultManager {
         } else {
             // couldn't register vault
             // check already registered?
-            const res = await DigitalAgentInterface.amIRegistered(new_vault);
+            const res = await DigitalAgentService.amIRegistered(new_vault);
             if(res) {
                 new_vault.registered = true;
                 new_vault.short_code = res['short_code'];
