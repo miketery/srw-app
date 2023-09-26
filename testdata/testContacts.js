@@ -1,6 +1,5 @@
-import { ContactState } from '../classes/Contact';
-import Vault from '../classes/Vault';
-import Contact from '../classes/Contact';
+import Contact, { ContactState } from '../models/Contact';
+import Vault from '../models/Vault';
 import { test_vaults } from './testVaults.js';
 
 import { encryptionKeyFromWords } from '../lib/utils';
@@ -8,13 +7,13 @@ import { encryptionKeyFromWords } from '../lib/utils';
 const words = {
     'alice': {
         'bob': 'stereo address seven like end observe garage obvious pen post hospital bunker',
-        'charlotte': 'solid wedding silent grab used refuse blouse aim tape grape drastic weather',
+        'charlie': 'solid wedding silent grab used refuse blouse aim tape grape drastic weather',
     },
     'bob': {
         'alice': 'inner beauty setup air cream demise radar arrow game oppose call replace',
-        'charlotte': 'receive black rally tragic slight sand hero rapid veteran basic journey coral',
+        'charlie': 'receive black rally tragic slight sand hero rapid veteran basic journey coral',
     },
-    'charlotte': {
+    'charlie': {
         'alice': 'divorce bomb game rib furnace reduce nerve eagle winner smoke october problem',
         'bob': 'evolve stay spider noise bubble imitate adjust logic inside start object lend',
     }

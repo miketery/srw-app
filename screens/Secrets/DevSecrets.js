@@ -1,11 +1,11 @@
 import { Pressable, Text, View } from 'react-native'
-import Secret, { SecretType } from '../../classes/Secret'
+import Secret, { SecretType } from '../../models/Secret'
 import { test_secrets } from '../../testdata/test_secrets'
 
 import tw from '../../lib/tailwind'
 import ds from '../../assets/styles'
 
-import { getSecretsManager } from '../../classes/Cache';
+import { getSecretsManager } from '../../services/Cache';
 
 async function DeleteAllSecrets() {
     const secret_manager = getSecretsManager()

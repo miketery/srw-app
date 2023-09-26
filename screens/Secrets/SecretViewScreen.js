@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import SecretsManager from '../../classes/SecretsManager'
+import SecretsManager from '../../managers/SecretsManager'
 
 function SecretViewScreen(props) {
     // props get secret_pk from nav

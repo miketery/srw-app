@@ -29,9 +29,9 @@ export const test_vaults = [
     {
         "pk": "v__D5EBA8cZDo7kQGCqepKGGkkWGy9b1c5oXnQE5N9T1xnK",
         "uuid": "afbd4cba-6e30-4857-b477-88255e5bcb1e",
-        "name": "charlotte",
-        "email": "charlotte@arxsky.com",
-        "display_name": "TV—Charlotte",
+        "name": "charlie",
+        "email": "charlie@arxsky.com",
+        "display_name": "TV—Charlie",
         "digital_agent_host": "",
         "words": "top cancel breeze nature place deny wink first domain object legend matter",
         "signing_key": "5wVUYFv2eGixHk7DVRKmN689gijFynY94a1jsAAgrXCAt4725iL5fZYCDnCPELX8J7f6nHBk4kGX3KomAykBX76w",

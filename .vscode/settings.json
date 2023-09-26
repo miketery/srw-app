@@ -13,9 +13,6 @@
         "**/node_modules": true,
         "package-lock.json": true,
     },
-    "javascript.preferences.quoteStyle": "single",
-    "editor.fontSize": 12,
-    "editor.tabSize": 4,
     "files.watcherExclude": {
         "**/.git/objects/**": true,
         "**/.git/subtree-cache/**": true,
@@ -23,5 +20,17 @@
         "**/.hg/store/**": true
     },
     "editor.bracketPairColorization.enabled": false,
+    "editor.cursorBlinking": "smooth",
+    "editor.cursorSmoothCaretAnimation": "on",
+    "editor.cursorStyle": "line",
+    "editor.fontSize": 12,
     "editor.stickyScroll.enabled": true,
+    "editor.tabSize": 4,
+    "javascript.preferences.quoteStyle": "single",
+    "workbench.tree.indent": 15,
+    "workbench.tree.renderIndentGuides": "always",
+    "workbench.colorCustomizations": {
+        "tree.indentGuidesStroke": "#05ef3c"
+    
+    }
 }

@@ -1,10 +1,11 @@
 import base58 from 'bs58';
 
 import { PublicKey, VerifyKey } from '../lib/nacl';
-import Vault from './Vault';
-import Contact, { ContactState } from './Contact';
-import SI, { StoredType } from './StorageInterface';
-import { Message, MessageDict, Receiver, Sender } from './Message';
+import Vault from '../models/Vault';
+import Contact, { ContactState } from '../models/Contact';
+import SS, { StoredType } from '../services/StorageService';
+import { Message, InboundMessageDict, OutboundMessageDict, Receiver, Sender } from '../models/Message';
+import DigitalAgentService from '../services/DigitalAgentService';
 
 
 class ContactsManager {
@@ -24,20 +25,20 @@ class ContactsManager {
     // }
     clear() { this._contacts = {}; }
     async deleteContact(contact: Contact): Promise<void> {
-        await SI.delete(contact.pk);
+        await SS.delete(contact.pk);
         delete this._contacts[contact.pk];
     }
     async saveContact(contact: Contact): Promise<void> {
-        await SI.save(contact.pk, contact.toDict())
+        await SS.save(contact.pk, contact.toDict())
         this._contacts[contact.pk] = contact;
     }
     async loadContacts(): Promise<{string?: Contact}> {
         if(!this._vault)
             throw new Error('Vault not set');
         const contacts: {string?: Contact} = {};
-        const contacts_data = await SI.getAll(StoredType.contact, this._vault.pk);
+        const contacts_data = await SS.getAll(StoredType.contact, this._vault.pk);
         for (let contact_data of Object.values(contacts_data)) {
-            const c = Contact.fromDict(contact_data);
+            const c = Contact.fromDict(contact_data, this.vault);
             contacts[c.pk] = c;
         }
         this._contacts = contacts;
@@ -90,48 +91,27 @@ class ContactsManager {
     async addContact(name: string, did: string, 
             their_public_key: PublicKey, their_verify_key: VerifyKey,
             their_contact_public_key: PublicKey,
-            digital_agent: string): Promise<Contact> {
+            digital_agent: string, save=true): Promise<Contact> {
         const check = this.getContactsArray().find(c => c.did === did);
         if (check)
             throw new Error('Contact already exists: ' + check.toString());
         const contact = await Contact.create(this.vault.pk, did, name,
             their_public_key, their_verify_key, their_contact_public_key,
-            digital_agent);
-        await this.saveContact(contact);
+            digital_agent, ContactState.INIT, this.vault);
+        if(save)
+            await this.saveContact(contact);
         return contact;
     }
-    async contactRequest(contact: Contact): Promise<MessageDict> {
-        console.log('[ContactsManager.contactRequest]')
-        const requestee = {
-            did: this.vault.did,
-            name: this.vault.name,
-            verify_key: this.vault.b58_verify_key,
-            public_key: this.vault.b58_public_key,
-            contact_public_key: contact.b58_public_key,
-            // TODO: add digital agent
-        };
-        const message = new Message(
-            Sender.fromVault(this.vault), Receiver.fromContact(contact),
-            requestee, 'contact_request', '0.0.1', null, false
-        )
-        contact.state = ContactState.REQUESTED;
-        await this.saveContact(contact);
-        // console.log(message.outboundFinal())
-        // const signedPayload = this.vault.signPayload(payload);
-        // contact.state = ContactState.REQUESTED;
-        // if (DEBUG) {
-        //     signedPayload['__DEBUG'] = payload;
-        // }
-        return message.outboundFinal();
-    }
-    async processInboundContactRequest(message: MessageDict): Promise<Contact> {
-        // thros Invalid Singature on payload
+    async processInboundContactRequest(inbound: InboundMessageDict): Promise<Contact> {
         console.log('[ContactsManager.processInboundContactRequest]')
-        if (message.type_name !== 'contact_request')
-            throw new Error('Invalid data type');
-        const requestee = message.data;
-        if (requestee.did !== 'did:arx:' + requestee.verify_key)
-            throw new Error('Invalid DID');
+        if (inbound.type_name !== 'contact_request')
+            throw new Error('108 Invalid data type');
+        const message = Message.inbound(inbound);
+        message.decrypt(this.vault.private_key);
+        // TODO: did not decrypt... throw
+        const requestee = message.getData();
+        // if (requestee.did !== 'did:arx:' + requestee.verify_key)
+        //     throw new Error('Invalid DID');
         const their_public_key = base58.decode(requestee.public_key);
         const their_verify_key = base58.decode(requestee.verify_key);
         const their_contact_public_key = base58.decode(requestee.contact_public_key);
@@ -143,44 +123,29 @@ class ContactsManager {
             their_contact_public_key,
             '', // TODO: digital agent
             ContactState.INBOUND,
+            this.vault,
         );
         await this.saveContact(contact);
         return contact;
     }
-    async acceptContactRequestResponse(contact: Contact): Promise<MessageDict> {
-        console.log('[ContactsManager.acceptContactRequestResponse]')
-        console.log(contact.toString())
-        if(contact.state != ContactState.INBOUND)
-            throw new Error('Invalid contact state: ' + contact.state);
-        const message = new Message(
-            Sender.fromVault(this.vault), Receiver.fromContact(contact),
-            {
-                did: this.vault.did,
-                verify_key: this.vault.b58_verify_key,
-                public_key: this.vault.b58_public_key,
-                contact_public_key: contact.b58_public_key,
-            },
-            'accept_contact_request_response', '0.0.1', null, false
-        )
-        contact.state = ContactState.ACCEPTED;
-        await this.saveContact(contact);
-        return message.outboundFinal();
-    }
-
-    async processInboundAcceptContactRequestResponse(message: MessageDict): Promise<void> {
-        console.log('[ContactsManager.processInboundAcceptContactRequestResponse]')
-        if(message.type_name !== 'accept_contact_request_response')
-            throw new Error('Invalid data type');
-        const data = message.data;
-        const contact = this.getContactByDid(data.did);
-        if(contact.state == ContactState.ACCEPTED)
+    async processInboundAcceptContactRequestResponse(inbound: InboundMessageDict): Promise<void> {
+        console.log('[ContactsManager.processInboundAcceptContactRequestResponse]', inbound.sender.name)
+        if (inbound.type_name !== 'accept_contact_request_response')
+            throw new Error('Invalid data type, required: "accept_contact_request_response"');
+        const sender_did = inbound.sender.did;
+        const contact = this.getContactByDid(sender_did);
+        const message = Message.inbound(inbound);
+        message.decrypt(contact.private_key);
+        // TODO: did not decrypt... throw
+        const data = message.getData();
+        if(contact.state == ContactState.ESTABLISHED)
             // already accepted...
             return;
-        if(contact.state != ContactState.REQUESTED)
-            throw new Error('Invalid contact state: ' + contact.state);
+        if(contact.state != ContactState.PENDING)
+            throw new Error('145 Invalid contact state: ' + contact.state);
         if(data.did !== 'did:arx:' + data.verify_key)
             throw new Error('Invalid DID');
-        contact.state = ContactState.ACCEPTED;
+        // contact.state = ContactState.ESTABLISHED;
         contact.their_public_key = base58.decode(data.public_key);
         contact.their_contact_public_key = base58.decode(data.contact_public_key);
         await this.saveContact(contact);

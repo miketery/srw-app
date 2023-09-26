@@ -21,7 +21,7 @@ const no_vault_test_route = {
 }
 // When HAS Vault && DEV pick route:
 // choose from Object.keys(switch_routes)
-const top_level = ROUTES.DevHasVaultRoute; 
+const top_level = ROUTES.ContactsRoute; 
 
 const switch_routes = {
   [ROUTES.DevHasVaultRoute]: [

@@ -1,7 +1,7 @@
-import Secret from './Secret'
-import SI, { StoredType } from './StorageInterface'
+import Secret from '../models/Secret'
+import SS, { StoredType } from '../services/StorageService'
 
-import Vault from './Vault';
+import Vault from '../models/Vault';
 
 class SecretsManager {
     // private static _instance: SecretsManager;
@@ -24,18 +24,18 @@ class SecretsManager {
     //     console.log('[SecretsManager.init]')
     // }
     async deleteSecret(secret: Secret): Promise<void> {
-        await SI.delete(secret.pk);
+        await SS.delete(secret.pk);
         delete this._secrets[secret.pk];
     }
     async saveSecret(secret: Secret): Promise<void> {
-        await SI.save(secret.pk, secret.toDict());
+        await SS.save(secret.pk, secret.toDict());
         this._secrets[secret.pk] = secret;
     }
     async loadSecrets(): Promise<{string?: Secret}> {
         if(!this._vault)
             throw new Error('Vault not set')
         let secrets: {string?: Secret} = {};
-        let secrets_data = await SI.getAll(StoredType.secret, this._vault.pk);
+        let secrets_data = await SS.getAll(StoredType.secret, this._vault.pk);
         for (let secret_data of Object.values(secrets_data)) {
             let s = Secret.fromDict(secret_data);
             secrets[s.pk] = s;

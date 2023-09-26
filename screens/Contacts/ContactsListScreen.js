@@ -6,7 +6,7 @@ import tw from '../../lib/tailwind';
 import { DEV, ROUTES } from '../../config';
 import { TopGradient } from '../../components';
 
-import { getContactsManager } from '../../classes/Cache';
+import { getContactsManager } from '../../services/Cache';
 
 
 function ContactIcon(props) {
