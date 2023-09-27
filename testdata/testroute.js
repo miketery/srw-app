@@ -8,15 +8,15 @@ const no_vault_test_route = {
     {
       name: ROUTES.LandingRoute,
     },
-    {
-      name: ROUTES.DevNoVaultRoute,
-      state: {
-        routes: [
-          {name: ROUTES.DevNoVaultRoute},
-          {name: ROUTES.DevMessagesRoute}
-        ]
-      }
-    }
+    // {
+    //   name: ROUTES.DevNoVaultRoute,
+    //   state: {
+    //     routes: [
+    //       {name: ROUTES.DevNoVaultRoute},
+    //       {name: ROUTES.DevMessagesRoute}
+    //     ]
+    //   }
+    // }
   ]
 }
 // When HAS Vault && DEV pick route:
