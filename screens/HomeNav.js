@@ -65,17 +65,8 @@ export default function HomeNavTest({props}) {
             {/* <Tab.Screen name='ProfileRoute' >
                 {(props) => <ProfileScreen vault={this.vault} {...props} />}
             </Tab.Screen>
-            <Tab.Screen name='StorageRoute' title='Secrets'>
-                {(props) => <StorageNav vault={this.vault} {...props} />}
-            </Tab.Screen>
-            <Tab.Screen name="ContactsRoute">
-                {(props) => <ContactNav vault={this.vault} {...props} />}
-            </Tab.Screen>
-            <Tab.Screen name="KeySharesRoute">
+            <Tab.Screen name="RecoveryManifestRoute">
                 {(props) => <KeyShareNav vault={this.vault} {...props} />}
-            </Tab.Screen>
-            <Tab.Screen name="WalletsRoute">
-                {(props) => <WalletNav vault={this.vault} {...props} />}
             </Tab.Screen>
             <Tab.Screen name="NotificationsRoute"
                 options={{ tabBarBadge: this.state.total_count }}>
