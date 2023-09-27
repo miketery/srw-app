@@ -1,10 +1,9 @@
-import Secret from '../models/Secret'
+import Secret, { SecretType } from '../models/Secret'
 import SS, { StoredType } from '../services/StorageService'
 
 import Vault from '../models/Vault';
 
 class SecretsManager {
-    // private static _instance: SecretsManager;
     private _secrets: {string?: Secret};
     private _vault: Vault | null;
 
@@ -13,16 +12,7 @@ class SecretsManager {
         this._secrets = {};
         this._vault = vault;
     }
-    // public static getInstance(): SecretsManager {
-    //     if (!SecretsManager._instance) {
-    //         SecretsManager._instance = new SecretsManager();
-    //     }
-    //     return SecretsManager._instance;
-    // }
     clear() { this._secrets = {}; }
-    // init() {
-    //     console.log('[SecretsManager.init]')
-    // }
     async deleteSecret(secret: Secret): Promise<void> {
         await SS.delete(secret.pk);
         delete this._secrets[secret.pk];
@@ -42,6 +32,15 @@ class SecretsManager {
         }
         this._secrets = secrets;
         return this._secrets;
+    }
+    async createSecret(secret_type: SecretType, name: string, description: string,
+            data: any): Promise<Secret> {            
+        if(!this._vault)
+            throw new Error('Vault not set')
+        const new_secret = await Secret.create(secret_type, name, description, data, this._vault.pk);
+        this._secrets[new_secret.pk] = new_secret;
+        await this.saveSecret(new_secret);
+        return new_secret;
     }
     getSecrets(): {string?: Secret} {
         return this._secrets;
@@ -67,4 +66,4 @@ class SecretsManager {
     }
 }
 
-export default SecretsManager; // singleton
+export default SecretsManager;
