@@ -4,7 +4,7 @@ import { test_vaults } from './testVaults.js';
 
 import { encryptionKeyFromWords } from '../lib/utils';
 
-const words = {
+const words = { // seed words so keys are constant for testing...
     'alice': {
         'bob': 'stereo address seven like end observe garage obvious pen post hospital bunker',
         'charlie': 'solid wedding silent grab used refuse blouse aim tape grape drastic weather',
@@ -43,7 +43,7 @@ async function getTestVaultsAndContacts() {
             const contact = await Contact.create(
                 my_vault.pk, their_vault.did, their_name,
                 their_vault.public_key, their_vault.verify_key,
-                theirContactKeyPair.publicKey, '', ContactState.ACCEPTED)
+                theirContactKeyPair.publicKey, '', ContactState.ESTABLISHED)
             contact.private_key = myContactKeyPair.secretKey
             contact.public_key = myContactKeyPair.publicKey
             contacts[name][their_name] = contact
