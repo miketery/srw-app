@@ -33,10 +33,10 @@ function MainHubScreen(props) {
                 <Text style={ds.buttonText}>Dev</Text>
             </Pressable>}
             <View style={tw`flex-grow-1`} />
-            <Pressable style={[ds.button, ds.greenButton, tw`rounded-full`]}
+            {/* <Pressable style={[ds.button, ds.greenButton, tw`rounded-full`]}
                 onPress={() => props.navigation.navigate(ROUTES.VaultCreateRoute)}>
                 <Text style={ds.buttonText}>Create Vault</Text>
-            </Pressable>
+            </Pressable> */}
         </View>
     </View>
 }

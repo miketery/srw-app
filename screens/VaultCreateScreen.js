@@ -101,8 +101,8 @@ export default function VaultCreateScreen(props) {
             </ScrollView>
             <View style={tw`flex-grow-1`} />
             <Pressable style={ds.createButton}
-                onPress={() => handleSubmit()}>
-                <Text style={ds.textXl}>Create & Save</Text>
+                onPress={() => !createLoading && handleSubmit()}>
+                <Text style={ds.textXl}>{createLoading ? 'Working...' : 'Create & Save'}</Text>
             </Pressable>
             <View style={tw`flex-grow-1`} />
         </View>
