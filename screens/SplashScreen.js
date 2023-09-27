@@ -35,9 +35,9 @@ export default function SplashScreen({navigation}) {
     const animate = () => {
         console.log('[SplashScreen.js] animate()')
         // TODO: animate the splash screen, something cool...
-        setTimeout(() => {
-            setAnimationComplete(true);
-        }, SPLASH_ANIMATE_TIME)
+        // setTimeout(() => {
+        //     setAnimationComplete(true);
+        // }, SPLASH_ANIMATE_TIME)
         let counterInterval = setInterval(() => {
             setCounter((prevCounter) => {
                 if (prevCounter < 100) {

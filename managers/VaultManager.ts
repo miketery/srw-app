@@ -45,7 +45,8 @@ class VaultManager {
             return
         promises.push(this.initManagers());
         // if not registered do it now (maybe was offline earlier)
-        promises.push(this.checkRegistered(this._current_vault, true));
+        // TODO: promises.push(this.checkRegistered(this._current_vault, true));
+        //       probably as part of state machine...
         await Promise.all(promises);
     }
     async loadSession(): Promise<SessionInterface> {
@@ -80,7 +81,7 @@ class VaultManager {
         this._session.vault_pk = vault_pk;
         this._current_vault = this.getVault(vault_pk);
     }
-    async checkRegistered(vault: Vault, ifNotRegister: boolean): Promise<Boolean> {
+    async checkRegistered(vault: Vault, ifNotThenRegister: boolean): Promise<Boolean> {
         console.log('[VaultManager.checkRegistered]')
         const data = await DigitalAgentService.amIRegistered(vault);
         if(data) {
@@ -88,7 +89,7 @@ class VaultManager {
             vault.short_code = data['short_code'];
             this.saveVault(vault);
             return true
-        } else if (ifNotRegister) {
+        } else if (ifNotThenRegister) {
             // try to register
             const res = await DigitalAgentService.registerVault(vault);
             if(res) {

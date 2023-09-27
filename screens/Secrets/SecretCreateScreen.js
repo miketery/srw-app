@@ -2,8 +2,12 @@ import { useState, useEffect } from 'react';
 import { View, Text, TextInput, ScrollView, Pressable } from 'react-native';
 
 import ds from '../../assets/styles';
+import SecretsManager from '../../managers/SecretsManager';
+import { getSecretsManager } from '../../services/Cache';
+import { SecretType } from '../../models/Secret';
+import { GoBackButton } from '../../components';
 
-const CreateSecretScreen = () => {
+const CreateSecretScreen = ({navigation}) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [secretValue, setSecretValue] = useState('');
@@ -18,14 +22,17 @@ const CreateSecretScreen = () => {
         };
     }, []);
 
-    const handleSubmit = () => {
-        // Handle the submission of the secret. You can save the secret to a local database or
-        // call an API to store the secret on a server.
-        console.log({
+    const handleSubmit = async () => {
+        console.log('[CreateSecretScreen.handleSubmit]', {
             title,
             description,
             secretValue,
         });
+        //TODO: implement types
+        const secret = await getSecretsManager().createSecret(
+            SecretType.note, title, description, secretValue);
+        //TODO: alert
+        navigation.goBack();
     };
 
     return <View style={ds.mainContainerPtGradient}>
@@ -55,6 +62,7 @@ const CreateSecretScreen = () => {
                 </View>
             </Pressable>
         </ScrollView>
+        <GoBackButton onPressOut={() => navigation.goBack()} />
     </View>
 };
 
