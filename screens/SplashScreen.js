@@ -54,7 +54,7 @@ export default function SplashScreen({navigation}) {
     useEffect(() => {
         console.log('[SplashScreen.js] componentDidMount()')
         animate()
-        SS.init().then((res) => {
+        SS.init(true).then((res) => {
             checkHasVault().then((hasVault) => {
                 setInitialized(true);
                 setHasVault(hasVault);

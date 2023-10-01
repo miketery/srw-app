@@ -54,5 +54,9 @@ export function getSecretsManager() {
     return __CACHE.vault_manager ?
         __CACHE.vault_manager.secrets_manager : null
 }
+export function getNotificationsManager() {
+    return __CACHE.vault_manager ?
+        __CACHE.vault_manager.notifications_manager : null
+}
 
 export default Cache

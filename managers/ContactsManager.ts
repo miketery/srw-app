@@ -1,26 +1,20 @@
 import base58 from 'bs58';
 
 import { PublicKey, VerifyKey } from '../lib/nacl';
+import SS, { StoredType } from '../services/StorageService';
+
 import Vault from '../models/Vault';
 import Contact, { ContactState } from '../models/Contact';
-import SS, { StoredType } from '../services/StorageService';
 import { Message, InboundMessageDict } from '../models/Message';
 
 class ContactsManager {
-    // private static _instance: ContactsManager;
     private _contacts: {string?: Contact};
-    private _vault: Vault | null;
-    // singleton constructor
+    private _vault: Vault;
+
     constructor(vault: Vault, contacts: {string?: Contact} = {}) { 
         this._contacts = contacts; 
         this._vault = vault;
     }
-    // public static getInstance(): ContactsManager {
-    //     if (!ContactsManager._instance) {
-    //         ContactsManager._instance = new ContactsManager();
-    //     }
-    //     return ContactsManager._instance;
-    // }
     clear() { this._contacts = {}; }
     async deleteContact(contact: Contact): Promise<void> {
         await SS.delete(contact.pk);
@@ -31,8 +25,6 @@ class ContactsManager {
         this._contacts[contact.pk] = contact;
     }
     async loadContacts(): Promise<{string?: Contact}> {
-        if(!this._vault)
-            throw new Error('Vault not set');
         const contacts: {string?: Contact} = {};
         const contacts_data = await SS.getAll(StoredType.contact, this._vault.pk);
         for (let contact_data of Object.values(contacts_data)) {
@@ -68,8 +60,6 @@ class ContactsManager {
         return contact;
     }
     get vault(): Vault {
-        if(!this._vault)
-            throw new Error('Vault not set');
         return this._vault;
     }
     get length(): number {

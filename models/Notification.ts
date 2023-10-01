@@ -1,6 +1,3 @@
-import { type } from "os";
-
-
 const NotificationTypesObj = {
     // If I'm Alice...
     app: {
@@ -30,15 +27,35 @@ const NotificationTypeAsArray: string[] = Object.values(NotificationTypesObj).re
 // this is wrong... TODO
 type NotificationType = typeof NotificationTypeAsArray[number];
 
+interface NotificationDict {
+    pk: string;
+    vault_pk: string;
+    type: NotificationType;
+    data: any; // TODO
+}
+
 class Notification {
     pk: string;
     vault_pk: string;
     type: NotificationType;
+    data: any; // TODO
     
-    constructor(pk: string, vault_pk: string, type: NotificationType) {
+    constructor(pk: string, vault_pk: string, type: NotificationType, data: any) {
         this.pk = pk;
         this.vault_pk = vault_pk;
-        this.type = 'app.info';
+        this.type = type
+        this.data = data;
+    }
+    static fromDict(data: NotificationDict): Notification {
+        return new Notification(data.pk, data.vault_pk, data.type, data.data);
+    }
+    toDict(): NotificationDict {
+        return {
+            pk: this.pk,
+            vault_pk: this.vault_pk,
+            type: this.type,
+            data: this.data,
+        }
     }
 }
 

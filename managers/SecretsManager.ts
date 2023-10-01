@@ -5,7 +5,7 @@ import Vault from '../models/Vault';
 
 class SecretsManager {
     private _secrets: {string?: Secret};
-    private _vault: Vault | null;
+    private _vault: Vault;
 
     constructor(vault: Vault) { 
         console.log('[SecretsManager.constructor]')
@@ -22,8 +22,6 @@ class SecretsManager {
         this._secrets[secret.pk] = secret;
     }
     async loadSecrets(): Promise<{string?: Secret}> {
-        if(!this._vault)
-            throw new Error('Vault not set')
         let secrets: {string?: Secret} = {};
         let secrets_data = await SS.getAll(StoredType.secret, this._vault.pk);
         for (let secret_data of Object.values(secrets_data)) {
@@ -34,9 +32,7 @@ class SecretsManager {
         return this._secrets;
     }
     async createSecret(secret_type: SecretType, name: string, description: string,
-            data: any): Promise<Secret> {            
-        if(!this._vault)
-            throw new Error('Vault not set')
+            data: any): Promise<Secret> {
         const new_secret = await Secret.create(secret_type, name, description, data, this._vault.pk);
         this._secrets[new_secret.pk] = new_secret;
         await this.saveSecret(new_secret);
@@ -55,7 +51,7 @@ class SecretsManager {
             throw new Error(`Secret not found: ${pk}`);
         return null;
     }
-    get vault(): Vault | null {
+    get vault(): Vault {
         return this._vault;
     }
     get length(): number {

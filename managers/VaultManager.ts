@@ -8,6 +8,7 @@ import ContactsManager from './ContactsManager';
 import SecretsManager from './SecretsManager';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DigitalAgentService from '../services/DigitalAgentService';
+import NotificationsManager from './NotificationsManager';
 
 interface SessionInterface {
     vault_pk: string;
@@ -19,6 +20,7 @@ class VaultManager {
     private _current_vault: Vault | null;
     private _secrets_manager: SecretsManager | null;
     private _contacts_manager: ContactsManager | null;
+    private _notifications_manager: NotificationsManager | null;
     private _session: SessionInterface;
 
     constructor(vaults: {string?: Vault} = {}) {
@@ -109,9 +111,11 @@ class VaultManager {
             throw new Error('Current vault not set');
         this._secrets_manager = new SecretsManager(this._current_vault);
         this._contacts_manager = new ContactsManager(this._current_vault);
+        this._notifications_manager = new NotificationsManager(this._current_vault);
         await Promise.all([
             this._secrets_manager.loadSecrets(),
-            this._contacts_manager.loadContacts()
+            this._contacts_manager.loadContacts(),
+            this._notifications_manager.loadNotifications()
         ])
     }
     async saveVault(vault: Vault): Promise<void> {
@@ -185,6 +189,11 @@ class VaultManager {
         if (!this._contacts_manager)
             throw new Error('Contacts Manager not set');
         return this._contacts_manager;
+    }
+    get notifications_manager(): NotificationsManager {
+        if (!this._notifications_manager)
+            throw new Error('Notifications Manager not set');
+        return this._notifications_manager;
     }
 }
 

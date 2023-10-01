@@ -1,16 +1,17 @@
+import { useEffect, useState } from 'react';
 import { Text, View, Pressable } from 'react-native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-
 import tw from '../lib/tailwind'
 import ds from '../assets/styles'
 import { DEV, ROUTES, TAB_BAR_ROUTES } from '../config';
 
 import TabNavBar from './TabNavBar'
-
+import { getNotificationsManager } from '../services/Cache';
 import MainHub from './MainHubScreen'
 
 import ContactsNav from './Contacts'
 import SecretsNav from './Secrets'
+import NotificationsListScreen from './NotificationsScreen';
 import { DevHasVaultNav } from './Dev'
 
 const Tab = createBottomTabNavigator();
@@ -40,9 +41,23 @@ function Test(props) {
 
 export default function HomeNavTest({props}) {
     const possible_offline = false
+    const [ notifications, setNotifications] = useState([])
+
+    useEffect(() => {
+        console.log('[HomeNav] useEffect')
+        const notificationInterval = getNotificationsManager().setFetchLoop(setNotifications)
+        return () => {
+            console.log('[HomeNav] cleanup')
+            clearInterval(notificationInterval)
+        }
+    }, [])
+
     return (
-        <Tab.Navigator initialRouteName={ROUTES.MainHubRoute}
-            tabBar={(props) => <TabNavBar {...props} possible_offline={possible_offline} />}
+        <Tab.Navigator 
+            initialRouteName={ROUTES.MainHubRoute}
+            tabBar={(props) => <TabNavBar {...props}
+                possible_offline={possible_offline}
+                notificationCount={notifications.length} />}
             screenOptions={({route}) => {
                 return { headerShown: route.name in TAB_BAR_ROUTES ? TAB_BAR_ROUTES[route.name].header : false}
         }}>
@@ -55,8 +70,9 @@ export default function HomeNavTest({props}) {
             <Tab.Screen name={ROUTES.SecretsRoute} >
                 {(props) => <SecretsNav {...props} />}
             </Tab.Screen> 
-            <Tab.Screen name={ROUTES.NotificationsRoute} >
-                {(props) => <Test {...props} title={'Notifications'}/>}
+            <Tab.Screen name={ROUTES.NotificationsRoute} 
+                    options={{ tabBarBadge: notifications.length }}>
+                {(props) => <NotificationsListScreen {...props} notifications={notifications} />}
             </Tab.Screen>
             {DEV && <Tab.Screen name={ROUTES.DevHasVaultRoute} >
                 {(props) => <DevHasVaultNav {...props} />}
