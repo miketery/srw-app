@@ -45,7 +45,7 @@ export default function HomeNavTest({props}) {
 
     useEffect(() => {
         console.log('[HomeNav] useEffect')
-        const notificationInterval = getNotificationsManager().setFetchLoop(setNotifications)
+        const notificationInterval = getNotificationsManager().startFetchInterval(setNotifications)
         return () => {
             console.log('[HomeNav] cleanup')
             clearInterval(notificationInterval)

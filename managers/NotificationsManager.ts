@@ -8,18 +8,18 @@ import Notification from "../models/Notification";
 class NotificationsManager {
     private _notifications: { [key: string]: Notification|any };
     private _vault: Vault;
-    private _fetchLoop: any;
+    private _fetchInterval: any;
 
     constructor(vault: Vault) {
         console.log('[NotificationsManager.constructor]')
         this._vault = vault;
     }
-    setFetchLoop(setNotifications: ([]: Notification[]) => void): any {
-        this._fetchLoop = setInterval(() => {
+    startFetchInterval(setNotifications: ([]: Notification[]) => void): any {
+        this._fetchInterval = setInterval(() => {
             this.fetch();
             setNotifications(this.getNotificationsArray());
         }, 1500);
-        return this._fetchLoop
+        return this._fetchInterval
     }
     fetch(): Promise<void> {
         // random number integr 0 or 1
@@ -31,9 +31,11 @@ class NotificationsManager {
             // random date between 1970 and now
             const random_date = new Date(Math.floor(Math.random() * Date.now()));
             const date_formatted = random_date.toISOString();
+            // TODO: Notification.fromDict(ABC)
             const uuid = uuidv4();
             this._notifications[uuid] = {
                 pk: uuid,
+                vault_pk: this._vault.pk,
                 type: 'app.info',
                 data: 'some data' + date_formatted
             };
