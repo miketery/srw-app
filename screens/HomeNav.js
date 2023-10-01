@@ -23,6 +23,10 @@ export default function HomeNavTest({props}) {
 
     useEffect(() => {
         console.log('[HomeNav] useEffect')
+        // eventEmitter.on('newNotifications', () => {
+        //     console.log('[HomeNav] newNotifications event')
+        //     setNotifications(getNotificationsManager().getNotifications())
+        // })
         const notificationInterval = getNotificationsManager().startFetchInterval(setNotifications)
         return () => {
             console.log('[HomeNav] cleanup')
