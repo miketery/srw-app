@@ -90,8 +90,8 @@ class ContactsManager {
             await this.saveContact(contact);
         return contact;
     }
-    async processInboundContactRequest(inbound: InboundMessageDict): Promise<Contact> {
-        console.log('[ContactsManager.processInboundContactRequest]')
+    async processContactRequest(inbound: InboundMessageDict): Promise<Contact> {
+        console.log('[ContactsManager.processContactRequest]')
         if (inbound.type_name !== 'contact_request')
             throw new Error('108 Invalid data type');
         const message = Message.inbound(inbound);
@@ -116,8 +116,9 @@ class ContactsManager {
         await this.saveContact(contact);
         return contact;
     }
-    async processInboundAcceptContactRequestResponse(inbound: InboundMessageDict): Promise<void> {
-        console.log('[ContactsManager.processInboundAcceptContactRequestResponse]', inbound.sender.name)
+    async processAcceptContactRequestResponse(inbound: InboundMessageDict): Promise<void> {
+        // TODO: change to Message instead of InboundDict
+        console.log('[ContactsManager.processAcceptContactRequestResponse]', inbound.sender.name)
         if (inbound.type_name !== 'accept_contact_request_response')
             throw new Error('Invalid data type, required: "accept_contact_request_response"');
         const sender_did = inbound.sender.did;

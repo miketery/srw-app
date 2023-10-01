@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import SS, { StoredType } from "../services/StorageService";
-
+import eventEmitter from '../services/eventService';
 import Vault from "../models/Vault";
 import Notification from "../models/Notification";
 
@@ -21,7 +21,7 @@ class NotificationsManager {
         }, 1500);
         return this._fetchInterval
     }
-    fetch(): Promise<void> {
+    async fetch(): Promise<void> {
         // random number integr 0 or 1
         const random = Math.floor(Math.random() * 2);
         console.log('[NotificationsManager.fetch] random: ', random)
@@ -43,6 +43,13 @@ class NotificationsManager {
         }
     }
     clear() { this._notifications = {}; }
+    async createNotification(type: string, data: any, save=true): Promise<Notification> {
+        const notification = Notification.create(this._vault.pk, type, data);
+        if(save)
+            await this.saveNotification(notification);
+        eventEmitter.emit('newNotification', this.getNotificationsArray());
+        return notification;
+    }
     async deleteNotification(notification: Notification): Promise<void> {
         await SS.delete(notification.pk);
         delete this._notifications[notification.pk];
@@ -60,9 +67,6 @@ class NotificationsManager {
             notifications[n.pk] = n;
         }
         this._notifications = notifications;
-    }
-    addNotification(notification: Notification) {
-        this._notifications[notification.pk] = notification;
     }
     removeNotification(notification: Notification) {
         delete this._notifications[notification.pk];

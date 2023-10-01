@@ -10,9 +10,6 @@ class DigitalAgentService {
     static digital_agent_host: string = BASE;
     static _messages: OutboundMessageDict[] = [];
 
-    constructor(vault: Vault) {
-        DigitalAgentService.digital_agent_host = BASE; // vault.digital_agent_host;
-    }
     static async registerVault(vault: Vault): Promise<{}|false> {
         const payload = {
             'name': vault.name,
@@ -80,6 +77,13 @@ class DigitalAgentService {
             if(DEBUG)
                 this._messages.push(message)
             return await this.postMessage(vault, message)
+        }
+    }
+    static getGetMessagesFunction(vault: Vault): (after?: number) => Promise<any> {
+        return async (after?: number) => {
+            if(DEBUG)
+
+            return await this.getMessages(vault, after)
         }
     }
     static getLastMessage(): OutboundMessageDict | null { // for local testing
