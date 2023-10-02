@@ -4,10 +4,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import tw from '../lib/tailwind'
 import ds from '../assets/styles'
 import { DEV, ROUTES, TAB_BAR_ROUTES } from '../config';
-import eventEmitter from '../services/eventService';
 
 import TabNavBar from './TabNavBar'
-import { getNotificationsManager } from '../services/Cache';
+import { getNotificationsManager, getMessagesManager } from '../services/Cache';
 import MainHub from './MainHubScreen'
 
 import ContactsNav from './Contacts'
@@ -20,17 +19,26 @@ const Tab = createBottomTabNavigator();
 export default function HomeNavTest({props}) {
     const possible_offline = false
     const [ notifications, setNotifications] = useState([])
+    const [ messagesFetchInterval, setMessagesFetchInterval ] = useState(null)
+
+    const clearMessagesFetchInterval = () => {
+        if (messagesFetchInterval) {
+            clearInterval(messagesFetchInterval)
+            setMessagesFetchInterval(null)
+        }
+    }
 
     useEffect(() => {
         console.log('[HomeNav] useEffect')
-        // eventEmitter.on('newNotifications', () => {
-        //     console.log('[HomeNav] newNotifications event')
-        //     setNotifications(getNotificationsManager().getNotifications())
-        // })
-        const notificationInterval = getNotificationsManager().startFetchInterval(setNotifications)
+        const notificationsManager = getNotificationsManager()
+        setNotifications(notificationsManager.getNotificationsArray())
+        const notificationHook = notificationsManager.addCallback(setNotifications)
+        const messagesFetchInterval = getMessagesManager().startFetchInterval()
+        setMessagesFetchInterval(messagesFetchInterval)
         return () => {
             console.log('[HomeNav] cleanup')
-            clearInterval(notificationInterval)
+            notificationsManager.removeCallback(notificationHook)
+            clearInterval(messagesFetchInterval)
         }
     }, [])
 
@@ -44,7 +52,7 @@ export default function HomeNavTest({props}) {
                 return { headerShown: route.name in TAB_BAR_ROUTES ? TAB_BAR_ROUTES[route.name].header : false}
         }}>
             <Tab.Screen name={ROUTES.MainHubRoute} >
-                {(props) => <MainHub {...props} />}
+                {(props) => <MainHub {...props} clearMessagesFetchInterval={clearMessagesFetchInterval} />}
             </Tab.Screen>
             <Tab.Screen name={ROUTES.ContactsRoute} >
                 {(props) => <ContactsNav {...props} />}

@@ -9,14 +9,13 @@
 
 
 */
-
 import DigitalAgentService from "../services/DigitalAgentService";
-import { InboundMessageDict, Message } from "../models/Message";
-import SS, { StoredType, StoredTypePrefix } from "../services/StorageService";
+import { Message, Receiver, Sender } from "../models/Message";
+import SS, { StoredType } from "../services/StorageService";
 import Vault from "../models/Vault";
-import { getContactsManager, getNotificationsManager } from "../services/Cache";
-import Contact from "../models/Contact";
-import Notification, { NotificationTypes } from "../models/Notification";
+import { getNotificationsManager } from "../services/Cache";
+import { NotificationTypes } from "../models/Notification";
+import { DEV } from '../config';
 
 type processMapType = {
     [key: string]: (message: Message, vault: Vault) => Promise<boolean>
@@ -25,9 +24,10 @@ type processMapType = {
 const processMap: processMapType = {
     'app.test': (message: Message, vault: Vault) => {
         console.log('[processMap] app.test', message)
+        message.decrypt(vault.private_key)
         const notification = getNotificationsManager()!.createNotification(
             NotificationTypes.app.alert, {
-                // message: message.data,
+                message: message.getData().message,
                 timestamp: message.created
             })
         // TODO: return true or false so knows whether to delete original message
@@ -70,6 +70,37 @@ class InboundMessageManager {
                 timestamp: 0
             }
     }
+    startFetchInterval(interval = 1500): any {
+        return setInterval(async () => {
+            if(DEV)
+                this.mockGetMessages()
+            else
+                throw new Error('Not implemented')
+        }, interval);
+    }
+    async mockGetMessages(): Promise<void> {
+        const random = Math.floor(Math.random() * 2);
+        console.log('[InboundManager.mockGetMessages] random: ', random)
+        if(random == 0) {
+            const random_date = new Date(Math.floor(Math.random() * Date.now()));
+            const msg = new Message(null, null, 'outbound', 
+                Sender.fromVault(this._vault),
+                Receiver.fromVault(this._vault),
+                'app.test', '1.0',
+                'X25519Box', true
+            )
+            msg.setData({
+                'message': 'some data' + random_date.toISOString()
+            })
+            msg.encryptBox(this._vault.private_key)
+            const outbound = msg.outboundFinal()
+            const inbound = outbound // we're sending a message to ourselves...
+            const message = Message.inbound(inbound as any)
+            this.saveMessage(message)
+            this.processMessage(message)
+        }
+        return
+    }
     async getMessages() {
         const messages = await DigitalAgentService.getMessages(this._vault, this._last.timestamp)
         if(!messages)
@@ -90,6 +121,7 @@ class InboundMessageManager {
         return messages.length
     }
     async saveMessage(message: Message): Promise<void> {
+        this._inbound_messages[message.pk] = message
         return SS.save(message.pk, message.toDict())
     }
     async loadMessages(): Promise<{string?: Message}> {

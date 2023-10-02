@@ -12,7 +12,7 @@ function NotificationRow(props) {
             <Text style={ds.textLg}>{type}</Text>
         </View>
         <View style={tw`flex flex-col`}>
-            <Text style={ds.text}>{data}</Text>
+            <Text style={ds.text}>{data.message}</Text>
         </View>
         <View style={tw`flex flex-col`}>
             <Text style={ds.text}>{pk}</Text>

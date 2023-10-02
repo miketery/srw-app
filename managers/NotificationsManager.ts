@@ -1,53 +1,29 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import SS, { StoredType } from "../services/StorageService";
-import eventEmitter from '../services/eventService';
 import Vault from "../models/Vault";
 import Notification from "../models/Notification";
+
+type NotificationCallBack = (notifications: Notification[]) => void;
 
 class NotificationsManager {
     private _notifications: { [key: string]: Notification|any };
     private _vault: Vault;
     private _fetchInterval: any;
+    private _callbacks: {string?: NotificationCallBack}
 
     constructor(vault: Vault) {
         console.log('[NotificationsManager.constructor]')
         this._vault = vault;
-    }
-    startFetchInterval(setNotifications: ([]: Notification[]) => void): any {
-        this._fetchInterval = setInterval(() => {
-            this.fetch();
-            setNotifications(this.getNotificationsArray());
-        }, 1500);
-        return this._fetchInterval
-    }
-    async fetch(): Promise<void> {
-        // random number integr 0 or 1
-        const random = Math.floor(Math.random() * 2);
-        console.log('[NotificationsManager.fetch] random: ', random)
-        if(random == 0) {
-            return Promise.resolve();
-        } else {
-            // random date between 1970 and now
-            const random_date = new Date(Math.floor(Math.random() * Date.now()));
-            const date_formatted = random_date.toISOString();
-            // TODO: Notification.fromDict(ABC)
-            const uuid = uuidv4();
-            this._notifications[uuid] = {
-                pk: uuid,
-                vault_pk: this._vault.pk,
-                type: 'app.info',
-                data: 'some data' + date_formatted
-            };
-            // update notification context
-        }
+        this._notifications = {};
+        this._callbacks = {};
     }
     clear() { this._notifications = {}; }
     async createNotification(type: string, data: any, save=true): Promise<Notification> {
         const notification = Notification.create(this._vault.pk, type, data);
         if(save)
             await this.saveNotification(notification);
-        eventEmitter.emit('newNotification', this.getNotificationsArray());
+        this.emitCallbacks();
         return notification;
     }
     async deleteNotification(notification: Notification): Promise<void> {
@@ -76,6 +52,20 @@ class NotificationsManager {
     }
     get notifications() {
         return this._notifications;
+    }
+    addCallback(callback: NotificationCallBack) {
+        const uuid = uuidv4();
+        this._callbacks[uuid] = callback;
+        return uuid;
+    }
+    removeCallback(uuid: string) {
+        delete this._callbacks[uuid];
+    }
+    emitCallbacks(): void {
+        const notifications = this.getNotificationsArray();
+        for (let callback of Object.values(this._callbacks)) {
+            callback(notifications);
+        }
     }
 }
 
