@@ -6,6 +6,7 @@ import ds from '../assets/styles'
 import { DEV, ROUTES, primary_route } from '../config'
 import tw from '../lib/tailwind'
 
+import { useSession } from '../services/SessionContext'
 import VaultManager from '../managers/VaultManager'
 
 import { trimAndLower, validateEmail } from '../lib/utils'
