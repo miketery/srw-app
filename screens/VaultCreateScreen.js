@@ -6,13 +6,14 @@ import ds from '../assets/styles'
 import { DEV, ROUTES, primary_route } from '../config'
 import tw from '../lib/tailwind'
 
-import Cache from '../services/Cache'
 import VaultManager from '../managers/VaultManager'
 
 import { trimAndLower, validateEmail } from '../lib/utils'
 import { FieldError } from '../components/'
 
 export default function VaultCreateScreen(props) {
+    const {setVault, setManager} = useSession();
+
     const [name, setName] = useState(DEV ? 'Alice Allison' : '');
     const [displayName, setDisplayName] = useState(DEV ? 'Ali' : '');
     const [email, setEmail] = useState(DEV ? 'alice@arxsky.com' : '');
@@ -51,7 +52,8 @@ export default function VaultCreateScreen(props) {
                 const vault = await vault_manager.createVault(
                     name, email, displayName, '', words, true)
                 await vault_manager.initManagers()
-                Cache.setVaultAndManager(vault_manager.current_vault, vault_manager)
+                setVault(vault_manager.current_vault)
+                setManager(vault_manager)
                 finishSubmit(vault)
             } catch (err) {
                 console.log(err)

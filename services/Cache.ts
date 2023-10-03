@@ -10,7 +10,7 @@ const __CACHE: CacheInterface = {
     vault: null, // current vault
     vault_manager: null, //vault manager
 }
-
+// TODO: probably delete this file as using context now...
 const Cache = {
     setVaultAndManager: (vault: Vault, vault_manager: VaultManager) => {
         console.log('[Cache.setVaultAndManager] ' + vault.pk)
@@ -46,21 +46,21 @@ const Cache = {
 
 Object.freeze(Cache)
 
-export function getContactsManager() {
-    return __CACHE.vault_manager ?
-        __CACHE.vault_manager.contacts_manager : null
-}
-export function getSecretsManager() {
-    return __CACHE.vault_manager ?
-        __CACHE.vault_manager.secrets_manager : null
-}
-export function getNotificationsManager() {
-    return __CACHE.vault_manager ?
-        __CACHE.vault_manager.notifications_manager : null
-}
-export function getMessagesManager() {
-    return __CACHE.vault_manager ?
-        __CACHE.vault_manager.messages_manager : null
-}
+// export function getContactsManager() {
+//     return __CACHE.vault_manager ?
+//         __CACHE.vault_manager.contacts_manager : null
+// }
+// export function getSecretsManager() {
+//     return __CACHE.vault_manager ?
+//         __CACHE.vault_manager.secrets_manager : null
+// }
+// export function getNotificationsManager() {
+//     return __CACHE.vault_manager ?
+//         __CACHE.vault_manager.notifications_manager : null
+// }
+// export function getMessagesManager() {
+//     return __CACHE.vault_manager ?
+//         __CACHE.vault_manager.messages_manager : null
+// }
 
 export default Cache

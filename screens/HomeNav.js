@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Text, View, Pressable } from 'react-native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import tw from '../lib/tailwind'
-import ds from '../assets/styles'
 import { DEV, ROUTES, TAB_BAR_ROUTES } from '../config';
 
+import { useSession } from '../services/SessionContext'
+
 import TabNavBar from './TabNavBar'
-import { getNotificationsManager, getMessagesManager } from '../services/Cache';
 import MainHub from './MainHubScreen'
 
 import ContactsNav from './Contacts'
@@ -17,6 +15,8 @@ import { DevHasVaultNav } from './Dev'
 const Tab = createBottomTabNavigator();
 
 export default function HomeNavTest({props}) {
+    const {manager} = useSession()
+
     const possible_offline = false
     const [ notifications, setNotifications] = useState([])
     const [ messagesFetchInterval, setMessagesFetchInterval ] = useState(null)
@@ -30,10 +30,10 @@ export default function HomeNavTest({props}) {
 
     useEffect(() => {
         console.log('[HomeNav] useEffect')
-        const notificationsManager = getNotificationsManager()
+        const notificationsManager = manager.notifications_manager
         setNotifications(notificationsManager.getNotificationsArray())
         const notificationHook = notificationsManager.addCallback(setNotifications)
-        const messagesFetchInterval = getMessagesManager().startFetchInterval()
+        const messagesFetchInterval = manager.messages_manager.startFetchInterval()
         setMessagesFetchInterval(messagesFetchInterval)
         return () => {
             console.log('[HomeNav] cleanup')

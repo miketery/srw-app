@@ -2,24 +2,25 @@ import { v4 as uuidv4 } from 'uuid';
 
 import SS, { StoredType } from "../services/StorageService";
 import Vault from "../models/Vault";
-import Notification from "../models/Notification";
+import Notification, { NotificationData } from "../models/Notification";
 
 type NotificationCallBack = (notifications: Notification[]) => void;
+export type CreateNotification = (type: string, data: NotificationData, save?: boolean) => Promise<Notification>;
 
 class NotificationsManager {
     private _notifications: { [key: string]: Notification|any };
     private _vault: Vault;
-    private _fetchInterval: any;
     private _callbacks: {string?: NotificationCallBack}
 
     constructor(vault: Vault) {
-        console.log('[NotificationsManager.constructor]')
+        console.log('[NotificationsManager.constructor] ' + vault.pk)
         this._vault = vault;
         this._notifications = {};
         this._callbacks = {};
     }
     clear() { this._notifications = {}; }
-    async createNotification(type: string, data: any, save=true): Promise<Notification> {
+    async createNotification(type: string, data: NotificationData, save=true): Promise<Notification> {
+        console.log('[NotificationsManager.createNotification] ' + type)
         const notification = Notification.create(this._vault.pk, type, data);
         if(save)
             await this.saveNotification(notification);

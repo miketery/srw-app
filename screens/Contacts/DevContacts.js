@@ -18,7 +18,6 @@ import DigitalAgentService from '../../services/DigitalAgentService'
 async function ContactRequestFrom() {
     // given alice's DID and Public Key,
     // send contact request from Bob
-    // const contact_manager = getContactsManager()
     // add BOB
     const alice_vault = Vault.fromDict(test_vaults[0])
     const alice_cm = new ContactsManager(alice_vault)

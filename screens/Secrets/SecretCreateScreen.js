@@ -2,12 +2,10 @@ import { useState, useEffect } from 'react';
 import { View, Text, TextInput, ScrollView, Pressable } from 'react-native';
 
 import ds from '../../assets/styles';
-import SecretsManager from '../../managers/SecretsManager';
-import { getSecretsManager } from '../../services/Cache';
 import { SecretType } from '../../models/Secret';
 import { GoBackButton } from '../../components';
 
-const CreateSecretScreen = ({navigation}) => {
+const CreateSecretScreen = ({navigation, secrets_manager}) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [secretValue, setSecretValue] = useState('');
@@ -29,7 +27,7 @@ const CreateSecretScreen = ({navigation}) => {
             secretValue,
         });
         //TODO: implement types
-        const secret = await getSecretsManager().createSecret(
+        const secret = await secrets_manager.createSecret(
             SecretType.note, title, description, secretValue);
         //TODO: alert
         navigation.goBack();

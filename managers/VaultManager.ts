@@ -113,8 +113,10 @@ class VaultManager {
             throw new Error('Current vault not set');
         this._secrets_manager = new SecretsManager(this._current_vault);
         this._contacts_manager = new ContactsManager(this._current_vault);
-        this._notifications_manager = new NotificationsManager(this._current_vault);
-        this._messages_manager = new InboundMessageManager(this._current_vault);
+        this._notifications_manager = new NotificationsManager(
+            this._current_vault);
+        this._messages_manager = new InboundMessageManager(
+            this._current_vault, this._notifications_manager);
         await Promise.all([
             this._secrets_manager.loadSecrets(),
             this._contacts_manager.loadContacts(),

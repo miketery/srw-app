@@ -12,6 +12,7 @@ class ContactsManager {
     private _vault: Vault;
 
     constructor(vault: Vault, contacts: {string?: Contact} = {}) { 
+        console.log('[ContactsManager.constructor] ' + vault.pk)
         this._contacts = contacts; 
         this._vault = vault;
     }

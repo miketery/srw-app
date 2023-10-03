@@ -8,7 +8,7 @@ class SecretsManager {
     private _vault: Vault;
 
     constructor(vault: Vault) { 
-        console.log('[SecretsManager.constructor]')
+        console.log('[SecretsManager.constructor] ' + vault.pk)
         this._secrets = {};
         this._vault = vault;
     }

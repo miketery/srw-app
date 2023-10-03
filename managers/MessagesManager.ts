@@ -13,19 +13,19 @@ import DigitalAgentService from "../services/DigitalAgentService";
 import { Message, Receiver, Sender } from "../models/Message";
 import SS, { StoredType } from "../services/StorageService";
 import Vault from "../models/Vault";
-import { getNotificationsManager } from "../services/Cache";
+import NotificationsManager, { CreateNotification } from "./NotificationsManager";
 import { NotificationData, NotificationTypes } from "../models/Notification";
 import { DEV } from '../config';
 
 type processMapType = {
-    [key: string]: (message: Message, vault: Vault) => Promise<boolean>
+    [key: string]: (message: Message, vault: Vault, nm: NotificationsManager) => Promise<boolean>
 }
 
 const processMap: processMapType = {
-    'app.test': (message: Message, vault: Vault) => {
+    'app.test': (message: Message, vault: Vault, nm: NotificationsManager) => {
         console.log('[processMap] app.test', message)
         message.decrypt(vault.private_key)
-        const notification = getNotificationsManager()!.createNotification(
+        const notification = nm.createNotification(
             NotificationTypes.app.alert, {
                 title: 'App.Test Message',
                 short_text: message.getData().message,
@@ -46,7 +46,6 @@ const processMap: processMapType = {
     //             did: contact.did,
     //             timestamp: message.created
     //         })
-    //     getNotificationsManager()!.addNotification(notification)
     // },
     // 'contact_accept': (message: InboundMessageDict) => {
     //     getContactsManager()!.processAcceptContactRequestResponse(message)
@@ -61,11 +60,13 @@ interface LastReceivedStateDict {
 
 class InboundMessageManager {
     private _vault: Vault;
+    private _nm: NotificationsManager;
     private _inbound_messages: {string? : Message};
     private _last: LastReceivedStateDict;
  
-    constructor(vault: Vault, last?: LastReceivedStateDict) {
+    constructor(vault: Vault, nm: NotificationsManager, last?: LastReceivedStateDict) {
         this._vault = vault;
+        this._nm = nm;
         this._inbound_messages = {};
         if(last)
             this._last = last;
@@ -150,7 +151,7 @@ class InboundMessageManager {
         console.log('[InboundMessageManager.processMessage]', message)
         if(!Object.keys(processMap).includes(message.type_name))
             throw new Error('Message type not supported') // do we discard / delete?
-        return await processMap[message.type_name](message, this._vault)
+        return await processMap[message.type_name](message, this._vault, this._nm)
     }
     async processAllMessages(): Promise<Promise<boolean>[]> {
         const messages = this.getMessagesAsArray()
