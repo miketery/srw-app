@@ -1,6 +1,9 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 import { ROUTES } from '../../config';
+
+import { useSession } from '../../services/SessionContext'
+
 import ContactsListScreen from './ContactsListScreen'
 // import ContactCreateScreen from './ContactCreateScreen'
 // import ContactViewScreen from './ContactViewScreen'
@@ -11,14 +14,16 @@ import DevContacts from './DevContacts'
 const Stack = createNativeStackNavigator();
 
 export default function ContactsNavigator({navigation}) {
+    const {manager} = useSession()
+
     return <Stack.Navigator screenOptions={{headerShown: false}}
     navigation={navigation} initialRouteName={ROUTES.ContactsListRoute}>
         <Stack.Screen name={ROUTES.ContactsListRoute} options={{title:'List Contacts'}}>
             {props => 
-                <ContactsListScreen {...props} />}
+                <ContactsListScreen {...props} contacts_manager={manager.contacts_manager} />}
         </Stack.Screen>
         <Stack.Screen name={ROUTES.DevContactsRoute} options={{title:'Dev Contacts'}}>
-            {props => <DevContacts {...props} />}
+            {props => <DevContacts {...props} contacts_manager={manager.contacts_manager} />}
         </Stack.Screen>
         {/* <Stack.Screen name='ContactCreateRoute' options={{title:'New Contact'}}>
             {props => 

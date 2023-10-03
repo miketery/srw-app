@@ -12,29 +12,32 @@ import VaultManager from '../../managers/VaultManager'
 import { GoBackButton } from '../../components'
 import Vault from '../../models/Vault'
 
-const loadAndSaveVault = (key) => {
+const loadVault = (key, navigation) => {
     console.log('loadVault', key, test_vaults[key].name)
     // const vault = await VaultManager.createVault(v.name, v.display_name, v.email, v.words, '', false)
     const vault = Vault.fromDict(test_vaults[key])
     const vault_manager = new VaultManager({[vault.pk]: vault})
     vault_manager.saveVault(vault)
     console.log('vault', vault.toDict())
+    navigation.navigate(ROUTES.SplashRoute)
 }
 
-const vault_buttons = test_vaults.map((v, i) =>
-    <Pressable style={[ds.button, ds.blueButton, tw`mt-4`]} onPress={() => loadAndSaveVault(i)} key={i}>
+function vault_buttons(navaigation) {
+    return test_vaults.map((v, i) => <Pressable style={[ds.button, ds.blueButton, tw`mt-4`]} 
+            onPress={() => loadVault(i, navaigation)} key={i}>
         <Text style={ds.buttonText}>Load {v.name}</Text>
-    </Pressable>
-)
+    </Pressable>)
+}
 
-export default function DevLoadVaultsScreen(props) {
+function DevLoadVaultsScreen({navigation}) {
     return <View style={ds.landingContainer}>
         <Text style={ds.header}>Dev - Load Vaults</Text>
         <View style={tw`flex-grow-1`}>
-            {vault_buttons}
+            {vault_buttons(navigation)}
         </View>
         <View>
-            <GoBackButton onPressOut={() => props.navigation.goBack()} />
+            <GoBackButton onPressOut={() => navigation.goBack()} />
         </View>
     </View>
 }
+export default DevLoadVaultsScreen;

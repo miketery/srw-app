@@ -1,14 +1,13 @@
 import {
-    env_test, env_dev, 
-    env_debug, env_local,
+    env_dev, 
+    env_debug,
+    env_local,
 } from '@env';
 
-// const env_test = 'true'
 // const env_dev = 'true'
 // const env_debug = 'true'
 // const env_local = 'true'
 
-export const TEST = env_test === 'true'
 export const DEV = env_dev === 'true'
 export const DEBUG = env_debug === 'true'
 export const LOCAL = env_local === 'true'
@@ -17,8 +16,8 @@ export const SPLASH_ANIMATE_TIME = DEBUG ? 100 : 666
 
 export const BASE =
     LOCAL ? 'http://localhost:8000/api' : 
-    DEV ? 'https://api.ssi.arxsky.dev/api' : 
-          'https://api.ssi.arxsky.com/api'
+    DEV ? 'https://dai.arxsky.dev/api' : 
+          'https://dai.arxsky.com/api'
 
 export const ENDPOINTS = {
     ME: '/user/me/',
@@ -30,7 +29,7 @@ export const ENDPOINTS = {
 }
 
 DEBUG && console.log('DEBUG: ', {
-    TEST: TEST, DEV: DEV, LOCAL: LOCAL, BASE: BASE
+    DEV: DEV, LOCAL: LOCAL, BASE: BASE
 })
 
 export const ROUTES = {

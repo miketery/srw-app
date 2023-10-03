@@ -34,17 +34,19 @@ expo start --web
 
 Each of the models has a manger for handling create, load, delete, save, and more.
 
-- [VaultManager](./managers/VaultManager.ts)
+- [VaultManager](./managers/VaultManager.ts) - "THE" manager, inits all other managers (accessible via context)
 - [ContactsManager](./managers/ContactsManager.ts)
 - [SecretsManager](./managers/SecretsManager.ts)
-<!-- - [MessageManager](./managers/MessageManager.ts) -->
-<!-- - [NotificationManager](./managers/NotificationManager.ts) -->
+- [MessagesManager](./managers/MessagesManager.ts)
+- [NotificationsManager](./managers/NotificationsManager.ts)
 
 ### Services
 
-- [Cache](./services/Cache.ts), singleton for easy access to managers instantiated for a specific vault
+<!-- - [Cache](./services/Cache.ts), singleton for easy access to managers instantiated for a specific vault -->
 - [DigitalAgentService](./services/DigitalAgentService.ts), service for interacting with the digital agent (e.g. register, send message, get messages)
 - [StorageService](./services/StorageService.ts), service for interacting with the local storage (e.g. save, load, delete) (since not using ORM and only have key value store, this is a simple wrapper around AsyncStorage)
+- [SessionContext](./services/SessionContext.js), context for getting the current vault and manager
+(which has access to contacts, secrets, messages, and notifications managers)
 
 //TODO
 - Locking / Unlocking services
