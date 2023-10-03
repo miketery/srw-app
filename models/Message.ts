@@ -84,9 +84,7 @@ class SenderReceiver {
             return this.sub_public_key
         return this.public_key
     }
-}
-class Sender extends SenderReceiver {
-    static fromVault(vault: Vault): Sender {
+    static fromVault(vault: Vault): SenderReceiver {
         return new Sender(
             vault.did,
             vault.verify_key,
@@ -95,6 +93,8 @@ class Sender extends SenderReceiver {
             vault.name
         );
     }
+}
+class Sender extends SenderReceiver {
     static fromContact(contact: Contact): Sender {
         return new Sender(
             contact.vault.did,

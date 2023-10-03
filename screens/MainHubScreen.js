@@ -14,9 +14,9 @@ function MainHubScreen(props) {
             </View>
             <View style={tw`flex-grow-1`} />
             <View style={tw`justify-around mb-10 flex-col items-center`}>
-                <Pressable style={[ds.button, ds.blueButton]}
-                    onPress={() => console.log('Test A')}>
-                    <Text style={ds.buttonText}>Test A</Text>
+                <Pressable style={[ds.button, ds.blueButton, tw`w-100`]}
+                    onPress={() => props.clearMessagesFetchInterval()}>
+                    <Text style={ds.buttonText}>Stop Fetch Message</Text>
                 </Pressable>
                 <Pressable style={[ds.button, ds.blueButton, tw`mt-4`]}
                     onPress={() => console.log('Test B')}>

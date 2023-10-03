@@ -18,7 +18,6 @@ import DigitalAgentService from '../../services/DigitalAgentService'
 async function ContactRequestFrom() {
     // given alice's DID and Public Key,
     // send contact request from Bob
-    // const contact_manager = getContactsManager()
     // add BOB
     const alice_vault = Vault.fromDict(test_vaults[0])
     const alice_cm = new ContactsManager(alice_vault)
@@ -46,7 +45,7 @@ async function ContactRequestFrom() {
     console.log('[DevContacts] contact_request', contact_request) // encrypted
 
     console.log('\n###################### B3 - bob_cm.process_inbound_contactRequest()')
-    const alice_contact = await bob_cm.processInboundContactRequest(contact_request)
+    const alice_contact = await bob_cm.processContactRequest(contact_request)
     bob_cm.printContacts()
 
     console.log('\n###################### B4 - bob_cm.accept_contact_request_response()')
@@ -57,7 +56,7 @@ async function ContactRequestFrom() {
     console.log('[DevContacts] accept_response', response) // encrypted
 
     console.log('\n###################### A5 - alice_cm.process_inbound_accept_contact_request_response()')
-    alice_cm.processInboundAcceptContactRequestResponse(response)
+    alice_cm.processAcceptContactRequestResponse(response)
     console.log(bob_contact.toString())
     alice_cm.printContacts()
 }

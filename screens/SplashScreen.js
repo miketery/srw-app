@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { CommonActions } from '@react-navigation/native'
 import { StyleSheet, Text, View, Button, Pressable } from 'react-native'
 
@@ -8,12 +8,14 @@ import tw from '../lib/tailwind'
 import { ROUTES, SPLASH_ANIMATE_TIME, DEV, primary_route } from '../config'
 import { vault_test_route, no_vault_test_route } from '../testdata/testroute'
 
-// import SessionManager from '../classes/SessionManager'
+import { useSession } from '../services/SessionContext'
 import SS from '../services/StorageService';
 import VaultManager from '../managers/VaultManager';
 import Cache from '../services/Cache';
 
-export default function SplashScreen({navigation}) {    
+export default function SplashScreen({navigation}) {
+    const {setVault, setManager} = useSession();
+
     const [initialized, setInitialized] = useState(false);
     const [animationComplete, setAnimationComplete] = useState(false);
     const [hasVault, setHasVault] = useState(false);
@@ -25,7 +27,8 @@ export default function SplashScreen({navigation}) {
         await vault_manager.init()
         if(vault_manager.vaultIsSet()) {
             console.log('[SplashScreen.js] vault is set')
-            Cache.setVaultAndManager(vault_manager.current_vault, vault_manager)
+            setVault(vault_manager.current_vault)
+            setManager(vault_manager)
             return Promise.resolve(true)
         } else {
             console.log('[SplashScreen.js] vault is not set')
@@ -54,7 +57,7 @@ export default function SplashScreen({navigation}) {
     useEffect(() => {
         console.log('[SplashScreen.js] componentDidMount()')
         animate()
-        SS.init().then((res) => {
+        SS.init(true).then((res) => {
             checkHasVault().then((hasVault) => {
                 setInitialized(true);
                 setHasVault(hasVault);

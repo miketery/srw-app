@@ -31,30 +31,3 @@ const x = async () => {
     }, 500)
 }
 x()
-
-// , {
-//     services: {
-//         sendInvite: async (context, event): Promise<Boolean> => {
-//             console.log('sendInvite')
-//             return Promise.resolve(true)
-//         }
-//     }
-// })
-// , {
-//     services: {
-//         sendInvite: async (context, event): Promise<Boolean> => {
-//             console.log('sendInvite')
-//             return Promise.resolve(true)
-//         }
-//     }
-// })
-
-// , {
-//     contacts_manager: alice_cm,
-//     contact: bob_contact,
-// })
-// {
-//     contacts_manager: {},
-//     contact: {},
-// })
-

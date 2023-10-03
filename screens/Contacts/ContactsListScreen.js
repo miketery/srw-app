@@ -6,8 +6,6 @@ import tw from '../../lib/tailwind';
 import { DEV, ROUTES } from '../../config';
 import { TopGradient } from '../../components';
 
-import { getContactsManager } from '../../services/Cache';
-
 
 function ContactIcon(props) {
     return <View style={tw`bg-gray-400 rounded-full h-16 w-16`} />
@@ -35,7 +33,7 @@ export default function ContactsListScreen(props) {
     useEffect(() => {
         const unsubscribe = props.navigation.addListener('focus', async() => {
             console.log('[ContactsListScreen.js] focus()')
-            const contacts = getContactsManager().getContactsArray()
+            const contacts = props.contacts_manager.getContactsArray()
             setContacts(contacts.sort((a, b) => a.name.localeCompare(b.name)))
         });
         return unsubscribe;
