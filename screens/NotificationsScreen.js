@@ -6,16 +6,13 @@ import tw from '../lib/tailwind';
 import { TopGradient } from '../components';
 
 function NotificationRow(props) {
-    const { pk, type, data } = props.notification
-    return <View style={tw`flex flex-row items-center py-1 mb-1 bg-slate-600`}>
+    const { title, long_text } = props.notification.data
+    return <View style={tw`flex flex-col items-start justify-center py-1 mb-1 bg-slate-600`}>
         <View style={tw`mr-1`}>
-            <Text style={ds.textLg}>{type}</Text>
+            <Text style={ds.textLg}>{title}</Text>
         </View>
-        <View style={tw`flex flex-col`}>
-            <Text style={ds.text}>{data.message}</Text>
-        </View>
-        <View style={tw`flex flex-col`}>
-            <Text style={ds.text}>{pk}</Text>
+        <View style={tw`flex flex-column`}>
+            <Text style={ds.text}>{long_text}</Text>
         </View>
     </View>
 }

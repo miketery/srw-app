@@ -14,7 +14,7 @@ import { Message, Receiver, Sender } from "../models/Message";
 import SS, { StoredType } from "../services/StorageService";
 import Vault from "../models/Vault";
 import { getNotificationsManager } from "../services/Cache";
-import { NotificationTypes } from "../models/Notification";
+import { NotificationData, NotificationTypes } from "../models/Notification";
 import { DEV } from '../config';
 
 type processMapType = {
@@ -27,9 +27,14 @@ const processMap: processMapType = {
         message.decrypt(vault.private_key)
         const notification = getNotificationsManager()!.createNotification(
             NotificationTypes.app.alert, {
-                message: message.getData().message,
-                timestamp: message.created
-            })
+                title: 'App.Test Message',
+                short_text: message.getData().message,
+                long_text: message.getData().message,
+                icon: 'info',
+                metadata: {
+                    timestamp: message.created
+                }
+            } as NotificationData)
         // TODO: return true or false so knows whether to delete original message
         return Promise.resolve(true)
     },

@@ -26,20 +26,29 @@ export const NotificationTypes = {
     },
 }
 
+export interface NotificationData {
+    title: string;
+    short_text: string;
+    detailed_text?: string;
+    icon?: string;
+    metadata?: any;
+    // color?: string;
+}
+
 interface NotificationDict {
     pk: string;
     vault_pk: string;
     type: string;
-    data: any; // TODO
+    data: NotificationData;
 }
 
 class Notification {
     pk: string;
     vault_pk: string;
     type: string;
-    data: any; // TODO
+    data: NotificationData;
     
-    constructor(pk: string, vault_pk: string, type: string, data: any) {
+    constructor(pk: string, vault_pk: string, type: string, data: NotificationData) {
         this.pk = pk;
         this.vault_pk = vault_pk;
         this.type = type
