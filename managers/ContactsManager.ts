@@ -1,26 +1,21 @@
 import base58 from 'bs58';
 
 import { PublicKey, VerifyKey } from '../lib/nacl';
+import SS, { StoredType } from '../services/StorageService';
+
 import Vault from '../models/Vault';
 import Contact, { ContactState } from '../models/Contact';
-import SS, { StoredType } from '../services/StorageService';
 import { Message, InboundMessageDict } from '../models/Message';
 
 class ContactsManager {
-    // private static _instance: ContactsManager;
     private _contacts: {string?: Contact};
-    private _vault: Vault | null;
-    // singleton constructor
+    private _vault: Vault;
+
     constructor(vault: Vault, contacts: {string?: Contact} = {}) { 
+        console.log('[ContactsManager.constructor] ' + vault.pk)
         this._contacts = contacts; 
         this._vault = vault;
     }
-    // public static getInstance(): ContactsManager {
-    //     if (!ContactsManager._instance) {
-    //         ContactsManager._instance = new ContactsManager();
-    //     }
-    //     return ContactsManager._instance;
-    // }
     clear() { this._contacts = {}; }
     async deleteContact(contact: Contact): Promise<void> {
         await SS.delete(contact.pk);
@@ -31,8 +26,6 @@ class ContactsManager {
         this._contacts[contact.pk] = contact;
     }
     async loadContacts(): Promise<{string?: Contact}> {
-        if(!this._vault)
-            throw new Error('Vault not set');
         const contacts: {string?: Contact} = {};
         const contacts_data = await SS.getAll(StoredType.contact, this._vault.pk);
         for (let contact_data of Object.values(contacts_data)) {
@@ -68,8 +61,6 @@ class ContactsManager {
         return contact;
     }
     get vault(): Vault {
-        if(!this._vault)
-            throw new Error('Vault not set');
         return this._vault;
     }
     get length(): number {
@@ -100,8 +91,8 @@ class ContactsManager {
             await this.saveContact(contact);
         return contact;
     }
-    async processInboundContactRequest(inbound: InboundMessageDict): Promise<Contact> {
-        console.log('[ContactsManager.processInboundContactRequest]')
+    async processContactRequest(inbound: InboundMessageDict): Promise<Contact> {
+        console.log('[ContactsManager.processContactRequest]')
         if (inbound.type_name !== 'contact_request')
             throw new Error('108 Invalid data type');
         const message = Message.inbound(inbound);
@@ -126,8 +117,9 @@ class ContactsManager {
         await this.saveContact(contact);
         return contact;
     }
-    async processInboundAcceptContactRequestResponse(inbound: InboundMessageDict): Promise<void> {
-        console.log('[ContactsManager.processInboundAcceptContactRequestResponse]', inbound.sender.name)
+    async processAcceptContactRequestResponse(inbound: InboundMessageDict): Promise<void> {
+        // TODO: change to Message instead of InboundDict
+        console.log('[ContactsManager.processAcceptContactRequestResponse]', inbound.sender.name)
         if (inbound.type_name !== 'accept_contact_request_response')
             throw new Error('Invalid data type, required: "accept_contact_request_response"');
         const sender_did = inbound.sender.did;

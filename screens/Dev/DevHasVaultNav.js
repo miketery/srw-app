@@ -9,10 +9,11 @@ import { GoBackButton } from '../../components';
 
 const Stack = createNativeStackNavigator();
 
-function deleteAllLocalStorage() {
+function deleteAllLocalStorage(navigation) {
     console.log('DeleteAllLocalStorage')
     localStorage.clear()
-    window.location.reload()
+    // window.location.reload()
+    navigation.navigate(ROUTES.SplashRoute)
 }
 
 export function DevHasVaultNav({navigation}) {
@@ -26,7 +27,7 @@ export function DevHasVaultNav({navigation}) {
                         <Text style={ds.buttonText}>Digital Agent</Text>
                     </Pressable>
                     <Pressable style={[ds.button, ds.redButton, tw`mt-4`]}
-                        onPress={() => deleteAllLocalStorage()}>
+                        onPress={() => deleteAllLocalStorage(navigation)}>
                         <Text style={ds.buttonText}>Delete All</Text>
                     </Pressable>
                     <View style={tw`flex-grow-1`} />

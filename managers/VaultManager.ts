@@ -8,8 +8,10 @@ import ContactsManager from './ContactsManager';
 import SecretsManager from './SecretsManager';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DigitalAgentService from '../services/DigitalAgentService';
+import NotificationsManager from './NotificationsManager';
+import InboundMessageManager from './MessagesManager';
 
-interface SessionInterface {
+interface SessionDict {
     vault_pk: string;
 }
 
@@ -19,7 +21,9 @@ class VaultManager {
     private _current_vault: Vault | null;
     private _secrets_manager: SecretsManager | null;
     private _contacts_manager: ContactsManager | null;
-    private _session: SessionInterface;
+    private _notifications_manager: NotificationsManager | null;
+    private _messages_manager: InboundMessageManager | null;
+    private _session: SessionDict;
 
     constructor(vaults: {string?: Vault} = {}) {
         this._vaults = vaults;
@@ -49,9 +53,9 @@ class VaultManager {
         //       probably as part of state machine...
         await Promise.all(promises);
     }
-    async loadSession(): Promise<SessionInterface> {
+    async loadSession(): Promise<SessionDict> {
         console.log('[VaultManager.loadSession]')
-        const res = await AsyncStorage.getItem('SESSSON');
+        const res = await AsyncStorage.getItem('SESSION');
         if(res) {
             const data = JSON.parse(res);
             this._session = data;
@@ -61,7 +65,7 @@ class VaultManager {
     }
     async saveSession(): Promise<void> {
         console.log('[VaultManager.saveSession]')
-        await AsyncStorage.setItem('SESSSON', JSON.stringify(this._session));
+        await AsyncStorage.setItem('SESSION', JSON.stringify(this._session));
     }
     async loadVaults(): Promise<{string?: Vault}> {
         console.log('[VaultManager.loadVaults]')
@@ -109,9 +113,15 @@ class VaultManager {
             throw new Error('Current vault not set');
         this._secrets_manager = new SecretsManager(this._current_vault);
         this._contacts_manager = new ContactsManager(this._current_vault);
+        this._notifications_manager = new NotificationsManager(
+            this._current_vault);
+        this._messages_manager = new InboundMessageManager(
+            this._current_vault, this._notifications_manager);
         await Promise.all([
             this._secrets_manager.loadSecrets(),
-            this._contacts_manager.loadContacts()
+            this._contacts_manager.loadContacts(),
+            this._notifications_manager.loadNotifications(),
+            // this._messages_manager.loadMessages(),
         ])
     }
     async saveVault(vault: Vault): Promise<void> {
@@ -185,6 +195,16 @@ class VaultManager {
         if (!this._contacts_manager)
             throw new Error('Contacts Manager not set');
         return this._contacts_manager;
+    }
+    get notifications_manager(): NotificationsManager {
+        if (!this._notifications_manager)
+            throw new Error('Notifications Manager not set');
+        return this._notifications_manager;
+    }
+    get messages_manager(): InboundMessageManager {
+        if (!this._messages_manager)
+            throw new Error('Messages Manager not set');
+        return this._messages_manager;
     }
 }
 

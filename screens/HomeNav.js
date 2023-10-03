@@ -1,53 +1,58 @@
-import { Text, View, Pressable } from 'react-native'
+import { useEffect, useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-
-import tw from '../lib/tailwind'
-import ds from '../assets/styles'
 import { DEV, ROUTES, TAB_BAR_ROUTES } from '../config';
 
-import TabNavBar from './TabNavBar'
+import { useSession } from '../services/SessionContext'
 
+import TabNavBar from './TabNavBar'
 import MainHub from './MainHubScreen'
 
 import ContactsNav from './Contacts'
 import SecretsNav from './Secrets'
+import NotificationsListScreen from './NotificationsScreen';
 import { DevHasVaultNav } from './Dev'
 
 const Tab = createBottomTabNavigator();
 
-function Test(props) {
-    const current_route = props.route.name 
-    return (
-        <View style={ds.landingContainer}>
-            <Text style={ds.header}>{props.title}</Text>
-            <View>
-                <Text style={ds.text}>Route: {current_route}</Text>
-            </View>
-            <View style={tw`flex-grow-1`} />
-            <View style={tw`justify-around mb-10 flex-col items-center`}>
-                {/* <Pressable style={[ds.ctaButton]}
-                    onPress={() => props.navigation.navigate(ROUTES.VaultCreateRoute)}>
-                    <Text style={ds.buttonText}>Create Vault</Text>
-                </Pressable>
-                <Pressable style={tw`mt-10`}
-                    onPress={() => props.navigation.navigate(ROUTES.RecoverInitRoute)}>
-                    <Text style={ds.textSm}>Recover Vault</Text>
-                </Pressable> */}
-            </View>
-        </View>
-    )
-}
-
 export default function HomeNavTest({props}) {
+    const {manager} = useSession()
+
     const possible_offline = false
+    const [ notifications, setNotifications] = useState([])
+    const [ messagesFetchInterval, setMessagesFetchInterval ] = useState(null)
+
+    const clearMessagesFetchInterval = () => {
+        if (messagesFetchInterval) {
+            clearInterval(messagesFetchInterval)
+            setMessagesFetchInterval(null)
+        }
+    }
+
+    useEffect(() => {
+        console.log('[HomeNav] useEffect')
+        const notificationsManager = manager.notifications_manager
+        setNotifications(notificationsManager.getNotificationsArray())
+        const notificationHook = notificationsManager.addCallback(setNotifications)
+        const messagesFetchInterval = manager.messages_manager.startFetchInterval()
+        setMessagesFetchInterval(messagesFetchInterval)
+        return () => {
+            console.log('[HomeNav] cleanup')
+            notificationsManager.removeCallback(notificationHook)
+            clearInterval(messagesFetchInterval)
+        }
+    }, [])
+
     return (
-        <Tab.Navigator initialRouteName={ROUTES.MainHubRoute}
-            tabBar={(props) => <TabNavBar {...props} possible_offline={possible_offline} />}
+        <Tab.Navigator 
+            initialRouteName={ROUTES.MainHubRoute}
+            tabBar={(props) => <TabNavBar {...props}
+                possible_offline={possible_offline}
+                notificationCount={notifications.length} />}
             screenOptions={({route}) => {
                 return { headerShown: route.name in TAB_BAR_ROUTES ? TAB_BAR_ROUTES[route.name].header : false}
         }}>
             <Tab.Screen name={ROUTES.MainHubRoute} >
-                {(props) => <MainHub {...props} />}
+                {(props) => <MainHub {...props} clearMessagesFetchInterval={clearMessagesFetchInterval} />}
             </Tab.Screen>
             <Tab.Screen name={ROUTES.ContactsRoute} >
                 {(props) => <ContactsNav {...props} />}
@@ -55,8 +60,9 @@ export default function HomeNavTest({props}) {
             <Tab.Screen name={ROUTES.SecretsRoute} >
                 {(props) => <SecretsNav {...props} />}
             </Tab.Screen> 
-            <Tab.Screen name={ROUTES.NotificationsRoute} >
-                {(props) => <Test {...props} title={'Notifications'}/>}
+            <Tab.Screen name={ROUTES.NotificationsRoute} 
+                    options={{ tabBarBadge: notifications.length }}>
+                {(props) => <NotificationsListScreen {...props} notifications={notifications} />}
             </Tab.Screen>
             {DEV && <Tab.Screen name={ROUTES.DevHasVaultRoute} >
                 {(props) => <DevHasVaultNav {...props} />}
@@ -67,14 +73,6 @@ export default function HomeNavTest({props}) {
             </Tab.Screen>
             <Tab.Screen name="RecoveryManifestRoute">
                 {(props) => <KeyShareNav vault={this.vault} {...props} />}
-            </Tab.Screen>
-            <Tab.Screen name="NotificationsRoute"
-                options={{ tabBarBadge: this.state.total_count }}>
-                {(props) => <NotificationsListScreen
-                    notifications={this.state.notifications}
-                    vault={this.vault}
-                    setNotifications={this.setNotifications}
-                    {...props} />}
             </Tab.Screen> */}
         </Tab.Navigator>
     )

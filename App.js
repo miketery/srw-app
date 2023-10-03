@@ -8,6 +8,8 @@ import { StatusBar } from 'expo-status-bar';
 import tw from './lib/tailwind'
 import { ROUTES, DEV } from './config';
 
+import { SessionProvider } from './services/SessionContext';
+
 import SplashScreen from './screens/SplashScreen';
 import LandingScreen from './screens/LandingScreen';
 import VaultCreateScreen from './screens/VaultCreateScreen';
@@ -28,13 +30,13 @@ console.warn = (...args) => { // console.trace(); // print stack trace
 console.error = (...args) => { if (args[0].includes('BackHandler ')) {} else { originalError(...args); }};
 
 export default function App() {
-    return (
+    return (<SessionProvider>
         <SafeAreaView style={tw`bg-midnight h-full w-full`}>
             <NavigationContainer>
                 <Stack.Navigator initialRouteName={ROUTES.SplashRoute}
                     screenOptions={({route}) => {
                         return { headerShown: ['Test'].includes(route.name) } 
-                }}>
+                    }}>
                     <Stack.Screen name={ROUTES.SplashRoute}>{props => 
                         <SplashScreen {...props} />}
                     </Stack.Screen>
@@ -60,5 +62,5 @@ export default function App() {
             </NavigationContainer>
             <StatusBar style="auto" />
         </SafeAreaView>
-    );
+    </SessionProvider>);
 }
