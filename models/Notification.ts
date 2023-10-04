@@ -40,6 +40,7 @@ interface NotificationDict {
     vault_pk: string;
     type: string;
     data: NotificationData;
+    created: number;
 }
 
 class Notification {
@@ -47,18 +48,20 @@ class Notification {
     vault_pk: string;
     type: string;
     data: NotificationData;
+    created: number;
     
-    constructor(pk: string, vault_pk: string, type: string, data: NotificationData) {
+    constructor(pk: string, vault_pk: string, type: string, data: NotificationData, created: number) {
         this.pk = pk;
         this.vault_pk = vault_pk;
         this.type = type
         this.data = data;
+        this.created = created;
     }
     static fromDict(data: NotificationDict): Notification {
-        return new Notification(data.pk, data.vault_pk, data.type, data.data);
+        return new Notification(data.pk, data.vault_pk, data.type, data.data, data.created);
     }
     static create(vault_pk: string, type: string, data: any): Notification {
-        return new Notification(StoredTypePrefix.notification + uuidv4(), vault_pk, type, data);
+        return new Notification(StoredTypePrefix.notification + uuidv4(), vault_pk, type, data, Math.floor(Date.now() / 1000));
     }
     toDict(): NotificationDict {
         return {
@@ -66,6 +69,7 @@ class Notification {
             vault_pk: this.vault_pk,
             type: this.type,
             data: this.data,
+            created: this.created,
         }
     }
 }
