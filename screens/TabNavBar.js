@@ -27,8 +27,8 @@ const screenOptions = (route, isFocused, options) => {
     }
     return <Icon name={iconName} color={color} size={22}>
         {options.tabBarBadge ? 
-        <View style={tw`absolute right-2 top-1 rounded-full bg-violet-800 p-2 h-3`}>
-            <Text style={tw`text-xs text-slate-200 -mt-2 font-bold`}>{options.tabBarBadge}</Text>
+        <View style={tw`absolute left-2 top-1 -mt-3 rounded-full bg-red-800 p-2 h-5 flex items-center justify-center flex-row`}>
+            <Text style={tw`text-sm text-slate-200 font-bold font-sans`}>{options.tabBarBadge}</Text>
         </View> : null}
     </Icon>;
 };
