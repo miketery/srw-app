@@ -10,12 +10,11 @@
 
 */
 import DigitalAgentService from "../services/DigitalAgentService";
-import { Message, Receiver, Sender } from "../models/Message";
+import { Message, OutboundMessageDict, InboundMessageDict } from "../models/Message";
 import SS, { StoredType } from "../services/StorageService";
 import Vault from "../models/Vault";
 import NotificationsManager, { CreateNotification } from "./NotificationsManager";
 import { NotificationData, NotificationTypes } from "../models/Notification";
-import { DEV } from '../config';
 
 type processMapType = {
     [key: string]: (message: Message, vault: Vault, nm: NotificationsManager) => Promise<boolean>
@@ -50,6 +49,21 @@ const processMap: processMapType = {
     // 'contact_accept': (message: InboundMessageDict) => {
     //     getContactsManager()!.processAcceptContactRequestResponse(message)
     // }
+    // 'error.notFound': async (message: Message, vault: Vault, nm: NotificationsManager) => {
+    //     console.log('[processMap] error.notFound', message)
+    //     message.decrypt(vault.private_key)
+    //     const notification = nm.createNotification(
+    //         NotificationTypes.app.alert, {
+    //             title: 'Error Message',
+    //             short_text: 'Error Message',
+    //             long_text: message.getData().message,
+    //             icon: 'error',
+    //             metadata: {
+    //                 timestamp: message.created
+    //             }
+    //         } as NotificationData)
+    //     return Promise.resolve(true)
+    // },
 }
 
 
@@ -63,11 +77,13 @@ class InboundMessageManager {
     private _nm: NotificationsManager;
     private _inbound_messages: {string? : Message};
     private _last: LastReceivedStateDict;
+    private _getMessages: () => Promise<OutboundMessageDict[]>;
  
     constructor(vault: Vault, nm: NotificationsManager, last?: LastReceivedStateDict) {
         this._vault = vault;
         this._nm = nm;
         this._inbound_messages = {};
+        this._getMessages = DigitalAgentService.getGetMessagesFunction(vault);
         if(last)
             this._last = last;
         else
@@ -78,34 +94,13 @@ class InboundMessageManager {
     }
     startFetchInterval(interval = 1500): any {
         return setInterval(async () => {
-            if(DEV)
-                this.mockGetMessages()
-            else
-                throw new Error('Not implemented')
-        }, interval);
-    }
-    async mockGetMessages(): Promise<void> {
-        const random = Math.floor(Math.random() * 2);
-        console.log('[InboundManager.mockGetMessages] random: ', random)
-        if(random == 0) {
-            const random_date = new Date(Math.floor(Math.random() * Date.now()));
-            const msg = new Message(null, null, 'outbound', 
-                Sender.fromVault(this._vault),
-                Receiver.fromVault(this._vault),
-                'app.test', '1.0',
-                'X25519Box', true
-            )
-            msg.setData({
-                'message': 'some data' + random_date.toISOString()
+            const messages = await this._getMessages()
+            messages.forEach(async (message) => {
+                const msg = Message.inbound(message as InboundMessageDict)
+                await this.saveMessage(msg)
+                this.processMessage(msg)
             })
-            msg.encryptBox(this._vault.private_key)
-            const outbound = msg.outboundFinal()
-            const inbound = outbound // we're sending a message to ourselves...
-            const message = Message.inbound(inbound as any)
-            this.saveMessage(message)
-            this.processMessage(message)
-        }
-        return
+        }, interval);
     }
     async getMessages() {
         const messages = await DigitalAgentService.getMessages(this._vault, this._last.timestamp)
@@ -151,7 +146,10 @@ class InboundMessageManager {
         console.log('[InboundMessageManager.processMessage]', message)
         if(!Object.keys(processMap).includes(message.type_name))
             throw new Error('Message type not supported') // do we discard / delete?
-        return await processMap[message.type_name](message, this._vault, this._nm)
+        const res = await processMap[message.type_name](message, this._vault, this._nm)
+        if(res)
+            await this.deleteMessage(message)
+        return res
     }
     async processAllMessages(): Promise<Promise<boolean>[]> {
         const messages = this.getMessagesAsArray()

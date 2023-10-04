@@ -3,7 +3,6 @@ import { Text, View, ScrollView, Pressable } from 'react-native'
 import ds from '../../assets/styles'
 import tw from '../../lib/tailwind'
 
-import { Button } from '../../components'
 // Test Contact Add Request Messages
 
 import Vault from '../../models/Vault'
@@ -12,7 +11,6 @@ import ContactsManager from '../../managers/ContactsManager'
 import { ContactState } from '../../models/Contact'
 import DAS from '../../services/DigitalAgentService'
 import InboundMessageManager from '../../managers/MessagesManager'
-import DigitalAgentService from '../../services/DigitalAgentService'
 
 // Create contact request from Bob to Alice
 async function ContactRequestFrom() {
@@ -30,6 +28,9 @@ async function ContactRequestFrom() {
     bob_cm.getContactsArray().forEach((c) => bob_cm.deleteContact(c))
     bob_cm.printContacts() && alice_cm.printContacts()
 
+    const alice_get_msg = DAS.getGetMessagesFunction(alice_vault)
+    const bob_get_msg = DAS.getGetMessagesFunction(bob_vault)
+
     /// START
     const bob_contact =  await alice_cm.addContact('Bob', bob_vault.did, 
         bob_vault.public_key, bob_vault.verify_key, Uint8Array.from([]), '')
@@ -41,7 +42,7 @@ async function ContactRequestFrom() {
     console.log(bob_contact.their_contact_public_key)
     bob_contact.fsm.send('SUBMIT')
     await new Promise(r => setTimeout(r, 300));
-    const contact_request = DigitalAgentService.getLastMessage()
+    const contact_request = (await bob_get_msg())[0]
     console.log('[DevContacts] contact_request', contact_request) // encrypted
 
     console.log('\n###################### B3 - bob_cm.process_inbound_contactRequest()')
@@ -52,7 +53,7 @@ async function ContactRequestFrom() {
     alice_contact.fsm.send('ACCEPT')
     await new Promise(r => setTimeout(r, 300));
     bob_cm.printContacts()
-    const response = DigitalAgentService.getLastMessage()
+    const response = (await alice_get_msg())[0]
     console.log('[DevContacts] accept_response', response) // encrypted
 
     console.log('\n###################### A5 - alice_cm.process_inbound_accept_contact_request_response()')
@@ -89,7 +90,6 @@ async function CharlieGetMessagesAndProcess() {
     const n = messages_manager.getMessages()
     console.log('messages got:' + n)
 }
-
 
 
 export default function DevContacts(props) {

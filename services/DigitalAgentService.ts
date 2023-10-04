@@ -1,14 +1,13 @@
 import axios from 'axios';
 
 import Vault from '../models/Vault';
-import { BASE, DEBUG, ENDPOINTS } from '../config';
+import { BASE, DEBUG, ENDPOINTS, MOCK } from '../config';
 import { OutboundMessageDict } from '../models/Message';
 // import Contact from './Contact';
-
+import MockMessageQueue from './MockMessageQueue';
 
 class DigitalAgentService {
     static digital_agent_host: string = BASE;
-    static _messages: OutboundMessageDict[] = [];
 
     static async registerVault(vault: Vault): Promise<{}|false> {
         const payload = {
@@ -72,24 +71,21 @@ class DigitalAgentService {
             return response['data'];
         }
     }
-    static getPostMessageFunction(vault: Vault): (message: any) => Promise<any> {
+    static getPostMessageFunction(vault: Vault): (message: OutboundMessageDict) => Promise<any> {
         return async (message: OutboundMessageDict) => {
-            if(DEBUG)
-                this._messages.push(message)
-            return await this.postMessage(vault, message)
+            if(MOCK)
+                MockMessageQueue.postMessage(message)
+            else
+                return await this.postMessage(vault, message)
         }
     }
-    static getGetMessagesFunction(vault: Vault): (after?: number) => Promise<any> {
+    static getGetMessagesFunction(vault: Vault): (after?: number) => Promise<OutboundMessageDict[]> {
         return async (after?: number) => {
-            if(DEBUG)
-
-            return await this.getMessages(vault, after)
+            if(MOCK)
+                return MockMessageQueue.getMessages(vault.did)
+            else
+                return await this.getMessages(vault, after)
         }
-    }
-    static getLastMessage(): OutboundMessageDict | null { // for local testing
-        if(this._messages.length == 0)
-            return null
-        return this._messages[this._messages.length - 1]
     }
     static async getMessages(vault: Vault, after?: number): Promise<any> {
         const payload = {
