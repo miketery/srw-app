@@ -67,7 +67,7 @@ class DigitalAgentService {
         if(!response)
             return false
         console.log('[postMessage]', response)
-        if (response['status'] == 200) {
+        if ([200, 201].includes(response['status'])) {
             return response['data'];
         }
     }
