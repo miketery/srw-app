@@ -10,22 +10,38 @@
 
 */
 import DigitalAgentService from "../services/DigitalAgentService";
-import { Message, Receiver, Sender } from "../models/Message";
+import { Message, OutboundMessageDict, InboundMessageDict } from "../models/Message";
 import SS, { StoredType } from "../services/StorageService";
 import Vault from "../models/Vault";
-import NotificationsManager, { CreateNotification } from "./NotificationsManager";
 import { NotificationData, NotificationTypes } from "../models/Notification";
-import { DEV } from '../config';
+import VaultManager from "./VaultManager";
 
 type processMapType = {
-    [key: string]: (message: Message, vault: Vault, nm: NotificationsManager) => Promise<boolean>
+    [key: string]: (message: Message, vault: Vault, m: VaultManager) => Promise<boolean>
+}
+
+export const MessageTypes = {
+    'contact': {
+        'request': 'msg.contact.request',
+        'accept': 'msg.contact.accept'
+    },
+    'app': {
+        'test': 'msg.app.test',
+        'info': 'msg.app.info',
+        'alert': 'msg.app.alert',
+        'warning': 'msg.app.warning',
+    },
+    'recovery': {
+        'request': 'msg.recovery.request',
+        'accept': 'msg.recovery.accept'
+    },
 }
 
 const processMap: processMapType = {
-    'app.test': (message: Message, vault: Vault, nm: NotificationsManager) => {
+    [MessageTypes.app.test]: (message: Message, vault: Vault, m: VaultManager) => {
         console.log('[processMap] app.test', message)
         message.decrypt(vault.private_key)
-        const notification = nm.createNotification(
+        const notification = m.notificationsManager.createNotification(
             NotificationTypes.app.alert, {
                 title: 'App.Test Message',
                 short_text: message.getData().message,
@@ -35,21 +51,36 @@ const processMap: processMapType = {
                     timestamp: message.created
                 }
             } as NotificationData)
-        // TODO: return true or false so knows whether to delete original message
         return Promise.resolve(true)
     },
-    // 'contact.request': async (message: InboundMessageDict, vault: Vault) => {
-    //     const contact: Contact = await getContactsManager()!.processContactRequest(message)
-    //     const notification = Notification.create(vault.pk,
-    //         NotificationTypes.contact.request, {
-    //             name: contact.name,
-    //             did: contact.did,
-    //             timestamp: message.created
-    //         })
-    // },
-    // 'contact_accept': (message: InboundMessageDict) => {
-    //     getContactsManager()!.processAcceptContactRequestResponse(message)
-    // }
+    [MessageTypes.contact.request]: async (message: Message, vault: Vault, m: VaultManager) => {
+        console.log('[processMap] ', message.type_name, message)
+        const contact = await m.contactsManager.processContactRequest(message)
+        const notification = m.notificationsManager.createNotification(
+            NotificationTypes.contact.request, {
+                title: 'Contact Request',
+                short_text: contact.name + ' wants to connect',
+                detailed_text: contact.name + ' accepted your request',
+                metadata: {
+                    timestamp: message.created
+                }
+            })
+        return Promise.resolve(true)
+    },
+    [MessageTypes.contact.accept]: async (message: Message, vault: Vault, m: VaultManager) => {
+        console.log('[processMap] ', message.type_name, message)
+        const contact = await m.contactsManager.processContactAccept(message)
+        const notification = m.notificationsManager.createNotification(
+            NotificationTypes.contact.accept, {
+                title: 'Contact Accepted',
+                short_text: contact.name + ' accepted your request',
+                detailed_text: contact.name + ' accepted your request',
+                metadata: {
+                    timestamp: message.created
+                }
+            })
+        return Promise.resolve(true)
+    },
 }
 
 
@@ -60,14 +91,16 @@ interface LastReceivedStateDict {
 
 class InboundMessageManager {
     private _vault: Vault;
-    private _nm: NotificationsManager;
+    private _manager: VaultManager;
     private _inbound_messages: {string? : Message};
     private _last: LastReceivedStateDict;
+    private _getMessages: () => Promise<OutboundMessageDict[]>;
  
-    constructor(vault: Vault, nm: NotificationsManager, last?: LastReceivedStateDict) {
+    constructor(vault: Vault, manager: VaultManager, last?: LastReceivedStateDict) {
         this._vault = vault;
-        this._nm = nm;
+        this._manager = manager;
         this._inbound_messages = {};
+        this._getMessages = DigitalAgentService.getGetMessagesFunction(vault);
         if(last)
             this._last = last;
         else
@@ -77,54 +110,32 @@ class InboundMessageManager {
             }
     }
     startFetchInterval(interval = 1500): any {
-        return setInterval(async () => {
-            if(DEV)
-                this.mockGetMessages()
-            else
-                throw new Error('Not implemented')
-        }, interval);
+        return setInterval(this.getMessages, interval);
     }
-    async mockGetMessages(): Promise<void> {
-        const random = Math.floor(Math.random() * 2);
-        console.log('[InboundManager.mockGetMessages] random: ', random)
-        if(random == 0) {
-            const random_date = new Date(Math.floor(Math.random() * Date.now()));
-            const msg = new Message(null, null, 'outbound', 
-                Sender.fromVault(this._vault),
-                Receiver.fromVault(this._vault),
-                'app.test', '1.0',
-                'X25519Box', true
-            )
-            msg.setData({
-                'message': 'some data' + random_date.toISOString()
-            })
-            msg.encryptBox(this._vault.private_key)
-            const outbound = msg.outboundFinal()
-            const inbound = outbound // we're sending a message to ourselves...
-            const message = Message.inbound(inbound as any)
-            this.saveMessage(message)
-            this.processMessage(message)
-        }
-        return
-    }
-    async getMessages() {
-        const messages = await DigitalAgentService.getMessages(this._vault, this._last.timestamp)
-        if(!messages)
-            return false
-        console.log('[InboundManager.getMessages]', messages.length)
-        if(messages.length > 0){
-            this._last = {
-                'timestamp': messages[0]['created'],
-                'uuid': messages[0]['uuid']
-            }
-        }
-        const promises: Promise<void>[] = []
-        for(const message of messages){
-            const msg = Message.inbound(message)
-            promises.push(this.saveMessage(msg))
-            this._inbound_messages[msg.pk] = msg
-        }
-        return messages.length
+    getMessages = async () => {
+        const messages = await this._getMessages()
+        messages.forEach(async (message) => {
+            const msg = Message.inbound(message as InboundMessageDict)
+            await this.saveMessage(msg)
+            this.processMessage(msg)
+        })
+        // const messages = await DigitalAgentService.getMessages(this._vault, this._last.timestamp)
+        // if(!messages)
+        //     return false
+        // console.log('[InboundManager.getMessages]', messages.length)
+        // if(messages.length > 0){
+        //     this._last = {
+        //         'timestamp': messages[0]['created'],
+        //         'uuid': messages[0]['uuid']
+        //     }
+        // }
+        // const promises: Promise<void>[] = []
+        // for(const message of messages){
+        //     const msg = Message.inbound(message)
+        //     promises.push(this.saveMessage(msg))
+        //     this._inbound_messages[msg.pk] = msg
+        // }
+        // return messages.length
     }
     async saveMessage(message: Message): Promise<void> {
         this._inbound_messages[message.pk] = message
@@ -138,6 +149,7 @@ class InboundMessageManager {
             messages[m.pk] = m;
         }
         this._inbound_messages = messages;
+        this.processAllMessages()
         return messages;
     }
     async deleteMessage(message: Message): Promise<void> {
@@ -151,7 +163,10 @@ class InboundMessageManager {
         console.log('[InboundMessageManager.processMessage]', message)
         if(!Object.keys(processMap).includes(message.type_name))
             throw new Error('Message type not supported') // do we discard / delete?
-        return await processMap[message.type_name](message, this._vault, this._nm)
+        const res = await processMap[message.type_name](message, this._vault, this._manager)
+        if(res)
+            await this.deleteMessage(message)
+        return res
     }
     async processAllMessages(): Promise<Promise<boolean>[]> {
         const messages = this.getMessagesAsArray()

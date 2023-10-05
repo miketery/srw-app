@@ -3,21 +3,21 @@ const bip39 = require('bip39')
 
 import { v4 as uuidv4 } from 'uuid';
 
-import { SigningKey, VerifyKey, PrivateKey, PublicKey, SignedMessage } from '../lib/nacl';
-import { signMsg, signingKeyFromWords, encryptionKeyFromWords, encryptionKey, getRandom } from '../lib/utils'
-import SS, { StoredType, StoredTypePrefix } from '../services/StorageService';
+import { VerifyKey, PrivateKey, PublicKey } from '../lib/nacl';
+import { encryptionKey } from '../lib/utils'
+import SS, { StoredTypePrefix } from '../services/StorageService';
 import ContactMachine from '../machines/ContactMachine';
-import { useMachine } from '@xstate/react';
-import { State, interpret } from 'xstate';
+import { interpret } from 'xstate';
 import Vault from './Vault';
 import { Message, OutboundMessageDict } from './Message';
 import DigitalAgentService from '../services/DigitalAgentService';
+import { MessageTypes } from '../managers/MessagesManager';
 
 export enum ContactState {
     INIT = 'INIT',
     INBOUND = 'INBOUND',
     PENDING = 'PENDING',
-    // ADD CAN RESEND INVITE
+    CAN_RESEND_INVITE = 'CAN_RESEND_INVITE',
     ESTABLISHED = 'ESTABLISHED',
     REJECTED = 'REJECTED',
     ARCHIVED = 'ARCHIVED',
@@ -175,8 +175,8 @@ class Contact {
             contact_public_key: this.b58_public_key,
         }
         const message = Message.forContact(this, data,
-            'contact_request', '0.0.1');
-        // null the sender sub key becausew we're not using it (even though
+            MessageTypes.contact.request, '0.0.1');
+        // null the sender sub key because we're not using it (even though
         // the contact will receive it inside the encrypted msg, will use in future
         message.sender.sub_public_key = Uint8Array.from([])
         // they don't have our contact public key for verification yet so we use our vault key for box verif
@@ -192,7 +192,7 @@ class Contact {
             contact_public_key: this.b58_public_key,
         }
         const message = Message.forContact(this, data,
-            'accept_contact_request_response', '0.0.1');
+            MessageTypes.contact.accept, '0.0.1');
         message.encryptBox(this.private_key)
         return message.outboundFinal();
     }

@@ -25,10 +25,10 @@ expo start --web
 - [Contact](./models/Contact.ts), a connection between one user and another (ties DIDs and establishes a secure channel using contact specific keys)
 - [Secret](./models/Secret.ts), a key / password / secret that is stored in the vault (e.g. 1password recovery phrase, btc seed phrase, etc)
 - [Message](./models/Message.ts), represents a message sent between two users (encrypted using the vault public key, or contact specific key)
+- [Notification](./models/Notification.ts), generated based on a message received from the digital agent (e.g. contact request, contact accept, invite for recovery manifest setup, etc.)
 
 //TODO
 - Recovery Manifest, is a recovery scheme with participants and devices
-- [Notification](./models/Notification.ts), generated based on a message received from the digital agent (e.g. contact request, contact accept, invite for recovery manifest setup, etc.)
 
 ### Managers
 
@@ -42,11 +42,10 @@ Each of the models has a manger for handling create, load, delete, save, and mor
 
 ### Services
 
-<!-- - [Cache](./services/Cache.ts), singleton for easy access to managers instantiated for a specific vault -->
 - [DigitalAgentService](./services/DigitalAgentService.ts), service for interacting with the digital agent (e.g. register, send message, get messages)
 - [StorageService](./services/StorageService.ts), service for interacting with the local storage (e.g. save, load, delete) (since not using ORM and only have key value store, this is a simple wrapper around AsyncStorage)
-- [SessionContext](./services/SessionContext.js), context for getting the current vault and manager
-(which has access to contacts, secrets, messages, and notifications managers)
+- [SessionContext](./contexts/SessionContext.js), context for getting the current vault and manager
+  (which has access to contacts, secrets, messages, and notifications managers)
 
 //TODO
 - Locking / Unlocking services
@@ -58,10 +57,12 @@ Using [XState](https://xstate.js.org/docs/guides/introduction-to-state-machines-
 - [ContactMachine](./machines/ContactMachine.ts), state machine for managing the contact lifecycle (e.g. INIT, SENDING_INVITE, PENDING, ESTABLISHED, etc.)
 
 //TODO
+
 - RecoveryManifestMachine - setting up a social recovery scheme, need to track recovery manifest state, and state of participants as they accept or reject participation. Potentially later need to track updates to a recovery.
 - AppMachine (i.e. track state of the app) - e.g. first install, or vault is setup, locked, unlocked, in recovery mode
 
 //Possible TODO
+
 - MessageMachine or NotificationMachine - state machine for managing the retrieval of inbound messages and getting them to the right places to be actioned on
 
 ### Screens / UI Overview
@@ -72,13 +73,14 @@ Using [XState](https://xstate.js.org/docs/guides/introduction-to-state-machines-
   - [VaultCreateScreen](./screens/VaultCreateScreen.js), create a new vault
   - TODO: RecoverVault, recover an existing vault
 - [HomeNav](./screens/HomeNav.js), container for app if user is accessing a vault
-    - [TabBarNav](./screens/TabBarNav.js), container for the main tabs
-    - [MainHubScreen](./screens/MainHubScreen.js), 
-    - [Contacts](./screens/Contacts/index.js), manage contacts
-    - [Secrets](./screens/Secrets/index.js), manage secrets
-    - TODO: Notifications, show notifications, and take action on them
-    - TODO: Recoveries, show recoveries, my recovery manifests and where I am a guardian for others
+  - [TabBarNav](./screens/TabBarNav.js), container for the main tabs
+  - [MainHubScreen](./screens/MainHubScreen.js),
+  - [Contacts](./screens/Contacts/index.js), manage contacts
+  - [Secrets](./screens/Secrets/index.js), manage secrets
+  - [Notifications](./screens/NotificationsScreen.js), show notifications, and take action on them
+  - TODO: Recoveries, show recoveries, my recovery manifests and where I am a guardian for others
 
 //TODO
+- Profile screen
 - Unlock screen (probably from splash depending on state)
 - Settings screen

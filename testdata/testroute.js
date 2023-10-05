@@ -61,7 +61,8 @@ const switch_routes = {
     // {name: ROUTES.SecretEditRoute, params: {
     //   credential_uuid: '39a93352-e7e8-4eb3-ad19-351addd0fa62',
     // }},
-  ]
+  ],
+  [ROUTES.NotificationsRoute]: []
 }
 
 const vault_test_route = [

@@ -18,16 +18,16 @@ interface SessionDict {
 class VaultManager {
     // private static _instance: VaultManager;
     private _vaults: {string?: Vault};
-    private _current_vault: Vault | null;
-    private _secrets_manager: SecretsManager | null;
-    private _contacts_manager: ContactsManager | null;
-    private _notifications_manager: NotificationsManager | null;
-    private _messages_manager: InboundMessageManager | null;
+    private _currentVault: Vault | null;
+    private _secretsManager: SecretsManager | null;
+    private _contactsManager: ContactsManager | null;
+    private _notificationsManager: NotificationsManager | null;
+    private _messagesManager: InboundMessageManager | null;
     private _session: SessionDict;
 
     constructor(vaults: {string?: Vault} = {}) {
         this._vaults = vaults;
-        this._current_vault = null;
+        this._currentVault = null;
         this._session = {vault_pk: ''}
     }
     async init(): Promise<void> {
@@ -45,11 +45,11 @@ class VaultManager {
             this.setVault(Object.keys(this._vaults)[0]);
             promises.push(this.saveSession()); // save the session
         }
-        if(!this._current_vault) // could be else, but for type script sake...
+        if(!this._currentVault) // could be else, but for type script sake...
             return
         promises.push(this.initManagers());
         // if not registered do it now (maybe was offline earlier)
-        // TODO: promises.push(this.checkRegistered(this._current_vault, true));
+        // TODO: promises.push(this.checkRegistered(this._currentVault, true));
         //       probably as part of state machine...
         await Promise.all(promises);
     }
@@ -83,9 +83,9 @@ class VaultManager {
     }
     setVault(vault_pk: string): void {
         this._session.vault_pk = vault_pk;
-        this._current_vault = this.getVault(vault_pk);
+        this._currentVault = this.getVault(vault_pk);
     }
-    async checkRegistered(vault: Vault, ifNotThenRegister: boolean): Promise<Boolean> {
+    async checkRegistered(vault: Vault, ifNotThenRegister: boolean): Promise<boolean> {
         console.log('[VaultManager.checkRegistered]')
         const data = await DigitalAgentService.amIRegistered(vault);
         if(data) {
@@ -109,19 +109,19 @@ class VaultManager {
     }
     async initManagers(): Promise<void> {
         console.log('[VaultManager.initManagers]')
-        if (!this._current_vault)
+        if (!this._currentVault)
             throw new Error('Current vault not set');
-        this._secrets_manager = new SecretsManager(this._current_vault);
-        this._contacts_manager = new ContactsManager(this._current_vault);
-        this._notifications_manager = new NotificationsManager(
-            this._current_vault);
-        this._messages_manager = new InboundMessageManager(
-            this._current_vault, this._notifications_manager);
+        this._secretsManager = new SecretsManager(this._currentVault);
+        this._contactsManager = new ContactsManager(this._currentVault);
+        this._notificationsManager = new NotificationsManager(
+            this._currentVault);
+        this._messagesManager = new InboundMessageManager(
+            this._currentVault, this);
         await Promise.all([
-            this._secrets_manager.loadSecrets(),
-            this._contacts_manager.loadContacts(),
-            this._notifications_manager.loadNotifications(),
-            // this._messages_manager.loadMessages(),
+            this._secretsManager.loadSecrets(),
+            this._contactsManager.loadContacts(),
+            this._notificationsManager.loadNotifications(),
+            this._messagesManager.loadMessages(),
         ])
     }
     async saveVault(vault: Vault): Promise<void> {
@@ -157,7 +157,7 @@ class VaultManager {
             }
         }
         this._vaults[new_vault.pk] = new_vault;
-        this._current_vault = new_vault;
+        this._currentVault = new_vault;
         this._session.vault_pk = new_vault.pk;
         this.saveSession();
         return new_vault;
@@ -174,37 +174,37 @@ class VaultManager {
         return null;
     }
     vaultIsSet(): boolean {
-        return this._current_vault !== null;
+        return this._currentVault !== null;
     }
-    get current_vault_pk(): string {
-        if (!this._current_vault)
+    get currentVaultPk(): string {
+        if (!this._currentVault)
             throw new Error('Current vault not set');
-        return this._current_vault.pk;
+        return this._currentVault.pk;
     }
-    get current_vault(): Vault {
-        if (!this._current_vault)
+    get currentVault(): Vault {
+        if (!this._currentVault)
             throw new Error('Current vault not set');
-        return this._current_vault;
+        return this._currentVault;
     }
-    get secrets_manager(): SecretsManager {
-        if (!this._secrets_manager)
+    get secretsManager(): SecretsManager {
+        if (!this._secretsManager)
             throw new Error('Secrets Manager not set');
-        return this._secrets_manager;
+        return this._secretsManager;
     }
-    get contacts_manager(): ContactsManager {
-        if (!this._contacts_manager)
+    get contactsManager(): ContactsManager {
+        if (!this._contactsManager)
             throw new Error('Contacts Manager not set');
-        return this._contacts_manager;
+        return this._contactsManager;
     }
-    get notifications_manager(): NotificationsManager {
-        if (!this._notifications_manager)
+    get notificationsManager(): NotificationsManager {
+        if (!this._notificationsManager)
             throw new Error('Notifications Manager not set');
-        return this._notifications_manager;
+        return this._notificationsManager;
     }
-    get messages_manager(): InboundMessageManager {
-        if (!this._messages_manager)
+    get messagesManager(): InboundMessageManager {
+        if (!this._messagesManager)
             throw new Error('Messages Manager not set');
-        return this._messages_manager;
+        return this._messagesManager;
     }
 }
 
