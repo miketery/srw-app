@@ -25,7 +25,7 @@ export default function SplashScreen({navigation}) {
         const vaultManager = new VaultManager()
         await vaultManager.init()
         if(vaultManager.vaultIsSet()) {
-            setVault(vaultManager.current_vault)
+            setVault(vaultManager.currentVault)
             setManager(vaultManager)
             console.log('[SplashScreen.checkHasVault] Vault and Manager are set in useSessionContext')
             return Promise.resolve(true)

@@ -21,19 +21,16 @@ function NotificationActions({ actions, notification, manager }) {
 
 function NotificationRow(props) {
     const { notification, manager } = props
-    const { title, long_text } = notification.data
+    const { title, short_text, detailed_text } = notification.data
     let actions = []
-    if(Object.keys(actionMap).includes(notification.type)) {
-        console.log('notification.type', notification.type)
+    if(Object.keys(actionMap).includes(notification.type))
         actions = actionMap[notification.type]
-    }
-    console.log(notification)
     return <View style={tw`flex flex-col items-start justify-center p-1 mb-1 bg-slate-600`}>
         <View style={tw`mr-1`}>
             <Text style={ds.textLg}>{title}</Text>
         </View>
         <View style={tw`flex flex-col`}>
-            <Text style={ds.text}>{long_text}</Text>
+            <Text style={ds.text}>{detailed_text}</Text>
         </View>
         <View style={tw`flex flex-row justify-end w-full`}>
             <NotificationActions actions={actions} notification={notification} manager={manager} />

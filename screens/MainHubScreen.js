@@ -3,13 +3,14 @@ import { useEffect, useState } from 'react'
 
 import DAS from '../services/DigitalAgentService'
 import { Message, Sender, Receiver } from '../models/Message'
+import { useSessionContext } from '../contexts/SessionContext'
+import { MessageTypes } from '../managers/MessagesManager'
 
 import ds from '../assets/styles'
 import tw from '../lib/tailwind'
 import { DEV, ROUTES } from '../config'
 import { TopGradient } from '../components'
 
-import { useSessionContext } from '../contexts/SessionContext'
 
 async function TestMessage(vault) {
     const postMsg = DAS.getPostMessageFunction(vault)
@@ -17,7 +18,7 @@ async function TestMessage(vault) {
     const msg = new Message(null, null, 'outbound', 
         Sender.fromVault(vault),
         Receiver.fromVault(vault),
-        'app.test', '1.0',
+        MessageTypes.app.test, '1.0',
         'X25519Box', true
     )
     msg.setData({

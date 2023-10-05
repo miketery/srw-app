@@ -53,7 +53,7 @@ export default function VaultCreateScreen(props) {
                 const vault = await vaultManager.createVault(
                     name, email, displayName, '', words, true)
                 await vaultManager.initManagers()
-                setVault(vaultManager.current_vault)
+                setVault(vaultManager.currentVault)
                 setManager(vaultManager)
                 finishSubmit(vault)
             } catch (err) {

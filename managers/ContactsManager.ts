@@ -5,7 +5,8 @@ import SS, { StoredType } from '../services/StorageService';
 
 import Vault from '../models/Vault';
 import Contact, { ContactState } from '../models/Contact';
-import { Message, InboundMessageDict } from '../models/Message';
+import { Message } from '../models/Message';
+import { MessageTypes } from './MessagesManager';
 
 class ContactsManager {
     private _contacts: {string?: Contact};
@@ -92,18 +93,26 @@ class ContactsManager {
             digital_agent, ContactState.INIT, this.vault);
         if(save)
             await this.saveContact(contact);
-        // TODO send contact request!
         return contact;
     }
-    async processContactRequest(inbound: InboundMessageDict): Promise<Contact> {
+    async sendContactRequest(contact: Contact, callback: () => void): Promise<void> {
+        /**
+         * Send contact request / invite to the contact
+         */
+        console.log('[ContactsManager.sendContactRequest]', contact.name)
+        if(contact.state != ContactState.INIT)
+            throw new Error('Invalid contact state: ' + contact.state);
+        contact.fsm.send('REQUEST', {callback}); // Save happens in FSM
+    }
+    async processContactRequest(message: Message): Promise<Contact> {
         /**
          * Inbound contact request (i.e. will end up with a INBOUND contact)
          * From there can accept or dismiss
          */
         console.log('[ContactsManager.processContactRequest]')
-        if (inbound.type_name !== 'contact_request')
+        if (message.type_name !== MessageTypes.contact.request)
             throw new Error('108 Invalid data type');
-        const message = Message.inbound(inbound);
+        // const message = Message.inbound(inbound);
         message.decrypt(this.vault.private_key);
         // TODO: did not decrypt... throw
         const requestee = message.getData();
@@ -130,26 +139,26 @@ class ContactsManager {
         if(contact.state != ContactState.INBOUND)
         // TODO: shouldn't guard here... FSM will takecare
             throw new Error('Invalid contact state: ' + contact.state);
-        contact.fsm.send('ACCEPT', {callback});
+        contact.fsm.send('ACCEPT', {callback}); // save happens in FSM
     }
-    async processAcceptContactRequestResponse(inbound: InboundMessageDict): Promise<void> {
+    async processContactAccept(message: Message): Promise<Contact> {
         /**
          * Process accept contact request response 
          * (i.e. will end up with a ESTABLISHED contact)
          */
-        console.log('[ContactsManager.processAcceptContactRequestResponse]',
-            inbound.sender.name)
-        if (inbound.type_name !== 'accept_contact_request_response')
-            throw new Error('Invalid data type, required: "accept_contact_request_response"');
-        const sender_did = inbound.sender.did;
+        console.log('[ContactsManager.processContactAccept]',
+            message.sender.name)
+        if (message.type_name !== MessageTypes.contact.accept)
+            throw new Error('Invalid data type, required: "' + MessageTypes.contact.accept + '"');
+        const sender_did = message.sender.did;
         const contact = this.getContactByDid(sender_did);
-        const message = Message.inbound(inbound);
+        // const message = Message.inbound(inbound);
         message.decrypt(contact.private_key);
         // TODO: did not decrypt... throw
         const data = message.getData();
         if(contact.state == ContactState.ESTABLISHED)
             // already accepted...
-            return;
+            return contact;
         if(contact.state != ContactState.PENDING)
             throw new Error('145 Invalid contact state: ' + contact.state);
         if(data.did !== 'did:arx:' + data.verify_key)
@@ -158,7 +167,7 @@ class ContactsManager {
         contact.their_public_key = base58.decode(data.public_key);
         contact.their_contact_public_key = base58.decode(data.contact_public_key);
         await this.saveContact(contact);
-        return;
+        return contact;
     }
 
 

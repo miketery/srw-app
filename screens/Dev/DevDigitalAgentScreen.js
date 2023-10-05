@@ -26,7 +26,7 @@ async function postMessage() {
     const vm = Cache.vaultManager
     // const cm = vm.contactsManager
     // const bob = cm.getContactByDid('Bob')
-    // const vault = vm.current_vault
+    // const vault = vm.currentVault
     // const msg = Message.forContact(vault, )
     // DAS.postMessage(vault)
     const [vaults, contacts] = await getTestVaultsAndContacts()

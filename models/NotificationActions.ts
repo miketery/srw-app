@@ -27,7 +27,7 @@ const acceptContactRequestAction: NotificationAction = {
 const notificationActionsMap: {[key: string]: NotificationAction[]} = {
     [NotificationTypes.app.alert]: [consoleLogAction, dismissAction],
     [NotificationTypes.contact.request]: [consoleLogAction, acceptContactRequestAction, dismissAction],
-
+    [NotificationTypes.contact.accept]: [consoleLogAction, dismissAction],
 }
 
 export default notificationActionsMap;

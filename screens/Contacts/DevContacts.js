@@ -3,22 +3,29 @@ import { Text, View, ScrollView, Pressable } from 'react-native'
 import ds from '../../assets/styles'
 import tw from '../../lib/tailwind'
 
-// Test Contact Add Request Messages
+import DAS from '../../services/DigitalAgentService'
 
 import Vault from '../../models/Vault'
-import { test_vaults } from '../../testdata/testVaults'
-import ContactsManager from '../../managers/ContactsManager'
 import { ContactState } from '../../models/Contact'
-import DAS from '../../services/DigitalAgentService'
+import { Message } from '../../models/Message'
+import ContactsManager from '../../managers/ContactsManager'
 import InboundMessageManager from '../../managers/MessagesManager'
 
 import { useSessionContext } from '../../contexts/SessionContext'
 
-// Create contact request from Bob to Alice
+import { test_vaults } from '../../testdata/testVaults'
+
+/**
+ * Test Contact Flow Messages
+ */ 
+
 async function ContactRequestFlowBasic() {
-    // given alice's DID and Public Key,
-    // send contact request from Bob
-    // add BOB
+    /** 
+     * Create contact request from Bob to Alice
+     * given alice's DID and Public Key,
+     * send contact request from Bob
+     * add BOB
+     */ 
     const alice_vault = Vault.fromDict(test_vaults[0])
     const alice_cm = new ContactsManager(alice_vault)
     await alice_cm.loadContacts()
@@ -43,25 +50,26 @@ async function ContactRequestFlowBasic() {
     console.log('\n###################### A2 - alice_cm.contactRequest()')
     console.log(bob_contact.their_contact_public_key)
     // bob_cm.acceptContactRequest(bob_contact.did, () => console.log('CALLBACK'))
-    bob_contact.fsm.send('SUBMIT')
+    bob_contact.fsm.send('REQUEST')
     await new Promise(r => setTimeout(r, 300));
     const contact_request = (await bob_get_msg())[0]
     console.log('[DevContacts] contact_request', contact_request) // encrypted
 
     console.log('\n###################### B3 - bob_cm.process_inbound_contactRequest()')
-    const alice_contact = await bob_cm.processContactRequest(contact_request)
+    const alice_contact = await bob_cm.processContactRequest(Message.inbound(contact_request))
+    await new Promise(r => setTimeout(r, 300));
     bob_cm.printContacts()
 
     console.log('\n###################### B4 - bob_cm.accept_contact_request_response()')
     bob_cm.acceptContactRequest(alice_contact.did, () => console.log('CALLBACK'))
     // alice_contact.fsm.send('ACCEPT')
-    await new Promise(r => setTimeout(r, 3000));
+    await new Promise(r => setTimeout(r, 1000));
     bob_cm.printContacts()
     const response = (await alice_get_msg())[0]
     console.log('[DevContacts] accept_response', response) // encrypted
 
     console.log('\n###################### A5 - alice_cm.process_inbound_accept_contact_request_response()')
-    alice_cm.processAcceptContactRequestResponse(response)
+    alice_cm.processContactAccept(Message.inbound(response))
     console.log(bob_contact.toString())
     alice_cm.printContacts()
 }
@@ -89,13 +97,24 @@ async function CharlieGetRequest() {
     console.log(messages)
 }
 async function CharlieGetMessagesAndProcess() {
-    const charlie_vault = Vault.fromDict(test_vaults[2])
-    const messagesManager = new InboundMessageManager(charlie_vault)
-    const n = messagesManager.getMessages()
-    console.log('messages got:' + n)
+    // const charlie_vault = Vault.fromDict(test_vaults[2])
+    // const messagesManager = new InboundMessageManager(charlie_vault)
+    // const n = messagesManager.getMessages()
+    // console.log('messages got:' + n)
 }
 async function ContactFullFlow(manager) {
-    
+    const aliceContactManager = manager.contactsManager
+    aliceContactManager.getContactsArray().forEach((c) => aliceContactManager.deleteContact(c))
+    const bobVault = Vault.fromDict(test_vaults[1])
+    const bobContact =  await aliceContactManager.addContact('Bob', bobVault.did, 
+        bobVault.public_key, bobVault.verify_key, Uint8Array.from([]), '')
+    aliceContactManager.sendContactRequest(bobContact)
+    const contactRequest = (await DAS.getGetMessagesFunction(bobVault)())[0]
+    console.log(contactRequest)
+    const bobContactManager = new ContactsManager(bobVault)
+    const aliceContact = await bobContactManager.processContactRequest(Message.inbound(contactRequest))
+    bobContactManager.acceptContactRequest(aliceContact.did, () => console.log('CALLBACK'))
+    manager.messagesManager.getMessages()
 }
 
 export default function DevContacts(props) {
@@ -119,7 +138,7 @@ export default function DevContacts(props) {
             <View>
                 <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-100`]}
                         onPress={() => ContactFullFlow(manager)}>
-                    <Text style={ds.buttonText}>Alice to Bob using managers</Text>
+                    <Text style={ds.buttonText}>Alice to Bob Full Flow</Text>
                 </Pressable>
             </View>
             <View>

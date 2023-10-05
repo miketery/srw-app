@@ -74,7 +74,7 @@ class DigitalAgentService {
     static getPostMessageFunction(vault: Vault): (message: OutboundMessageDict) => Promise<any> {
         return async (message: OutboundMessageDict) => {
             if(MOCK)
-                MockMessageQueue.postMessage(message)
+                return MockMessageQueue.postMessage(message)
             else
                 return await this.postMessage(vault, message)
         }

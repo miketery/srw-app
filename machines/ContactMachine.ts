@@ -24,7 +24,7 @@ const ContactMachine = createMachine({
     states: {
         INIT: {
             on: {
-                SUBMIT: "SENDING_INVITE",
+                REQUEST: "SENDING_INVITE",
                 INBOUND: 'INBOUND',
             },
         },
