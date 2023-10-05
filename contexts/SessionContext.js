@@ -8,17 +8,15 @@ const SessionContext = createContext({
     setManager: () => {},
 })
 
-
-
-export const useSession = () => {
+export const useSessionContext = () => {
     const context = useContext(SessionContext)
     if (!context) {
-        throw new Error('useSession must be used within a SessionProvider')
+        throw new Error('useSessionContext must be used within a SessionContextProvider')
     }
     return context
 }
 
-export const SessionProvider = ({ children }) => {
+export const SessionContextProvider = ({ children }) => {
     const [vault, setVault] = useState(null)
     const [manager, setManager] = useState(null)
 

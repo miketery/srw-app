@@ -33,7 +33,7 @@
         };
         eventsCausingServices: {
           "sendAccept": "ACCEPT";
-"sendInvite": "RESEND_INVITE" | "SUBMIT";
+"sendInvite": "REQUEST" | "RESEND_INVITE";
         };
         matchesStates: "ARCHIVED" | "BLOCKED" | "CAN_RESEND_INVITE" | "ESTABLISHED" | "INBOUND" | "INIT" | "PENDING" | "REJECTED" | "SENDING_ACCEPT" | "SENDING_INVITE";
         tags: never;

@@ -1,12 +1,37 @@
 import { View, Text, Pressable, ScrollView } from 'react-native'
 import { useEffect, useState } from 'react'
 
+import DAS from '../services/DigitalAgentService'
+import { Message, Sender, Receiver } from '../models/Message'
+import { useSessionContext } from '../contexts/SessionContext'
+import { MessageTypes } from '../managers/MessagesManager'
+
 import ds from '../assets/styles'
 import tw from '../lib/tailwind'
 import { DEV, ROUTES } from '../config'
 import { TopGradient } from '../components'
 
+
+async function TestMessage(vault) {
+    const postMsg = DAS.getPostMessageFunction(vault)
+    const random_date = new Date(Math.floor(Math.random() * Date.now()));
+    const msg = new Message(null, null, 'outbound', 
+        Sender.fromVault(vault),
+        Receiver.fromVault(vault),
+        MessageTypes.app.test, '1.0',
+        'X25519Box', true
+    )
+    msg.setData({
+        'message': 'some data' + random_date.toISOString()
+    })
+    msg.encryptBox(vault.private_key)
+    const outbound = msg.outboundFinal()
+    postMsg(outbound)
+}
+
 function MainHubScreen(props) {
+    const {vault} = useSessionContext()
+
     return <View style={ds.mainContainerPtGradient}>
         <ScrollView style={ds.scrollViewGradient}>
             <View style={ds.headerRow}>
@@ -18,9 +43,9 @@ function MainHubScreen(props) {
                     onPress={() => props.clearMessagesFetchInterval()}>
                     <Text style={ds.buttonText}>Stop Fetch Message</Text>
                 </Pressable>
-                <Pressable style={[ds.button, ds.blueButton, tw`mt-4`]}
-                    onPress={() => console.log('Test B')}>
-                    <Text style={ds.buttonText}>Test B</Text>
+                <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-100`]}
+                    onPress={() => TestMessage(vault)}>
+                    <Text style={ds.buttonText}>App.Test Self Message</Text>
                 </Pressable>
             </View>
         </ScrollView>

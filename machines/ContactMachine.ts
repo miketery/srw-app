@@ -13,18 +13,18 @@ const ContactMachine = createMachine({
     tsTypes: {} as import("./ContactMachine.typegen").Typegen0,
     schema: {
         services: {} as {
-            sendInvite: {data: Boolean},
+            sendInvite: {data: boolean},
         },  
     },
     context: {} as {
-        // contacts_manager: ContactsManager,
+        // contactsManager: ContactsManager,
         contact: Contact,
-        sender: (msg: OutboundMessageDict) => Promise<Boolean>,
+        sender: (msg: OutboundMessageDict) => Promise<boolean>,
     },
     states: {
         INIT: {
             on: {
-                SUBMIT: "SENDING_INVITE",
+                REQUEST: "SENDING_INVITE",
                 INBOUND: 'INBOUND',
             },
         },
@@ -124,15 +124,21 @@ const ContactMachine = createMachine({
         },
     },
     services: {
-        sendInvite: (context, event): Promise<Boolean> => {
+        sendInvite: async (context, event): Promise<boolean> => {
             console.log('FSM [ContactMachine.sendInvite]', event)
             const msg = context.contact.inviteMsg()
             return context.sender(msg)
         },
-        sendAccept: (context, event): Promise<Boolean> => {
+        sendAccept: async (context, event: {type: string, callback: ()=>void}): Promise<boolean> => {
             console.log('FSM [ContactMachine.sendAccept]', event)
             const msg = context.contact.acceptInviteMsg()
-            return context.sender(msg)
+            const res = await context.sender(msg)
+            console.log('FSM [ContactMachine.sendAccept]', res)
+            if(res) {
+                event.callback()
+                return true
+            }   
+            return false
         }
     }
 });
@@ -140,10 +146,10 @@ const ContactMachine = createMachine({
 export default ContactMachine;
 
 
-        // sendInvite: (context, event): Promise<Boolean> => {
-        //     const msg = context.contacts_manager.contactRequest(context.contact)
+        // sendInvite: (context, event): Promise<boolean> => {
+        //     const msg = context.contactsManager.contactRequest(context.contact)
         //     const res = DigitalAgentService.postMessage(
-        //         context.contacts_manager.vault, msg)
+        //         context.contactsManager.vault, msg)
         //     if(!res)
         //         throw new Error('Failed to send invite')
         //     return res

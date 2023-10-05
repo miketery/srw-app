@@ -3,23 +3,23 @@ import VaultManager from '../managers/VaultManager'
 
 interface CacheInterface {
     vault: Vault | null;
-    vault_manager: VaultManager | null;
+    vaultManager: VaultManager | null;
 }
 
 const __CACHE: CacheInterface = {
     vault: null, // current vault
-    vault_manager: null, //vault manager
+    vaultManager: null, //vault manager
 }
 // TODO: probably delete this file as using context now...
 const Cache = {
-    setVaultAndManager: (vault: Vault, vault_manager: VaultManager) => {
+    setVaultAndManager: (vault: Vault, vaultManager: VaultManager) => {
         console.log('[Cache.setVaultAndManager] ' + vault.pk)
         __CACHE.vault = vault
-        __CACHE.vault_manager = vault_manager
+        __CACHE.vaultManager = vaultManager
     },
-    get vault_manager(): VaultManager {
-        if(__CACHE.vault_manager)
-            return __CACHE.vault_manager;
+    get vaultManager(): VaultManager {
+        if(__CACHE.vaultManager)
+            return __CACHE.vaultManager;
         else
             throw new Error('VaultManager not set')
     },
@@ -47,20 +47,20 @@ const Cache = {
 Object.freeze(Cache)
 
 // export function getContactsManager() {
-//     return __CACHE.vault_manager ?
-//         __CACHE.vault_manager.contacts_manager : null
+//     return __CACHE.vaultManager ?
+//         __CACHE.vaultManager.contactsManager : null
 // }
 // export function getSecretsManager() {
-//     return __CACHE.vault_manager ?
-//         __CACHE.vault_manager.secrets_manager : null
+//     return __CACHE.vaultManager ?
+//         __CACHE.vaultManager.secretsManager : null
 // }
 // export function getNotificationsManager() {
-//     return __CACHE.vault_manager ?
-//         __CACHE.vault_manager.notifications_manager : null
+//     return __CACHE.vaultManager ?
+//         __CACHE.vaultManager.notificationsManager : null
 // }
 // export function getMessagesManager() {
-//     return __CACHE.vault_manager ?
-//         __CACHE.vault_manager.messages_manager : null
+//     return __CACHE.vaultManager ?
+//         __CACHE.vaultManager.messagesManager : null
 // }
 
 export default Cache
