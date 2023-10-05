@@ -12,8 +12,10 @@ import { ContactState } from '../../models/Contact'
 import DAS from '../../services/DigitalAgentService'
 import InboundMessageManager from '../../managers/MessagesManager'
 
+import { useSessionContext } from '../../contexts/SessionContext'
+
 // Create contact request from Bob to Alice
-async function ContactRequestFrom() {
+async function ContactRequestFlowBasic() {
     // given alice's DID and Public Key,
     // send contact request from Bob
     // add BOB
@@ -92,9 +94,13 @@ async function CharlieGetMessagesAndProcess() {
     const n = messagesManager.getMessages()
     console.log('messages got:' + n)
 }
-
+async function ContactFullFlow(manager) {
+    
+}
 
 export default function DevContacts(props) {
+    const {manager} = useSessionContext()
+
     const current_route = props.route.name
     return <View style={ds.mainContainerPtGradient}>
         <ScrollView style={ds.scrollViewGradient}>
@@ -105,9 +111,15 @@ export default function DevContacts(props) {
                 <Text style={ds.text}>Route: {current_route}</Text>
             </View>
             <View>
-                <Pressable style={[ds.button, ds.blueButton, tw`mt-4`]}
-                        onPress={() => ContactRequestFrom()}>
-                    <Text style={ds.buttonText}>Contact Request From</Text>
+                <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-100`]}
+                        onPress={() => ContactRequestFlowBasic()}>
+                    <Text style={ds.buttonText}>Contact Request Flow Basic</Text>
+                </Pressable>
+            </View>
+            <View>
+                <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-100`]}
+                        onPress={() => ContactFullFlow(manager)}>
+                    <Text style={ds.buttonText}>Alice to Bob using managers</Text>
                 </Pressable>
             </View>
             <View>

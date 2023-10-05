@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
-import { useSession } from '../../services/SessionContext'
+import { useSessionContext } from '../../contexts/SessionContext'
 
 import { ROUTES } from '../../config';
 import SecretsListScreen from './SecretsListScreen'
@@ -13,7 +13,7 @@ import DevSecrets from './DevSecrets'
 const Stack = createNativeStackNavigator();
 
 export default function SecretsNavigator({navigation}) {
-    const {manager} = useSession()
+    const {manager} = useSessionContext()
 
     return <Stack.Navigator screenOptions={{headerShown: false}}
     navigation={navigation} initialRouteName={ROUTES.SecretsListRoute}>

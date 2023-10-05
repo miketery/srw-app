@@ -5,7 +5,7 @@ import tw from '../../lib/tailwind'
 import ds from '../../assets/styles'
 
 import DAS from '../../services/DigitalAgentService'
-import { useSession } from '../../services/SessionContext'
+import { useSessionContext } from '../../contexts/SessionContext'
 
 import { GoBackButton } from '../../components'
 import getTestVaultsAndContacts from '../../testdata/testContacts'
@@ -36,7 +36,7 @@ async function postMessage() {
 
 
 export default function DevDigitalAgentScreen(props) {
-    const {vault} = useSession()
+    const {vault} = useSessionContext()
     const [registration, setRegistration] = useState({registered: null})
 
     useEffect(() => {

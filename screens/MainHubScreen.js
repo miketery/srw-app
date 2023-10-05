@@ -9,7 +9,7 @@ import tw from '../lib/tailwind'
 import { DEV, ROUTES } from '../config'
 import { TopGradient } from '../components'
 
-import { useSession } from '../services/SessionContext'
+import { useSessionContext } from '../contexts/SessionContext'
 
 async function TestMessage(vault) {
     const postMsg = DAS.getPostMessageFunction(vault)
@@ -29,7 +29,7 @@ async function TestMessage(vault) {
 }
 
 function MainHubScreen(props) {
-    const {vault} = useSession()
+    const {vault} = useSessionContext()
 
     return <View style={ds.mainContainerPtGradient}>
         <ScrollView style={ds.scrollViewGradient}>

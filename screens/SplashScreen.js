@@ -8,13 +8,13 @@ import tw from '../lib/tailwind'
 import { ROUTES, SPLASH_ANIMATE_TIME, DEV, primary_route } from '../config'
 import { vault_test_route, no_vault_test_route } from '../testdata/testroute'
 
-import { useSession } from '../services/SessionContext'
+import { useSessionContext } from '../contexts/SessionContext'
 import SS from '../services/StorageService';
 import VaultManager from '../managers/VaultManager';
 import Cache from '../services/Cache';
 
 export default function SplashScreen({navigation}) {
-    const {setVault, setManager} = useSession();
+    const {setVault, setManager} = useSessionContext();
 
     const [initialized, setInitialized] = useState(false);
     const [animationComplete, setAnimationComplete] = useState(false);
@@ -27,7 +27,7 @@ export default function SplashScreen({navigation}) {
         if(vaultManager.vaultIsSet()) {
             setVault(vaultManager.current_vault)
             setManager(vaultManager)
-            console.log('[SplashScreen.checkHasVault] Vault and Manager are set in useSession context')
+            console.log('[SplashScreen.checkHasVault] Vault and Manager are set in useSessionContext')
             return Promise.resolve(true)
         } else {
             console.log('[SplashScreen.checkHasVault] no Vault found')

@@ -5,7 +5,7 @@ import ds from '../assets/styles';
 import tw from '../lib/tailwind';
 import { TopGradient } from '../components';
 
-import { useSession } from '../services/SessionContext';
+import { useSessionContext } from '../contexts/SessionContext';
 import actionMap from '../models/NotificationActions';
 
 
@@ -42,7 +42,7 @@ function NotificationRow(props) {
 }
 
 function NotificationsScreen({notifications}) {
-    const {manager} = useSession()
+    const {manager} = useSessionContext()
 
     return <View style={ds.mainContainerPtGradient}>
         <ScrollView style={ds.scrollViewGradient}>
