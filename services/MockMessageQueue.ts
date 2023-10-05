@@ -8,6 +8,7 @@ const MockMessageQueue = {
         if (!Messages[message.receiver.did])
             Messages[message.receiver.did] = []
         Messages[message.receiver.did].push(message)
+        return true
     },
     getMessages: (did: string): OutboundMessageDict[] => {
         console.log('[MockMessageQueue.getMessages]', did)

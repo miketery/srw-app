@@ -40,7 +40,7 @@ const SS = {
     // types: StoredType,
     // prefix: (t: StoredType) => StoredTypePrefix[t], 
     constructor: () => console.log('[SS.constructor]'),
-    init: async (force=false): Promise<Boolean> => {
+    init: async (force=false): Promise<boolean> => {
         if(_state['initialized'] && !force)
             return true
         return AsyncStorage.getAllKeys().then((res) => {
@@ -66,7 +66,7 @@ const SS = {
     // getCache: () => _state,
     getIndex: (t: StoredType) => _indexes[t],
     isInitialized: () => _state['initalized'],
-    inIndex: (t: StoredType, pk: string): Boolean => SS.getIndex(t).includes(pk),
+    inIndex: (t: StoredType, pk: string): boolean => SS.getIndex(t).includes(pk),
     addToIndex: (t: StoredType, pk: string) => !SS.inIndex(t, pk) ? 
             SS.getIndex(t).push(pk) : null,
     saveSync: (pk: string, data: any, success: Function|null=null, error: Function|null=null) => {

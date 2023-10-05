@@ -22,21 +22,20 @@ export default function SplashScreen({navigation}) {
     const [counter, setCounter] = useState(0); // just for fun!
 
     const checkHasVault = async () => {
-        console.log('[SplashScreen.checkHasVault]')
-        const vault_manager = new VaultManager()
-        await vault_manager.init()
-        if(vault_manager.vaultIsSet()) {
-            console.log('[SplashScreen.js] vault is set')
-            setVault(vault_manager.current_vault)
-            setManager(vault_manager)
+        const vaultManager = new VaultManager()
+        await vaultManager.init()
+        if(vaultManager.vaultIsSet()) {
+            setVault(vaultManager.current_vault)
+            setManager(vaultManager)
+            console.log('[SplashScreen.checkHasVault] Vault and Manager are set in useSession context')
             return Promise.resolve(true)
         } else {
-            console.log('[SplashScreen.js] vault is not set')
+            console.log('[SplashScreen.checkHasVault] no Vault found')
             return Promise.resolve(false)
         }
     }
     const animate = () => {
-        console.log('[SplashScreen.js] animate()')
+        console.log('[SplashScreen.animate]')
         // TODO: animate the splash screen, something cool...
         // setTimeout(() => {
         //     setAnimationComplete(true);
@@ -55,16 +54,16 @@ export default function SplashScreen({navigation}) {
     }
 
     useEffect(() => {
-        console.log('[SplashScreen.js] componentDidMount()')
+        console.log('[SplashScreen.useEffect]')
         animate()
         SS.init(true).then((res) => {
-            checkHasVault().then((hasVault) => {
+            checkHasVault().then((res) => {
+                setHasVault(res);
                 setInitialized(true);
-                setHasVault(hasVault);
             }).catch((err) => {
                 console.log(err);
-                setInitialized(true);
                 setHasVault(false);
+                setInitialized(true);
             });
         })
     }, []);

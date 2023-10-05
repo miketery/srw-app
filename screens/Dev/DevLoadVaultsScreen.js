@@ -16,8 +16,8 @@ const loadVault = (key, navigation) => {
     console.log('loadVault', key, test_vaults[key].name)
     // const vault = await VaultManager.createVault(v.name, v.display_name, v.email, v.words, '', false)
     const vault = Vault.fromDict(test_vaults[key])
-    const vault_manager = new VaultManager({[vault.pk]: vault})
-    vault_manager.saveVault(vault)
+    const vaultManager = new VaultManager({[vault.pk]: vault})
+    vaultManager.saveVault(vault)
     console.log('vault', vault.toDict())
     navigation.navigate(ROUTES.SplashRoute)
 }

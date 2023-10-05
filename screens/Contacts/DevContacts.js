@@ -40,6 +40,7 @@ async function ContactRequestFrom() {
     
     console.log('\n###################### A2 - alice_cm.contactRequest()')
     console.log(bob_contact.their_contact_public_key)
+    // bob_cm.acceptContactRequest(bob_contact.did, () => console.log('CALLBACK'))
     bob_contact.fsm.send('SUBMIT')
     await new Promise(r => setTimeout(r, 300));
     const contact_request = (await bob_get_msg())[0]
@@ -50,8 +51,9 @@ async function ContactRequestFrom() {
     bob_cm.printContacts()
 
     console.log('\n###################### B4 - bob_cm.accept_contact_request_response()')
-    alice_contact.fsm.send('ACCEPT')
-    await new Promise(r => setTimeout(r, 300));
+    bob_cm.acceptContactRequest(alice_contact.did, () => console.log('CALLBACK'))
+    // alice_contact.fsm.send('ACCEPT')
+    await new Promise(r => setTimeout(r, 3000));
     bob_cm.printContacts()
     const response = (await alice_get_msg())[0]
     console.log('[DevContacts] accept_response', response) // encrypted
@@ -86,8 +88,8 @@ async function CharlieGetRequest() {
 }
 async function CharlieGetMessagesAndProcess() {
     const charlie_vault = Vault.fromDict(test_vaults[2])
-    const messages_manager = new InboundMessageManager(charlie_vault)
-    const n = messages_manager.getMessages()
+    const messagesManager = new InboundMessageManager(charlie_vault)
+    const n = messagesManager.getMessages()
     console.log('messages got:' + n)
 }
 

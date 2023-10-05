@@ -20,10 +20,10 @@ export default function ContactsNavigator({navigation}) {
     navigation={navigation} initialRouteName={ROUTES.ContactsListRoute}>
         <Stack.Screen name={ROUTES.ContactsListRoute} options={{title:'List Contacts'}}>
             {props => 
-                <ContactsListScreen {...props} contacts_manager={manager.contacts_manager} />}
+                <ContactsListScreen {...props} contactsManager={manager.contactsManager} />}
         </Stack.Screen>
         <Stack.Screen name={ROUTES.DevContactsRoute} options={{title:'Dev Contacts'}}>
-            {props => <DevContacts {...props} contacts_manager={manager.contacts_manager} />}
+            {props => <DevContacts {...props} contactsManager={manager.contactsManager} />}
         </Stack.Screen>
         {/* <Stack.Screen name='ContactCreateRoute' options={{title:'New Contact'}}>
             {props => 

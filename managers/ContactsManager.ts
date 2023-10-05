@@ -81,6 +81,9 @@ class ContactsManager {
             their_public_key: PublicKey, their_verify_key: VerifyKey,
             their_contact_public_key: PublicKey,
             digital_agent: string, save=true): Promise<Contact> {
+        /**
+         * Add a contact to the vault, will send contact request
+         */
         const check = this.getContactsArray().find(c => c.did === did);
         if (check)
             throw new Error('Contact already exists: ' + check.toString());
@@ -89,9 +92,14 @@ class ContactsManager {
             digital_agent, ContactState.INIT, this.vault);
         if(save)
             await this.saveContact(contact);
+        // TODO send contact request!
         return contact;
     }
     async processContactRequest(inbound: InboundMessageDict): Promise<Contact> {
+        /**
+         * Inbound contact request (i.e. will end up with a INBOUND contact)
+         * From there can accept or dismiss
+         */
         console.log('[ContactsManager.processContactRequest]')
         if (inbound.type_name !== 'contact_request')
             throw new Error('108 Invalid data type');
@@ -117,9 +125,20 @@ class ContactsManager {
         await this.saveContact(contact);
         return contact;
     }
+    async acceptContactRequest(did: string, callback: () => void): Promise<void> {
+        const contact = this.getContactByDid(did);
+        if(contact.state != ContactState.INBOUND)
+        // TODO: shouldn't guard here... FSM will takecare
+            throw new Error('Invalid contact state: ' + contact.state);
+        contact.fsm.send('ACCEPT', {callback});
+    }
     async processAcceptContactRequestResponse(inbound: InboundMessageDict): Promise<void> {
-        // TODO: change to Message instead of InboundDict
-        console.log('[ContactsManager.processAcceptContactRequestResponse]', inbound.sender.name)
+        /**
+         * Process accept contact request response 
+         * (i.e. will end up with a ESTABLISHED contact)
+         */
+        console.log('[ContactsManager.processAcceptContactRequestResponse]',
+            inbound.sender.name)
         if (inbound.type_name !== 'accept_contact_request_response')
             throw new Error('Invalid data type, required: "accept_contact_request_response"');
         const sender_did = inbound.sender.did;

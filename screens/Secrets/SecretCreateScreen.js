@@ -5,7 +5,7 @@ import ds from '../../assets/styles';
 import { SecretType } from '../../models/Secret';
 import { GoBackButton } from '../../components';
 
-const CreateSecretScreen = ({navigation, secrets_manager}) => {
+const CreateSecretScreen = ({navigation, secretsManager}) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [secretValue, setSecretValue] = useState('');
@@ -27,7 +27,7 @@ const CreateSecretScreen = ({navigation, secrets_manager}) => {
             secretValue,
         });
         //TODO: implement types
-        const secret = await secrets_manager.createSecret(
+        const secret = await secretsManager.createSecret(
             SecretType.note, title, description, secretValue);
         //TODO: alert
         navigation.goBack();

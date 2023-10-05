@@ -47,14 +47,14 @@ export default function VaultCreateScreen(props) {
         setCreateLoading(true)
         setTimeout(async () => {
             try {
-                const vault_manager = new VaultManager()
+                const vaultManager = new VaultManager()
                 const words = DEV ? 
                     'alley maze evoke auto pull skull run credit margin ignore dune brisk' : ''
-                const vault = await vault_manager.createVault(
+                const vault = await vaultManager.createVault(
                     name, email, displayName, '', words, true)
-                await vault_manager.initManagers()
-                setVault(vault_manager.current_vault)
-                setManager(vault_manager)
+                await vaultManager.initManagers()
+                setVault(vaultManager.current_vault)
+                setManager(vaultManager)
                 finishSubmit(vault)
             } catch (err) {
                 console.log(err)
