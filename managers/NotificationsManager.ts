@@ -30,6 +30,7 @@ class NotificationsManager {
     async deleteNotification(notification: Notification): Promise<void> {
         await SS.delete(notification.pk);
         delete this._notifications[notification.pk];
+        this.emitCallbacks();
     }
     async saveNotification(notification: Notification): Promise<void> {
         await SS.save(notification.pk, notification.toDict())

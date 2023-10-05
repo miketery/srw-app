@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
-import { useSession } from '../../services/SessionContext'
+import { useSessionContext } from '../../contexts/SessionContext'
 
 import { ROUTES } from '../../config';
 import SecretsListScreen from './SecretsListScreen'
@@ -13,17 +13,17 @@ import DevSecrets from './DevSecrets'
 const Stack = createNativeStackNavigator();
 
 export default function SecretsNavigator({navigation}) {
-    const {manager} = useSession()
+    const {manager} = useSessionContext()
 
     return <Stack.Navigator screenOptions={{headerShown: false}}
     navigation={navigation} initialRouteName={ROUTES.SecretsListRoute}>
         <Stack.Screen name={ROUTES.SecretsListRoute} options={{title:'List Secrets'}}>
             {props => 
-                <SecretsListScreen {...props} secrets_manager={manager.secrets_manager} />}
+                <SecretsListScreen {...props} secretsManager={manager.secretsManager} />}
         </Stack.Screen>
         <Stack.Screen name={ROUTES.SecretCreateRoute} options={{title:'Create Secret'}}>
             {props => 
-                <SecretCreateScreen {...props} secrets_manager={manager.secrets_manager} />}
+                <SecretCreateScreen {...props} secretsManager={manager.secretsManager} />}
         </Stack.Screen>
         {/* <Stack.Screen name={ROUTES.SecretViewRoute} options={{title:'List Objects'}}>
             {props => 
@@ -39,7 +39,7 @@ export default function SecretsNavigator({navigation}) {
         </Stack.Screen> */}
 
         <Stack.Screen name={ROUTES.DevSecretsRoute} options={{title:'Dev SecretRoute'}}>
-            {props => <DevSecrets {...props} secrets_manager={manager.secrets_manager} />}
+            {props => <DevSecrets {...props} secretsManager={manager.secretsManager} />}
         </Stack.Screen>
     </Stack.Navigator>
 }

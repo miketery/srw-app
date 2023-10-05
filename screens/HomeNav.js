@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { DEV, ROUTES, TAB_BAR_ROUTES } from '../config';
 
-import { useSession } from '../services/SessionContext'
+import { useSessionContext } from '../contexts/SessionContext'
 
 import TabNavBar from './TabNavBar'
 import MainHub from './MainHubScreen'
@@ -15,7 +15,7 @@ import { DevHasVaultNav } from './Dev'
 const Tab = createBottomTabNavigator();
 
 export default function HomeNavTest({props}) {
-    const {manager} = useSession()
+    const {manager} = useSessionContext()
 
     const possible_offline = false
     const [ notifications, setNotifications] = useState([])
@@ -30,10 +30,10 @@ export default function HomeNavTest({props}) {
 
     useEffect(() => {
         console.log('[HomeNav] useEffect')
-        const notificationsManager = manager.notifications_manager
+        const notificationsManager = manager.notificationsManager
         setNotifications(notificationsManager.getNotificationsArray())
         const notificationHook = notificationsManager.addCallback(setNotifications)
-        const messagesFetchInterval = manager.messages_manager.startFetchInterval()
+        const messagesFetchInterval = manager.messagesManager.startFetchInterval()
         setMessagesFetchInterval(messagesFetchInterval)
         return () => {
             console.log('[HomeNav] cleanup')

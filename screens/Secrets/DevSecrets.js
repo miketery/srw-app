@@ -6,29 +6,29 @@ import tw from '../../lib/tailwind'
 import ds from '../../assets/styles'
 
 
-async function DeleteAllSecrets(secrets_manager) {
-    return secrets_manager.getSecretsArray().forEach(async (secret) => {
-        return secrets_manager.deleteSecret(secret)
+async function DeleteAllSecrets(secretsManager) {
+    return secretsManager.getSecretsArray().forEach(async (secret) => {
+        return secretsManager.deleteSecret(secret)
     })
 }
-async function AddTestSecrets(secrets_manager) {
+async function AddTestSecrets(secretsManager) {
     const secret = await Secret.create(
         SecretType.Text,
         'Test Text Secret',
         'This is a test secret',
         'Secret Data',
-        secrets_manager.vault.pk)
-    return secrets_manager.saveSecret(secret)
+        secretsManager.vault.pk)
+    return secretsManager.saveSecret(secret)
 }
-async function AddManyTestSecrets(secrets_manager) {
+async function AddManyTestSecrets(secretsManager) {
     return test_secrets.forEach(async (s) => {
         const secret = await Secret.create(
             SecretType.Text,
             s.name,
             s.description,
             s.data,
-            secrets_manager.vault.pk)
-        return secrets_manager.saveSecret(secret)
+            secretsManager.vault.pk)
+        return secretsManager.saveSecret(secret)
     })
 }
 
@@ -46,19 +46,19 @@ export default function DevSecrets(props) {
             </View>
             <View>
                 <Pressable style={[ds.ctaButton]}
-                    onPress={() => AddTestSecrets(props.secrets_manager)}>
+                    onPress={() => AddTestSecrets(props.secretsManager)}>
                     <Text style={ds.buttonText}>Add Secret</Text>
                 </Pressable>
             </View>
             <View style={tw`mt-8`}>
                 <Pressable style={[ds.ctaButton, ds.greenButton]}
-                    onPress={() => AddManyTestSecrets(props.secrets_manager)}>
+                    onPress={() => AddManyTestSecrets(props.secretsManager)}>
                     <Text style={ds.buttonText}>Add Many Secrets</Text>
                 </Pressable>
             </View>
             <View style={tw`mt-8`}>
                 <Pressable style={[ds.ctaButton, ds.redButton]}
-                    onPress={() => DeleteAllSecrets(props.secrets_manager)}>
+                    onPress={() => DeleteAllSecrets(props.secretsManager)}>
                     <Text style={ds.buttonText}>Delete all secrets</Text>
                 </Pressable>
             </View>

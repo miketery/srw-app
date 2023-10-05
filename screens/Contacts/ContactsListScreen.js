@@ -33,7 +33,7 @@ export default function ContactsListScreen(props) {
     useEffect(() => {
         const unsubscribe = props.navigation.addListener('focus', async() => {
             console.log('[ContactsListScreen.js] focus()')
-            const contacts = props.contacts_manager.getContactsArray()
+            const contacts = props.contactsManager.getContactsArray()
             setContacts(contacts.sort((a, b) => a.name.localeCompare(b.name)))
         });
         return unsubscribe;
