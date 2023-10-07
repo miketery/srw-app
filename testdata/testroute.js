@@ -33,7 +33,8 @@ const switch_routes = {
   ],
   [ROUTES.ContactsRoute]: [
     {name: ROUTES.ContactsListRoute},
-    {name: ROUTES.DevContactsRoute}
+    {name: ROUTES.ContactAddRoute},
+    // {name: ROUTES.DevContactsRoute}
     // {name: ROUTES.ContactViewRoute, params: {
     //   contact_uuid: 'a0b1c2d3-e4f5-6a7b-8c9d-0e1f2a3b4c5d'
     // }},

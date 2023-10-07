@@ -12,7 +12,8 @@ import {
 export const DEV = env_dev === 'true'
 export const DEBUG = env_debug === 'true'
 export const LOCAL = env_local === 'true'
-export const MOCK = env_mock === 'true'
+export const MOCK = env_mock === 'true' && false
+export const FETCH = true
 
 export const SPLASH_ANIMATE_TIME = DEBUG ? 100 : 666
 
@@ -24,7 +25,7 @@ export const BASE =
 export const ENDPOINTS = {
     ME: '/user/me/',
     REGISTER: '/user/register/',
-    LOGIN: '/login',
+    CONTACT_LOOKUP: '/user/lookup/',
 
     POST_MESSAGE: '/message/post/',
     GET_MESSAGES: '/message/get/',
@@ -65,7 +66,7 @@ export const ROUTES = {
     //
     ContactsRoute: 'ContactsRoute',
     ContactsListRoute: 'ContactsListRoute',
-    ContactCreateRoute: 'ContactCreateRoute',
+    ContactAddRoute: 'ContactAddRoute',
     ContactViewRoute: 'ContactViewRoute',
     ContactEditRoute: 'ContactEditRoute',
 

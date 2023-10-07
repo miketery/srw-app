@@ -59,7 +59,7 @@ export default function ContactsListScreen(props) {
             </Pressable>}
             <View style={tw`flex-grow-1`} />
             <Pressable style={[ds.button, ds.greenButton, tw`rounded-full`]}
-                onPress={() => props.navigation.navigate(ROUTES.ContactCreateRoute)}>
+                onPress={() => props.navigation.navigate(ROUTES.ContactAddRoute)}>
                 <Text style={ds.buttonText}>Add Contact</Text>
             </Pressable>
         </View>
