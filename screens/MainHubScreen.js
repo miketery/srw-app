@@ -35,7 +35,7 @@ function MainHubScreen(props) {
     return <View style={ds.mainContainerPtGradient}>
         <ScrollView style={ds.scrollViewGradient}>
             <View style={ds.headerRow}>
-                <Text style={ds.header}>Main Hub</Text>
+                <Text style={ds.header}>{vault.name} — Main Hub</Text>
             </View>
             <View style={tw`flex-grow-1`} />
             <View style={tw`justify-around mb-10 flex-col items-center`}>
