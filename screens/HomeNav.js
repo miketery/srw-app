@@ -9,7 +9,9 @@ import MainHub from './MainHubScreen'
 
 import ContactsNav from './Contacts'
 import SecretsNav from './Secrets'
-import NotificationsListScreen from './NotificationsScreen';
+import RecoveryPlan from './RecoveryPlan'
+
+import NotificationsScreen from './NotificationsScreen';
 import { DevHasVaultNav } from './Dev'
 
 const Tab = createBottomTabNavigator();
@@ -64,17 +66,17 @@ export default function HomeNavTest({props}) {
             </Tab.Screen> 
             <Tab.Screen name={ROUTES.NotificationsRoute} 
                     options={{ tabBarBadge: notifications.length }}>
-                {(props) => <NotificationsListScreen {...props} notifications={notifications} />}
+                {(props) => <NotificationsScreen {...props} notifications={notifications} />}
             </Tab.Screen>
             {DEV && <Tab.Screen name={ROUTES.DevHasVaultRoute} >
                 {(props) => <DevHasVaultNav {...props} />}
             </Tab.Screen>}
+            <Tab.Screen name={ROUTES.RecoveryPlanRoute}>
+                {(props) => <RecoveryPlan vault={this.vault} {...props} />}
+            </Tab.Screen>
             {/*
             {/* <Tab.Screen name='ProfileRoute' >
                 {(props) => <ProfileScreen vault={this.vault} {...props} />}
-            </Tab.Screen>
-            <Tab.Screen name="RecoveryManifestRoute">
-                {(props) => <KeyShareNav vault={this.vault} {...props} />}
             </Tab.Screen> */}
         </Tab.Navigator>
     )

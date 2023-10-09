@@ -42,11 +42,11 @@ export const ROUTES = {
     DevGeneralRoute: 'DevGeneralRoute',
     DevLoadVaultsRoute: 'DevLoadVaultsRoute',
     DevMessagesRoute: 'DevMessagesRoute',
-
+    
     DevHasVaultRoute: 'DevHasVaultRoute',
     DevContactsRoute: 'DevContactsRoute',
     DevSecretsRoute: 'DevSecretsRoute',
-    DevRecoveriesRoute: 'DevRecoveriesRoute',
+    DevReocveryPlanRoute: 'DevReocveryPlanRoute',
     DevDigitalAgentRoute: 'DevDigitalAgentRoute',
 
     SplashRoute: 'SplashRoute',
@@ -78,7 +78,11 @@ export const ROUTES = {
     SecretCreateRoute: 'SecretCreateRoute',
 
     //
-    RecoveriesRoute: 'RecoveriesRoute',
+    RecoveryPlanRoute: 'RecoveryPlanRoute',
+    RecoveryPlansListRoute: 'RecoveryPlansListRoute',
+    RecoveryPlanCreateRoute: 'RecoveryPlanCreateRoute',
+    RecoveryPlanViewRoute: 'RecoveryPlanViewRoute',
+
 }
 
 // route which is a dictrionary with a name and params

@@ -28,6 +28,7 @@ expo start --web
 - [Notification](./models/Notification.ts), generated based on a message received from the digital agent (e.g. contact request, contact accept, invite for recovery manifest setup, etc.)
 
 //TODO
+
 - Recovery Manifest, is a recovery scheme with participants and devices
 
 ### Managers
@@ -48,6 +49,7 @@ Each of the models has a manger for handling create, load, delete, save, and mor
   (which has access to contacts, secrets, messages, and notifications managers)
 
 //TODO
+
 - Locking / Unlocking services
 
 ### State Machines
@@ -58,7 +60,7 @@ Using [XState](https://xstate.js.org/docs/guides/introduction-to-state-machines-
 
 //TODO
 
-- RecoveryManifestMachine - setting up a social recovery scheme, need to track recovery manifest state, and state of participants as they accept or reject participation. Potentially later need to track updates to a recovery.
+- RecoveryPlanMachine - setting up a social recovery scheme, need to track recovery manifest state, and state of participants as they accept or reject participation. Potentially later need to track updates to a recovery.
 - AppMachine (i.e. track state of the app) - e.g. first install, or vault is setup, locked, unlocked, in recovery mode
 
 //Possible TODO
@@ -81,6 +83,7 @@ Using [XState](https://xstate.js.org/docs/guides/introduction-to-state-machines-
   - TODO: Recoveries, show recoveries, my recovery manifests and where I am a guardian for others
 
 //TODO
+
 - Profile screen
 - Unlock screen (probably from splash depending on state)
 - Settings screen
