@@ -7,7 +7,7 @@ import Vault from '../models/Vault';
 import { Message, OutboundMessageDict } from '../models/Message';
 
 const ContactMachine = createMachine({
-    /** @xstate-layout N4IgpgJg5mDOIC5QGMD2A7ALgQ2ZgYrALYB0AkgHJkAqAxAMoCqAQgLI0DaADALqKgAHVLACWmERn4gAHogC0ATgAsJAMwAOAEwKAbJoCM+gOwn1AVgUAaEAE9E5-SSVcdSky66GuSgL4-raFi4BMTkVHSUzADyjBQAItx8SCBCouKSybIIcvpcXCT6mtom+kpueUrWdgj6CkYkLvo66s0t+maa6kZ+ARg4eISk9ACi8ZQA4gD6lABqNMO0EBhgJCLoAG6oANYrsGDoEGQbYmBkEIlSqWIS6FJZxvVGZqpmzjp6z5pKqlWIOsYNLi6IyqJRmIEafQ9ECBfohIajOITaYUObUBZgABOmNQmJIAgANthMAAzXGkPYHI7rE5nC7JK7pW6ZP5gkgOdRcdTqVSaVRGJRWWyIAWOLhmHRGL4KYy1CzQ2HBQZhaKxOK0ACCAGEtcMAArUemCYTXDKge5merqMp6AxcbQvTS-bLtRygx3aJSaDrqBV9JWhSIxeK0ABKwwAUsMtYbeJcTUy7ohnGYnB0moZBbUjPpnToFGpVKpxUZ88Yvto-UEBoGKKqQ8wADJRLUAaSNKQTNyTCCU7RIuh0vNUTRMUqdwpqnQHmhzemc2bK3X8MP9NYRYwoU21uoNi2Wqw2212+wgGuQyDAAkwdLjDK7Zpk9j5JB0ryUWnBxYUfOdOVUBaclwqiuEYMrNCOvgroq64kCMm7bjq+p0FiOJ4oSxJkpiFKnuel7XreSTGmk3Ysr29okBKZg8p+Shvv8f4OmoZSFMoTzgVWcLKnqiITJqSEGsMCR3sRprMuayYvAOLSCjyXqWrozojqoJBSjRmhvkYPIvGYnEBqQPEIbQ2AEgA7tgNiwB2jKkRJCB6PkWh0aWJh9tylSTmUKjqJmP4AUUWkvHpsHDPQ1Aak2ZD0AAEkJtBNi27YiZ2JGPlk-ximYuQWGBAGys6xiphKCi8s4IE8sBwXwiQoXhZFMVxRqoZatFZAzMM1kPuJT4IDK6iqSxJUKLoxhcEYSl6GotRaO8NHfFC0FrtVWoahQkzhvBcQomiCwbYi23zJ1qXdfcXIqbOvKdM8wFaOoeYKP1w2eDKX4+a8fgrugqAQHAUgwfC8bHT2OQfgURR1DmS4VH+Gj5B0OX8ta7pvlVyqUDQgNicDLTspy+gtJoz0fnoSkGANRjATKI5fFoqOhJtyKzPMmOJmRrj5LO-zfF0FjtD8k7WjoTjvITRSvHy7R06QQZqiztk9XI6gFuKwFlGY8NuONk5yI57ySlTzxZcY+ZS3BvFbpMO7IXLaWIO+wvKEU3IWPz1Q5DylHucVnJgcoUG9NW1WGUiW42ydiD4wWzg5pyfJSroD3Ol6jnUZa4I5ho-Km7VEWNlFsVxGHPbUfU3g-soyjAXyOhKfoKm5A9fkKECMqaKb4ZRjGQlF2R1GOE0s5Ky8VMfnm9R0ZKBgzaWLzLgHXGhAlbbd-eQNkRoBb8nXgpjYYTwgQVHsN1ppQfOxptNS1bUr6JrN2V4+RuB0zhgvylq5pOIGP4bcfWjmAqmxWmtPa8QDroh7nZPQm9zDcm8PyAU5hnS81UnyMulpOSvAWn4IAA */
+    /** @xstate-layout N4IgpgJg5mDOIC5QGMD2A7ALgQ2ZgYrALYB0AkgHJkAqAxAEoCiAigKqMDK1A2gAwC6iUAAdUsAJaZxGISAAeiAIyKAnCQBMAVnUA2XepUAOXpsUBmQwBoQAT0Q6A7Jo07NZxW8OHVZlQF8-azQsXAJicio6SgAhAHlWCgARPkEkEFEJKRk0hQQAWkVeXhJFdQMHB0UAFiqHIqrrOwRVBxJeHUUdQy7uj3VDBwCgjBw8QlIORiTKAHEAfUoANRpGWggMMBJxdAA3VABrTdgwdAgyXckwMggU2QzJaXRZXMUKkiczTSr2vTd1KrMjXsrzavBUjjMVU0YIsiiGIGCozCEymiVmCwoy2oqzAACdcahcSRhAAbbCYABmhNIx1O5x2l2utzS9yyTxy9ihJEMpmMXjM6jMDiqKiBCGFijamkc-xUr1Umn8gQRI1C4wicQSiVoAEEAMJ6xgABR4AjuYge2VAuX+6hI7mh7UMKhUiv66jFeRUxU+YOUOl8-ShSuGITG4Ri8SSDEYAClGHrTakRBa2c9ECLDPaimY9EYqooedUxaoSHpzN9wdpzDoqoZ4Yi1RGKJro9EADKxPUAaWZKcyj3TCALznBAcFnQqDjKJf6JBU6kqem+LRqg2VjfDKOmFHm+sNJrWGy2uwORxOEB1yGQYGEmCZZpZqcHHIQhkFZa+da0vDMYMFnrmGoxi-rWDhyl07hVA2qpbiQkw7nuBrGnQeIEkSpLklSuI0heV43neD7Jukz5WvISjQmWpQ8t6RSmFCnoGMU2hdLwhi1IuKgOGYMFhsiJBGqisy6shJqMMkj79pa7LWhmnzzt0maQlo4E6GK7hmO8-QWLomgOIYZifJovFIuqgmIbQ2AkgA7tgNiwH2JEDmRuR6MU75VI4jgSl4DS2BmNTcsoIqCgui4GcZG6wfxnDUDqHZkBwAAS4m0B2Xa9pJTnSUOHSSiYhSKuBvjyiWTgkNKKgCt8uYGb+JlNqQsXxe2iUpdqOr0HqSVkIsjCOayL6yQgcpZsKBZVS6HR1A46l6PaqjvjokHse4DVwXqOoUHMTAIYkGJYqsu2ogdKwDaRMnkc0bGaYuAr9G4v7vlY-kIDoRjzt6qgeE9HjQfC6CoBAcCyJuyLms5l25Hkf46CUXR1F4ryfN6amvTDbyI8t6jmDyHn-aGpnNjQEM5a+eRaFmnQDGx3jcYq7TqYuWkOLWVUaYu638Xt6JLCspNpq+tbFIuHQAgMioeICr3sXDnluWUXwTpFhONRqUaJALQ1XV6Y2QoUVRaNUHgeCWahFP0FTqAVRkmFz6o87ucz7ihWsuRm5VGDy04Au01taIB5UGLW8umOYBgqyqfFmUJu5u1DSjOiQ3yVMYgrTuCRhiob7maN70KVBYQr2+EzUJcl4nx0OeetLwIUqCKNWCmjTQaSUYLOqFYJyuoJekEw8aJpXT6Q7lH3tCbhYdIZAxle8mjQlC3R6YU07rqrcHpT2w9SYLw0WGoQqlAf06OKoLdKNx7y-nRdc1OCPFRdH4Sdd1vU79le9XcoRTJ04-x1zcE4Soc1ihQk+OndilRhR9xIJtbax0kinWxFXIWBh7R42MACCodZNBikllpP8Io9LGC+HCAIfggA */
     id: 'contactFsm',
     initial: 'INIT',
     tsTypes: {} as import("./ContactMachine.typegen").Typegen0,
@@ -124,10 +124,16 @@ const ContactMachine = createMachine({
         },
     },
     services: {
-        sendInvite: async (context, event): Promise<boolean> => {
+        sendInvite: async (context, event: {type: string, callback: () => void}): Promise<boolean> => {
             console.log('FSM [ContactMachine.sendInvite]', event)
             const msg = context.contact.inviteMsg()
-            return context.sender(msg)
+            const res = await context.sender(msg)
+            console.log('FSM [ContactMachine.sendInvite]', res)
+            if(res) {
+                event.callback()
+                return true
+            } // TODO: error callback?
+            return false
         },
         sendAccept: async (context, event: {type: string, callback: ()=>void}): Promise<boolean> => {
             console.log('FSM [ContactMachine.sendAccept]', event)
@@ -137,7 +143,7 @@ const ContactMachine = createMachine({
             if(res) {
                 event.callback()
                 return true
-            }   
+            } // TODO: error callback?
             return false
         }
     }

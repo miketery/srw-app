@@ -41,7 +41,7 @@ export function Dialogue(props) {
             </Text>
         </View>
         <View style={tw`shrink`}>
-            <Text style={bold_style}>{props.type}</Text>
+            <Text style={bold_style}>{props.header ? props.header : props.type}</Text>
             <Text style={text_style}>
                 {msg}
             </Text>

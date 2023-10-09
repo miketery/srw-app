@@ -1,10 +1,9 @@
 import axios from 'axios';
 
-import Vault from '../models/Vault';
 import { BASE, DEBUG, ENDPOINTS, MOCK } from '../config';
-import { OutboundMessageDict } from '../models/Message';
-// import Contact from './Contact';
+import Vault from '../models/Vault';
 import MockMessageQueue from './MockMessageQueue';
+import { OutboundMessageDict } from '../models/Message';
 
 class DigitalAgentService {
     static digital_agent_host: string = BASE;
@@ -67,7 +66,7 @@ class DigitalAgentService {
         if(!response)
             return false
         console.log('[postMessage]', response)
-        if (response['status'] == 200) {
+        if ([200, 201].includes(response['status'])) {
             return response['data'];
         }
     }
@@ -105,45 +104,45 @@ class DigitalAgentService {
             return response['data'];
         }
     }
-    // static async msgForContact(
-    //         vault: Vault,
-    //         contact: Contact,
-    //         msg: {
-    //             type_name: string,
-    //             type_version: string,
-    //             app_name: string,
-    //             data: any
-            
-    //         }){
-    //     const payload = {
-    //         'msg': msg,
-    //         'sig_ts': Math.floor(Date.now() / 1000)
-    //     }
-    //     const signed_payload = vault.signPayload(payload);
-    //     let data = await axios.post(this.digital_agent_host + ENDPOINTS.ME, signed_payload).catch(
-    //         (error) => {
-    //             console.log(error)
-    //             throw new Error(error);
-    //         }
-    //     );
-    //     console.log(data)
-    //     if (data['status'] == 200) {
-    //         return data['data'];
-    //     } else {
-    //         throw new Error(data['message']);
-    //     }
-    // }
-
-
-    // static async signPayload(vault, data, msg_type) {
-    //     const payload = {
-    //         'msg_type': msg_type,
-    //         'data': data,
-    //         'sig_ts': Math.floor(Date.now() / 1000)
-    //     }
-    //     const signed_payload = vault.signPayload(payload);
-    //     return signed_payload;
-    // }
+    static async contactLookUp(vault: Vault, shortCodeOrDid: string): Promise<{
+            found: boolean,
+            error?: any,
+            data?: {}}> {
+        // TODO: fix logic and return object...
+        const payload = {
+            'short_code_or_did': shortCodeOrDid,
+            'sig_ts': Math.floor(Date.now() / 1000)
+        }
+        const signed_payload = vault.signPayload(payload);
+        const response = await axios.post(this.digital_agent_host + ENDPOINTS.CONTACT_LOOKUP, signed_payload)
+        .catch((error) => {
+            console.log('[DigitalAgentService.contactLookUp]', error)
+            if('response' in error && error.response.status == 404)
+                console.log('[DigitalAgentService.contactLookUp] not found')
+            return error
+        });
+        console.log(response)
+        if(response && response['status'] == 200) {
+            return {
+                found: true,
+                data: response['data']
+            }
+        } else if(response && response.request.status == 404) {
+            return {
+                found: false,
+            }
+        } else if(response.code == 'ERR_NETWORK') {
+            return {
+                found: false,
+                error: 'Network error'
+            }
+        } else { 
+            return {
+                found: false,
+                error: 'Unknown error'
+            }
+        }
+    }
 }
 
 export default DigitalAgentService;

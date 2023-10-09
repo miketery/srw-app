@@ -131,7 +131,7 @@ class Contact {
         return SS.save(this.pk, this.toDict())
     }
     toString(): string {
-        return [this.pk, this.did, this.name, this.state].join(' ')
+        return 'Contact<' + [this.pk, this.did, this.name, this.state].join(', ') + '>'
     }
     toDict(): ContactDict {
         return {
