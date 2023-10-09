@@ -74,33 +74,17 @@ async function ContactRequestFlowBasic() {
     alice_cm.printContacts()
 }
 
-async function AliceToCharlieRequest() {
-    const alice_vault = Vault.fromDict(test_vaults[0])
-    const alice_cm = new ContactsManager(alice_vault)
-    await alice_cm.loadContacts()
-    const charlie_vault = Vault.fromDict(test_vaults[2])
+async function AliceToBobRequest(manager) {
+    const aliceContactManager = manager.contactsManager
+    aliceContactManager.getContactsArray().forEach((c) => aliceContactManager.deleteContact(c))
+    await new Promise(r => setTimeout(r, 300));
 
-    const charlie_contact =  await alice_cm.addContact('Charlie', charlie_vault.did, 
-    charlie_vault.public_key, charlie_vault.verify_key, Uint8Array.from([]))
-    const contact_request = await alice_cm.contactRequest(charlie_contact)
-    console.log('=======', contact_request) // encrypted
-    
-    const result = DAS.postMessage(alice_vault, contact_request)
-    if(!result) {
-        console.log('Error sending message')
-    }
-    console.log('=======', result)
-}
-async function CharlieGetRequest() {
-    const charlie_vault = Vault.fromDict(test_vaults[2])
-    const messages = await DAS.getMessages(charlie_vault, 0)
-    console.log(messages)
-}
-async function CharlieGetMessagesAndProcess() {
-    // const charlie_vault = Vault.fromDict(test_vaults[2])
-    // const messagesManager = new InboundMessageManager(charlie_vault)
-    // const n = messagesManager.getMessages()
-    // console.log('messages got:' + n)
+    const bobVault = Vault.fromDict(test_vaults[1])
+    const bobContact =  await aliceContactManager.addContact('Bob', bobVault.did, 
+        bobVault.public_key, bobVault.verify_key, Uint8Array.from([]), '')
+    aliceContactManager.sendContactRequest(bobContact)
+    await new Promise(r => setTimeout(r, 300));
+    console.log('[AliceToBobRequest] ', bobContact.toString())
 }
 async function ContactFullFlow(manager) {
     const aliceContactManager = manager.contactsManager
@@ -143,20 +127,8 @@ export default function DevContacts(props) {
             </View>
             <View>
                 <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-100`]}
-                        onPress={() => AliceToCharlieRequest()}>
-                    <Text style={ds.buttonText}>Alice to Charlie Request via DAS</Text>
-                </Pressable>
-            </View>
-            <View>
-                <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-100`]}
-                        onPress={() => CharlieGetRequest()}>
-                    <Text style={ds.buttonText}>Charlie Get Messages DAS</Text>
-                </Pressable>
-            </View>
-            <View>
-                <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-100`]}
-                        onPress={() => CharlieGetMessagesAndProcess()}>
-                    <Text style={ds.buttonText}>Charlie InboundMessagesManager</Text>
+                        onPress={() => AliceToBobRequest(manager)}>
+                    <Text style={ds.buttonText}>Alice to Bob Request only</Text>
                 </Pressable>
             </View>
         </ScrollView>

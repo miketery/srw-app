@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import { DEV, ROUTES, TAB_BAR_ROUTES } from '../config';
+import { DEV, FETCH, ROUTES, TAB_BAR_ROUTES } from '../config';
 
 import { useSessionContext } from '../contexts/SessionContext'
 
@@ -30,6 +30,8 @@ export default function HomeNavTest({props}) {
 
     useEffect(() => {
         console.log('[HomeNav] useEffect')
+        if(!FETCH)
+            return () => {}
         const notificationsManager = manager.notificationsManager
         setNotifications(notificationsManager.getNotificationsArray())
         const notificationHook = notificationsManager.addCallback(setNotifications)

@@ -108,6 +108,7 @@ class ContactsManager {
         /**
          * Inbound contact request (i.e. will end up with a INBOUND contact)
          * From there can accept or dismiss
+         * Note: in app will be called from processMap in MessagesManager
          */
         console.log('[ContactsManager.processContactRequest]')
         if (message.type_name !== MessageTypes.contact.request)
@@ -135,6 +136,10 @@ class ContactsManager {
         return contact;
     }
     async acceptContactRequest(did: string, callback: () => void): Promise<void> {
+        /**
+         * On "ACCEPT" will send msg.contact.accept to requested
+         * Note: called from notifications (notificationsActions) or contact view
+         */
         const contact = this.getContactByDid(did);
         if(contact.state != ContactState.INBOUND)
         // TODO: shouldn't guard here... FSM will takecare
@@ -145,6 +150,7 @@ class ContactsManager {
         /**
          * Process accept contact request response 
          * (i.e. will end up with a ESTABLISHED contact)
+         * Note: in app will be called from processMap in MessagesManager
          */
         console.log('[ContactsManager.processContactAccept]',
             message.sender.name)
@@ -166,7 +172,7 @@ class ContactsManager {
         // contact.state = ContactState.ESTABLISHED;
         contact.their_public_key = base58.decode(data.public_key);
         contact.their_contact_public_key = base58.decode(data.contact_public_key);
-        await this.saveContact(contact);
+        contact.fsm.send('ACCEPTED'); // save happens in FSM
         return contact;
     }
 

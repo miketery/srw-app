@@ -62,7 +62,8 @@ const processMap: processMapType = {
                 short_text: contact.name + ' wants to connect',
                 detailed_text: contact.name + ' accepted your request',
                 metadata: {
-                    timestamp: message.created
+                    timestamp: message.created,
+                    did: contact.did // will be used in notificationActionsMap by contactsManager
                 }
             })
         return Promise.resolve(true)
