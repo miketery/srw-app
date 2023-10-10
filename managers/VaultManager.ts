@@ -1,11 +1,9 @@
 import Vault from '../models/Vault';
 import SS, { StoredType } from '../services/StorageService';
-import { signingKeyFromWords, encryptionKeyFromWords, getRandom } from '../lib/utils'
-import { v4 as uuidv4 } from 'uuid';
-import { entropyToMnemonic } from 'bip39';
 
 import ContactsManager from './ContactsManager';
 import SecretsManager from './SecretsManager';
+import RecoveryPlansManager from './RecoveryPlansManager';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DigitalAgentService from '../services/DigitalAgentService';
 import NotificationsManager from './NotificationsManager';
@@ -22,6 +20,7 @@ class VaultManager {
     private _secretsManager: SecretsManager | null;
     private _contactsManager: ContactsManager | null;
     private _notificationsManager: NotificationsManager | null;
+    private _recoveryPlansManager: RecoveryPlansManager | null;
     private _messagesManager: InboundMessageManager | null;
     private _session: SessionDict;
 
@@ -195,6 +194,11 @@ class VaultManager {
         if (!this._contactsManager)
             throw new Error('Contacts Manager not set');
         return this._contactsManager;
+    }
+    get recoveryPlansManager(): RecoveryPlansManager {
+        if (!this._recoveryPlansManager)
+            throw new Error('Contacts Manager not set');
+        return this._recoveryPlansManager;
     }
     get notificationsManager(): NotificationsManager {
         if (!this._notificationsManager)

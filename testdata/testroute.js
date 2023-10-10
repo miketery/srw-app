@@ -21,7 +21,7 @@ const no_vault_test_route = {
 }
 // When HAS Vault && DEV pick route:
 // choose from Object.keys(switch_routes)
-const top_level = ROUTES.ContactsRoute; 
+const top_level = ROUTES.RecoveryPlanRoute; 
 
 const switch_routes = {
   [ROUTES.DevHasVaultRoute]: [
@@ -62,6 +62,10 @@ const switch_routes = {
     // {name: ROUTES.SecretEditRoute, params: {
     //   credential_uuid: '39a93352-e7e8-4eb3-ad19-351addd0fa62',
     // }},
+  ],
+  [ROUTES.RecoveryPlanRoute]: [
+    // {name: ROUTES.RecoveryPlansListRoute},
+    {name: ROUTES.DevReocveryPlanRoute},
   ],
   [ROUTES.NotificationsRoute]: []
 }

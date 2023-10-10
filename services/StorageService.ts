@@ -5,8 +5,9 @@ export enum StoredType {
     contact = 'contact',
     notification = 'notification',
     secret = 'secret',
-    keyshare = 'keyshare', // TODO: rename to reocvery_manifest
-    contact_keyshare = 'contact_keyshare', //TODO: rename to guardian_share
+    recoveryPlan = 'recoveryPlan',
+    // keyshare = 'keyshare', // TODO: rename to reocvery_manifest
+    // contact_keyshare = 'contact_keyshare', //TODO: rename to guardian_share
     message = 'message',
 }
 export const StoredTypePrefix: { [k in StoredType]: string } = {
@@ -15,8 +16,9 @@ export const StoredTypePrefix: { [k in StoredType]: string } = {
     [StoredType.contact]: 'c__',
     [StoredType.notification]: 'n__',
     [StoredType.secret]: 's__',
-    [StoredType.keyshare]: 'k__',
-    [StoredType.contact_keyshare]: 'ck_',
+    [StoredType.recoveryPlan]: 'rp_',
+    // [StoredType.keyshare]: 'k__',
+    // [StoredType.contact_keyshare]: 'ck_',
     [StoredType.message]: 'm__',
 }
 // map prefix to StoredType

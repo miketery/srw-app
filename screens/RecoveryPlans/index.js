@@ -10,7 +10,7 @@ import RecoveryPlansListScreen from './RecoveryPlansListScreen'
 // import RecoveryPlanEditScreen from './RecoveryPlantEditScreen'
 // import RecoveryPlanDeleteScreen from './RecoveryPlanDeleteScreen'
 
-import DevRecoveryPlan from './DevReocveryPlan'
+import DevRecoveryPlan from '../Dev/DevRecoveryPlanScreen'
 
 const Stack = createNativeStackNavigator();
 

@@ -28,9 +28,9 @@ class ContactsManager {
     }
     async loadContacts(): Promise<{string?: Contact}> {
         const contacts: {string?: Contact} = {};
-        const contacts_data = await SS.getAll(StoredType.contact, this._vault.pk);
-        for (let contact_data of Object.values(contacts_data)) {
-            const c = Contact.fromDict(contact_data, this.vault);
+        const contactsData = await SS.getAll(StoredType.contact, this._vault.pk);
+        for (let contactData of Object.values(contactsData)) {
+            const c = Contact.fromDict(contactData, this._vault);
             contacts[c.pk] = c;
         }
         this._contacts = contacts;

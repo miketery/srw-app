@@ -13,7 +13,7 @@ export const DEV = env_dev === 'true'
 export const DEBUG = env_debug === 'true'
 export const LOCAL = env_local === 'true'
 export const MOCK = env_mock === 'true' && false
-export const FETCH = true
+export const FETCH = false
 
 export const SPLASH_ANIMATE_TIME = DEBUG ? 100 : 666
 
@@ -104,12 +104,42 @@ export const nestedRoute = (route: string, nested: Route[]): Route => {
 }
 
 export const TAB_BAR_ROUTES = {
-    MainHubRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
-    ContactsRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
-    SecretsRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
-    NotificationsRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
+    [ROUTES.MainHubRoute]: {
+        header: false,
+        tabBarIconHide: false,
+        tabBarHide: false,
+        icon: 'flash',
+    },
+    [ROUTES.ContactsRoute]: {
+        header: false,
+        tabBarIconHide: false,
+        tabBarHide: false,
+        icon: 'people',
+    },
+    [ROUTES.SecretsRoute]: {
+        header: false,
+        tabBarIconHide: false,
+        tabBarHide: false,
+        icon: 'key',
+    },
+    [ROUTES.RecoveryPlanRoute]: {
+        header: false,
+        tabBarIconHide: false,
+        tabBarHide: false,
+        icon: 'shield',
+    },
+    [ROUTES.NotificationsRoute]: {
+        header: false,
+        tabBarIconHide: false,
+        tabBarHide: false,
+        icon: 'notifications',
+    },
 
-    DevHasVaultRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
+    [ROUTES.DevHasVaultRoute]: {
+        header: false,
+        tabBarIconHide: false,
+        tabBarHide: false,
+    },
 
     // ProfileRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
     // OrganizationRoute: {header: false, tabBarIconHide: false, tabBarHide: false},
@@ -119,7 +149,7 @@ export const TAB_BAR_ROUTES = {
     
     // SettingsRoute: {header: false, tabBarIconHide: true, tabBarHide: true},
     // ProfileRoute: {header: false, tabBarIconHide: true, tabBarHide: true},
-    KeySharesRoute: {header: false, tabBarIconHide: true, tabBarHide: true},
+    // KeySharesRoute: {header: false, tabBarIconHide: true, tabBarHide: true},
 }
 
 export const primary_route = (routes: Route[]=[]): {routes: Route[]} => ({

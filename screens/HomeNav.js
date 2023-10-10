@@ -9,7 +9,7 @@ import MainHub from './MainHubScreen'
 
 import ContactsNav from './Contacts'
 import SecretsNav from './Secrets'
-import RecoveryPlan from './RecoveryPlan'
+import RecoveryPlansNav from './RecoveryPlans'
 
 import NotificationsScreen from './NotificationsScreen';
 import { DevHasVaultNav } from './Dev'
@@ -63,21 +63,23 @@ export default function HomeNavTest({props}) {
             </Tab.Screen>
             <Tab.Screen name={ROUTES.SecretsRoute} >
                 {(props) => <SecretsNav {...props} />}
-            </Tab.Screen> 
+            </Tab.Screen>
+            <Tab.Screen name={ROUTES.RecoveryPlanRoute}>
+                {(props) => <RecoveryPlansNav {...props} />}
+            </Tab.Screen>
             <Tab.Screen name={ROUTES.NotificationsRoute} 
                     options={{ tabBarBadge: notifications.length }}>
                 {(props) => <NotificationsScreen {...props} notifications={notifications} />}
             </Tab.Screen>
+            {/* <Tab.Screen name='ProfileRoute' >
+                {(props) => <ProfileScreen {...props} />}
+            </Tab.Screen> */}
+            {/* <Tab.Screen name='SettingsRoute' >
+                {(props) => <SettingsScreen {...props} />}
+            </Tab.Screen> */}
             {DEV && <Tab.Screen name={ROUTES.DevHasVaultRoute} >
                 {(props) => <DevHasVaultNav {...props} />}
             </Tab.Screen>}
-            <Tab.Screen name={ROUTES.RecoveryPlanRoute}>
-                {(props) => <RecoveryPlan vault={this.vault} {...props} />}
-            </Tab.Screen>
-            {/*
-            {/* <Tab.Screen name='ProfileRoute' >
-                {(props) => <ProfileScreen vault={this.vault} {...props} />}
-            </Tab.Screen> */}
         </Tab.Navigator>
     )
 }
