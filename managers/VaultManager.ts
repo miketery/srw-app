@@ -10,7 +10,7 @@ import NotificationsManager from './NotificationsManager';
 import InboundMessageManager from './MessagesManager';
 
 interface SessionDict {
-    vault_pk: string;
+    vaultPk: string;
 }
 
 class VaultManager {
@@ -27,7 +27,7 @@ class VaultManager {
     constructor(vaults: {string?: Vault} = {}) {
         this._vaults = vaults;
         this._currentVault = null;
-        this._session = {vault_pk: ''}
+        this._session = {vaultPk: ''}
     }
     async init(): Promise<void> {
         console.log('[VaultManager.init]')
@@ -35,9 +35,9 @@ class VaultManager {
         const session = await this.loadSession();
         console.log('[VaultManager.init] session: ', session)
         const promises: Promise<any>[] = [];
-        if(session.vault_pk in Object.keys(this._vaults)) { 
+        if(session.vaultPk in Object.keys(this._vaults)) { 
             // have session and the vault pk set in it
-            this.setVault(session.vault_pk);
+            this.setVault(session.vaultPk);
         } else if (Object.keys(this._vaults).length > 0) { 
             // no session or no vault pk set
             // but we have vaults? set first one to the sssion
@@ -80,9 +80,9 @@ class VaultManager {
     getVaultsArray(): Vault[] {
         return Object.values(this._vaults);
     }
-    setVault(vault_pk: string): void {
-        this._session.vault_pk = vault_pk;
-        this._currentVault = this.getVault(vault_pk);
+    setVault(vaultPk: string): void {
+        this._session.vaultPk = vaultPk;
+        this._currentVault = this.getVault(vaultPk);
     }
     async checkRegistered(vault: Vault, ifNotThenRegister: boolean): Promise<boolean> {
         console.log('[VaultManager.checkRegistered]')
@@ -157,7 +157,7 @@ class VaultManager {
         }
         this._vaults[new_vault.pk] = new_vault;
         this._currentVault = new_vault;
-        this._session.vault_pk = new_vault.pk;
+        this._session.vaultPk = new_vault.pk;
         this.saveSession();
         return new_vault;
     }

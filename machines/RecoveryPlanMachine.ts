@@ -8,13 +8,37 @@ const RecoveryManisfestMachine = createMachine({
     initial: 'DRAFT',
     tsTypes: {} as import("./RecoveryPlanMachine.typegen").Typegen0,
     context: {} as {recoveryPlan: RecoveryPlan},
+    schema: {
+        services: {} as {
+            splitKey: {data: boolean},
+        },  
+    },
     states: {
         DRAFT: {
             on: {
-                SEND_INVITES: 'WAITING_ON_PARTICIPANTS',
+                SPLIT_KEY: 'SPLITTING_KEY',
                 // ADD_PARTICIPANTS: 'DRAFT',
                 // DELETE_PARTICIPANTS: 'DRAFT',
             },
+        },
+        SPLITTING_KEY: {
+            invoke: {
+                src: 'splitKey',
+                id: 'splitKeyId',
+                onDone: {
+                    target: 'SENDING_INVITES',
+                },
+                onError: {
+                    target: 'DRAFT',
+                }
+            }
+        },
+        SENDING_INVITES: {
+            on: {
+                SENT: {
+                    target: 'WAITING_ON_PARTICIPANTS'
+                },
+            }
         },
         WAITING_ON_PARTICIPANTS: {
             on: {
@@ -47,6 +71,13 @@ const RecoveryManisfestMachine = createMachine({
             console.log(event)
             console.log(context)
             return true;
+        }
+    },
+    services: {
+        splitKey: (context: {recoveryPlan: RecoveryPlan}, event) => {
+            console.log('[FSM.RecoverPlanMachine.splitKey]', event)
+            context.recoveryPlan.splitKey()
+            return Promise.resolve(true)
         }
     }
 });

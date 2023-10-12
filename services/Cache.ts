@@ -23,7 +23,7 @@ const Cache = {
         else
             throw new Error('VaultManager not set')
     },
-    get vault_pk(): string {
+    get vaultPk(): string {
         if(__CACHE.vault)
             return __CACHE.vault.pk;
         else
@@ -36,7 +36,7 @@ const Cache = {
             throw new Error('Vault not set')
     },
 
-    // _getAndSetContacts: async () => Contact.getAll(__CACHE.vault_pk).then(contacts => {
+    // _getAndSetContacts: async () => Contact.getAll(__CACHE.vaultPk).then(contacts => {
     //     __CACHE.contacts = contacts
     //     return __CACHE.contacts
     // }),

@@ -17,6 +17,8 @@ import getTestVaultsAndContacts from '../../testdata/testContacts'
 // import InboundMessageManager from '../../managers/MessagesManager'
 
 import { useSessionContext } from '../../contexts/SessionContext'
+import { PayloadType } from '../../models/RecoveryPlan'
+import { bytesToHex, hexToBytes, shamirCombine } from '../../lib/utils'
 
 // import { test_vaults } from '../../testdata/testVaults'
 
@@ -31,7 +33,43 @@ async function RecoverPlanCreate(
     console.log('[DevRecoveryPlanScreen.RecoverPlanCreate] TEST')
     // alice creates recovery w/ Bob and Charlie and Dan
     const aliceVault = vaults['alice']
+    const aliceContacts = contacts['alice']
     const recoveryPlanManager = new RecoveryPlansManager(aliceVault)
+    const recoveryPlan = recoveryPlanManager.createRecoveryPlan(
+        'RP_01 - test', 'testing')
+    recoveryPlan.addParticipant(aliceContacts['bob'], 1, true)
+    recoveryPlan.addParticipant(aliceContacts['charlie'], 1, false)
+    recoveryPlan.addParticipant(aliceContacts['dan'], 1, true)
+
+    const byteSecret = new TextEncoder().encode('MY SECRET')
+    recoveryPlan.setPayload(byteSecret, PayloadType.OBJECT)
+    recoveryPlan.setThreshold(3)
+
+    console.log('VALID: ', recoveryPlan.checkValidPreSubmit())
+    
+    await recoveryPlan.generateKey()
+    await recoveryPlan.splitKey()
+
+    console.log(recoveryPlan.toDict())
+    console.log(recoveryPlan.participants[0].toDict())
+    
+    // combine test
+    const testNoWork = Array.from(recoveryPlan.participants[0].shares)
+    console.log(testNoWork.length)
+    // testNoWork.push(recoveryPlan.participants[1].shares[0])
+    console.log(testNoWork.length)
+    const a = shamirCombine(testNoWork)
+    console.log(bytesToHex(a))
+    // should not work
+    const willWork = Array.from(recoveryPlan.participants[0].shares)
+    console.log(willWork.length)
+    willWork.push(recoveryPlan.participants[1].shares[0])
+    willWork.push(recoveryPlan.participants[2].shares[0])
+    console.log(willWork.length)
+    const b = shamirCombine(willWork)
+    console.log(bytesToHex(b))
+
+
     //TODO
 }
 
@@ -70,7 +108,7 @@ const DevRecoveryPlanScreen: React.FC<DevRecoveryPlanScreenProps> = (props) => {
         </View>
         <View>
             <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
-                    onPress={() => RecoverPlanCreate(manager)}>
+                    onPress={() => RecoverPlanCreate(vaults, contacts)}>
                 <Text style={ds.buttonText}>Recovery Plan Basic</Text>
             </Pressable>
         </View>

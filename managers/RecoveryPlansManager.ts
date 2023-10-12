@@ -11,11 +11,16 @@ class RecoveryPlansManager {
     private _vault: Vault;
 
     constructor(vault: Vault, recoveryPlans: {[pk: string]: RecoveryPlan} = {}) { 
-        console.log('[ContactsManager.constructor] ' + vault.pk)
+        console.log('[RecoveryPlansManager.constructor] ' + vault.pk)
         this._recoveryPlans = recoveryPlans;
         this._vault = vault;
     }
     clear() { this._recoveryPlans = {}; }
+    createRecoveryPlan(name: string, description: string): RecoveryPlan {
+        const recoveryPlan = RecoveryPlan.create(name, description, this._vault.pk)
+        this.saveRecoveryPlan(recoveryPlan)
+        return recoveryPlan
+    }
     async saveRecoveryPlan(recoveryPlan: RecoveryPlan): Promise<void> {
         await SS.save(recoveryPlan.pk, recoveryPlan.toDict())
         this._recoveryPlans[recoveryPlan.pk] = recoveryPlan;
@@ -30,16 +35,20 @@ class RecoveryPlansManager {
         this._recoveryPlans = recoveryPlans;
         return recoveryPlans;
     }
-    getContacts(): {[pk: string]: RecoveryPlan} {
+    async deleteRecoveryPlan(recoveryPlan: RecoveryPlan): Promise<void> {
+        await SS.delete(recoveryPlan.pk);
+        delete this._recoveryPlans[recoveryPlan.pk];
+    }
+    getRecoveryPlans(): {[pk: string]: RecoveryPlan} {
         return this._recoveryPlans;
     }
-    getContactsArray(): RecoveryPlan[] {
+    getRecoveryPlansArray(): RecoveryPlan[] {
         return Object.values(this._recoveryPlans);
     }
-    getContact(pk: string): RecoveryPlan {
+    getRecoveryPlan(pk: string): RecoveryPlan {
         if(pk in this._recoveryPlans)
             return this._recoveryPlans[pk];
-        throw new Error(`Contact not found: ${pk}`);
+        throw new Error(`[RecoveryPlanManager] not found: ${pk}`);
     }
 }
 

@@ -4,10 +4,12 @@
   export interface Typegen0 {
         '@@xstate/typegen': true;
         internalEvents: {
-          "xstate.init": { type: "xstate.init" };
+          "done.invoke.splitKeyId": { type: "done.invoke.splitKeyId"; data: unknown; __tip: "See the XState TS docs to learn how to strongly type this." };
+"error.platform.splitKeyId": { type: "error.platform.splitKeyId"; data: unknown };
+"xstate.init": { type: "xstate.init" };
         };
         invokeSrcNameMap: {
-          
+          "splitKey": "done.invoke.splitKeyId";
         };
         missingImplementations: {
           actions: never;
@@ -26,9 +28,9 @@
 "minParticipantsAccepted": "forceReady";
         };
         eventsCausingServices: {
-          
+          "splitKey": "SPLIT_KEY";
         };
-        matchesStates: "ARCHIVED" | "DRAFT" | "FINAL" | "READY" | "WAITING_ON_PARTICIPANTS";
+        matchesStates: "ARCHIVED" | "DRAFT" | "FINAL" | "READY" | "SENDING_INVITES" | "SPLITTING_KEY" | "WAITING_ON_PARTICIPANTS";
         tags: never;
       }
   

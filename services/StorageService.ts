@@ -113,7 +113,7 @@ const SS = {
             if(error!=null) error()
         })
     },
-    getAll: async(t: StoredType, vault_pk: string|null=null) => {
+    getAll: async(t: StoredType, vaultPk: string|null=null) => {
         console.log('[SS.getAll]', t)
         const results = await AsyncStorage.multiGet(SS.getIndex(t))
         const array = results.map(([key, data]) => {
@@ -124,7 +124,7 @@ const SS = {
                 return null;
             }
         })
-        return vault_pk === null ? array : array.filter(obj => obj !== null && obj.vault_pk === vault_pk);
+        return vaultPk === null ? array : array.filter(obj => obj !== null && obj.vaultPk === vaultPk);
     },
 }
 Object.freeze(SS)

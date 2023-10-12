@@ -26,7 +26,7 @@ export enum ContactState {
 
 interface ContactDict {
     pk: string,
-    vault_pk: string,
+    vaultPk: string,
     did: string,
     name: string,
     private_key: string,
@@ -42,7 +42,7 @@ interface ContactDict {
 
 class Contact {
     pk: string
-    vault_pk: string
+    vaultPk: string
     did: string // TODO: change to DID
     name: string
     private_key: PrivateKey
@@ -57,7 +57,7 @@ class Contact {
 
     constructor(
             pk: string,
-            vault_pk: string,
+            vaultPk: string,
             did: string,
             name: string,
             private_key: PrivateKey,
@@ -69,7 +69,7 @@ class Contact {
             state: ContactState,
             vault: Vault) {
         this.pk = pk
-        this.vault_pk = vault_pk
+        this.vaultPk = vaultPk
         this.did = did
         this.name = name
         this.private_key = private_key
@@ -92,11 +92,12 @@ class Contact {
         this.fsm = interpret(ContactMachine)
         this.fsm.onTransition((context: {contact: Contact}, event) => {
             if(context.contact)
-                console.log('[Contact.fsm.onTransition]', context.contact.toString())
-            console.log('[Contact.fsm.onTransition]', event)
-        }) 
+                console.log('[Contact.fsm.onTransition]', context.contact.toString(), event)
+            else
+                console.log('[Contact.fsm.onTransition]', event)
+        })
         this.fsm.start(resolvedState)
-        console.log('FSM', this.name, this.state)
+        // console.log(this.fsm.getSnapshot())
     }
     get state(): ContactState {
         return this.fsm.getSnapshot().value
@@ -116,13 +117,13 @@ class Contact {
     get b58_their_contact_public_key(): string {
         return base58.encode(this.their_contact_public_key)
     }
-    static async create(vault_pk: string, did: string, name: string, 
+    static async create(vaultPk: string, did: string, name: string, 
             their_public_key: PublicKey, their_verify_key: VerifyKey, their_contact_public_key: PublicKey,
             digital_agent: string,
             state: ContactState, vault: Vault) {
         let pk = StoredTypePrefix.contact + uuidv4()
         let enc_key_pair = await encryptionKey()
-        return new Contact(pk, vault_pk, did, name, 
+        return new Contact(pk, vaultPk, did, name, 
             enc_key_pair.secretKey, enc_key_pair.publicKey,
             their_public_key, their_verify_key, their_contact_public_key,
             digital_agent, state, vault)
@@ -136,7 +137,7 @@ class Contact {
     toDict(): ContactDict {
         return {
             pk: this.pk,
-            vault_pk: this.vault_pk,
+            vaultPk: this.vaultPk,
             did: this.did,
             name: this.name,
             private_key: base58.encode(this.private_key),
@@ -155,7 +156,7 @@ class Contact {
         const their_verify_key = data.their_verify_key == '' ? base58.decode(data.their_verify_key) : Uint8Array.from([])
         const their_contact_public_key = data.their_contact_public_key == '' ? base58.decode(data.their_contact_public_key) : Uint8Array.from([])
         return new Contact(
-            data.pk, data.vault_pk, data.did, data.name,
+            data.pk, data.vaultPk, data.did, data.name,
             private_key, public_key,
             their_public_key, their_verify_key, their_contact_public_key,
             data.digital_agent,
