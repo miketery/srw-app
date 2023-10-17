@@ -14,7 +14,7 @@
         missingImplementations: {
           actions: never;
           delays: never;
-          guards: "minParticipantsAccepted";
+          guards: never;
           services: never;
         };
         eventsCausingActions: {
@@ -24,13 +24,12 @@
           
         };
         eventsCausingGuards: {
-          "allParticipantsAccepted": "allAccepted";
-"minParticipantsAccepted": "forceReady";
+          "allPartysAccepted": "allAccepted";
         };
         eventsCausingServices: {
           "splitKey": "SPLIT_KEY";
         };
-        matchesStates: "ARCHIVED" | "DRAFT" | "FINAL" | "READY" | "SENDING_INVITES" | "SPLITTING_KEY" | "WAITING_ON_PARTICIPANTS";
+        matchesStates: "ARCHIVED" | "DRAFT" | "FINAL" | "READY" | "READY_TO_SEND_INVITES" | "SENDING_INVITES" | "SPLITTING_KEY" | "WAITING_ON_PARTICIPANTS";
         tags: never;
       }
   

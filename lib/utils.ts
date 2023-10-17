@@ -138,24 +138,6 @@ export const joinByteArrays = (a: Uint8Array, b: Uint8Array): Uint8Array => {
     out.set(b, a.length)
     return out
 }
-// shamir secret sharing
-// https://github.com/jwerle/shamirs-secret-sharing
-import sss from 'shamirs-secret-sharing'
-export const shamirSplit = async (k: Uint8Array, total: number, threshold: number): Promise<any[]> => { // m of n
-    console.log('[shamirSplit] '+threshold+' of '+total+' shares total')
-    let shares = await sss.split(Buffer.from(k), {
-        shares: total,
-        threshold: threshold,
-        random: getRandom,
-        // TODO fork shamir secret sharing to support async getRandom
-    })
-    return shares
-}
-export const shamirCombine = (shares: any[]): Uint8Array => {
-    let key = sss.combine(shares)
-    return key
-}
-
 export function handleChange(e) {
     this.setState({
         ...this.state, 

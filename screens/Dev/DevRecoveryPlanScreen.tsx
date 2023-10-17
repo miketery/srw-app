@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Text, View, ScrollView, Pressable } from 'react-native'
 
+import secrets from 'secrets.js-grempe'
+
 import ds from '../../assets/styles'
 import tw from '../../lib/tailwind'
 
@@ -18,9 +20,7 @@ import getTestVaultsAndContacts from '../../testdata/testContacts'
 
 import { useSessionContext } from '../../contexts/SessionContext'
 import { PayloadType } from '../../models/RecoveryPlan'
-import { bytesToHex, hexToBytes, shamirCombine } from '../../lib/utils'
-
-// import { test_vaults } from '../../testdata/testVaults'
+import { bytesToHex, hexToBytes } from '../../lib/utils'
 
 /**
  * Test Recovery Plan Flow Messages
@@ -37,40 +37,72 @@ async function RecoverPlanCreate(
     const recoveryPlanManager = new RecoveryPlansManager(aliceVault)
     const recoveryPlan = recoveryPlanManager.createRecoveryPlan(
         'RP_01 - test', 'testing')
-    recoveryPlan.addParticipant(aliceContacts['bob'], 1, true)
-    recoveryPlan.addParticipant(aliceContacts['charlie'], 1, false)
-    recoveryPlan.addParticipant(aliceContacts['dan'], 1, true)
+    recoveryPlan.addParty(aliceContacts['bob'], 1, true)
+    recoveryPlan.addParty(aliceContacts['charlie'], 1, false)
+    recoveryPlan.addParty(aliceContacts['dan'], 2, true)
 
     const byteSecret = new TextEncoder().encode('MY SECRET')
     recoveryPlan.setPayload(byteSecret, PayloadType.OBJECT)
     recoveryPlan.setThreshold(3)
 
-    console.log('VALID: ', recoveryPlan.checkValidPreSubmit())
+    console.assert(recoveryPlan.checkValidPreSubmit())
     
     await recoveryPlan.generateKey()
     await recoveryPlan.splitKey()
 
     console.log(recoveryPlan.toDict())
-    console.log(recoveryPlan.participants[0].toDict())
-    
+    console.log(recoveryPlan.partys[0].toDict())
+    const keyHex = bytesToHex(recoveryPlan.key)
+    console.log(keyHex)
+
+    const allShares = []
+    recoveryPlan.partys.forEach( (p) => p.shares.forEach( (s) => {
+        console.log(s, p.name)
+        allShares.push[s]}))
+
     // combine test
-    const testNoWork = Array.from(recoveryPlan.participants[0].shares)
-    console.log(testNoWork.length)
-    // testNoWork.push(recoveryPlan.participants[1].shares[0])
-    console.log(testNoWork.length)
-    const a = shamirCombine(testNoWork)
-    console.log(bytesToHex(a))
+    const testNoWork = secrets.combine(allShares.slice(0, 2))
+
     // should not work
-    const willWork = Array.from(recoveryPlan.participants[0].shares)
-    console.log(willWork.length)
-    willWork.push(recoveryPlan.participants[1].shares[0])
-    willWork.push(recoveryPlan.participants[2].shares[0])
-    console.log(willWork.length)
-    const b = shamirCombine(willWork)
-    console.log(bytesToHex(b))
-
-
+    const willWork = secrets.combine(allShares.slice(0, 3))
+    console.assert(willWork === keyHex)
+    console.assert(testNoWork !== keyHex)
+    console.log('combine test complete')
     //TODO
+}
+async function RecoverPlanFullFlow(
+        vaults: {[pk: string]: Vault},
+        contacts: {[name: string]: Contact}) {
+    const aliceVault = vaults['alice']
+    const aliceContacts = contacts['alice']
+    const recoveryPlanManager = new RecoveryPlansManager(aliceVault)
+    const recoveryPlan = recoveryPlanManager.createRecoveryPlan(
+        'RP_01 - test', 'testing')
+    recoveryPlan.addParty(aliceContacts['bob'], 1, true)
+    recoveryPlan.addParty(aliceContacts['charlie'], 1, false)
+    recoveryPlan.addParty(aliceContacts['dan'], 2, true)
+
+    const byteSecret = new TextEncoder().encode('MY SECRET')
+    recoveryPlan.setPayload(byteSecret, PayloadType.OBJECT)
+    recoveryPlan.setThreshold(3)
+    console.assert(recoveryPlan.checkValidPreSubmit())
+    // await recoveryPlan.generateKey()
+    // await recoveryPlan.splitKey()
+    recoveryPlan.fsm.send('SPLIT_KEY')
+    await new Promise(r => setTimeout(r, 1000))
+    console.log(recoveryPlan.toDict())
+    // recoveryPlan.fsm.submit('SEND_INVITES')
+}
+
+const testShamir = () => {
+    const secret = 'MY SECRET'
+    const secretBytes = new TextEncoder().encode(secret)
+    const secretHex = bytesToHex(secretBytes)
+    console.log(secretHex)
+    const shares1 = secrets.share(secretHex, 3, 2)
+    const shares2 = secrets.share(secretHex, 3, 2)
+    shares1.forEach( (s) => console.log('A', s))
+    shares2.forEach( (s) => console.log('B', s))
 }
 
 type DevRecoveryPlanScreenProps = {
@@ -110,6 +142,18 @@ const DevRecoveryPlanScreen: React.FC<DevRecoveryPlanScreenProps> = (props) => {
             <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
                     onPress={() => RecoverPlanCreate(vaults, contacts)}>
                 <Text style={ds.buttonText}>Recovery Plan Basic</Text>
+            </Pressable>
+        </View>
+        <View>
+            <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
+                    onPress={() => RecoverPlanFullFlow(vaults, contacts)}>
+                <Text style={ds.buttonText}>Recovery Full Flow</Text>
+            </Pressable>
+        </View>
+        <View>
+            <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
+                    onPress={() => testShamir()}>
+                <Text style={ds.buttonText}>test</Text>
             </Pressable>
         </View>
     </ScrollView>

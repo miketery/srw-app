@@ -1,14 +1,16 @@
-import { base64toBytes, bytesToBase64, bytesToHex, getRandom, hexToBytes, shamirSplit } from "../lib/utils";
+import { base64toBytes, bytesToBase64, bytesToHex, getRandom, hexToBytes } from "../lib/utils";
 import { v4 as uuidv4 } from 'uuid';
-
-import ContactMachine from '../machines/ContactMachine';
+import secrets from 'secrets.js-grempe';
 import { interpret } from 'xstate';
 
 import SS, { StoredTypePrefix } from '../services/StorageService';
+import RecoveryPlanMachine from '../machines/RecoveryPlanMachine';
 import Contact from "./Contact";
+import DigitalAgentService from "../services/DigitalAgentService";
+import Vault from "./Vault";
 
 
-export enum ParticipantState {
+export enum PartyState {
     INIT = 'INIT',
     INVITED = 'INVITED',
     CAN_RESEND_INVITE = 'CAN_RESEND_INVITE',
@@ -16,28 +18,28 @@ export enum ParticipantState {
     DECLINED = 'DECLINED',
     FINALIZED = 'FINALIZED',
 }
-interface ParticipantDict {
+interface PartyDict {
     pk: string,
     contactPk: string,
     name: string,
     numShares: number,
     shares: string[], //TODO: add salt & hash
     receiveManifest: boolean,
-    state: ParticipantState
+    state: PartyState
 }
-class Participant {
+class Party {
     pk: string
     contactPk: string
     name: string
     numShares: number
-    shares: Uint8Array[]
+    shares: string[] // hex
     receiveManifest: boolean
-    state: ParticipantState
+    state: PartyState
     // fsm: any
 
     constructor(pk: string, contactPk: string, name: string,
-            numShares: number, shares: Uint8Array[], 
-            receiveManifest: boolean,  state: ParticipantState) {
+            numShares: number, shares: string[], 
+            receiveManifest: boolean,  state: PartyState) {
         this.pk = pk
         this.contactPk = contactPk
         this.name = name
@@ -47,27 +49,26 @@ class Participant {
         this.state = state
         //FSM
     }
-    static fromDict(data: ParticipantDict): Participant {
-        const shares = data.shares.map(s => hexToBytes(s))
-        return new Participant(data.pk, data.contactPk, data.name,
-            data.numShares, shares, data.receiveManifest, data.state)
+    static fromDict(data: PartyDict): Party {
+        return new Party(data.pk, data.contactPk, data.name,
+            data.numShares, data.shares, data.receiveManifest, data.state)
     }
-    toDict(): ParticipantDict {
+    toDict(): PartyDict {
         return {
             pk: this.pk,
             contactPk: this.contactPk,
             name: this.name,
             numShares: this.numShares,
-            shares: this.shares.map(s => bytesToHex(s)),
+            shares: this.shares,
             receiveManifest: this.receiveManifest,
             state: this.state,
         }
     }
     toString(): string {
-        return 'Participant<'+[this.pk, this.contactPk, this.name, this.state].join(', ')+'>'
+        return 'Party<'+[this.pk, this.contactPk, this.name, this.state].join(', ')+'>'
     }
-    assignShare(share: Uint8Array): void {
-        console.log(this.pk, bytesToHex(share))
+    assignShare(share: string): void {
+        console.log(this.pk, share)
         this.shares.push(share)
     }
 }
@@ -93,9 +94,9 @@ interface RecoveryPlanDict {
 
     key: string, //hex
     
-    participants: ParticipantDict[],
+    partys: PartyDict[],
     threshold: number,
-    // no need for totalShares since derived from participant.numShares
+    // no need for totalShares since derived from party.numShares
 
     state: RecoveryPlanState,
     created: number, // unix timestamp
@@ -112,19 +113,20 @@ class RecoveryPlan {
     payloadType: PayloadType;
     
     key: Uint8Array;
-    participants: Participant[];
+    partys: Party[];
     threshold: number;
     
-    state: RecoveryPlanState;
+    _state: RecoveryPlanState;
     created: number;
+    vault: Vault;
     fsm: any;
 
     constructor(pk: string, vaultPk: string,
             name: string, description: string,
             payload: Uint8Array, payloadType: PayloadType,
             key: Uint8Array,
-            participants: Participant[], threshold: number,
-            state: RecoveryPlanState, created: number) {
+            partys: Party[], threshold: number,
+            state: RecoveryPlanState, created: number, vault: Vault) {
         console.log('[RecoveryPlan.constructor]')
         this.pk = pk
         this.vaultPk = vaultPk
@@ -137,32 +139,53 @@ class RecoveryPlan {
         
         this.key = key
 
-        this.participants = participants
+        this.partys = partys
         this.threshold = threshold
         
-        this.state = state;
+        this._state = state;
         this.created = created;
-        // this.fsm // interpret(Machine)
+        this.vault = vault
+        const resolvedState = RecoveryPlanMachine.resolveState({
+            ...RecoveryPlanMachine.initialState,
+            value: this._state,
+            context: {
+                recoveryPlan: this,
+                sender: DigitalAgentService.getPostMessageFunction(this.vault),
+            }
+        })
+        this.fsm = interpret(RecoveryPlanMachine) 
+        // could do RecoveryPlanMachine.withContext({...}})
+        // and then fsm.start(this._state)
+        this.fsm.onTransition((context: {recoveryPlan: RecoveryPlan}, event) => {
+            if(context.recoveryPlan)
+                console.log('[RecoveryPlan.fsm.onTransition]', context.recoveryPlan.toString(), event)
+            else
+                console.log('[RecoveryPlan.fsm.onTransition]', event)
+        })
+        this.fsm.start(resolvedState)
     }
-    static create(vaultPk: string, name: string, description: string) {
+    get state(): RecoveryPlanState {
+        return this.fsm.getSnapshot().value
+    }
+    static create(vaultPk: string, name: string, description: string, vault: Vault) {
         const pk = StoredTypePrefix.recoveryPlan + uuidv4()
         return new RecoveryPlan(
             pk, vaultPk, name, description,
             Uint8Array.from([]), PayloadType.OBJECT,
             Uint8Array.from([]),
             [], 0,
-            RecoveryPlanState.DRAFT, Math.floor(Date.now() / 1000))
+            RecoveryPlanState.DRAFT, Math.floor(Date.now() / 1000), vault)
     }
-    static fromDict(data: RecoveryPlanDict): RecoveryPlan {
+    static fromDict(data: RecoveryPlanDict, vault: Vault): RecoveryPlan {
         const key = hexToBytes(data.key)
         const payload = base64toBytes(data.payload)
-        const participants = data.participants.map(
-            partipantData => Participant.fromDict(partipantData))
+        const partys = data.partys.map(
+            partipantData => Party.fromDict(partipantData))
         return new RecoveryPlan(data.pk, data.vaultPk,
             data.name, data.description, 
             payload, data.payloadType,
-            key, participants, data.threshold,
-            data.state, data.created)
+            key, partys, data.threshold,
+            data.state, data.created, vault)
     }
     toDict(): RecoveryPlanDict {
         return {
@@ -177,8 +200,8 @@ class RecoveryPlan {
 
             key: bytesToHex(this.key),
 
-            participants: this.participants.map(
-                participant => participant.toDict()),
+            partys: this.partys.map(
+                party => party.toDict()),
             threshold: this.threshold,
 
             state: this.state,
@@ -189,13 +212,13 @@ class RecoveryPlan {
         return 'RecoveryPlan<' + [this.pk, this.name, this.state].join(', ') + '>'
     }
     get totalShares(): number {
-        return this.participants.map(p => p.numShares).reduce((a, b) => a + b)
+        return this.partys.map(p => p.numShares).reduce((a, b) => a + b)
     }
-    addParticipant(contact: Contact, numShares: number, receiveManifest: boolean) {
-        const participant = new Participant(
+    addParty(contact: Contact, numShares: number, receiveManifest: boolean) {
+        const party = new Party(
             uuidv4(), contact.pk, contact.name, numShares,
-            [], receiveManifest, ParticipantState.INIT)
-        this.participants.push(participant)
+            [], receiveManifest, PartyState.INIT)
+        this.partys.push(party)
     }
     setPayload(payload: Uint8Array, payloadType: PayloadType): void {
         this.payload = payload
@@ -225,12 +248,12 @@ class RecoveryPlan {
     }
     async splitKey(): Promise<boolean> {
         console.log('[RecoveryPlan.splitKey]', this.totalShares, this.threshold)
-        console.log(bytesToHex(this.key))
-        let shares = await shamirSplit(this.key, this.totalShares, this.threshold)
-        shares.forEach(s => console.log(bytesToBase64(s)))
-        for(let i = 0; i < this.participants.length; i++) {
-            for(let j = 0; j < this.participants[i].numShares; j++)
-                this.participants[i].assignShare(shares.shift())
+        const keyHex = bytesToHex(this.key)
+        const shares = secrets.share(keyHex, this.totalShares, this.threshold)
+        shares.forEach(s => console.log(s))
+        for(let i = 0; i < this.partys.length; i++) {
+            for(let j = 0; j < this.partys[i].numShares; j++)
+                this.partys[i].assignShare(shares.shift())
         }
         return Promise.resolve(true)
     }

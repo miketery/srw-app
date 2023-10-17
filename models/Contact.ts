@@ -1,17 +1,16 @@
 import base58 from 'bs58'
-const bip39 = require('bip39')
-
 import { v4 as uuidv4 } from 'uuid';
+import { interpret } from 'xstate';
 
-import { VerifyKey, PrivateKey, PublicKey } from '../lib/nacl';
 import { encryptionKey } from '../lib/utils'
+import { VerifyKey, PrivateKey, PublicKey } from '../lib/nacl';
+
 import SS, { StoredTypePrefix } from '../services/StorageService';
 import ContactMachine from '../machines/ContactMachine';
-import { interpret } from 'xstate';
-import Vault from './Vault';
 import { Message, OutboundMessageDict } from './Message';
 import DigitalAgentService from '../services/DigitalAgentService';
 import { MessageTypes } from '../managers/MessagesManager';
+import Vault from './Vault';
 
 export enum ContactState {
     INIT = 'INIT',

@@ -29,7 +29,7 @@ expo start --web
 
 //TODO
 
-- Recovery Manifest, is a recovery scheme with participants and devices
+- Recovery Manifest, is a recovery scheme with partys and devices
 
 ### Managers
 
@@ -60,7 +60,7 @@ Using [XState](https://xstate.js.org/docs/guides/introduction-to-state-machines-
 
 //TODO
 
-- RecoveryPlanMachine - setting up a social recovery scheme, need to track recovery manifest state, and state of participants as they accept or reject participation. Potentially later need to track updates to a recovery.
+- RecoveryPlanMachine - setting up a social recovery scheme, need to track recovery manifest state, and state of partys as they accept or reject participation. Potentially later need to track updates to a recovery.
 - AppMachine (i.e. track state of the app) - e.g. first install, or vault is setup, locked, unlocked, in recovery mode
 
 //Possible TODO

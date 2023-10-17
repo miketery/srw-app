@@ -17,7 +17,7 @@ class RecoveryPlansManager {
     }
     clear() { this._recoveryPlans = {}; }
     createRecoveryPlan(name: string, description: string): RecoveryPlan {
-        const recoveryPlan = RecoveryPlan.create(name, description, this._vault.pk)
+        const recoveryPlan = RecoveryPlan.create(name, description, this._vault.pk, this._vault)
         this.saveRecoveryPlan(recoveryPlan)
         return recoveryPlan
     }
@@ -29,7 +29,7 @@ class RecoveryPlansManager {
         const recoveryPlans: {string?: RecoveryPlan} = {};
         const recoveryPlansData = await SS.getAll(StoredType.recoveryPlan, this._vault.pk);
         for (let recoveryPlanData of Object.values(recoveryPlansData)) {
-            const c = RecoveryPlan.fromDict(recoveryPlanData);
+            const c = RecoveryPlan.fromDict(recoveryPlanData, this._vault);
             recoveryPlans[c.pk] = c;
         }
         this._recoveryPlans = recoveryPlans;
@@ -49,6 +49,10 @@ class RecoveryPlansManager {
         if(pk in this._recoveryPlans)
             return this._recoveryPlans[pk];
         throw new Error(`[RecoveryPlanManager] not found: ${pk}`);
+    }
+    async submitRecoveryPlan(recoveryPlan: RecoveryPlan, callback: () => void): Promise<void> {
+        console.log('[RecoveryPlansManager.submitRecoveryPlan]', recoveryPlan.name)    
+        recoveryPlan.fsm.send('SUBMIT', {callback})
     }
 }
 

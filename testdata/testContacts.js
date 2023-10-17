@@ -27,7 +27,7 @@ const words = { // seed words so keys are constant for testing...
     }
 }
 
-const participants = Object.keys(words)
+const partys = Object.keys(words)
 
 const vaults = Object.fromEntries(test_vaults.map((vault) => {
     return Vault.fromDict(vault)
@@ -36,8 +36,8 @@ const vaults = Object.fromEntries(test_vaults.map((vault) => {
 
 async function getTestVaultsAndContacts() {
     const contacts = {}
-    for(let i = 0; i < participants.length; i++) {
-        const name = participants[i]
+    for(let i = 0; i < partys.length; i++) {
+        const name = partys[i]
         const my_vault = vaults[name]
         const their_names = Object.keys(words[name])
         contacts[name] = {}

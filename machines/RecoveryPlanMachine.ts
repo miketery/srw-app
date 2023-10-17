@@ -1,13 +1,17 @@
 import { createMachine } from 'xstate';
 
 import RecoveryPlan from '../models/RecoveryPlan';
+import { OutboundMessageDict } from '../models/Message';
 
-const RecoveryManisfestMachine = createMachine({
+const RecoveryPlanMachine = createMachine({
     /** @xstate-layout N4IgpgJg5mDOIC5QCcwGMD2A3MyCeAsgIYB2AlgGZwAuAdACIBKAggGIAqAxAMoCiAcvQD6ASX4A1Ee17cA2gAYAuolAAHDLDLUyGEipAAPRAEZjtAJwA2ACwAOawCYArJYDsD8-PkOANCDwm1vK0TuZOXmFetvKhAMwAvvF+qJg4+MTkVLB0AOrMUmIA4kIA8vxCAArMjOwiAMIiVfzs3JxEADbtzGhoYKrUkArKSCDqmtq6+kYIALSWTrTGMdbuVq5OK67GfgEIsfK2tLZhoY4O8tbW5raJyejYuISklDS0eQX8xWWV1bUNTS1OBQMMheowwEQIHghvoxlodHoRtMHJZLLRrLFLsYnMZPA5jJZfP5EPtDscnKcHOdLuZzLcQCkHulnlk6IxeMx6ABNThodoQkgAVVUMJGcImiNA01iCwctmMDiurhlGKpth2iEu1iOjhWtipBM8F3pjLST0yr1YYmYABk2qCABZkHCitQaeGTJEkw7WJyueSxUxLOyo9XEhCWAO0FHrLa0-FODyJJIgEgYCBwfSmx4ZF7ZWHuiVTRAzUyxRbLVZuDauLYahDBcwE1FyyxLWxuJuuE33M251kMFgcAvjBHFhCOeu2H3Nwkd9udnupHMs17vWqfUrlKo1eqNZjNbgjj2Swwk1y0WtlpYbayz+sOWKHYzuQNLcyOXGxbsp7PMi3ZLQ7Kclyx5Fl6E5mNE1iWLYrhXI+8ieK49bfuWlgnMYvq2DKcrWEuTLmnmdBWvwtpgWOEG+rQsQfk4gZPrEoZUvWiZmDEVgorh8gEgkv69iuAF0NUdQABIiOIvD0BRnpSogcqLLEcqmGEtGXBs9awYclhqbB1y+khP6JEAA */
     id: 'recoveryManifest',
     initial: 'DRAFT',
     tsTypes: {} as import("./RecoveryPlanMachine.typegen").Typegen0,
-    context: {} as {recoveryPlan: RecoveryPlan},
+    context: {} as {
+        recoveryPlan: RecoveryPlan,
+        sender: (msg: OutboundMessageDict) => Promise<boolean>,
+    },
     schema: {
         services: {} as {
             splitKey: {data: boolean},
@@ -26,10 +30,17 @@ const RecoveryManisfestMachine = createMachine({
                 src: 'splitKey',
                 id: 'splitKeyId',
                 onDone: {
-                    target: 'SENDING_INVITES',
+                    target: 'READY_TO_SEND_INVITES',
                 },
                 onError: {
                     target: 'DRAFT',
+                }
+            }
+        },
+        READY_TO_SEND_INVITES: {
+            on: {
+                SEND_INVITES: {
+                    target: 'SENDING_INVITES'
                 }
             }
         },
@@ -44,12 +55,12 @@ const RecoveryManisfestMachine = createMachine({
             on: {
                 allAccepted: {
                     target: 'READY',
-                    cond: "allParticipantsAccepted"
+                    cond: "allPartysAccepted"
                 },
-                forceReady: {
-                    target: 'READY',
-                    cond: "minParticipantsAccepted"
-                },
+                // forceReady: {
+                //     target: 'READY',
+                //     cond: "minPartysAccepted"
+                // },
             }
         },
         READY: {
@@ -66,28 +77,29 @@ const RecoveryManisfestMachine = createMachine({
     }
 }, {
     guards: {
-        allParticipantsAccepted: (context, event) => {
-            console.log('[GAURD] allParticipantsAccepted');
+        allPartysAccepted: (context, event) => {
+            console.log('[GAURD] allPartysAccepted');
             console.log(event)
             console.log(context)
-            return true;
+            return false;
         }
     },
     services: {
-        splitKey: (context: {recoveryPlan: RecoveryPlan}, event) => {
+        splitKey: async (context: {recoveryPlan: RecoveryPlan}, event) => {
             console.log('[FSM.RecoverPlanMachine.splitKey]', event)
-            context.recoveryPlan.splitKey()
+            await context.recoveryPlan.generateKey()
+            await context.recoveryPlan.splitKey()
             return Promise.resolve(true)
         }
     }
 });
 
-export default RecoveryManisfestMachine;
+export default RecoveryPlanMachine;
 // RecoveryManisfest
 // - DRAFT (details)
 // - ADD PARTICIPANTS
 // - WAITING ON PARTICIPANTS
-//      Participant
+//      Party
 //      - INIT (send share)
 //      - PENDING
 //      - ACCEPTED
