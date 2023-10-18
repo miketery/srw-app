@@ -111,7 +111,7 @@ class ContactsManager {
          * Note: in app will be called from processMap in MessagesManager
          */
         console.log('[ContactsManager.processContactRequest]')
-        if (message.type_name !== MessageTypes.contact.request)
+        if (message.type_name !== MessageTypes.contact.invite)
             throw new Error('108 Invalid data type');
         // const message = Message.inbound(inbound);
         message.decrypt(this.vault.private_key);

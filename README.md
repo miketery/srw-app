@@ -4,7 +4,7 @@
 
 This is a Wallet / Vault application to support [self-sovereign identity (SSI)](https://en.wikipedia.org/wiki/Self-sovereign_identity) or User Owner Identity.
 
-The goal is to create a digital identity using public key cryptography. The private key is then self custodied - i.e. no reliance on a third party. The public key maps to a DID (Decentralized Identifier) (ref: [W3C DID](https://www.w3.org/TR/did-core/)).
+The goal is to create a digital identity using public key cryptography. The private key is then self custodied - i.e. no reliance on a third recoveryParty. The public key maps to a DID (Decentralized Identifier) (ref: [W3C DID](https://www.w3.org/TR/did-core/)).
 
 Since this solution is self custody there needs to be a recovery mechanism. this is where the social recovery comes in. This leverages threshold cryptography. We use [Shamir Secret Sharing](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing).
 
@@ -29,7 +29,7 @@ expo start --web
 
 //TODO
 
-- Recovery Manifest, is a recovery scheme with partys and devices
+- Recovery Manifest, is a recovery scheme with recoveryPartys and devices
 
 ### Managers
 
@@ -60,7 +60,7 @@ Using [XState](https://xstate.js.org/docs/guides/introduction-to-state-machines-
 
 //TODO
 
-- RecoveryPlanMachine - setting up a social recovery scheme, need to track recovery manifest state, and state of partys as they accept or reject participation. Potentially later need to track updates to a recovery.
+- RecoveryPlanMachine - setting up a social recovery scheme, need to track recovery manifest state, and state of recoveryPartys as they accept or reject participation. Potentially later need to track updates to a recovery.
 - AppMachine (i.e. track state of the app) - e.g. first install, or vault is setup, locked, unlocked, in recovery mode
 
 //Possible TODO

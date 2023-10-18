@@ -22,7 +22,7 @@ type processMapType = {
 
 export const MessageTypes = {
     'contact': {
-        'request': 'msg.contact.request',
+        'invite': 'msg.contact.invite',
         'accept': 'msg.contact.accept'
     },
     'app': {
@@ -32,8 +32,9 @@ export const MessageTypes = {
         'warning': 'msg.app.warning',
     },
     'recovery': {
-        'request': 'msg.recovery.request',
-        'accept': 'msg.recovery.accept'
+        'invite': 'msg.recovery.invite',
+        'accept': 'msg.recovery.accept',
+        'reject': 'msg.recovery.reject',
     },
 }
 
@@ -53,7 +54,7 @@ const processMap: processMapType = {
             } as NotificationData)
         return Promise.resolve(true)
     },
-    [MessageTypes.contact.request]: async (message: Message, vault: Vault, m: VaultManager) => {
+    [MessageTypes.contact.invite]: async (message: Message, vault: Vault, m: VaultManager) => {
         console.log('[processMap] ', message.type_name, message)
         const contact = await m.contactsManager.processContactRequest(message)
         const notification = m.notificationsManager.createNotification(

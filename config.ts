@@ -12,7 +12,7 @@ import {
 export const DEV = env_dev === 'true'
 export const DEBUG = env_debug === 'true'
 export const LOCAL = env_local === 'true'
-export const MOCK = env_mock === 'true' && false
+export const MOCK = env_mock === 'true' && true
 export const FETCH = false
 
 export const SPLASH_ANIMATE_TIME = DEBUG ? 100 : 666

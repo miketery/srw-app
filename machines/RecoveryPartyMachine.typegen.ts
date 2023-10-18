@@ -4,12 +4,12 @@
   export interface Typegen0 {
         '@@xstate/typegen': true;
         internalEvents: {
-          "done.invoke.splitKeyId": { type: "done.invoke.splitKeyId"; data: unknown; __tip: "See the XState TS docs to learn how to strongly type this." };
-"error.platform.splitKeyId": { type: "error.platform.splitKeyId"; data: unknown };
+          "done.invoke.sendInviteId": { type: "done.invoke.sendInviteId"; data: unknown; __tip: "See the XState TS docs to learn how to strongly type this." };
+"error.platform.sendInviteId": { type: "error.platform.sendInviteId"; data: unknown };
 "xstate.init": { type: "xstate.init" };
         };
         invokeSrcNameMap: {
-          "splitKey": "done.invoke.splitKeyId";
+          "sendInvite": "done.invoke.sendInviteId";
         };
         missingImplementations: {
           actions: never;
@@ -18,18 +18,19 @@
           services: never;
         };
         eventsCausingActions: {
-          "sendInvites": "SEND_INVITES";
+          "save": "ACCEPT" | "done.invoke.sendInviteId";
+"sendInviteError": "error.platform.sendInviteId";
         };
         eventsCausingDelays: {
           
         };
         eventsCausingGuards: {
-          "allRecoveryPartysAccepted": "allAccepted";
+          
         };
         eventsCausingServices: {
-          "splitKey": "SPLIT_KEY";
+          "sendInvite": "RESEND_INVITE" | "SEND_INVITE";
         };
-        matchesStates: "ARCHIVED" | "DRAFT" | "FINAL" | "READY" | "READY_TO_SEND_INVITES" | "SENDING_INVITES" | "SPLITTING_KEY" | "WAITING_ON_PARTICIPANTS";
+        matchesStates: "ACCEPTED" | "FINAL" | "INIT" | "PENDING" | "REJECTED" | "SENDING_INVITE";
         tags: never;
       }
   

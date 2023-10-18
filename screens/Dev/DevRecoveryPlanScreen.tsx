@@ -19,8 +19,9 @@ import getTestVaultsAndContacts from '../../testdata/testContacts'
 // import InboundMessageManager from '../../managers/MessagesManager'
 
 import { useSessionContext } from '../../contexts/SessionContext'
-import { PayloadType } from '../../models/RecoveryPlan'
+import { PayloadType, RecoveryPlanState } from '../../models/RecoveryPlan'
 import { bytesToHex, hexToBytes } from '../../lib/utils'
+import ContactsManager from '../../managers/ContactsManager'
 
 /**
  * Test Recovery Plan Flow Messages
@@ -34,39 +35,41 @@ async function RecoverPlanCreate(
     // alice creates recovery w/ Bob and Charlie and Dan
     const aliceVault = vaults['alice']
     const aliceContacts = contacts['alice']
-    const recoveryPlanManager = new RecoveryPlansManager(aliceVault)
+    const aliceContactsManager = new ContactsManager(aliceVault, Object.fromEntries(
+        Object.values(aliceContacts).map( (c) => [c.pk, c])))
+    const recoveryPlanManager = new RecoveryPlansManager(aliceVault, {}, aliceContactsManager)
     const recoveryPlan = recoveryPlanManager.createRecoveryPlan(
         'RP_01 - test', 'testing')
-    recoveryPlan.addParty(aliceContacts['bob'], 1, true)
-    recoveryPlan.addParty(aliceContacts['charlie'], 1, false)
-    recoveryPlan.addParty(aliceContacts['dan'], 2, true)
+    recoveryPlan.addRecoveryParty(aliceContacts['bob'], 1, true)
+    recoveryPlan.addRecoveryParty(aliceContacts['charlie'], 1, false)
+    recoveryPlan.addRecoveryParty(aliceContacts['dan'], 2, true)
 
     const byteSecret = new TextEncoder().encode('MY SECRET')
     recoveryPlan.setPayload(byteSecret, PayloadType.OBJECT)
     recoveryPlan.setThreshold(3)
-
+    console.log('XXX')
     console.assert(recoveryPlan.checkValidPreSubmit())
     
     await recoveryPlan.generateKey()
     await recoveryPlan.splitKey()
-
+ 
     console.log(recoveryPlan.toDict())
-    console.log(recoveryPlan.partys[0].toDict())
+    console.log(recoveryPlan.recoveryPartys[0].toDict())
     const keyHex = bytesToHex(recoveryPlan.key)
     console.log(keyHex)
 
     const allShares = []
-    recoveryPlan.partys.forEach( (p) => p.shares.forEach( (s) => {
-        console.log(s, p.name)
-        allShares.push[s]}))
-
-    // combine test
+    for(let i = 0; i < recoveryPlan.recoveryPartys.length; i++) {
+        for(let j = 0; j < recoveryPlan.recoveryPartys[i].shares.length; j++) {
+            allShares.push(recoveryPlan.recoveryPartys[i].shares[j])
+        }
+    }
+    // only 2 shares
     const testNoWork = secrets.combine(allShares.slice(0, 2))
-
-    // should not work
+    console.assert(testNoWork !== keyHex)
+    // 3 shares
     const willWork = secrets.combine(allShares.slice(0, 3))
     console.assert(willWork === keyHex)
-    console.assert(testNoWork !== keyHex)
     console.log('combine test complete')
     //TODO
 }
@@ -75,22 +78,24 @@ async function RecoverPlanFullFlow(
         contacts: {[name: string]: Contact}) {
     const aliceVault = vaults['alice']
     const aliceContacts = contacts['alice']
-    const recoveryPlanManager = new RecoveryPlansManager(aliceVault)
+    const aliceContactsManager = new ContactsManager(aliceVault, Object.fromEntries(
+        Object.values(aliceContacts).map( (c) => [c.pk, c])))
+    const recoveryPlanManager = new RecoveryPlansManager(aliceVault, {}, aliceContactsManager)
     const recoveryPlan = recoveryPlanManager.createRecoveryPlan(
         'RP_01 - test', 'testing')
-    recoveryPlan.addParty(aliceContacts['bob'], 1, true)
-    recoveryPlan.addParty(aliceContacts['charlie'], 1, false)
-    recoveryPlan.addParty(aliceContacts['dan'], 2, true)
+    recoveryPlan.addRecoveryParty(aliceContacts['bob'], 1, true)
+    recoveryPlan.addRecoveryParty(aliceContacts['charlie'], 1, false)
+    recoveryPlan.addRecoveryParty(aliceContacts['dan'], 2, true)
 
     const byteSecret = new TextEncoder().encode('MY SECRET')
     recoveryPlan.setPayload(byteSecret, PayloadType.OBJECT)
     recoveryPlan.setThreshold(3)
     console.assert(recoveryPlan.checkValidPreSubmit())
-    // await recoveryPlan.generateKey()
-    // await recoveryPlan.splitKey()
     recoveryPlan.fsm.send('SPLIT_KEY')
-    await new Promise(r => setTimeout(r, 1000))
+    await new Promise(r => setTimeout(r, 300))
     console.log(recoveryPlan.toDict())
+    console.assert(RecoveryPlanState.READY_TO_SEND_INVITES === recoveryPlan.state)
+    recoveryPlan.fsm.send('SEND_INVITES')
     // recoveryPlan.fsm.submit('SEND_INVITES')
 }
 
@@ -123,7 +128,6 @@ const DevRecoveryPlanScreen: React.FC<DevRecoveryPlanScreenProps> = (props) => {
             const [vaults, contacts] = await getTestVaultsAndContacts()
             setVaults(vaults)
             setContacts(contacts)
-            console.log(contacts)
             setLoading(false)
         }
         loadVaultsAndContacts()

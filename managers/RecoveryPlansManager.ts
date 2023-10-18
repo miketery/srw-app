@@ -5,19 +5,24 @@ import SS, { StoredType } from '../services/StorageService'
 
 import Vault from '../models/Vault'
 import RecoveryPlan from '../models/RecoveryPlan'
+import ContactsManager from './ContactsManager'
 
 class RecoveryPlansManager {
-    private _recoveryPlans: {string?: RecoveryPlan}
     private _vault: Vault;
+    private _recoveryPlans: {string?: RecoveryPlan}
+    private _contactsManager: ContactsManager;
 
-    constructor(vault: Vault, recoveryPlans: {[pk: string]: RecoveryPlan} = {}) { 
+    constructor(vault: Vault, recoveryPlans: {[pk: string]: RecoveryPlan} = {},
+            contactsManager: ContactsManager) { 
         console.log('[RecoveryPlansManager.constructor] ' + vault.pk)
-        this._recoveryPlans = recoveryPlans;
         this._vault = vault;
+        this._recoveryPlans = recoveryPlans;
+        this._contactsManager = contactsManager;
     }
     clear() { this._recoveryPlans = {}; }
     createRecoveryPlan(name: string, description: string): RecoveryPlan {
-        const recoveryPlan = RecoveryPlan.create(name, description, this._vault.pk, this._vault)
+        const recoveryPlan = RecoveryPlan.create(name, description,
+            this._vault.pk, this._vault, this._contactsManager)
         this.saveRecoveryPlan(recoveryPlan)
         return recoveryPlan
     }
@@ -27,9 +32,11 @@ class RecoveryPlansManager {
     }
     async loadRecoveryPlans(): Promise<{[pk: string]: RecoveryPlan}> {
         const recoveryPlans: {string?: RecoveryPlan} = {};
-        const recoveryPlansData = await SS.getAll(StoredType.recoveryPlan, this._vault.pk);
+        const recoveryPlansData = await SS.getAll(
+            StoredType.recoveryPlan, this._vault.pk);
         for (let recoveryPlanData of Object.values(recoveryPlansData)) {
-            const c = RecoveryPlan.fromDict(recoveryPlanData, this._vault);
+            const c = RecoveryPlan.fromDict(recoveryPlanData, this._vault,
+                this._contactsManager);
             recoveryPlans[c.pk] = c;
         }
         this._recoveryPlans = recoveryPlans;

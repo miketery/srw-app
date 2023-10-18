@@ -8,15 +8,15 @@ const ContactMachine = createMachine({
     id: 'contactFsm',
     initial: 'INIT',
     tsTypes: {} as import("./ContactMachine.typegen").Typegen0,
-    schema: {
-        services: {} as {
-            sendInvite: {data: boolean},
-        },  
-    },
     context: {} as {
         // contactsManager: ContactsManager,
         contact: Contact,
         sender: (msg: OutboundMessageDict) => Promise<boolean>,
+    },
+    schema: {
+        services: {} as {
+            sendInvite: {data: boolean},
+        },  
     },
     states: {
         INIT: {
@@ -105,13 +105,13 @@ const ContactMachine = createMachine({
 }, {
     actions: {
         sendInviteError: (context, event): void => {
-            console.log('[sendInviteError]', event)
+            console.log('[FSM.ContactMachine.sendInviteError]', event)
         },
         sendAcceptError: (context, event): void => {
-            console.log('[sendAcceptError]', event)
+            console.log('[FSM.ContactMachine.sendAcceptError]', event)
         },
         save: (context, event): void => {
-            console.log('FSM [ContactMachine.save]', context.contact.name, context.contact.state, event)
+            console.log('FSM.ContactMachine.save]', context.contact.name, context.contact.state, event)
             context.contact.save()
         }
     },

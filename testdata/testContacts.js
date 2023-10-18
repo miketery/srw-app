@@ -27,7 +27,7 @@ const words = { // seed words so keys are constant for testing...
     }
 }
 
-const partys = Object.keys(words)
+const recoveryPartys = Object.keys(words)
 
 const vaults = Object.fromEntries(test_vaults.map((vault) => {
     return Vault.fromDict(vault)
@@ -36,8 +36,8 @@ const vaults = Object.fromEntries(test_vaults.map((vault) => {
 
 async function getTestVaultsAndContacts() {
     const contacts = {}
-    for(let i = 0; i < partys.length; i++) {
-        const name = partys[i]
+    for(let i = 0; i < recoveryPartys.length; i++) {
+        const name = recoveryPartys[i]
         const my_vault = vaults[name]
         const their_names = Object.keys(words[name])
         contacts[name] = {}
@@ -51,7 +51,7 @@ async function getTestVaultsAndContacts() {
             const contact = await Contact.create(
                 my_vault.pk, their_vault.did, their_name,
                 their_vault.public_key, their_vault.verify_key,
-                theirContactKeyPair.publicKey, '', ContactState.ESTABLISHED)
+                theirContactKeyPair.publicKey, '', ContactState.ESTABLISHED, my_vault)
             contact.private_key = myContactKeyPair.secretKey
             contact.public_key = myContactKeyPair.publicKey
             contacts[name][their_name] = contact

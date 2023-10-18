@@ -175,7 +175,7 @@ class Contact {
             contact_public_key: this.b58_public_key,
         }
         const message = Message.forContact(this, data,
-            MessageTypes.contact.request, '0.0.1');
+            MessageTypes.contact.invite, '0.0.1');
         // null the sender sub key because we're not using it (even though
         // the contact will receive it inside the encrypted msg, will use in future
         message.sender.sub_public_key = Uint8Array.from([])

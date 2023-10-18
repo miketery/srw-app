@@ -5,7 +5,7 @@ import { OutboundMessageDict } from '../models/Message';
 
 const RecoveryPlanMachine = createMachine({
     /** @xstate-layout N4IgpgJg5mDOIC5QCcwGMD2A3MyCeAsgIYB2AlgGZwAuAdACIBKAggGIAqAxAMoCiAcvQD6ASX4A1Ee17cA2gAYAuolAAHDLDLUyGEipAAPRAEZjtAJwA2ACwAOawCYArJYDsD8-PkOANCDwm1vK0TuZOXmFetvKhAMwAvvF+qJg4+MTkVLB0AOrMUmIA4kIA8vxCAArMjOwiAMIiVfzs3JxEADbtzGhoYKrUkArKSCDqmtq6+kYIALSWTrTGMdbuVq5OK67GfgEIsfK2tLZhoY4O8tbW5raJyejYuISklDS0eQX8xWWV1bUNTS1OBQMMheowwEQIHghvoxlodHoRtMHJZLLRrLFLsYnMZPA5jJZfP5EPtDscnKcHOdLuZzLcQCkHulnlk6IxeMx6ABNThodoQkgAVVUMJGcImiNA01iCwctmMDiurhlGKpth2iEu1iOjhWtipBM8F3pjLST0yr1YYmYABk2qCABZkHCitQaeGTJEkw7WJyueSxUxLOyo9XEhCWAO0FHrLa0-FODyJJIgEgYCBwfSmx4ZF7ZWHuiVTRAzUyxRbLVZuDauLYahDBcwE1FyyxLWxuJuuE33M251kMFgcAvjBHFhCOeu2H3Nwkd9udnupHMs17vWqfUrlKo1eqNZjNbgjj2Swwk1y0WtlpYbayz+sOWKHYzuQNLcyOXGxbsp7PMi3ZLQ7Kclyx5Fl6E5mNE1iWLYrhXI+8ieK49bfuWlgnMYvq2DKcrWEuTLmnmdBWvwtpgWOEG+rQsQfk4gZPrEoZUvWiZmDEVgorh8gEgkv69iuAF0NUdQABIiOIvD0BRnpSogcqLLEcqmGEtGXBs9awYclhqbB1y+khP6JEAA */
-    id: 'recoveryManifest',
+    id: 'recoveryPlanFsm',
     initial: 'DRAFT',
     tsTypes: {} as import("./RecoveryPlanMachine.typegen").Typegen0,
     context: {} as {
@@ -21,8 +21,6 @@ const RecoveryPlanMachine = createMachine({
         DRAFT: {
             on: {
                 SPLIT_KEY: 'SPLITTING_KEY',
-                // ADD_PARTICIPANTS: 'DRAFT',
-                // DELETE_PARTICIPANTS: 'DRAFT',
             },
         },
         SPLITTING_KEY: {
@@ -45,6 +43,7 @@ const RecoveryPlanMachine = createMachine({
             }
         },
         SENDING_INVITES: {
+            entry: ['sendInvites'],
             on: {
                 SENT: {
                     target: 'WAITING_ON_PARTICIPANTS'
@@ -55,11 +54,11 @@ const RecoveryPlanMachine = createMachine({
             on: {
                 allAccepted: {
                     target: 'READY',
-                    cond: "allPartysAccepted"
+                    cond: "allRecoveryPartysAccepted"
                 },
                 // forceReady: {
                 //     target: 'READY',
-                //     cond: "minPartysAccepted"
+                //     cond: "minRecoveryPartysAccepted"
                 // },
             }
         },
@@ -76,9 +75,19 @@ const RecoveryPlanMachine = createMachine({
         ARCHIVED: {}
     }
 }, {
+    actions: {
+        sendInvites: (context, event): void => {
+            console.log('[FSM.RecoveryPlanMachine.sendInvites]', context.recoveryPlan.name, event)
+            for(let recoveryParty of context.recoveryPlan.recoveryPartys) {
+                recoveryParty.fsm.send('SEND_INVITE', {callback: () => {
+                    console.log('[FSM.RecoveryPlanMachine.sendInvites] callback', recoveryParty.name)
+                }})
+            }
+        }
+    },
     guards: {
-        allPartysAccepted: (context, event) => {
-            console.log('[GAURD] allPartysAccepted');
+        allRecoveryPartysAccepted: (context, event) => {
+            console.log('[GAURD] allRecoveryPartysAccepted');
             console.log(event)
             console.log(context)
             return false;
@@ -99,7 +108,7 @@ export default RecoveryPlanMachine;
 // - DRAFT (details)
 // - ADD PARTICIPANTS
 // - WAITING ON PARTICIPANTS
-//      Party
+//      RecoveryParty
 //      - INIT (send share)
 //      - PENDING
 //      - ACCEPTED
