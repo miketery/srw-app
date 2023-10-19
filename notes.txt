@@ -13,3 +13,8 @@ Might not need the following:
 "jest": "^29.6.2",
 
 or webpack file
+
+IN secret.js line 33 should be
+```
+module.exports = factory(require("crypto"))
+```
