@@ -1,7 +1,7 @@
 import { createMachine } from 'xstate';
 
 import RecoveryPlan from '../models/RecoveryPlan';
-import { OutboundMessageDict } from '../models/Message';
+import { SenderFunction } from '../services/DigitalAgentService';
 
 const RecoveryPlanMachine = createMachine({
     /** @xstate-layout N4IgpgJg5mDOIC5QCcwGMD2A3MyCeAsgIYB2AlgGZwAuAdACIBKAggGIAqAxAMoCiAcvQD6ASX4A1Ee17cA2gAYAuolAAHDLDLUyGEipAAPRAEZjtAJwA2ACwAOawCYArJYDsD8-PkOANCDwm1vK0TuZOXmFetvKhAMwAvvF+qJg4+MTkVLB0AOrMUmIA4kIA8vxCAArMjOwiAMIiVfzs3JxEADbtzGhoYKrUkArKSCDqmtq6+kYIALSWTrTGMdbuVq5OK67GfgEIsfK2tLZhoY4O8tbW5raJyejYuISklDS0eQX8xWWV1bUNTS1OBQMMheowwEQIHghvoxlodHoRtMHJZLLRrLFLsYnMZPA5jJZfP5EPtDscnKcHOdLuZzLcQCkHulnlk6IxeMx6ABNThodoQkgAVVUMJGcImiNA01iCwctmMDiurhlGKpth2iEu1iOjhWtipBM8F3pjLST0yr1YYmYABk2qCABZkHCitQaeGTJEkw7WJyueSxUxLOyo9XEhCWAO0FHrLa0-FODyJJIgEgYCBwfSmx4ZF7ZWHuiVTRAzUyxRbLVZuDauLYahDBcwE1FyyxLWxuJuuE33M251kMFgcAvjBHFhCOeu2H3Nwkd9udnupHMs17vWqfUrlKo1eqNZjNbgjj2Swwk1y0WtlpYbayz+sOWKHYzuQNLcyOXGxbsp7PMi3ZLQ7Kclyx5Fl6E5mNE1iWLYrhXI+8ieK49bfuWlgnMYvq2DKcrWEuTLmnmdBWvwtpgWOEG+rQsQfk4gZPrEoZUvWiZmDEVgorh8gEgkv69iuAF0NUdQABIiOIvD0BRnpSogcqLLEcqmGEtGXBs9awYclhqbB1y+khP6JEAA */
@@ -10,7 +10,8 @@ const RecoveryPlanMachine = createMachine({
     tsTypes: {} as import("./RecoveryPlanMachine.typegen").Typegen0,
     context: {} as {
         recoveryPlan: RecoveryPlan,
-        sender: (msg: OutboundMessageDict) => Promise<boolean>,
+        partyMachines: {string?: any},
+        sender: SenderFunction,
     },
     schema: {
         services: {} as {
@@ -19,11 +20,13 @@ const RecoveryPlanMachine = createMachine({
     },
     states: {
         DRAFT: {
+            entry: ['save'],
             on: {
                 SPLIT_KEY: 'SPLITTING_KEY',
             },
         },
         SPLITTING_KEY: {
+            entry: ['save'],
             invoke: {
                 src: 'splitKey',
                 id: 'splitKeyId',
@@ -36,6 +39,7 @@ const RecoveryPlanMachine = createMachine({
             }
         },
         READY_TO_SEND_INVITES: {
+            entry: ['save', 'spawnRecoveryPartys'],
             on: {
                 SEND_INVITES: {
                     target: 'SENDING_INVITES'
@@ -43,14 +47,18 @@ const RecoveryPlanMachine = createMachine({
             }
         },
         SENDING_INVITES: {
-            entry: ['sendInvites'],
+            entry: ['save', 'spawnRecoveryPartys', 'sendInvites'],
             on: {
                 SENT: {
                     target: 'WAITING_ON_PARTICIPANTS'
                 },
-            }
+            },
+            always: [
+                { target: 'WAITING_ON_PARTICIPANTS', cond: 'allRecoveryPartysSent'}
+            ]
         },
         WAITING_ON_PARTICIPANTS: {
+            entry: ['save', 'spawnRecoveryPartys'],
             on: {
                 allAccepted: {
                     target: 'READY',
@@ -83,13 +91,26 @@ const RecoveryPlanMachine = createMachine({
                     console.log('[FSM.RecoveryPlanMachine.sendInvites] callback', recoveryParty.name)
                 }})
             }
+        },
+        spawnRecoveryPartys: (context, event): void => {
+            console.log('[FSM.RecoveryPlanMachine.spawnRecoveryPartys]', context.recoveryPlan.name, event)
+            for(let recoveryParty of context.recoveryPlan.recoveryPartys) {
+                if(!Object.keys(context.partyMachines).includes(recoveryParty.pk))
+                    context.partyMachines[recoveryParty.pk] = recoveryParty.startAndGetFsm(context.sender)
+            }
+        },
+        save: (context, event): void => {
+            console.log('[FSM.RecoveryPlanMachine.save]', context.recoveryPlan.name, context.recoveryPlan.state, event)
+            context.recoveryPlan.save()
         }
     },
     guards: {
         allRecoveryPartysAccepted: (context, event) => {
-            console.log('[GAURD] allRecoveryPartysAccepted');
-            console.log(event)
-            console.log(context)
+            console.log('[FSM.RecoveryPlanMachine.allRecoveryPartysAccepted] Guard', context.recoveryPlan.name, event);
+            return false;
+        },
+        allRecoveryPartysSent: (context, event) => {
+            console.log('[FSM.RecoveryPlanMachine.allRecoveryPartysSent] Guard', context.recoveryPlan.name, event);
             return false;
         }
     },

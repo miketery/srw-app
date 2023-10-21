@@ -5,9 +5,8 @@ export enum StoredType {
     contact = 'contact',
     notification = 'notification',
     secret = 'secret',
-    recoveryPlan = 'recoveryPlan',
-    // keyshare = 'keyshare', // TODO: rename to reocvery_manifest
-    // contact_keyshare = 'contact_keyshare', //TODO: rename to guardian_share
+    recoveryPlan = 'recoveryPlan', // party (or external gaurdian) stored as child of recoveryPlan
+    guardian = 'guardian', // I am a guardian for someone else (i.e. they have me as a party in their recoveryPlan)
     message = 'message',
 }
 export const StoredTypePrefix: { [k in StoredType]: string } = {
@@ -17,8 +16,7 @@ export const StoredTypePrefix: { [k in StoredType]: string } = {
     [StoredType.notification]: 'n__',
     [StoredType.secret]: 's__',
     [StoredType.recoveryPlan]: 'rp_',
-    // [StoredType.keyshare]: 'k__',
-    // [StoredType.contact_keyshare]: 'ck_',
+    [StoredType.guardian]: 'g__',
     [StoredType.message]: 'm__',
 }
 // map prefix to StoredType
@@ -126,6 +124,12 @@ const SS = {
         })
         return vaultPk === null ? array : array.filter(obj => obj !== null && obj.vaultPk === vaultPk);
     },
+    deleteAllByType: async(t: StoredType) => {
+        // should only be relevant for testing / dev
+        console.log('[SS.deleteAllByType]', t)
+        const keys = SS.getIndex(t)
+        return AsyncStorage.multiRemove(keys)
+    }
 }
 Object.freeze(SS)
 

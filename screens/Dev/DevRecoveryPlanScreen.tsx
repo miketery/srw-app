@@ -22,11 +22,18 @@ import { useSessionContext } from '../../contexts/SessionContext'
 import { PayloadType, RecoveryPlanState } from '../../models/RecoveryPlan'
 import { bytesToHex, hexToBytes } from '../../lib/utils'
 import ContactsManager from '../../managers/ContactsManager'
+import SS, { StoredType, StoredTypePrefix } from '../../services/StorageService'
 
 /**
  * Test Recovery Plan Flow Messages
  */ 
 
+const deleteAllRecoveryRelated = () => {
+    const types = [StoredType.recoveryPlan, StoredType.guardian]
+    for(let type of types)
+        SS.deleteAllByType(type)
+
+}
 
 async function RecoverPlanCreate(
         vaults: {[pk: string]: Vault},
@@ -76,13 +83,14 @@ async function RecoverPlanCreate(
 async function RecoverPlanFullFlow(
         vaults: {[pk: string]: Vault},
         contacts: {[name: string]: Contact}) {
+    deleteAllRecoveryRelated()
     const aliceVault = vaults['alice']
     const aliceContacts = contacts['alice']
     const aliceContactsManager = new ContactsManager(aliceVault, Object.fromEntries(
         Object.values(aliceContacts).map( (c) => [c.pk, c])))
-    const recoveryPlanManager = new RecoveryPlansManager(aliceVault, {}, aliceContactsManager)
+    const recoveryPlanManager = new RecoveryPlansManager(aliceVault, {}, aliceContactsManager.getContact)
     const recoveryPlan = recoveryPlanManager.createRecoveryPlan(
-        'RP_01 - test', 'testing')
+        'RP_01 - test', 'RP Dev Test')
     recoveryPlan.addRecoveryParty(aliceContacts['bob'], 1, true)
     recoveryPlan.addRecoveryParty(aliceContacts['charlie'], 1, false)
     recoveryPlan.addRecoveryParty(aliceContacts['dan'], 2, true)
@@ -158,6 +166,12 @@ const DevRecoveryPlanScreen: React.FC<DevRecoveryPlanScreenProps> = (props) => {
             <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
                     onPress={() => testShamir()}>
                 <Text style={ds.buttonText}>test</Text>
+            </Pressable>
+        </View>
+        <View>
+            <Pressable style={[ds.button, ds.redButton, tw`mt-4 w-full`]}
+                    onPress={() => deleteAllRecoveryRelated()}>
+                <Text style={ds.buttonText}>Delete</Text>
             </Pressable>
         </View>
     </ScrollView>

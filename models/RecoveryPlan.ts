@@ -3,11 +3,11 @@ import { v4 as uuidv4 } from 'uuid';
 import secrets from 'secrets.js-grempe';
 import { interpret } from 'xstate';
 
-import { StoredTypePrefix } from '../services/StorageService';
+import SS, { StoredTypePrefix } from '../services/StorageService';
 import RecoveryPlanMachine from '../machines/RecoveryPlanMachine';
 import RecoveryPartyMachine from '../machines/RecoveryPartyMachine';
 import Contact from "./Contact";
-import DigitalAgentService from "../services/DigitalAgentService";
+import DigitalAgentService, { SenderFunction } from "../services/DigitalAgentService";
 import Vault from "./Vault";
 import ContactsManager from "../managers/ContactsManager";
 import { Message , OutboundMessageDict } from "./Message";
@@ -55,19 +55,10 @@ export class RecoveryParty {
         this._state = state
         this.recoveryPlan = recoveryPlan
         console.log('[RecoveryParty.constructor]', this.toString(), this.recoveryPlan.name)
-        this.fsm = interpret(RecoveryPartyMachine.withContext({
-            recoveryParty: this,
-            sender: DigitalAgentService.getPostMessageFunction(this.recoveryPlan.vault),
-        }))
-        this.fsm.onTransition((context: {recoveryPlan: RecoveryPlan}, event) => {
-            if(context.recoveryPlan)
-                console.log('[RecoveryParty.fsm.onTransition]', context.recoveryPlan.toString(), event)
-            else
-                console.log('[RecoveryParty.fsm.onTransition]', event)
-        })
-        this.fsm.start(this._state)
     }
     get state(): RecoveryPartyState {
+        if(this.fsm)
+            return this.fsm.getSnapshot().value
         return this._state
     }
     static fromDict(data: RecoveryPartyDict, recoveryPlan: RecoveryPlan): RecoveryParty {
@@ -88,8 +79,27 @@ export class RecoveryParty {
     toString(): string {
         return 'RecoveryParty<'+[this.pk, this.contactPk, this.name, this.state].join(', ')+'>'
     }
+    startAndGetFsm(sender: SenderFunction): any {
+        console.log('[RecoveryParty.startAndGetFsm]', this.toString())
+        if(this.fsm) {
+            console.log('[RecoveryParty.startAndGetFsm] fsm already exists')
+            return this.fsm
+        }
+        this.fsm = interpret(RecoveryPartyMachine.withContext({
+            recoveryParty: this,
+            sender: sender,
+        }))
+        this.fsm.onTransition((context: {recoveryPlan: RecoveryPlan}, event) => {
+            if(context.recoveryPlan)
+                console.log('[RecoveryParty.fsm.onTransition]', context.recoveryPlan.toString(), event)
+            else
+                console.log('[RecoveryParty.fsm.onTransition]', event)
+        })
+        this.fsm.start(this._state)
+        return this.fsm
+    }
     assignShare(share: string): void {
-        console.log(this.pk, share)
+        console.log('[RecoveryParty.assignShare]', this.name)
         this.shares.push(share)
     }
     inviteMessage(): OutboundMessageDict {
@@ -158,7 +168,7 @@ class RecoveryPlan {
     
     vault: Vault;
     fsm: any;
-    _contactsManager: ContactsManager;
+    getContact: (pk: string) => Contact;
 
     constructor(pk: string, vaultPk: string,
             name: string, description: string,
@@ -166,7 +176,7 @@ class RecoveryPlan {
             key: Uint8Array,
             recoveryPartys: RecoveryPartyDict[], threshold: number,
             state: RecoveryPlanState, created: number,
-            vault: Vault, contactsManager: ContactsManager) {
+            vault: Vault, getContact: (pk: string) => Contact) {
         console.log('[RecoveryPlan.constructor]')
         this.pk = pk
         this.vaultPk = vaultPk
@@ -184,7 +194,7 @@ class RecoveryPlan {
         this.threshold = threshold
         
         this._state = state;
-        this._contactsManager = contactsManager
+        this.getContact = getContact
         this.created = created;
         this.vault = vault
         const resolvedState = RecoveryPlanMachine.resolveState({
@@ -192,6 +202,7 @@ class RecoveryPlan {
             value: this._state,
             context: {
                 recoveryPlan: this,
+                partyMachines: {},
                 sender: DigitalAgentService.getPostMessageFunction(this.vault),
             }
         })
@@ -206,33 +217,37 @@ class RecoveryPlan {
         })
         this.fsm.start(resolvedState)
     }
-    getContact(pk: string): Contact {
-        console.log('[RecoveryPlan.getContact]', pk)
-        return this._contactsManager.getContact(pk)
-    }
+    // getContact(pk: string): Contact {
+    //     console.log('[RecoveryPlan.getContact]', pk)
+    //     return this._contactsManager.getContact(pk)
+    // }
     get state(): RecoveryPlanState {
         return this.fsm.getSnapshot().value
     }
-    static create(vaultPk: string, name: string, description: string,
-            vault: Vault, contactsManager: ContactsManager) {
+    save(): void {
+        console.log('[RecoveryPlan.save]', this.toString())        
+        SS.save(this.pk, this.toDict())
+    }
+    static create(name: string, description: string,
+            vault: Vault, getContact: (pk: string) => Contact) {
         const pk = StoredTypePrefix.recoveryPlan + uuidv4()
         return new RecoveryPlan(
-            pk, vaultPk, name, description,
+            pk, vault.pk, name, description,
             Uint8Array.from([]), PayloadType.OBJECT,
             Uint8Array.from([]),
             [], 0,
             RecoveryPlanState.DRAFT, Math.floor(Date.now() / 1000),
-            vault, contactsManager)
+            vault, getContact)
     }
     static fromDict(data: RecoveryPlanDict,
-            vault: Vault, contactsManager: ContactsManager): RecoveryPlan {
+            vault: Vault, getContact: (pk: string) => Contact): RecoveryPlan {
         const key = hexToBytes(data.key)
         const payload = base64toBytes(data.payload)
         return new RecoveryPlan(data.pk, data.vaultPk,
             data.name, data.description, 
             payload, data.payloadType,
             key, data.recoveryPartys, data.threshold,
-            data.state, data.created, vault, contactsManager)
+            data.state, data.created, vault, getContact)
     }
     toDict(): RecoveryPlanDict {
         return {

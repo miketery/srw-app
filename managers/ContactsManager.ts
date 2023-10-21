@@ -42,7 +42,7 @@ class ContactsManager {
     getContactsArray(): Contact[] {
         return Object.values(this._contacts);
     }
-    getContact(pk: string): Contact {
+    getContact = (pk: string): Contact => {
         if(pk in this._contacts)
             return this._contacts[pk];
         throw new Error(`Contact not found: ${pk}`);

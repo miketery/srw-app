@@ -4,7 +4,8 @@
   export interface Typegen0 {
         '@@xstate/typegen': true;
         internalEvents: {
-          "done.invoke.splitKeyId": { type: "done.invoke.splitKeyId"; data: unknown; __tip: "See the XState TS docs to learn how to strongly type this." };
+          "": { type: "" };
+"done.invoke.splitKeyId": { type: "done.invoke.splitKeyId"; data: unknown; __tip: "See the XState TS docs to learn how to strongly type this." };
 "error.platform.splitKeyId": { type: "error.platform.splitKeyId"; data: unknown };
 "xstate.init": { type: "xstate.init" };
         };
@@ -18,13 +19,16 @@
           services: never;
         };
         eventsCausingActions: {
-          "sendInvites": "SEND_INVITES";
+          "save": "" | "SEND_INVITES" | "SENT" | "SPLIT_KEY" | "done.invoke.splitKeyId" | "error.platform.splitKeyId" | "xstate.init";
+"sendInvites": "SEND_INVITES";
+"spawnRecoveryPartys": "" | "SEND_INVITES" | "SENT" | "done.invoke.splitKeyId";
         };
         eventsCausingDelays: {
           
         };
         eventsCausingGuards: {
           "allRecoveryPartysAccepted": "allAccepted";
+"allRecoveryPartysSent": "";
         };
         eventsCausingServices: {
           "splitKey": "SPLIT_KEY";

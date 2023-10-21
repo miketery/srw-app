@@ -5,6 +5,8 @@ import Vault from '../models/Vault';
 import MockMessageQueue from './MockMessageQueue';
 import { OutboundMessageDict } from '../models/Message';
 
+export type SenderFunction = (message: OutboundMessageDict) => Promise<any>;
+
 class DigitalAgentService {
     static digital_agent_host: string = BASE;
 
@@ -70,7 +72,7 @@ class DigitalAgentService {
             return response['data'];
         }
     }
-    static getPostMessageFunction(vault: Vault): (message: OutboundMessageDict) => Promise<any> {
+    static getPostMessageFunction(vault: Vault): SenderFunction {
         return async (message: OutboundMessageDict) => {
             if(MOCK)
                 return MockMessageQueue.postMessage(message)

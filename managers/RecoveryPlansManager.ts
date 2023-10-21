@@ -5,25 +5,25 @@ import SS, { StoredType } from '../services/StorageService'
 
 import Vault from '../models/Vault'
 import RecoveryPlan from '../models/RecoveryPlan'
-import ContactsManager from './ContactsManager'
+import Contact from '../models/Contact'
 
 class RecoveryPlansManager {
     private _vault: Vault;
     private _recoveryPlans: {string?: RecoveryPlan}
-    private _contactsManager: ContactsManager;
+    private _getContact: (pk: string) => Contact;
 
     constructor(vault: Vault, recoveryPlans: {[pk: string]: RecoveryPlan} = {},
-            contactsManager: ContactsManager) { 
+            getContact: (pk: string) => Contact) { 
         console.log('[RecoveryPlansManager.constructor] ' + vault.pk)
         this._vault = vault;
         this._recoveryPlans = recoveryPlans;
-        this._contactsManager = contactsManager;
+        this._getContact = getContact;
     }
     clear() { this._recoveryPlans = {}; }
     createRecoveryPlan(name: string, description: string): RecoveryPlan {
         const recoveryPlan = RecoveryPlan.create(name, description,
-            this._vault.pk, this._vault, this._contactsManager)
-        this.saveRecoveryPlan(recoveryPlan)
+            this._vault, this._getContact) // auto saves in FSM
+        this._recoveryPlans[recoveryPlan.pk] = recoveryPlan;
         return recoveryPlan
     }
     async saveRecoveryPlan(recoveryPlan: RecoveryPlan): Promise<void> {
@@ -36,7 +36,7 @@ class RecoveryPlansManager {
             StoredType.recoveryPlan, this._vault.pk);
         for (let recoveryPlanData of Object.values(recoveryPlansData)) {
             const c = RecoveryPlan.fromDict(recoveryPlanData, this._vault,
-                this._contactsManager);
+                this._getContact);
             recoveryPlans[c.pk] = c;
         }
         this._recoveryPlans = recoveryPlans;
