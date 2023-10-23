@@ -21,8 +21,13 @@ import getTestVaultsAndContacts from '../../testdata/testContacts'
 import { useSessionContext } from '../../contexts/SessionContext'
 import { PayloadType, RecoveryPlanState } from '../../models/RecoveryPlan'
 import { bytesToHex, hexToBytes } from '../../lib/utils'
+
+import SS, { StoredType } from '../../services/StorageService'
+
+import DigitalAgentService from '../../services/DigitalAgentService'
 import ContactsManager from '../../managers/ContactsManager'
-import SS, { StoredType, StoredTypePrefix } from '../../services/StorageService'
+import GuardiansManager from '../../managers/GuardiansManager'
+import { InboundMessageDict, Message } from '../../models/Message'
 
 /**
  * Test Recovery Plan Flow Messages
@@ -44,7 +49,7 @@ async function RecoverPlanCreate(
     const aliceContacts = contacts['alice']
     const aliceContactsManager = new ContactsManager(aliceVault, Object.fromEntries(
         Object.values(aliceContacts).map( (c) => [c.pk, c])))
-    const recoveryPlanManager = new RecoveryPlansManager(aliceVault, {}, aliceContactsManager)
+    const recoveryPlanManager = new RecoveryPlansManager(aliceVault, {}, aliceContactsManager.getContact)
     const recoveryPlan = recoveryPlanManager.createRecoveryPlan(
         'RP_01 - test', 'testing')
     recoveryPlan.addRecoveryParty(aliceContacts['bob'], 1, true)
@@ -104,6 +109,15 @@ async function RecoverPlanFullFlow(
     console.log(recoveryPlan.toDict())
     console.assert(RecoveryPlanState.READY_TO_SEND_INVITES === recoveryPlan.state)
     recoveryPlan.fsm.send('SEND_INVITES')
+    await new Promise(r => setTimeout(r, 300))
+    const bobVault = vaults['bob']
+    const guardianRequest = (await DigitalAgentService.getGetMessagesFunction(bobVault)())[0] as InboundMessageDict
+    const bobContactsManager = new ContactsManager(bobVault, Object.fromEntries(
+        Object.values(contacts['bob']).map( (c) => [c.pk, c])))
+
+    const botGuardiansManager = new GuardiansManager(bobVault, {}, bobContactsManager)
+    botGuardiansManager.processGuardianRequest(Message.inbound(guardianRequest))
+    console.log(guardianRequest)
     // recoveryPlan.fsm.submit('SEND_INVITES')
 }
 

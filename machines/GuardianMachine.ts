@@ -18,7 +18,7 @@ const GuardianMachine = createMachine({
         },
     },
     states: {
-        INIT: {
+        INIT: { // Recived inbound request
             on: {
                 ACCEPT: 'SENDING_ACCEPT',
                 DECLINE: 'SENDING_DECLINE',

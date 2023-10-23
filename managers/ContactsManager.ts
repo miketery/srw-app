@@ -7,6 +7,7 @@ import Vault from '../models/Vault';
 import Contact, { ContactState } from '../models/Contact';
 import { Message } from '../models/Message';
 import { MessageTypes } from './MessagesManager';
+import { ContactAccept } from '../models/MessagePayload';
 
 class ContactsManager {
     private _contacts: {string?: Contact};
@@ -158,10 +159,9 @@ class ContactsManager {
             throw new Error('Invalid data type, required: "' + MessageTypes.contact.accept + '"');
         const sender_did = message.sender.did;
         const contact = this.getContactByDid(sender_did);
-        // const message = Message.inbound(inbound);
         message.decrypt(contact.private_key);
         // TODO: did not decrypt... throw
-        const data = message.getData();
+        const data = message.getData() as ContactAccept;
         if(contact.state == ContactState.ESTABLISHED)
             // already accepted...
             return contact;

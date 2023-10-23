@@ -11,6 +11,7 @@ import { Message, OutboundMessageDict } from './Message';
 import DigitalAgentService from '../services/DigitalAgentService';
 import { MessageTypes } from '../managers/MessagesManager';
 import Vault from './Vault';
+import { ContactAccept, ContactInvite } from './MessagePayload';
 
 export enum ContactState {
     INIT = 'INIT',
@@ -167,7 +168,7 @@ class Contact {
     }
     // invite message
     inviteMsg(): OutboundMessageDict {
-        const data = {
+        const data: ContactInvite = {
             did: this.vault.did,
             name: this.vault.name,
             verify_key: this.vault.b58_verify_key,
@@ -185,7 +186,7 @@ class Contact {
     }
     // accept message
     acceptInviteMsg(): OutboundMessageDict {
-        const data = {
+        const data: ContactAccept = {
             did: this.vault.did,
             verify_key: this.vault.b58_verify_key,
             public_key: this.vault.b58_public_key,

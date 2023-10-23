@@ -12,7 +12,7 @@ import Vault from "./Vault";
 import ContactsManager from "../managers/ContactsManager";
 import { Message , OutboundMessageDict } from "./Message";
 import { MessageTypes } from "../managers/MessagesManager";
-
+import { RecoveryPlanInvite } from "./MessagePayload";
 
 export enum RecoveryPartyState {
     INIT = 'INIT',
@@ -35,6 +35,7 @@ export class RecoveryParty {
     pk: string
     contactPk: string
     name: string
+    description: string
     numShares: number
     shares: string[] // hex
     receiveManifest: boolean
@@ -104,9 +105,10 @@ export class RecoveryParty {
     }
     inviteMessage(): OutboundMessageDict {
         const contact = this.recoveryPlan.getContact(this.contactPk)
-        const payload = {
-            pk: this.recoveryPlan.pk,
+        const payload: RecoveryPlanInvite = {
+            recoveryPlanPk: this.recoveryPlan.pk,
             name: this.recoveryPlan.name,
+            description: this.recoveryPlan.description,
             shares: this.shares,
         }
         const message = Message.forContact(contact, payload,
