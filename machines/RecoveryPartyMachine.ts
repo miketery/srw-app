@@ -78,6 +78,7 @@ const RecoveryPartyMachine = createMachine({
             const res = await context.sender(msg)
             if(res) {
                 event.callback()
+                context.recoveryParty.recoveryPlan.fsm.send('') // so can check gaurd
                 return true
             }
             return false

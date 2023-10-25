@@ -107,11 +107,11 @@ const RecoveryPlanMachine = createMachine({
     guards: {
         allRecoveryPartysAccepted: (context, event) => {
             console.log('[FSM.RecoveryPlanMachine.allRecoveryPartysAccepted] Guard', context.recoveryPlan.name, event);
-            return false;
+            return context.recoveryPlan.allPartysAccepted();
         },
         allRecoveryPartysSent: (context, event) => {
             console.log('[FSM.RecoveryPlanMachine.allRecoveryPartysSent] Guard', context.recoveryPlan.name, event);
-            return false;
+            return context.recoveryPlan.allPartysSent();
         }
     },
     services: {

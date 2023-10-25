@@ -1,5 +1,7 @@
-import Contact, { ContactState } from '../models/Contact';
 import Vault from '../models/Vault';
+import Contact, { ContactState } from '../models/Contact';
+import ContactsManager from '../managers/ContactsManager';
+
 import { test_vaults } from './testVaults.js';
 
 import { encryptionKeyFromWords } from '../lib/utils';
@@ -34,7 +36,7 @@ const vaults = Object.fromEntries(test_vaults.map((vault) => {
 }).map((vault) => [vault.name, vault]))
 
 
-async function getTestVaultsAndContacts() {
+export async function getTestVaultsAndContacts() {
     const contacts = {}
     for(let i = 0; i < recoveryPartys.length; i++) {
         const name = recoveryPartys[i]
@@ -60,4 +62,35 @@ async function getTestVaultsAndContacts() {
     return [vaults, contacts]
 }
 
-export default getTestVaultsAndContacts
+const dictByNameToByKey = (data: {[name: string]: any}): {[pk: string]: any} => {
+    return Object.fromEntries(
+        Object.keys(data).map((name) => [data[name].pk, data[name]])
+    )
+}
+
+export async function getVaultsAndManagers(): Promise<{
+        [name: string]: {
+            vault: Vault,
+            contactsManager: ContactsManager,
+            contacts: {[nameOrPk: string]: Contact}
+        }}> {
+    const [vaults, contacts] = await getTestVaultsAndContacts()
+    return Object.fromEntries(Object.keys(vaults).map(
+        (name) => {
+            return [
+                name,
+                {
+                    vault: vaults[name] as Vault,
+                    contactsManager: new ContactsManager(
+                        vaults[name], dictByNameToByKey(contacts[name])),
+                    contacts: Object.assign({},
+                        contacts[name], // by name, 'bob' => Contact
+                        dictByNameToByKey(contacts[name]), // by pk, 'c__[UUID]' => Contact
+                    ),
+                }
+            ]
+        })
+    )
+}
+
+export default getVaultsAndManagers

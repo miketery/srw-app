@@ -314,7 +314,12 @@ class RecoveryPlan {
         }
         return Promise.resolve(true)
     }
-
+    allPartysAccepted(): boolean {
+        return this.recoveryPartys.every(p => p.state === RecoveryPartyState.ACCEPTED)
+    }
+    allPartysSent(): boolean {
+        return this.recoveryPartys.every(p => p.state !== RecoveryPartyState.INIT)
+    }
 }
 
 export default RecoveryPlan;

@@ -70,7 +70,7 @@ class RecoveryPlansManager {
         message.decrypt(contact.private_key)
         const payload = message.getData() as RecoveryPlanResponse
         console.log('PAYLOAD', payload)
-        const recoveryPlan = this.getRecoveryPlan(payload.recoveryPlanPk)
+        const recoveryPlan: RecoveryPlan = this.getRecoveryPlan(payload.recoveryPlanPk)
         if(payload.response === 'accept') {
             const party = recoveryPlan.recoveryPartys.filter(rp => rp.contactPk === contact.pk)[0]
             party.fsm.send('ACCEPT', {callback})
