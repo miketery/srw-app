@@ -3,6 +3,7 @@ import {
     env_debug,
     env_local,
     env_mock,
+    env_fetch,
 } from '@env';
 
 // const env_dev = 'true'
@@ -12,14 +13,14 @@ import {
 export const DEV = env_dev === 'true'
 export const DEBUG = env_debug === 'true'
 export const LOCAL = env_local === 'true'
-export const MOCK = env_mock === 'true' && true
-export const FETCH = false
+export const MOCK = env_mock === 'true'
+export const FETCH = env_fetch === 'true'
 
 export const SPLASH_ANIMATE_TIME = DEBUG ? 100 : 666
 
 export const BASE =
     LOCAL ? 'http://localhost:8000/api' : 
-    DEV ? 'https://dai.arxsky.dev/api' : 
+    DEV ? 'https://api.srw.arxsky.dev/api' : 
           'https://dai.arxsky.com/api'
 
 export const ENDPOINTS = {

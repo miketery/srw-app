@@ -10,7 +10,7 @@ import { useSessionContext } from '../contexts/SessionContext'
 import VaultManager from '../managers/VaultManager'
 
 import { trimAndLower, validateEmail } from '../lib/utils'
-import { FieldError } from '../components/'
+import { FieldError, GoBackButton } from '../components/'
 
 export default function VaultCreateScreen(props) {
     const {setVault, setManager} = useSessionContext();
@@ -108,6 +108,9 @@ export default function VaultCreateScreen(props) {
                 <Text style={ds.textXl}>{createLoading ? 'Working...' : 'Create & Save'}</Text>
             </Pressable>
             <View style={tw`flex-grow-1`} />
+            <View style={tw`flex-row justify-start`}>
+                <GoBackButton onPressOut={() => navigation.goBack()} />
+            </View>
         </View>
     )
 }

@@ -19,7 +19,7 @@ import getTestVaultsAndContacts from '../../testdata/testContacts'
 // import InboundMessageManager from '../../managers/MessagesManager'
 
 import { useSessionContext } from '../../contexts/SessionContext'
-import { PayloadType, RecoveryPlanState } from '../../models/RecoveryPlan'
+import { PayloadType, RecoveryPartyState, RecoveryPlanState } from '../../models/RecoveryPlan'
 import { bytesToHex, hexToBytes } from '../../lib/utils'
 
 import SS, { StoredType } from '../../services/StorageService'
@@ -28,6 +28,7 @@ import DigitalAgentService from '../../services/DigitalAgentService'
 import ContactsManager from '../../managers/ContactsManager'
 import GuardiansManager from '../../managers/GuardiansManager'
 import { InboundMessageDict, Message } from '../../models/Message'
+import { GuardianState } from '../../models/Guardian'
 
 /**
  * Test Recovery Plan Flow Messages
@@ -49,7 +50,7 @@ async function RecoverPlanCreate(
     const aliceContacts = contacts['alice']
     const aliceContactsManager = new ContactsManager(aliceVault, Object.fromEntries(
         Object.values(aliceContacts).map( (c) => [c.pk, c])))
-    const recoveryPlanManager = new RecoveryPlansManager(aliceVault, {}, aliceContactsManager.getContact)
+    const recoveryPlanManager = new RecoveryPlansManager(aliceVault, {}, aliceContactsManager)
     const recoveryPlan = recoveryPlanManager.createRecoveryPlan(
         'RP_01 - test', 'testing')
     recoveryPlan.addRecoveryParty(aliceContacts['bob'], 1, true)
@@ -93,7 +94,7 @@ async function RecoverPlanFullFlow(
     const aliceContacts = contacts['alice']
     const aliceContactsManager = new ContactsManager(aliceVault, Object.fromEntries(
         Object.values(aliceContacts).map( (c) => [c.pk, c])))
-    const recoveryPlanManager = new RecoveryPlansManager(aliceVault, {}, aliceContactsManager.getContact)
+    const recoveryPlanManager = new RecoveryPlansManager(aliceVault, {}, aliceContactsManager)
     const recoveryPlan = recoveryPlanManager.createRecoveryPlan(
         'RP_01 - test', 'RP Dev Test')
     recoveryPlan.addRecoveryParty(aliceContacts['bob'], 1, true)
@@ -114,10 +115,25 @@ async function RecoverPlanFullFlow(
     const guardianRequest = (await DigitalAgentService.getGetMessagesFunction(bobVault)())[0] as InboundMessageDict
     const bobContactsManager = new ContactsManager(bobVault, Object.fromEntries(
         Object.values(contacts['bob']).map( (c) => [c.pk, c])))
-
-    const botGuardiansManager = new GuardiansManager(bobVault, {}, bobContactsManager)
-    botGuardiansManager.processGuardianRequest(Message.inbound(guardianRequest))
-    console.log(guardianRequest)
+    
+    const bobGuardiansManager = new GuardiansManager(bobVault, {},
+        bobContactsManager, DigitalAgentService.getPostMessageFunction(bobVault))
+    await new Promise(r => setTimeout(r, 300))
+    bobGuardiansManager.processGuardianRequest(Message.inbound(guardianRequest))
+    
+    await new Promise(r => setTimeout(r, 300))
+    const guardianBobForAlice = Object.values(bobGuardiansManager.getGuardians())[0]
+    bobGuardiansManager.acceptGuardian(guardianBobForAlice, () => console.log('XAXA'))
+    await new Promise(r => setTimeout(r, 300))
+    console.assert(guardianBobForAlice.state === GuardianState.ACCEPTED)
+    
+    const aliceGetMessages = DigitalAgentService.getGetMessagesFunction(aliceVault)
+    const msgForAlice = (await aliceGetMessages())[0] as InboundMessageDict
+    console.log('msgForAlice from Bob', msgForAlice)
+    recoveryPlanManager.processRecoveryPlanResponse(Message.inbound(msgForAlice))
+    await new Promise(r => setTimeout(r, 300))
+    console.log('recoveryPlanManager', recoveryPlan.toDict())
+    return
     // recoveryPlan.fsm.submit('SEND_INVITES')
 }
 

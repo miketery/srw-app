@@ -33,8 +33,7 @@ export const MessageTypes = {
     },
     'recovery': {
         'invite': 'msg.recovery.invite',
-        'accept': 'msg.recovery.accept',
-        'reject': 'msg.recovery.reject',
+        'response': 'msg.recovery.response',
     },
 }
 

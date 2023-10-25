@@ -1,15 +1,14 @@
 import { createMachine } from 'xstate';
 
-import Contact from '../models/Contact';
 import { SenderFunction } from '../services/DigitalAgentService';
+import Guardian from '../models/Guardian';
 
 const GuardianMachine = createMachine({
     id: 'guardianFsm',
     initial: 'INIT',
     tsTypes: {} as import("./GuardianMachine.typegen").Typegen0,
     context: {} as {
-        guardian: Contact, // TODO: guardian
-        contact: Contact,
+        guardian: Guardian, // TODO: guardian
         sender: SenderFunction,
     },
     schema: {
@@ -66,6 +65,27 @@ const GuardianMachine = createMachine({
         ARCHIVED: {
             entry: ['save'],
             type: 'final',
+        }
+    }
+}, {
+    actions: {
+        save: (context, event) => {
+            context.guardian.save()
+        },
+        sendResponseError: (context, event) => {
+            console.log('[GuardianMachine.sendResponseError]', event)
+        },
+    },
+    services: {
+        sendResponse: async (context, event: {type: string, callback: () => void}) => {
+            console.log('[FSM.GuardianMachine.sendResponse]', event)
+            const msg = context.guardian.responseMsg(event.type === 'ACCEPT' ? 'accept' : 'reject')
+            const res = await context.sender(msg)
+            if(res) {
+                event.callback()
+                return true
+            }
+            return false
         }
     }
 })

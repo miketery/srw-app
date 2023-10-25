@@ -19,9 +19,7 @@ export interface RecoveryPlanInvite {
     description: string,
     shares: string[],
 }
-export interface RecoveryPlanAccept {
+export interface RecoveryPlanResponse {
     recoveryPlanPk: string,
-}
-export interface RecoveryPlanReject {
-    recoveryPlanPk: string,
+    response: 'accept' | 'reject',
 }

@@ -199,25 +199,18 @@ class RecoveryPlan {
         this.getContact = getContact
         this.created = created;
         this.vault = vault
-        const resolvedState = RecoveryPlanMachine.resolveState({
-            ...RecoveryPlanMachine.initialState,
-            value: this._state,
-            context: {
+        this.fsm = interpret(RecoveryPlanMachine.withContext({
                 recoveryPlan: this,
                 partyMachines: {},
                 sender: DigitalAgentService.getPostMessageFunction(this.vault),
-            }
-        })
-        this.fsm = interpret(RecoveryPlanMachine) 
-        // could do interpret(RecoveryPlanMachine.withContext({...}}))
-        // and then fsm.start(this._state)
+        }))
         this.fsm.onTransition((context: {recoveryPlan: RecoveryPlan}, event) => {
             if(context.recoveryPlan)
                 console.log('[RecoveryPlan.fsm.onTransition]', context.recoveryPlan.toString(), event)
             else
                 console.log('[RecoveryPlan.fsm.onTransition]', event)
         })
-        this.fsm.start(resolvedState)
+        this.fsm.start(this._state)
     }
     // getContact(pk: string): Contact {
     //     console.log('[RecoveryPlan.getContact]', pk)

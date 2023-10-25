@@ -5,24 +5,26 @@ import SS, { StoredType } from '../services/StorageService'
 
 import Vault from '../models/Vault'
 import RecoveryPlan from '../models/RecoveryPlan'
-import Contact from '../models/Contact'
+import { RecoveryPlanResponse } from '../models/MessagePayload'
+import { Message } from '../models/Message'
+import ContactsManager from './ContactsManager'
 
 class RecoveryPlansManager {
     private _vault: Vault;
     private _recoveryPlans: {string?: RecoveryPlan}
-    private _getContact: (pk: string) => Contact;
+    private _contactsManager: ContactsManager;
 
     constructor(vault: Vault, recoveryPlans: {[pk: string]: RecoveryPlan} = {},
-            getContact: (pk: string) => Contact) { 
+        contactsManager: ContactsManager) { 
         console.log('[RecoveryPlansManager.constructor] ' + vault.pk)
         this._vault = vault;
         this._recoveryPlans = recoveryPlans;
-        this._getContact = getContact;
+        this._contactsManager = contactsManager;
     }
     clear() { this._recoveryPlans = {}; }
     createRecoveryPlan(name: string, description: string): RecoveryPlan {
         const recoveryPlan = RecoveryPlan.create(name, description,
-            this._vault, this._getContact) // auto saves in FSM
+            this._vault, this._contactsManager.getContact) // auto saves in FSM
         this._recoveryPlans[recoveryPlan.pk] = recoveryPlan;
         return recoveryPlan
     }
@@ -36,7 +38,7 @@ class RecoveryPlansManager {
             StoredType.recoveryPlan, this._vault.pk);
         for (let recoveryPlanData of Object.values(recoveryPlansData)) {
             const c = RecoveryPlan.fromDict(recoveryPlanData, this._vault,
-                this._getContact);
+                this._contactsManager.getContact);
             recoveryPlans[c.pk] = c;
         }
         this._recoveryPlans = recoveryPlans;
@@ -60,6 +62,19 @@ class RecoveryPlansManager {
     async submitRecoveryPlan(recoveryPlan: RecoveryPlan, callback: () => void): Promise<void> {
         console.log('[RecoveryPlansManager.submitRecoveryPlan]', recoveryPlan.name)    
         recoveryPlan.fsm.send('SUBMIT', {callback})
+    }
+    // flows
+    async processRecoveryPlanResponse(message: Message, callback?: () => void): Promise<void> {
+        console.log('[RecoveryPlansManager.processRecoveryPlanResponse]', message)
+        const contact = this._contactsManager.getContactByDid(message.sender.did)
+        message.decrypt(contact.private_key)
+        const payload = message.getData() as RecoveryPlanResponse
+        console.log('PAYLOAD', payload)
+        const recoveryPlan = this.getRecoveryPlan(payload.recoveryPlanPk)
+        if(payload.response === 'accept') {
+            const party = recoveryPlan.recoveryPartys.filter(rp => rp.contactPk === contact.pk)[0]
+            party.fsm.send('ACCEPT', {callback})
+        }
     }
 }
 

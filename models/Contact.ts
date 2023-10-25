@@ -193,7 +193,7 @@ class Contact {
             contact_public_key: this.b58_public_key,
         }
         const message = Message.forContact(this, data,
-            MessageTypes.contact.accept, '0.0.1');
+            MessageTypes.contact.accept, '0.1');
         message.encryptBox(this.private_key)
         return message.outboundFinal();
     }

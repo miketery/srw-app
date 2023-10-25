@@ -18,3 +18,25 @@ IN secret.js line 33 should be
 ```
 module.exports = factory(require("crypto"))
 ```
+
+
+```
+const resolvedState = RecoveryPlanMachine.resolveState({
+    ...RecoveryPlanMachine.initialState,
+    value: this._state,
+    context: {
+        recoveryPlan: this,
+        partyMachines: {},
+        sender: DigitalAgentService.getPostMessageFunction(this.vault),
+    }
+})
+this.fsm = interpret(RecoveryPlanMachine) 
+this.fsm.onTransition((context, event) => {})
+this.fsm.start(resolvedState)
+```
+or
+```
+this.fsm = interpret(RecoveryPlanMachine.withContext({...}}))
+this.fsm.onTransition((context, event) => {})
+this.fsm.start(this._state)
+````

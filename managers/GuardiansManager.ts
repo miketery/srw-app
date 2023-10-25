@@ -9,24 +9,29 @@ import { Message } from '../models/Message'
 import { MessageTypes } from './MessagesManager'
 import ContactsManager from './ContactsManager'
 import { RecoveryPlanInvite } from '../models/MessagePayload'
+import { SenderFunction } from '../services/DigitalAgentService'
 
 class GuardiansManager {
     private _vault: Vault;
     private _guardians: {string?: Guardian}
     private _contactsManager: ContactsManager;
+    private _sender: SenderFunction;
 
     constructor(vault: Vault, guardians: {[pk: string]: Guardian} = {},
-            contactsManager: ContactsManager) { 
+            contactsManager: ContactsManager, sender: SenderFunction) { 
         console.log('[GuardiansManager.constructor] ' + vault.pk)
         this._vault = vault;
         this._guardians = guardians;
         this._contactsManager = contactsManager;
+        this._sender = sender;
     }
     clear() { this._guardians = {}; }
     createGuardian(name: string, description: string, recoveryPlanPk: string,
-            shares: string[], contactPk: string, ): Guardian {
+            shares: string[], contactPk: string): Guardian {
         const recoveryPlan = Guardian.create(name, description,
-            this._vault.pk, recoveryPlanPk, shares, contactPk) // auto saves in FSM
+            this._vault.pk, recoveryPlanPk, shares, contactPk,
+            this._contactsManager.getContact,
+            this._sender) // auto saves in FSM
         this._guardians[recoveryPlan.pk] = recoveryPlan;
         return recoveryPlan
     }
@@ -39,7 +44,8 @@ class GuardiansManager {
         const guardiansData = await SS.getAll(
             StoredType.recoveryPlan, this._vault.pk);
         for (let recoveryPlanData of Object.values(guardiansData)) {
-            const c = Guardian.fromDict(recoveryPlanData);
+            const c = Guardian.fromDict(recoveryPlanData,
+                this._contactsManager.getContact, this._sender);
             guardians[c.pk] = c;
         }
         this._guardians = guardians;
@@ -75,9 +81,9 @@ class GuardiansManager {
         console.log(guardian.toDict())
         return
     }
-    async acceptGuardian(recoveryPlan: Guardian, callback: () => void): Promise<void> {
-        console.log('[GuardiansManager.acceptGuardian]', recoveryPlan.name)    
-        recoveryPlan.fsm.send('ACCEPT', {callback})
+    async acceptGuardian(guardian: Guardian, callback: () => void): Promise<void> {
+        console.log('[GuardiansManager.acceptGuardian]', guardian.name)    
+        guardian.fsm.send('ACCEPT', {callback})
     }
 }
 
