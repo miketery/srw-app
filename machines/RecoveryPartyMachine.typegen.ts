@@ -18,7 +18,7 @@
           services: never;
         };
         eventsCausingActions: {
-          "save": "ACCEPT" | "done.invoke.sendInviteId";
+          "save": "ACCEPT" | "DECLINE" | "done.invoke.sendInviteId";
 "sendInviteError": "error.platform.sendInviteId";
         };
         eventsCausingDelays: {
@@ -30,7 +30,7 @@
         eventsCausingServices: {
           "sendInvite": "RESEND_INVITE" | "SEND_INVITE";
         };
-        matchesStates: "ACCEPTED" | "FINAL" | "INIT" | "PENDING" | "REJECTED" | "SENDING_INVITE";
+        matchesStates: "ACCEPTED" | "DECLINED" | "FINAL" | "INIT" | "PENDING" | "SENDING_INVITE";
         tags: never;
       }
   

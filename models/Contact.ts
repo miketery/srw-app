@@ -85,7 +85,7 @@ class Contact {
             value: this._state,
             context: {
                 contact: this,
-                sender: DigitalAgentService.getPostMessageFunction(this.vault),
+                sender: DigitalAgentService.getSendMessageFunction(this.vault),
             }
         })
         // this.fsm = useMachine(ContactMachine, {state: resolvedState})

@@ -19,12 +19,12 @@ import getVaultsAndManagers from '../../testdata/testContacts'
 // import InboundMessageManager from '../../managers/MessagesManager'
 
 import { useSessionContext } from '../../contexts/SessionContext'
-import { PayloadType, RecoveryPartyState, RecoveryPlanState } from '../../models/RecoveryPlan'
+import RecoveryPlan, { PayloadType, RecoveryPlanState } from '../../models/RecoveryPlan'
 import { bytesToHex, hexToBytes } from '../../lib/utils'
 
 import SS, { StoredType } from '../../services/StorageService'
 
-import DigitalAgentService from '../../services/DigitalAgentService'
+import DigitalAgentService, { GetMessagesFunction, SenderFunction } from '../../services/DigitalAgentService'
 import ContactsManager from '../../managers/ContactsManager'
 import GuardiansManager from '../../managers/GuardiansManager'
 import { InboundMessageDict, Message } from '../../models/Message'
@@ -42,25 +42,26 @@ const deleteAllRecoveryRelated = () => {
 }
 
 async function RecoverPlanCreate(
-        vaults: {[pk: string]: Vault},
-        contacts: {[name: string]: Contact}) {
+        vaultsAndManagers: {
+            [name: string]: {
+                vault: Vault,
+                contactsManager: ContactsManager,
+                contacts: {[nameOrPk: string]: Contact}
+            }
+        }) {
     console.log('[DevRecoveryPlanScreen.RecoverPlanCreate] TEST')
     // alice creates recovery w/ Bob and Charlie and Dan
-    const aliceVault = vaults['alice']
-    const aliceContacts = contacts['alice']
-    const aliceContactsManager = new ContactsManager(aliceVault, Object.fromEntries(
-        Object.values(aliceContacts).map( (c) => [c.pk, c])))
-    const recoveryPlanManager = new RecoveryPlansManager(aliceVault, {}, aliceContactsManager)
+    const { alice } = vaultsAndManagers
+    const recoveryPlanManager = new RecoveryPlansManager(alice.vault, {}, alice.contactsManager)
     const recoveryPlan = recoveryPlanManager.createRecoveryPlan(
         'RP_01 - test', 'testing')
-    recoveryPlan.addRecoveryParty(aliceContacts['bob'], 1, true)
-    recoveryPlan.addRecoveryParty(aliceContacts['charlie'], 1, false)
-    recoveryPlan.addRecoveryParty(aliceContacts['dan'], 2, true)
+    recoveryPlan.addRecoveryParty(alice.contacts['bob'], 1, true)
+    recoveryPlan.addRecoveryParty(alice.contacts['charlie'], 1, false)
+    recoveryPlan.addRecoveryParty(alice.contacts['dan'], 2, true)
 
     const byteSecret = new TextEncoder().encode('MY SECRET')
     recoveryPlan.setPayload(byteSecret, PayloadType.OBJECT)
     recoveryPlan.setThreshold(3)
-    console.log('XXX')
     console.assert(recoveryPlan.checkValidPreSubmit())
     
     await recoveryPlan.generateKey()
@@ -91,23 +92,20 @@ async function RecoverPlanFullFlow(
             [name: string]: {
                 vault: Vault,
                 contactsManager: ContactsManager,
-                contacts: {[nameOrPk: string]: Contact}
+                contacts: {[nameOrPk: string]: Contact},
+                getMessages: GetMessagesFunction,
+                sender: SenderFunction,
             }
         }): Promise<void> {
     deleteAllRecoveryRelated()
-    const alice = vaultsAndManagers['alice']
-    const bob = vaultsAndManagers['bob']
-    const charlie = vaultsAndManagers['charlie']
-    const dan = vaultsAndManagers['dan']
-
+    const { alice, bob, charlie, dan } = vaultsAndManagers
     const recoveryPlanManager = new RecoveryPlansManager(alice.vault, {}, alice.contactsManager)
-    const recoveryPlan = recoveryPlanManager.createRecoveryPlan(
+    const recoveryPlan: RecoveryPlan = recoveryPlanManager.createRecoveryPlan(
         'RP_01 - test', 'RP Dev Test')
     recoveryPlan.addRecoveryParty(alice.contacts['bob'], 1, true)
     recoveryPlan.addRecoveryParty(alice.contacts['charlie'], 1, false)
     recoveryPlan.addRecoveryParty(alice.contacts['dan'], 2, true)
-    console.log(recoveryPlan.toDict())
-    console.log(alice.contacts)
+    console.log('Parties added:', recoveryPlan.toDict())
 
     const byteSecret = new TextEncoder().encode('MY SECRET')
     recoveryPlan.setPayload(byteSecret, PayloadType.OBJECT)
@@ -121,27 +119,34 @@ async function RecoverPlanFullFlow(
     // ^^^ will be in SENDING_INVITES state until all sent, then in WAITING_ON_PARTICIPANTS
     await new Promise(r => setTimeout(r, 300))
     console.log('STATE', recoveryPlan.state, recoveryPlan.allPartysSent())
+    console.log('BEFORE ACCEPTS', recoveryPlan.toDict())
+    // user fetch request and send accept
+    const getRequestAndAccept = async (user, accept, originUser, originRecoveryPlanManager: RecoveryPlansManager) => {
+        const name = user.vault.name
+        const request = (await user.getMessages())[0] as InboundMessageDict
+        const guardianManager = new GuardiansManager(user.vault, {},
+            user.contactsManager, DigitalAgentService.getSendMessageFunction(user.vault))
+        await new Promise(r => setTimeout(r, 300))
+        guardianManager.processGuardianRequest(Message.inbound(request))
+        await new Promise(r => setTimeout(r, 300))
+        const guardian = Object.values(guardianManager.getGuardians())[0]
+        if(accept)
+            guardianManager.acceptGuardian(guardian, () => console.log(name, 'accepted', guardian.toDict()))
+        else
+            guardianManager.declineGuardian(guardian, () => console.log(name, 'declined', guardian.toDict()))
+        const msgForRecoveryPlan = (await originUser.getMessages())[0] as InboundMessageDict
+        originRecoveryPlanManager.processRecoveryPlanResponse(Message.inbound(msgForRecoveryPlan))
+    }
+    await getRequestAndAccept(bob, true, alice, recoveryPlanManager)
+    await getRequestAndAccept(charlie, true, alice, recoveryPlanManager)
+    await getRequestAndAccept(dan, true, alice, recoveryPlanManager) // change true to false to see decline
+    await new Promise(r => setTimeout(r, 500))
 
-    const guardianRequest = (await DigitalAgentService.getGetMessagesFunction(bob.vault)())[0] as InboundMessageDict
-    const bobGuardiansManager = new GuardiansManager(bob.vault, {},
-        bob.contactsManager, DigitalAgentService.getPostMessageFunction(bob.vault))
-    await new Promise(r => setTimeout(r, 300))
-    bobGuardiansManager.processGuardianRequest(Message.inbound(guardianRequest))
-    
-    await new Promise(r => setTimeout(r, 300))
-    const guardianBobForAlice = Object.values(bobGuardiansManager.getGuardians())[0]
-    bobGuardiansManager.acceptGuardian(guardianBobForAlice, () => console.log('XAXA'))
-    await new Promise(r => setTimeout(r, 300))
-    console.assert(guardianBobForAlice.state === GuardianState.ACCEPTED)
-    
-    const aliceGetMessages = DigitalAgentService.getGetMessagesFunction(alice.vault)
-    const msgForAlice = (await aliceGetMessages())[0] as InboundMessageDict
-    console.log('msgForAlice from Bob', msgForAlice)
-    recoveryPlanManager.processRecoveryPlanResponse(Message.inbound(msgForAlice))
-    await new Promise(r => setTimeout(r, 300))
-    console.log('recoveryPlanManager', recoveryPlan.toDict())
+    console.log('AFTER ACCEPTS', recoveryPlan.toDict())
+    recoveryPlan.recoveryPartys.forEach((rp) => console.log(rp.name, rp.state))
+    // recoveryPlan.finalize()
+
     return
-    // recoveryPlan.fsm.submit('SEND_INVITES')
 }
 
 const testShamir = () => {
@@ -169,10 +174,11 @@ const DevRecoveryPlanScreen: React.FC<DevRecoveryPlanScreenProps> = (props) => {
         [name: string]: {
             vault: Vault,
             contactsManager: ContactsManager,
-            contacts: {[name: string]: Contact}
+            contacts: {[name: string]: Contact},
+            getMessages: GetMessagesFunction,
+            sender: SenderFunction,
         }
     }>({})
-    // const [contacts, setContacts] = useState<{string?: Contact}>({})
 
     useEffect(() => {
         async function loadVaultsAndContacts() {
@@ -184,7 +190,9 @@ const DevRecoveryPlanScreen: React.FC<DevRecoveryPlanScreenProps> = (props) => {
     }, [])
 
     const current_route = props.route.name
-    return <View style={ds.mainContainerPtGradient}>
+    return loading ? <View style={ds.mainContainerPtGradient}>
+        <Text>Loading...</Text>
+    </View>: <View style={ds.mainContainerPtGradient}>
     <ScrollView style={ds.scrollViewGradient}>
         <View style={ds.headerRow}>
             <Text style={ds.header}>Dev Recovery Plans</Text>
@@ -192,12 +200,12 @@ const DevRecoveryPlanScreen: React.FC<DevRecoveryPlanScreenProps> = (props) => {
         <View>
             <Text style={ds.text}>Route: {current_route}</Text>
         </View>
-        {/* <View>
+        <View>
             <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
-                    onPress={() => RecoverPlanCreate(vaults, contacts)}>
+                    onPress={() => RecoverPlanCreate(vaultsAndManagers)}>
                 <Text style={ds.buttonText}>Recovery Plan Basic</Text>
             </Pressable>
-        </View> */}
+        </View>
         <View>
             <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
                     onPress={() => RecoverPlanFullFlow(vaultsAndManagers)}>

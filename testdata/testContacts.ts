@@ -5,6 +5,7 @@ import ContactsManager from '../managers/ContactsManager';
 import { test_vaults } from './testVaults.js';
 
 import { encryptionKeyFromWords } from '../lib/utils';
+import DigitalAgentService, { GetMessagesFunction, SenderFunction } from '../services/DigitalAgentService';
 
 const words = { // seed words so keys are constant for testing...
     'alice': {
@@ -72,7 +73,9 @@ export async function getVaultsAndManagers(): Promise<{
         [name: string]: {
             vault: Vault,
             contactsManager: ContactsManager,
-            contacts: {[nameOrPk: string]: Contact}
+            contacts: {[nameOrPk: string]: Contact},
+            getMessages: GetMessagesFunction,
+            sender: SenderFunction,
         }}> {
     const [vaults, contacts] = await getTestVaultsAndContacts()
     return Object.fromEntries(Object.keys(vaults).map(
@@ -83,10 +86,12 @@ export async function getVaultsAndManagers(): Promise<{
                     vault: vaults[name] as Vault,
                     contactsManager: new ContactsManager(
                         vaults[name], dictByNameToByKey(contacts[name])),
-                    contacts: Object.assign({},
+                    contacts: Object.assign({}, // merge the two
                         contacts[name], // by name, 'bob' => Contact
                         dictByNameToByKey(contacts[name]), // by pk, 'c__[UUID]' => Contact
                     ),
+                    getMessages: DigitalAgentService.getGetMessagesFunction(vaults[name]),
+                    sender: DigitalAgentService.getSendMessageFunction(vaults[name]),
                 }
             ]
         })

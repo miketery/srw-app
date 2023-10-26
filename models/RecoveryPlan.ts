@@ -202,7 +202,7 @@ class RecoveryPlan {
         this.fsm = interpret(RecoveryPlanMachine.withContext({
                 recoveryPlan: this,
                 partyMachines: {},
-                sender: DigitalAgentService.getPostMessageFunction(this.vault),
+                sender: DigitalAgentService.getSendMessageFunction(this.vault),
         }))
         this.fsm.onTransition((context: {recoveryPlan: RecoveryPlan}, event) => {
             if(context.recoveryPlan)

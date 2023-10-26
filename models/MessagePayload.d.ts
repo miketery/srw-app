@@ -21,5 +21,5 @@ export interface RecoveryPlanInvite {
 }
 export interface RecoveryPlanResponse {
     recoveryPlanPk: string,
-    response: 'accept' | 'reject',
+    response: 'accept' | 'decline',
 }

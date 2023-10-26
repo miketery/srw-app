@@ -6,6 +6,7 @@ import MockMessageQueue from './MockMessageQueue';
 import { OutboundMessageDict } from '../models/Message';
 
 export type SenderFunction = (message: OutboundMessageDict) => Promise<any>;
+export type GetMessagesFunction = (after?: number) => Promise<OutboundMessageDict[]>;
 
 class DigitalAgentService {
     static digital_agent_host: string = BASE;
@@ -58,29 +59,29 @@ class DigitalAgentService {
             return false
         }
     }
-    static async postMessage(vault: Vault, message: any): Promise<any> {
+    static async sendMessage(vault: Vault, message: any): Promise<any> {
         const signed_payload = vault.signPayload(message);
         const response = await axios.post(this.digital_agent_host + ENDPOINTS.POST_MESSAGE, signed_payload)
         .catch((error) => {
-            console.log('[DigitalAgentService.postMessage]', error)
+            console.log('[DigitalAgentService.sendMessage]', error)
             throw new Error(error);
         });
         if(!response)
             return false
-        console.log('[postMessage]', response)
+        console.log('[sendMessage]', response)
         if ([200, 201].includes(response['status'])) {
             return response['data'];
         }
     }
-    static getPostMessageFunction(vault: Vault): SenderFunction {
+    static getSendMessageFunction(vault: Vault): SenderFunction {
         return async (message: OutboundMessageDict) => {
             if(MOCK)
-                return MockMessageQueue.postMessage(message)
+                return MockMessageQueue.sendMessage(message)
             else
-                return await this.postMessage(vault, message)
+                return await this.sendMessage(vault, message)
         }
     }
-    static getGetMessagesFunction(vault: Vault): (after?: number) => Promise<OutboundMessageDict[]> {
+    static getGetMessagesFunction(vault: Vault): GetMessagesFunction {
         return async (after?: number) => {
             if(MOCK)
                 return MockMessageQueue.getMessages(vault.did)

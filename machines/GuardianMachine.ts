@@ -79,7 +79,7 @@ const GuardianMachine = createMachine({
     services: {
         sendResponse: async (context, event: {type: string, callback: () => void}) => {
             console.log('[FSM.GuardianMachine.sendResponse]', event)
-            const msg = context.guardian.responseMsg(event.type === 'ACCEPT' ? 'accept' : 'reject')
+            const msg = context.guardian.responseMsg(event.type === 'ACCEPT' ? 'accept' : 'decline')
             const res = await context.sender(msg)
             if(res) {
                 event.callback()

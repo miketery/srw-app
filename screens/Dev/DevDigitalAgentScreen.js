@@ -21,14 +21,14 @@ async function amIRegistered(vault, setRegisteration) {
         return setRegisteration({registered: false})
     setRegisteration({registered: true, ...data})
 }
-async function postMessage() {
-    console.log('postMessage')
+async function sendMessage() {
+    console.log('sendMessage')
     const vm = Cache.vaultManager
     // const cm = vm.contactsManager
     // const bob = cm.getContactByDid('Bob')
     // const vault = vm.currentVault
     // const msg = Message.forContact(vault, )
-    // DAS.postMessage(vault)
+    // DAS.sendMessage(vault)
     const [vaults, contacts] = await getTestVaultsAndContacts()
     console.log(vaults)
     console.log(contacts)

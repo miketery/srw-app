@@ -151,7 +151,7 @@ export default ContactMachine;
 
         // sendInvite: (context, event): Promise<boolean> => {
         //     const msg = context.contactsManager.contactRequest(context.contact)
-        //     const res = DigitalAgentService.postMessage(
+        //     const res = DigitalAgentService.sendMessage(
         //         context.contactsManager.vault, msg)
         //     if(!res)
         //         throw new Error('Failed to send invite')

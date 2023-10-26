@@ -78,12 +78,15 @@ class GuardiansManager {
             data.name, data.description,
             data.recoveryPlanPk, data.shares, contact.pk)
         await this.saveGuardian(guardian)
-        console.log(guardian.toDict())
         return
     }
     async acceptGuardian(guardian: Guardian, callback: () => void): Promise<void> {
         console.log('[GuardiansManager.acceptGuardian]', guardian.name)    
         guardian.fsm.send('ACCEPT', {callback})
+    }
+    async declineGuardian(guardian: Guardian, callback: () => void): Promise<void> {
+        console.log('[GuardiansManager.declineGuardian]', guardian.name)    
+        guardian.fsm.send('DECLINE', {callback})
     }
 }
 

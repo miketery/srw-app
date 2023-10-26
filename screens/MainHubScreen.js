@@ -13,7 +13,7 @@ import { TopGradient } from '../components'
 
 
 async function TestMessage(vault) {
-    const postMsg = DAS.getPostMessageFunction(vault)
+    const sender = DAS.getSendMessageFunction(vault)
     const random_date = new Date(Math.floor(Math.random() * Date.now()));
     const msg = new Message(null, null, 'outbound', 
         Sender.fromVault(vault),
@@ -26,7 +26,7 @@ async function TestMessage(vault) {
     })
     msg.encryptBox(vault.private_key)
     const outbound = msg.outboundFinal()
-    postMsg(outbound)
+    sender(outbound)
 }
 
 function MainHubScreen(props) {

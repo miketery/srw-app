@@ -120,7 +120,7 @@ export default class Guardian {
         await SS.save(this.pk, this.toDict())
     }
     // message flows
-    responseMsg(response: 'accept' | 'reject'): OutboundMessageDict {
+    responseMsg(response: 'accept' | 'decline'): OutboundMessageDict {
         const data: RecoveryPlanResponse = {
             recoveryPlanPk: this.recoveryPlanPk,
             response: response,

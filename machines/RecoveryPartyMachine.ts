@@ -40,7 +40,7 @@ const RecoveryPartyMachine = createMachine({
             entry: ['save'],
             on: {
                 ACCEPT: 'ACCEPTED',
-                REJECT: 'REJECTED',
+                DECLINE: 'DECLINED',
                 RESEND_INVITE: 'SENDING_INVITE',
             },
         },
@@ -50,7 +50,8 @@ const RecoveryPartyMachine = createMachine({
                 FINALIZE: 'FINAL',
             },
         },
-        REJECTED: {
+        DECLINED: {
+            entry: ['save'],
             on: {
                 ACCEPT: 'ACCEPTED',
                 RESEND_INVITE: 'SENDING_INVITE',
@@ -84,7 +85,6 @@ const RecoveryPartyMachine = createMachine({
             return false
         }
     }
-
 });
 
 export default RecoveryPartyMachine;

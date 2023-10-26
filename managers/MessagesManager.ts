@@ -9,8 +9,8 @@
 
 
 */
-import DigitalAgentService from "../services/DigitalAgentService";
-import { Message, OutboundMessageDict, InboundMessageDict } from "../models/Message";
+import DigitalAgentService, { GetMessagesFunction } from "../services/DigitalAgentService";
+import { Message, InboundMessageDict } from "../models/Message";
 import SS, { StoredType } from "../services/StorageService";
 import Vault from "../models/Vault";
 import { NotificationData, NotificationTypes } from "../models/Notification";
@@ -95,7 +95,7 @@ class InboundMessageManager {
     private _manager: VaultManager;
     private _inbound_messages: {string? : Message};
     private _last: LastReceivedStateDict;
-    private _getMessages: () => Promise<OutboundMessageDict[]>;
+    private _getMessages: GetMessagesFunction;
  
     constructor(vault: Vault, manager: VaultManager, last?: LastReceivedStateDict) {
         this._vault = vault;

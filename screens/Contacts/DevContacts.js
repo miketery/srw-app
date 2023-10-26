@@ -50,7 +50,7 @@ async function ContactRequestFlowBasic() {
     console.log('\n###################### A2 - alice_cm.contactRequest()')
     console.log(bob_contact.their_contact_public_key)
     // bob_cm.acceptContactRequest(bob_contact.did, () => console.log('CALLBACK'))
-    bob_contact.fsm.send('REQUEST')
+    bob_contact.fsm.send('REQUEST', {callback: () => console.log('Sending request, CALLBACK')})
     await new Promise(r => setTimeout(r, 300));
     const contact_request = (await bob_get_msg())[0]
     console.log('[DevContacts] contact_request', contact_request) // encrypted
@@ -92,7 +92,7 @@ async function ContactFullFlow(manager) {
     const bobVault = Vault.fromDict(test_vaults[1])
     const bobContact =  await aliceContactManager.addContact('Bob', bobVault.did, 
         bobVault.public_key, bobVault.verify_key, Uint8Array.from([]), '')
-    aliceContactManager.sendContactRequest(bobContact)
+    aliceContactManager.sendContactRequest(bobContact, () => console.log('CALLBACK on request send'))
     const contactRequest = (await DAS.getGetMessagesFunction(bobVault)())[0]
     console.log(contactRequest)
     const bobContactManager = new ContactsManager(bobVault)

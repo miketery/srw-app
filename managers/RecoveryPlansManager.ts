@@ -74,6 +74,9 @@ class RecoveryPlansManager {
         if(payload.response === 'accept') {
             const party = recoveryPlan.recoveryPartys.filter(rp => rp.contactPk === contact.pk)[0]
             party.fsm.send('ACCEPT', {callback})
+        } else if (payload.response === 'decline') {
+            const party = recoveryPlan.recoveryPartys.filter(rp => rp.contactPk === contact.pk)[0]
+            party.fsm.send('DECLINE', {callback})
         }
     }
 }
