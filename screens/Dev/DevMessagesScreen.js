@@ -5,7 +5,7 @@ import tw from '../../lib/tailwind'
 import ds from '../../assets/styles'
 
 import { GoBackButton } from '../../components'
-import getTestVaultsAndContacts from '../../testdata/testContacts'
+import { getTestVaultsAndContacts } from '../../testdata/testContacts'
 import { Message } from '../../models/Message'
 import ContactsManager from '../../managers/ContactsManager'
 import base58 from 'bs58'
