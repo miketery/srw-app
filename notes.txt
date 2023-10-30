@@ -40,3 +40,8 @@ this.fsm = interpret(RecoveryPlanMachine.withContext({...}}))
 this.fsm.onTransition((context, event) => {})
 this.fsm.start(this._state)
 ````
+
+# Adding New Notiifcation Process & Response
+
+1. MessagesManager - processMap
+

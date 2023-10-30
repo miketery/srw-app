@@ -37,6 +37,9 @@ function MainHubScreen(props) {
             <View style={ds.headerRow}>
                 <Text style={ds.header}>{vault.name} — Main Hub</Text>
             </View>
+            <View style={tw`mb-10`}>
+                <Text style={ds.textLg}>{vault.short_code}</Text>
+            </View>
             <View style={tw`flex-grow-1`} />
             <View style={tw`justify-around mb-10 flex-col items-center`}>
                 <Pressable style={[ds.button, ds.blueButton, tw`w-100`]}

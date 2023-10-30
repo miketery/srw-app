@@ -60,27 +60,30 @@ const RecoveryPlanMachine = createMachine({
         WAITING_ON_PARTICIPANTS: {
             entry: ['save', 'spawnRecoveryPartys'],
             on: {
-                allAccepted: {
+                forceReady: {
                     target: 'READY',
-                    cond: "allRecoveryPartysAccepted"
+                    cond: "minRecoveryPartysAccepted"
                 },
-                // forceReady: {
-                //     target: 'READY',
-                //     cond: "minRecoveryPartysAccepted"
-                // },
-            }
+            },
+            always: [
+                { target: 'READY', cond: 'allRecoveryPartysAccepted'}
+            ]
         },
         READY: {
             on: {
-                cleanUp: "FINAL"
+                FINALIZE: "FINAL"
             }
         },
         FINAL: {
             on: {
-                archive: "ARCHIVED"
+                ARCHIVE: "ARCHIVED"
             }
         },
-        ARCHIVED: {}
+        ARCHIVED: {
+            on: {
+                RESTORE: 'FINAL'
+            }
+        }
     }
 }, {
     actions: {

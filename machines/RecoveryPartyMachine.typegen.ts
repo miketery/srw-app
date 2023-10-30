@@ -18,7 +18,8 @@
           services: never;
         };
         eventsCausingActions: {
-          "save": "ACCEPT" | "DECLINE" | "done.invoke.sendInviteId";
+          "recoveryPlanTrigger": "ACCEPT" | "DECLINE" | "done.invoke.sendInviteId";
+"save": "ACCEPT" | "DECLINE" | "done.invoke.sendInviteId";
 "sendInviteError": "error.platform.sendInviteId";
         };
         eventsCausingDelays: {

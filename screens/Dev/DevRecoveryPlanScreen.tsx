@@ -145,7 +145,7 @@ async function RecoverPlanFullFlow(
     console.log('AFTER ACCEPTS', recoveryPlan.toDict())
     recoveryPlan.recoveryPartys.forEach((rp) => console.log(rp.name, rp.state))
     // recoveryPlan.finalize()
-
+    console.log(recoveryPlan.state)
     return
 }
 

@@ -21,11 +21,11 @@ export default function RecoveryPlanNavigator({navigation}) {
     navigation={navigation} initialRouteName={ROUTES.ContactsListRoute}>
         <Stack.Screen name={ROUTES.RecoveryPlansListRoute} options={{title:'List Recovery Plans'}}>
             {props => <RecoveryPlansListScreen {...props}
-                contactsManager={manager.contactsManager} />}
+                recoveryPlansManager={manager.recoveryPlansManager} />}
         </Stack.Screen>
         <Stack.Screen name={ROUTES.DevReocveryPlanRoute} options={{title:'Dev Recovery Plan'}}>
             {props => <DevRecoveryPlan {...props}
-                contactsManager={manager.contactsManager} />}
+                recoveryPlansManager={manager.recoveryPlansManager} />}
         </Stack.Screen>
         {/* <Stack.Screen name={ROUTES.RecoveryPlanCreateRoute} options={{title:'Create Recovery Plan'}}>
             {props => <RecoveryPlanCreateScreen {...props} 

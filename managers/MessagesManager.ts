@@ -82,6 +82,10 @@ const processMap: processMapType = {
             })
         return Promise.resolve(true)
     },
+    [MessageTypes.recovery.invite]: async (message: Message, vault: Vault, m: VaultManager) => {
+    },
+    [MessageTypes.recovery.response]: async (message: Message, vault: Vault, m: VaultManager) => {
+    },
 }
 
 

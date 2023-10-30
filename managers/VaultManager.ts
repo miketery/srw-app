@@ -48,7 +48,8 @@ class VaultManager {
             return
         promises.push(this.initManagers());
         // if not registered do it now (maybe was offline earlier)
-        // TODO: promises.push(this.checkRegistered(this._currentVault, true));
+        // TODO: 
+        promises.push(this.checkRegistered(this._currentVault, true));
         //       probably as part of state machine...
         await Promise.all(promises);
     }
@@ -112,6 +113,8 @@ class VaultManager {
             throw new Error('Current vault not set');
         this._secretsManager = new SecretsManager(this._currentVault);
         this._contactsManager = new ContactsManager(this._currentVault);
+        this._recoveryPlansManager = new RecoveryPlansManager(
+            this._currentVault, {}, this._contactsManager);
         this._notificationsManager = new NotificationsManager(
             this._currentVault);
         this._messagesManager = new InboundMessageManager(
@@ -119,6 +122,7 @@ class VaultManager {
         await Promise.all([
             this._secretsManager.loadSecrets(),
             this._contactsManager.loadContacts(),
+            this._recoveryPlansManager.loadRecoveryPlans(),
             this._notificationsManager.loadNotifications(),
             this._messagesManager.loadMessages(),
         ])

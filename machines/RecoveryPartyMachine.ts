@@ -37,7 +37,7 @@ const RecoveryPartyMachine = createMachine({
             }
         },
         PENDING: {
-            entry: ['save'],
+            entry: ['save', 'recoveryPlanTrigger'],
             on: {
                 ACCEPT: 'ACCEPTED',
                 DECLINE: 'DECLINED',
@@ -45,13 +45,13 @@ const RecoveryPartyMachine = createMachine({
             },
         },
         ACCEPTED: {
-            entry: ['save'],
+            entry: ['save', 'recoveryPlanTrigger'],
             on: {
                 FINALIZE: 'FINAL',
             },
         },
         DECLINED: {
-            entry: ['save'],
+            entry: ['save', 'recoveryPlanTrigger'],
             on: {
                 ACCEPT: 'ACCEPTED',
                 RESEND_INVITE: 'SENDING_INVITE',
@@ -64,22 +64,25 @@ const RecoveryPartyMachine = createMachine({
 }, {
     actions: {
         sendInviteError: (context, event): void => {
-            console.log('[FSM.RecoveryPartyMachine.sendInviteError]', event)
+            console.log('[RecoveryPartyMachine.sendInviteError]', event)
         },
         save: (context, event): void => {
-            console.log('[FSM.RecoveryPartyMachine.save]', event)
+            console.log('[RecoveryPartyMachine.save]', event)
             // context.recoveryParty.save()
+        },
+        recoveryPlanTrigger: (context, event): void => {
+            console.log('[RecoveryPartyMachine.recoveryPlanTrigger]', event)
+            context.recoveryParty.recoveryPlan.fsm.send('')
         },
     },
     guards :{},
     services: {
         sendInvite: async (context, event: {callback: () => void}): Promise<boolean> => {
-            console.log('[FSM.RecoveryPartyMachine.sendInvite]', event)
+            console.log('[RecoveryPartyMachine.sendInvite]', event)
             const msg = context.recoveryParty.inviteMessage()
             const res = await context.sender(msg)
             if(res) {
                 event.callback()
-                context.recoveryParty.recoveryPlan.fsm.send('') // so can check gaurd
                 return true
             }
             return false
