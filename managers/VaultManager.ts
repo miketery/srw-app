@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import DigitalAgentService from '../services/DigitalAgentService';
 import NotificationsManager from './NotificationsManager';
 import InboundMessageManager from './MessagesManager';
+import { MOCK } from '../config';
 
 interface SessionDict {
     vaultPk: string;
@@ -49,7 +50,7 @@ class VaultManager {
         promises.push(this.initManagers());
         // if not registered do it now (maybe was offline earlier)
         // TODO: 
-        promises.push(this.checkRegistered(this._currentVault, true));
+        !MOCK && promises.push(this.checkRegistered(this._currentVault, true));
         //       probably as part of state machine...
         await Promise.all(promises);
     }

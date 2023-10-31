@@ -28,7 +28,7 @@ import DigitalAgentService, { GetMessagesFunction, SenderFunction } from '../../
 import ContactsManager from '../../managers/ContactsManager'
 import GuardiansManager from '../../managers/GuardiansManager'
 import { InboundMessageDict, Message } from '../../models/Message'
-import { GuardianState } from '../../models/Guardian'
+import { GoBackButton } from '../../components'
 
 /**
  * Test Recovery Plan Flow Messages
@@ -163,7 +163,8 @@ const testShamir = () => {
 type DevRecoveryPlanScreenProps = {
     route: {
         name: string
-    }
+    },
+    navigation: any
 }
 
 const DevRecoveryPlanScreen: React.FC<DevRecoveryPlanScreenProps> = (props) => {
@@ -191,44 +192,43 @@ const DevRecoveryPlanScreen: React.FC<DevRecoveryPlanScreenProps> = (props) => {
 
     const current_route = props.route.name
     return loading ? <View style={ds.mainContainerPtGradient}>
-        <Text>Loading...</Text>
-    </View>: <View style={ds.mainContainerPtGradient}>
-    <ScrollView style={ds.scrollViewGradient}>
-        <View style={ds.headerRow}>
-            <Text style={ds.header}>Dev Recovery Plans</Text>
+            <Text>Loading...</Text>
+        </View>: <View style={ds.mainContainerPtGradient}>
+        <ScrollView style={ds.scrollViewGradient}>
+            <View style={ds.headerRow}>
+                <Text style={ds.header}>Dev Recovery Plans</Text>
+            </View>
+            <View>
+                <Text style={ds.text}>Route: {current_route}</Text>
+            </View>
+            <View>
+                <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
+                        onPress={() => RecoverPlanCreate(vaultsAndManagers)}>
+                    <Text style={ds.buttonText}>Recovery Plan Basic</Text>
+                </Pressable>
+            </View>
+            <View>
+                <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
+                        onPress={() => RecoverPlanFullFlow(vaultsAndManagers)}>
+                    <Text style={ds.buttonText}>Recovery Full Flow</Text>
+                </Pressable>
+            </View>
+            <View>
+                <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
+                        onPress={() => testShamir()}>
+                    <Text style={ds.buttonText}>test</Text>
+                </Pressable>
+            </View>
+            <View>
+                <Pressable style={[ds.button, ds.redButton, tw`mt-4 w-full`]}
+                        onPress={() => deleteAllRecoveryRelated()}>
+                    <Text style={ds.buttonText}>Delete</Text>
+                </Pressable>
+            </View>
+        </ScrollView>
+        <View style={ds.buttonRowB}>
+            <GoBackButton onPressOut={() => props.navigation.goBack()} />
         </View>
-        <View>
-            <Text style={ds.text}>Route: {current_route}</Text>
-        </View>
-        <View>
-            <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
-                    onPress={() => RecoverPlanCreate(vaultsAndManagers)}>
-                <Text style={ds.buttonText}>Recovery Plan Basic</Text>
-            </Pressable>
-        </View>
-        <View>
-            <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
-                    onPress={() => RecoverPlanFullFlow(vaultsAndManagers)}>
-                <Text style={ds.buttonText}>Recovery Full Flow</Text>
-            </Pressable>
-        </View>
-        <View>
-            <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
-                    onPress={() => testShamir()}>
-                <Text style={ds.buttonText}>test</Text>
-            </Pressable>
-        </View>
-        <View>
-            <Pressable style={[ds.button, ds.redButton, tw`mt-4 w-full`]}
-                    onPress={() => deleteAllRecoveryRelated()}>
-                <Text style={ds.buttonText}>Delete</Text>
-            </Pressable>
-        </View>
-    </ScrollView>
-        {/* <View style={tw`justify-around mb-10 flex-col items-center`}>
-            <Button text='Add Contact' onPress={
-                () => props.navigation.navigate('ContactCreateRoute')} />
-        </View> */}
     </View>
 }
 export default DevRecoveryPlanScreen;

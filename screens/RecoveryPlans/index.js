@@ -5,7 +5,7 @@ import { ROUTES } from '../../config';
 import { useSessionContext } from '../../contexts/SessionContext'
 
 import RecoveryPlansListScreen from './RecoveryPlansListScreen'
-// import RecoveryPlanCreateScreen from './RecoveryPlanCreateScreen'
+import RecoveryPlanCreateScreen from './RecoveryPlanCreateScreen'
 // import RecoveryPlanViewScreen from './RecoveryPlanViewScreen'
 // import RecoveryPlanEditScreen from './RecoveryPlantEditScreen'
 // import RecoveryPlanDeleteScreen from './RecoveryPlanDeleteScreen'
@@ -14,22 +14,38 @@ import DevRecoveryPlan from '../Dev/DevRecoveryPlanScreen'
 
 const Stack = createNativeStackNavigator();
 
+const routeConfigs = [
+    {
+      name: ROUTES.RecoveryPlansListRoute,
+      title: 'List Recovery Plans',
+      component: RecoveryPlansListScreen
+    },
+    {
+      name: ROUTES.RecoveryPlanCreateRoute,
+      title: 'Create Recovery Plan',
+      component: RecoveryPlanCreateScreen
+    },
+    {
+      name: ROUTES.DevReocveryPlanRoute,
+      title: 'Dev Recovery Plan',
+      component: DevRecoveryPlan
+    }
+  ]
+
 export default function RecoveryPlanNavigator({navigation}) {
     const {manager, vault} = useSessionContext()
 
     return <Stack.Navigator screenOptions={{headerShown: false}}
     navigation={navigation} initialRouteName={ROUTES.ContactsListRoute}>
-        <Stack.Screen name={ROUTES.RecoveryPlansListRoute} options={{title:'List Recovery Plans'}}>
-            {props => <RecoveryPlansListScreen {...props}
-                recoveryPlansManager={manager.recoveryPlansManager} />}
-        </Stack.Screen>
-        <Stack.Screen name={ROUTES.DevReocveryPlanRoute} options={{title:'Dev Recovery Plan'}}>
-            {props => <DevRecoveryPlan {...props}
-                recoveryPlansManager={manager.recoveryPlansManager} />}
-        </Stack.Screen>
-        {/* <Stack.Screen name={ROUTES.RecoveryPlanCreateRoute} options={{title:'Create Recovery Plan'}}>
-            {props => <RecoveryPlanCreateScreen {...props} 
-                contactsManager={manager.contactsManager} vault={vault} />}
-        </Stack.Screen> */}
+        {routeConfigs.map((route, index) => (
+            <Stack.Screen
+                key={index}
+                name={route.name}
+                options={{ title: route.title }}>
+                {props => <route.component {...props}
+                    vault={vault}
+                    recoveryPlansManager={manager.recoveryPlansManager} />}
+            </Stack.Screen>
+        ))}
     </Stack.Navigator>
 }

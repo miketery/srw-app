@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Pressable, ScrollView, Text, View } from 'react-native'
 
 import ds from '../../assets/styles'
@@ -9,6 +9,7 @@ import Vault from '../../models/Vault'
 
 import RecoveryPlan from '../../models/RecoveryPlan'
 import RecoveryPlansManager from '../../managers/RecoveryPlansManager'
+import { DEV, ROUTES } from '../../config';
 
 const RecoveryPlanRow = ({recoveryPlan: RecoveryPlan}) => {
     return <View>
@@ -16,16 +17,21 @@ const RecoveryPlanRow = ({recoveryPlan: RecoveryPlan}) => {
     </View>
 }
 
-function RecoveryPlanList(props: {navigation: any, recoveryPlansManager: RecoveryPlansManager}) {
+type RecoveryPlanListProps = {
+    navigation: any,
+    recoveryPlansManager: RecoveryPlansManager
+}
+
+const RecoveryPlanList: React.FC<RecoveryPlanListProps> = (props) => {
     const [recoveryPlans, setRecoveryPlans] = useState<RecoveryPlan[]>([])
 
     useEffect(() => {
         const unsubscribe = props.navigation.addListener('focus', async() => {
             console.log('[RecoverPlansListScreen.js] focus()')
-            const contacts = props.recoveryPlansManager.getRecoveryPlansArray()
-            setRecoveryPlans(recoveryPlans.sort((a, b) => a.name.localeCompare(b.name)))
+            const plans = props.recoveryPlansManager.getRecoveryPlansArray()
+            setRecoveryPlans(plans.sort((a, b) => a.name.localeCompare(b.name)))
         });
-
+        return unsubscribe;
     }, [])
 
     return <View style={ds.mainContainerPtGradient}>
@@ -42,6 +48,18 @@ function RecoveryPlanList(props: {navigation: any, recoveryPlansManager: Recover
             </View>
         </ScrollView>
         <TopGradient />
+        
+        <View style={ds.buttonRowB}>
+            {DEV && <Pressable style={[ds.button, tw`rounded-full`]}
+                onPressOut={() => props.navigation.navigate(ROUTES.DevReocveryPlanRoute)}>
+                <Text style={ds.buttonText}>Dev</Text>
+            </Pressable>}
+            <View style={tw`flex-grow-1`} />
+            <Pressable style={[ds.button, ds.greenButton, tw`rounded-full`]}
+                onPressOut={() => props.navigation.navigate(ROUTES.RecoveryPlanCreateRoute)}>
+                <Text style={ds.buttonText}>Create Recovery</Text>
+            </Pressable>
+        </View>
     </View>
 }
 

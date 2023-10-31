@@ -85,7 +85,6 @@ const ContactAddScreen = (props) => {
             {/* <BottomGradient /> */}
             <View style={ds.buttonRowB}>
                 <GoBackButton onPressOut={() => props.navigation.goBack()} />
-                <View style={tw`flex-grow-1`} />
             </View>
         </View>
     )
