@@ -11,7 +11,7 @@ DIR=/opt/app.srw.arxsky.dev/
 #     DIR=/opt/stage/skycastle-app/
 # fi
 
-cp .env tmpbld.env
+cp .env tmp.current.env
 echo "Doing a $ENV build"
 cp $ENV.env .env # make prod .env before build
 expo build:web -c
@@ -22,6 +22,6 @@ echo "Pushing to $SERVER:$DIR"
 ssh $SERVER "mkdir -p $DIR"
 scp $TARBALL $SERVER:$DIR
 ssh $SERVER "cd $DIR; tar -xf $TARBALL --warning=no-timestamp; rm -rf public $TARBALL; mv web-build public;"
-cp tmpbld.env .env # reset env
-rm tmpbld.env
+cp tmp.current.env .env # reset env
+rm tmp.current.env
 rm $TARBALL

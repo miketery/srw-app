@@ -7,13 +7,13 @@ import { Card, Info, MyTextInput, TopGradient, Warning } from '../../components'
 import { GoBackButton } from '../../components';
 
 import DigitalAgentService from '../../services/DigitalAgentService'
-import { DEV } from '../../config';
+import { MOCKDATA } from '../../config';
 import base58 from 'bs58';
 
 const BOB_DID = 'did:arx:EtCnZqvnQ4qNq1wV5yjK2hMTrg1i3iPFESrD6w7mGP3E'
 
 const ContactAddScreen = (props) => {
-    const [shortCodeOrDid, setShortCodeOrDid] = useState(DEV ? BOB_DID : '')
+    const [shortCodeOrDid, setShortCodeOrDid] = useState(MOCKDATA ? BOB_DID : '')
     const [contactInfo, setContactInfo] = useState(null)
     const [notFound, setNotFound] = useState(false)
     const [isLoading, setIsLoading] = useState(false)

@@ -41,16 +41,21 @@ function MainHubScreen(props) {
                 <Text style={ds.textLg}>{vault.short_code}</Text>
             </View>
             <View style={tw`flex-grow-1`} />
-            <View style={tw`justify-around mb-10 flex-col items-center`}>
-                <Pressable style={[ds.button, ds.blueButton, tw`w-100`]}
-                    onPress={() => props.clearMessagesFetchInterval()}>
-                    <Text style={ds.buttonText}>Stop Fetch Message</Text>
-                </Pressable>
-                <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-100`]}
+            { DEV ? <View style={tw`justify-around mb-10 flex-col items-center`}>
+                {props.fetching ? 
+                    <Pressable style={[ds.button, ds.redButton, tw`w-100 mb-4`]}
+                        onPress={() => props.clear()}>
+                        <Text style={ds.buttonText}>Stop Fetch Message {props.fetching}</Text>
+                    </Pressable> :
+                    <Pressable style={[ds.button, ds.greenButton, tw`w-100 mb-4`]}
+                        onPress={() => props.start()}>
+                        <Text style={ds.buttonText}>Start Fetch Message {props.fetching}</Text>
+                    </Pressable>}
+                <Pressable style={[ds.button, ds.blueButton, tw`w-100 mb-4`]}
                     onPress={() => TestMessage(vault)}>
                     <Text style={ds.buttonText}>App.Test Self Message</Text>
                 </Pressable>
-            </View>
+            </View> : null}
         </ScrollView>
         <TopGradient />
         {/* <BottomGradient /> */}

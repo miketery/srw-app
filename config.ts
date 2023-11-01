@@ -4,6 +4,7 @@ import {
     env_local,
     env_mock,
     env_fetch,
+    env_mockdata,
 } from '@env';
 
 // const env_dev = 'true'
@@ -15,6 +16,7 @@ export const DEBUG = env_debug === 'true'
 export const LOCAL = env_local === 'true'
 // export const MOCK = false
 export const MOCK = env_mock === 'true'
+export const MOCKDATA = env_mockdata === 'true'
 // export const FETCH = true
 export const FETCH = env_fetch === 'true'
 
