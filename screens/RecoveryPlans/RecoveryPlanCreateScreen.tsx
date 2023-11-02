@@ -16,8 +16,11 @@ import { type } from 'os';
 const ContactSelectList = ({contacts, selected, onPress}) => {
     return <View>
         {contacts.map((contact: Contact, index: number) => {
-            return <Pressable key={index} onPress={() => onPress(contact)}>
-                <Text>{contact.name}</Text>
+            const isSelected = selected.includes(contact.pk)
+            return <Pressable key={index} 
+                    style={[tw`p-2 my-2 rounded-md`, isSelected ? tw`bg-green-800` : tw`bg-gray-700`]}
+                    onPress={() => onPress(contact.pk)}>
+                <Text style={ds.text}>{contact.name}</Text>
             </Pressable>
         })}
     </View>
@@ -37,10 +40,21 @@ type ContactPk = string
 
 const RecoveryPlanCreateScreen: React.FC<RecoveryPlanCreateScreenProps> = (props) => {
     const vault = props.vault
-    const [step, setStep] = useState<number>(0)
+    // const [step, setStep] = useState<number>(0)
     const [name, setName] = useState<string>('')
     const [participants, setParticipants] = useState<ContactPk[]>([])
+    const [contacts, setContacts] = useState<Contact[]>([])
     const [threshold, setThreshold] = useState<number>(2)
+
+    // useEffect(() => {
+    //     if (DEV) console.log('RecoveryPlanCreateScreen: useEffect: step:', step)
+    // }, [step])
+
+    useEffect(() => {
+        const contacts = props.recoveryPlansManager.contactsManager.getContactsArray()
+        console.log(contacts)
+        setContacts(contacts)
+    }, [])
 
     return <View style={ds.mainContainerPtGradient}>
         <ScrollView style={ds.scrollViewGradient}>
@@ -53,6 +67,13 @@ const RecoveryPlanCreateScreen: React.FC<RecoveryPlanCreateScreenProps> = (props
                 value={name}
                 onChangeText={setName}
             />
+            <ContactSelectList contacts={contacts} selected={participants} onPress={(pk: ContactPk) => {
+                if (participants.includes(pk)) {
+                    setParticipants(participants.filter((p: ContactPk) => p !== pk))
+                } else {
+                    setParticipants([...participants, pk])
+                }
+            }} />
         </ScrollView>
         <TopGradient />
         {/* <BottomGradient /> */}

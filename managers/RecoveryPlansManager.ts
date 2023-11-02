@@ -15,12 +15,13 @@ class RecoveryPlansManager {
     private _contactsManager: ContactsManager;
 
     constructor(vault: Vault, recoveryPlans: {[pk: string]: RecoveryPlan} = {},
-        contactsManager: ContactsManager) { 
+            contactsManager: ContactsManager) { 
         console.log('[RecoveryPlansManager.constructor] ' + vault.pk)
         this._vault = vault;
         this._recoveryPlans = recoveryPlans;
         this._contactsManager = contactsManager;
     }
+    get contactsManager(): ContactsManager { return this._contactsManager; }
     clear() { this._recoveryPlans = {}; }
     createRecoveryPlan(name: string, description: string): RecoveryPlan {
         const recoveryPlan = RecoveryPlan.create(name, description,

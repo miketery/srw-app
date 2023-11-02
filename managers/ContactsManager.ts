@@ -10,10 +10,10 @@ import { MessageTypes } from './MessagesManager';
 import { ContactAccept } from '../models/MessagePayload';
 
 class ContactsManager {
-    private _contacts: {string?: Contact};
+    private _contacts: {[pk: string]: Contact};
     private _vault: Vault;
 
-    constructor(vault: Vault, contacts: {string?: Contact} = {}) { 
+    constructor(vault: Vault, contacts: {[pk: string]: Contact} = {}) { 
         console.log('[ContactsManager.constructor] ' + vault.pk)
         this._contacts = contacts; 
         this._vault = vault;
@@ -26,6 +26,9 @@ class ContactsManager {
     async saveContact(contact: Contact): Promise<void> {
         await SS.save(contact.pk, contact.toDict())
         this._contacts[contact.pk] = contact;
+    }
+    async saveAll(): Promise<void[]> {
+        return await Promise.all(Object.values(this._contacts).map(c => this.saveContact(c)));
     }
     async loadContacts(): Promise<{string?: Contact}> {
         const contacts: {string?: Contact} = {};

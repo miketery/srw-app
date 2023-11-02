@@ -30,35 +30,41 @@ const words = { // seed words so keys are constant for testing...
     }
 }
 
-const recoveryPartys = Object.keys(words)
+const names = Object.keys(words)
 
 const vaults = Object.fromEntries(test_vaults.map((vault) => {
     return Vault.fromDict(vault)
 }).map((vault) => [vault.name, vault]))
 
+export async function getTestContacts(vault: Vault): Promise<{[pk: string]: Contact}> {
+    let contacts = {}
+    const name = vault.name
+    const their_names = Object.keys(words[name])
+    for(let j = 0; j < their_names.length; j++) {
+        const their_name = their_names[j]
+        const my_words = words[name][their_name]
+        const their_vault = vaults[their_name]
+        const their_words = words[their_name][name]
+        const theirContactKeyPair = encryptionKeyFromWords(their_words)
+        const myContactKeyPair = encryptionKeyFromWords(my_words)
+        const contact = await Contact.create(
+            vault.pk, their_vault.did, their_name,
+            their_vault.public_key, their_vault.verify_key,
+            theirContactKeyPair.publicKey, '', ContactState.ESTABLISHED, vault)
+        contact.private_key = myContactKeyPair.secretKey
+        contact.public_key = myContactKeyPair.publicKey
+        contacts[contact.pk] = contact
+    }
+    return contacts
+}
+
 
 export async function getTestVaultsAndContacts() {
     const contacts = {}
-    for(let i = 0; i < recoveryPartys.length; i++) {
-        const name = recoveryPartys[i]
+    for(let i = 0; i < names.length; i++) {
+        const name = names[i]
         const my_vault = vaults[name]
-        const their_names = Object.keys(words[name])
-        contacts[name] = {}
-        for(let j = 0; j < their_names.length; j++) {
-            const their_name = their_names[j]
-            const my_words = words[name][their_name]
-            const their_vault = vaults[their_name]
-            const their_words = words[their_name][name]
-            const theirContactKeyPair = encryptionKeyFromWords(their_words)
-            const myContactKeyPair = encryptionKeyFromWords(my_words)
-            const contact = await Contact.create(
-                my_vault.pk, their_vault.did, their_name,
-                their_vault.public_key, their_vault.verify_key,
-                theirContactKeyPair.publicKey, '', ContactState.ESTABLISHED, my_vault)
-            contact.private_key = myContactKeyPair.secretKey
-            contact.public_key = myContactKeyPair.publicKey
-            contacts[name][their_name] = contact
-        }
+        contacts[name] = await getTestContacts(my_vault)
     }
     return [vaults, contacts]
 }
@@ -66,6 +72,11 @@ export async function getTestVaultsAndContacts() {
 const dictByNameToByKey = (data: {[name: string]: any}): {[pk: string]: any} => {
     return Object.fromEntries(
         Object.keys(data).map((name) => [data[name].pk, data[name]])
+    )
+}
+const dictByKeyToByName = (data: {[pk: string]: any}): {[name: string]: any} => {
+    return Object.fromEntries(
+        Object.keys(data).map((pk) => [data[pk].name, data[pk]])
     )
 }
 
@@ -78,17 +89,17 @@ export async function getVaultsAndManagers(): Promise<{
             sender: SenderFunction,
         }}> {
     const [vaults, contacts] = await getTestVaultsAndContacts()
-    return Object.fromEntries(Object.keys(vaults).map(
+    return Object.fromEntries(names.map(
         (name) => {
             return [
                 name,
                 {
                     vault: vaults[name] as Vault,
                     contactsManager: new ContactsManager(
-                        vaults[name], dictByNameToByKey(contacts[name])),
+                        vaults[name], contacts[name]),
                     contacts: Object.assign({}, // merge the two
                         contacts[name], // by name, 'bob' => Contact
-                        dictByNameToByKey(contacts[name]), // by pk, 'c__[UUID]' => Contact
+                        dictByKeyToByName(contacts[name]), // by pk, 'c__[UUID]' => Contact
                     ),
                     getMessages: DigitalAgentService.getGetMessagesFunction(vaults[name]),
                     sender: DigitalAgentService.getSendMessageFunction(vaults[name]),
