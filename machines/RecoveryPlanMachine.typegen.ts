@@ -15,7 +15,7 @@
         missingImplementations: {
           actions: never;
           delays: never;
-          guards: "minRecoveryPartysAccepted";
+          guards: never;
           services: never;
         };
         eventsCausingActions: {
@@ -29,7 +29,6 @@
         eventsCausingGuards: {
           "allRecoveryPartysAccepted": "";
 "allRecoveryPartysSent": "";
-"minRecoveryPartysAccepted": "forceReady";
         };
         eventsCausingServices: {
           "splitKey": "SPLIT_KEY";

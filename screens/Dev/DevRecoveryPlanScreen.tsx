@@ -38,7 +38,6 @@ const deleteAllRecoveryRelated = () => {
     const types = [StoredType.recoveryPlan, StoredType.guardian]
     for(let type of types)
         SS.deleteAllByType(type)
-
 }
 
 async function RecoverPlanCreate(

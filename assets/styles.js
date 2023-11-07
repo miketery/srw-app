@@ -42,6 +42,9 @@ const ds = StyleSheet.create({
     purpleButton: tw`bg-violet-900`,
     orangeButton: tw`bg-amber-500`,
 
+    buttonArrow: tw`items-center w-10 rounded-md border border-gray-700 p-2 bg-slate-600`,
+    disabled: tw`bg-slate-600 opacity-30`,
+
     rows: tw`flex-col w-full`,
     row: tw`flex flex-row rounded-lg p-3 mb-2 bg-slate-700`,
     buttonRow: tw`w-full flex-row justify-between items-center my-2`,

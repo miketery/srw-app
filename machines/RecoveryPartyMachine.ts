@@ -65,6 +65,7 @@ const RecoveryPartyMachine = createMachine({
     actions: {
         sendInviteError: (context, event): void => {
             console.log('[RecoveryPartyMachine.sendInviteError]', event)
+            console.log(event.data.stack)
         },
         save: (context, event): void => {
             console.log('[RecoveryPartyMachine.save]', event)

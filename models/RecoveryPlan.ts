@@ -204,11 +204,8 @@ class RecoveryPlan {
                 partyMachines: {},
                 sender: DigitalAgentService.getSendMessageFunction(this.vault),
         }))
-        this.fsm.onTransition((context: {recoveryPlan: RecoveryPlan}, event) => {
-            if(context.recoveryPlan)
-                console.log('[RecoveryPlan.fsm.onTransition]', context.recoveryPlan.toString(), event)
-            else
-                console.log('[RecoveryPlan.fsm.onTransition]', event)
+        this.fsm.onTransition((state) => {
+            console.log('[RecoveryPlan.fsm.onTransitionX]', state.context.recoveryPlan.toString())
         })
         this.fsm.start(this._state)
     }

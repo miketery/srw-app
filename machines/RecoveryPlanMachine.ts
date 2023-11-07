@@ -62,7 +62,7 @@ const RecoveryPlanMachine = createMachine({
             on: {
                 forceReady: {
                     target: 'READY',
-                    cond: "minRecoveryPartysAccepted"
+                    // cond: "minRecoveryPartysAccepted"
                 },
             },
             always: [

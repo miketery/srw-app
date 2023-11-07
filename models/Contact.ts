@@ -152,8 +152,8 @@ class Contact {
     static fromDict(data: ContactDict, vault: Vault): Contact {
         const private_key = base58.decode(data.private_key)
         const public_key = base58.decode(data.public_key)
-        const their_public_key = data.their_public_key == '' ? base58.decode(data.their_public_key) : Uint8Array.from([])
-        const their_verify_key = data.their_verify_key == '' ? base58.decode(data.their_verify_key) : Uint8Array.from([])
+        const their_public_key = data.their_public_key != '' ? base58.decode(data.their_public_key) : Uint8Array.from([])
+        const their_verify_key = data.their_verify_key != '' ? base58.decode(data.their_verify_key) : Uint8Array.from([])
         const their_contact_public_key = data.their_contact_public_key == '' ? base58.decode(data.their_contact_public_key) : Uint8Array.from([])
         return new Contact(
             data.pk, data.vaultPk, data.did, data.name,
