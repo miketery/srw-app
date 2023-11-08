@@ -123,10 +123,9 @@ async function RecoverPlanFullFlow(
     const getRequestAndAccept = async (user, accept, originUser, originRecoveryPlanManager: RecoveryPlansManager) => {
         const name = user.vault.name
         const request = (await user.getMessages())[0] as InboundMessageDict
-        const guardianManager = new GuardiansManager(user.vault, {},
-            user.contactsManager, DigitalAgentService.getSendMessageFunction(user.vault))
+        const guardianManager = new GuardiansManager(user.vault, {}, user.contactsManager)
         await new Promise(r => setTimeout(r, 300))
-        guardianManager.processGuardianRequest(Message.inbound(request))
+        guardianManager.processGuardianRequest(Message.inbound(request, user.vault))
         await new Promise(r => setTimeout(r, 300))
         const guardian = Object.values(guardianManager.getGuardians())[0]
         if(accept)
@@ -134,7 +133,7 @@ async function RecoverPlanFullFlow(
         else
             guardianManager.declineGuardian(guardian, () => console.log(name, 'declined', guardian.toDict()))
         const msgForRecoveryPlan = (await originUser.getMessages())[0] as InboundMessageDict
-        originRecoveryPlanManager.processRecoveryPlanResponse(Message.inbound(msgForRecoveryPlan))
+        originRecoveryPlanManager.processRecoveryPlanResponse(Message.inbound(msgForRecoveryPlan, originUser.vault))
     }
     await getRequestAndAccept(bob, true, alice, recoveryPlanManager)
     await getRequestAndAccept(charlie, true, alice, recoveryPlanManager)

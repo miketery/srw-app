@@ -60,18 +60,19 @@ export default class Guardian {
         this.archived = archived
         this.getContact = getContact
         if(![GuardianState.ACCEPTED, GuardianState.DECLINED].includes(state)) {
-            this.fsm = interpret(GuardianMachine.withContext({
-                guardian: this,
-                sender: sender,
-            }))
-            this.fsm.onTransition((context: {guardian: Guardian}, event) => {
-                if(context.guardian)
-                    console.log('[RecoveryPlan.fsm.onTransition]', context.guardian.toString(), event)
-                else
-                    console.log('[RecoveryPlan.fsm.onTransition]', event)
-            })
-            this.fsm.start(this._state)
+            this.initFSM(sender)
         }
+    }
+    initFSM(sender: SenderFunction) {
+        this.fsm = interpret(GuardianMachine.withContext({
+            guardian: this,
+            sender: sender,
+        }))
+        this.fsm.onTransition((state: {context: {guardian: Guardian}}) => {
+            console.log('[RecoveryPlan.fsm.onTransition]', state.context.guardian.toString(), event)
+        })
+        console.log('[Guardian.initFSM]', this._state)
+        this.fsm.start(this._state)
     }
     get contact(): Contact {
         return this.getContact(this.contactPk)

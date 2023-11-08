@@ -11,9 +11,15 @@ import RecoveryPlan from '../../models/RecoveryPlan'
 import RecoveryPlansManager from '../../managers/RecoveryPlansManager'
 import { DEV, ROUTES } from '../../config';
 
-const RecoveryPlanRow = ({recoveryPlan: RecoveryPlan}) => {
-    return <View>
-        <Text>Test</Text>
+const RecoveryPlanRow = ({recoveryPlan}: {recoveryPlan: RecoveryPlan}) => {
+    return <View style={[ds.row, tw`flex-col`]}>
+        <Text style={ds.text}>{recoveryPlan.name}</Text>
+        <Text style={ds.text}>{recoveryPlan.state}</Text>
+        <View style={tw`flex-col`}>
+            {recoveryPlan.recoveryPartys.map((party, index) => {
+                return <Text key={index} style={ds.text}>{party.name} {party.state}</Text>
+            })}
+        </View>
     </View>
 }
 

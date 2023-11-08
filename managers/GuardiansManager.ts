@@ -9,7 +9,8 @@ import { Message } from '../models/Message'
 import { MessageTypes } from './MessagesManager'
 import ContactsManager from './ContactsManager'
 import { RecoveryPlanInvite } from '../models/MessagePayload'
-import { SenderFunction } from '../services/DigitalAgentService'
+import DigitalAgentService, { SenderFunction } from '../services/DigitalAgentService'
+import Contact from '../models/Contact'
 
 class GuardiansManager {
     private _vault: Vault;
@@ -18,12 +19,12 @@ class GuardiansManager {
     private _sender: SenderFunction;
 
     constructor(vault: Vault, guardians: {[pk: string]: Guardian} = {},
-            contactsManager: ContactsManager, sender: SenderFunction) { 
+            contactsManager: ContactsManager) { 
         console.log('[GuardiansManager.constructor] ' + vault.pk)
         this._vault = vault;
         this._guardians = guardians;
         this._contactsManager = contactsManager;
-        this._sender = sender;
+        this._sender = DigitalAgentService.getSendMessageFunction(this._vault)
     }
     clear() { this._guardians = {}; }
     createGuardian(name: string, description: string, recoveryPlanPk: string,
@@ -42,7 +43,7 @@ class GuardiansManager {
     async loadGuardians(): Promise<{[pk: string]: Guardian}> {
         const guardians: {string?: Guardian} = {};
         const guardiansData = await SS.getAll(
-            StoredType.recoveryPlan, this._vault.pk);
+            StoredType.guardian, this._vault.pk);
         for (let recoveryPlanData of Object.values(guardiansData)) {
             const c = Guardian.fromDict(recoveryPlanData,
                 this._contactsManager.getContact, this._sender);
@@ -66,7 +67,7 @@ class GuardiansManager {
             return this._guardians[pk];
         throw new Error(`[GuardiansManager] not found: ${pk}`);
     }
-    async processGuardianRequest(message: Message, callback?: () => void): Promise<void> {
+    async processGuardianRequest(message: Message, callback?: () => void): Promise<{guardian: Guardian, contact: Contact}> {
         console.log('[GuardiansManager.processGuardianRequest]')
         if(message.type_name !== MessageTypes.recovery.invite) {
             throw new Error(`65 Invalid message type: ${message.type_name} should be ${MessageTypes.recovery.invite}`)
@@ -78,7 +79,7 @@ class GuardiansManager {
             data.name, data.description,
             data.recoveryPlanPk, data.shares, contact.pk)
         await this.saveGuardian(guardian)
-        return
+        return {guardian,contact}
     }
     async acceptGuardian(guardian: Guardian, callback: () => void): Promise<void> {
         console.log('[GuardiansManager.acceptGuardian]', guardian.name)    

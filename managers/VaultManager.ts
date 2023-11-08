@@ -4,6 +4,8 @@ import SS, { StoredType } from '../services/StorageService';
 import ContactsManager from './ContactsManager';
 import SecretsManager from './SecretsManager';
 import RecoveryPlansManager from './RecoveryPlansManager';
+import GuardiansManager from './GuardiansManager';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DigitalAgentService from '../services/DigitalAgentService';
 import NotificationsManager from './NotificationsManager';
@@ -20,8 +22,10 @@ class VaultManager {
     private _currentVault: Vault | null;
     private _secretsManager: SecretsManager | null;
     private _contactsManager: ContactsManager | null;
-    private _notificationsManager: NotificationsManager | null;
     private _recoveryPlansManager: RecoveryPlansManager | null;
+    private _guardiansManager: GuardiansManager | null;
+
+    private _notificationsManager: NotificationsManager | null;
     private _messagesManager: InboundMessageManager | null;
     private _session: SessionDict;
 
@@ -116,6 +120,9 @@ class VaultManager {
         this._contactsManager = new ContactsManager(this._currentVault);
         this._recoveryPlansManager = new RecoveryPlansManager(
             this._currentVault, {}, this._contactsManager);
+        this._guardiansManager = new GuardiansManager(
+            this._currentVault, {}, this._contactsManager);
+
         this._notificationsManager = new NotificationsManager(
             this._currentVault);
         this._messagesManager = new InboundMessageManager(
@@ -124,6 +131,7 @@ class VaultManager {
             this._secretsManager.loadSecrets(),
             this._contactsManager.loadContacts(),
             this._recoveryPlansManager.loadRecoveryPlans(),
+            this._guardiansManager.loadGuardians(),
             this._notificationsManager.loadNotifications(),
             this._messagesManager.loadMessages(),
         ])
@@ -204,6 +212,11 @@ class VaultManager {
         if (!this._recoveryPlansManager)
             throw new Error('Contacts Manager not set');
         return this._recoveryPlansManager;
+    }
+    get guardiansManager(): GuardiansManager {
+        if (!this._guardiansManager)
+            throw new Error('Guardians Manager not set');
+        return this._guardiansManager;
     }
     get notificationsManager(): NotificationsManager {
         if (!this._notificationsManager)

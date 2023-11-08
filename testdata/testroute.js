@@ -26,7 +26,7 @@ const top_level = ROUTES.RecoveryPlanRoute;
 const switch_routes = {
   [ROUTES.RecoveryPlanRoute]: [
     {name: ROUTES.RecoveryPlansListRoute},
-    {name: ROUTES.RecoveryPlanCreateRoute},
+    // {name: ROUTES.RecoveryPlanCreateRoute},
     // {name: ROUTES.DevReocveryPlanRoute},
   ],
   [ROUTES.DevHasVaultRoute]: [

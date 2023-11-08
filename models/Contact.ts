@@ -80,27 +80,23 @@ class Contact {
         this.digital_agent = digital_agent
         this._state = state
         this.vault = vault
-        const resolvedState = ContactMachine.resolveState({
-            ...ContactMachine.initialState,
-            value: this._state,
-            context: {
-                contact: this,
-                sender: DigitalAgentService.getSendMessageFunction(this.vault),
-            }
+        if(![ContactState.ESTABLISHED, ContactState.ARCHIVED].includes(state))
+            this.initFSM()
+    }
+    initFSM() {
+        this.fsm = interpret(ContactMachine.withContext({
+            contact: this,
+            sender: DigitalAgentService.getSendMessageFunction(this.vault),
+        }))
+        this.fsm.onTransition((state: {context: {contact: Contact}}) => {
+            console.log('[Contact.fsm.onTransition]', state.context.contact.toString(), event)
         })
-        // this.fsm = useMachine(ContactMachine, {state: resolvedState})
-        this.fsm = interpret(ContactMachine)
-        this.fsm.onTransition((context: {contact: Contact}, event) => {
-            if(context.contact)
-                console.log('[Contact.fsm.onTransition]', context.contact.toString(), event)
-            else
-                console.log('[Contact.fsm.onTransition]', event)
-        })
-        this.fsm.start(resolvedState)
-        // console.log(this.fsm.getSnapshot())
+        this.fsm.start(this._state)
     }
     get state(): ContactState {
-        return this.fsm.getSnapshot().value
+        if(this.fsm)
+            return this.fsm.getSnapshot().value
+        return this._state
     }
     get b58_private_key(): string {
         return base58.encode(this.private_key)

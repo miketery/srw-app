@@ -37,9 +37,9 @@ export const MessageTypes = {
     },
 }
 
+// if return true will delete message
 const processMap: processMapType = {
     [MessageTypes.app.test]: (message: Message, vault: Vault, m: VaultManager) => {
-        console.log('[processMap] app.test', message)
         message.decrypt(vault.private_key)
         const notification = m.notificationsManager.createNotification(
             NotificationTypes.app.alert, {
@@ -54,7 +54,6 @@ const processMap: processMapType = {
         return Promise.resolve(true)
     },
     [MessageTypes.contact.invite]: async (message: Message, vault: Vault, m: VaultManager) => {
-        console.log('[processMap] ', message.type_name, message)
         const contact = await m.contactsManager.processContactRequest(message)
         const notification = m.notificationsManager.createNotification(
             NotificationTypes.contact.request, {
@@ -69,7 +68,6 @@ const processMap: processMapType = {
         return Promise.resolve(true)
     },
     [MessageTypes.contact.accept]: async (message: Message, vault: Vault, m: VaultManager) => {
-        console.log('[processMap] ', message.type_name, message)
         const contact = await m.contactsManager.processContactAccept(message)
         const notification = m.notificationsManager.createNotification(
             NotificationTypes.contact.accept, {
@@ -83,8 +81,23 @@ const processMap: processMapType = {
         return Promise.resolve(true)
     },
     [MessageTypes.recovery.invite]: async (message: Message, vault: Vault, m: VaultManager) => {
+        console.log('[processMap] ', message.type_name, message)
+        const {guardian, contact} = await m.guardiansManager.processGuardianRequest(message)
+        const notification = m.notificationsManager.createNotification(
+            NotificationTypes.recoverySetup.invite, {
+                title: 'Recovery Plan Invite',
+                short_text: contact.name + ' wants you to be apart of their recovery plan.',
+                detailed_text: contact.name + ' wants to be a guardian',
+                metadata: {
+                    timestamp: message.created,
+                    pk: guardian.pk,
+                    contactPk: guardian.contactPk
+                }
+            })
+        return Promise.resolve(false)
     },
     [MessageTypes.recovery.response]: async (message: Message, vault: Vault, m: VaultManager) => {
+        return Promise.resolve(false)
     },
 }
 
@@ -120,7 +133,7 @@ class InboundMessageManager {
     getMessages = async () => {
         const messages = await this._getMessages()
         messages.forEach(async (message) => {
-            const msg = Message.inbound(message as InboundMessageDict)
+            const msg = Message.inbound(message as InboundMessageDict, this._vault)
             await this.saveMessage(msg)
             this.processMessage(msg)
         })
@@ -149,12 +162,13 @@ class InboundMessageManager {
     async loadMessages(): Promise<{string?: Message}> {
         const messages: {string?: Message} = {};
         const messages_data = await SS.getAll(StoredType.message, this._vault.pk);
+        console.log('[InboundMessageManager.loadMessages] loaded ', messages_data.length, 'messages')
         for (let message_data of Object.values(messages_data)) {
             const m = Message.fromDict(message_data);
             messages[m.pk] = m;
         }
         this._inbound_messages = messages;
-        this.processAllMessages()
+        await this.processAllMessages()
         return messages;
     }
     async deleteMessage(message: Message): Promise<void> {
@@ -166,8 +180,11 @@ class InboundMessageManager {
     }
     async processMessage(message: Message): Promise<boolean> {
         console.log('[InboundMessageManager.processMessage]', message)
-        if(!Object.keys(processMap).includes(message.type_name))
+        if(!Object.keys(processMap).includes(message.type_name)) {
+            // TODO append to errors
             throw new Error('Message type not supported') // do we discard / delete?
+        }
+        console.log('[processMessage] calling processMap for:', message.type_name, message)
         const res = await processMap[message.type_name](message, this._vault, this._manager)
         if(res)
             await this.deleteMessage(message)

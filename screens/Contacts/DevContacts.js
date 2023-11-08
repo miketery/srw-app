@@ -56,7 +56,7 @@ async function ContactRequestFlowBasic() {
     console.log('[DevContacts] contact_request', contact_request) // encrypted
 
     console.log('\n###################### B3 - bob_cm.process_inbound_contactRequest()')
-    const alice_contact = await bob_cm.processContactRequest(Message.inbound(contact_request))
+    const alice_contact = await bob_cm.processContactRequest(Message.inbound(contact_request, bob_vault))
     await new Promise(r => setTimeout(r, 300));
     bob_cm.printContacts()
 
@@ -69,7 +69,7 @@ async function ContactRequestFlowBasic() {
     console.log('[DevContacts] accept_response', response) // encrypted
 
     console.log('\n###################### A5 - alice_cm.process_inbound_accept_contact_request_response()')
-    alice_cm.processContactAccept(Message.inbound(response))
+    alice_cm.processContactAccept(Message.inbound(response, alice_vault))
     console.log(bob_contact.toString())
     alice_cm.printContacts()
 }
@@ -96,7 +96,7 @@ async function ContactFullFlow(manager) {
     const contactRequest = (await DAS.getGetMessagesFunction(bobVault)())[0]
     console.log(contactRequest)
     const bobContactManager = new ContactsManager(bobVault)
-    const aliceContact = await bobContactManager.processContactRequest(Message.inbound(contactRequest))
+    const aliceContact = await bobContactManager.processContactRequest(Message.inbound(contactRequest, bobVault))
     bobContactManager.acceptContactRequest(aliceContact.did, () => console.log('CALLBACK'))
     manager.messagesManager.getMessages()
 }

@@ -4,29 +4,17 @@ import Icon from 'react-native-vector-icons/Ionicons'
 
 import ds from '../../assets/styles'
 import tw from '../../lib/tailwind'
-import { FieldError, GoBackButton, MyTextInput, TopGradient } from '../../components';
+import { LoadingScreen, MyTextInput, TopGradient } from '../../components';
 
 import Vault from '../../models/Vault'
 
-import RecoveryPlan from '../../models/RecoveryPlan'
+import RecoveryPlan, { PayloadType, RecoveryPlanState } from '../../models/RecoveryPlan'
 import RecoveryPlansManager from '../../managers/RecoveryPlansManager'
 import { DEV, ROUTES } from '../../config';
 import Contact from '../../models/Contact';
-import { type } from 'os';
 
 type ContactPk = string
 
-
-// name
-// participants & threshold
-
-
-type RecoveryPlanCreateScreenProps = {
-    navigation: any,
-    route: any,
-    vault: Vault,
-    recoveryPlansManager: RecoveryPlansManager
-}
 
 // 
 enum Steps {
@@ -35,9 +23,15 @@ enum Steps {
     REVIEW = 2,
     // CREATE
 }
-const StepNumber: {[k: number]: Steps} = Object.fromEntries(
-    Object.keys(Steps).map((k) => [Steps[k], k])
-) // i.e. 0: 'CHOOSE_PARTICIPANTS'...
+const stepLabel = (step: Steps) => {
+    switch(step) {
+        case Steps.CHOOSE_PARTICIPANTS: return 'Choose Participants'
+        case Steps.CHOOSE_THRESHOLD: return 'Choose Threshold'
+        case Steps.REVIEW: return 'Review & Create'
+    }
+}
+
+const maxStep = Object.keys(Steps).length / 2 - 1
 
 const stepChecks: {[k in Steps]: ({}: any) => boolean} = {
     [Steps.CHOOSE_PARTICIPANTS]: ({participants, setError}) => {
@@ -62,13 +56,15 @@ const stepChecks: {[k in Steps]: ({}: any) => boolean} = {
     },
 }
 
-const StepControls = ({setStep, step, nextStep, prevStep}: {setStep: (step: number) => void, step: number, nextStep: () => void, prevStep: () => void}) => {
+const StepControls = ({step, nextStep, prevStep}: {step: number, nextStep: () => void, prevStep: () => void}) => {
+    const canGoNext = step < maxStep
+    const canGoPrev = step > 0
     return <View style={tw`flex flex-row justify-between items-center flex-grow`}>
-        <Pressable style={tw`rounded-md border border-gray-700 p-2 m-2`} onPress={prevStep}>
+        <Pressable style={[ds.buttonArrow, canGoPrev ? null : ds.disabled]} onPress={() => canGoPrev && prevStep()}>
             <Icon name='arrow-back' style={ds.text} size={20} />
         </Pressable>
-        <Text style={ds.textLg}>{StepNumber[step]} {step}</Text>
-        <Pressable style={tw`rounded-md border border-gray-700 p-2 m-2`} onPress={nextStep}>
+        <Text style={ds.textLg}>{stepLabel(step)}</Text>
+        <Pressable style={[ds.buttonArrow, canGoNext ? null : ds.disabled]} onPress={() => canGoNext && nextStep()}>
             <Icon name='arrow-forward' style={ds.text} size={20} />
         </Pressable>
     </View>
@@ -98,6 +94,7 @@ const ContactSelectList = ({step, contacts, selected, onPress}: {step: Steps, co
 const ThresholdInput = ({step, selected, threshold, setThreshold}: 
     {step: Steps, selected: ContactPk[], threshold: number, setThreshold: (threshold: number) => void}) => {
     if(step < Steps.CHOOSE_THRESHOLD) return null
+    if(step > Steps.CHOOSE_THRESHOLD) return <Text style={ds.textLg}>Threshold: {threshold}</Text>
     const canGoUp = threshold < selected.length
     const canGoDown = threshold > 2
     return <View>
@@ -120,8 +117,14 @@ const ThresholdInput = ({step, selected, threshold, setThreshold}:
     </View>
 }
 
+type RecoveryPlanCreateScreenProps = {
+    navigation: any,
+    route: any,
+    vault: Vault,
+    recoveryPlansManager: RecoveryPlansManager
+}
+
 const RecoveryPlanCreateScreen: React.FC<RecoveryPlanCreateScreenProps> = (props) => {
-    const vault = props.vault
     const [step, setStep] = useState<number>(0)
     const [name, setName] = useState<string>('')
     const [participants, setParticipants] = useState<ContactPk[]>([])
@@ -130,6 +133,8 @@ const RecoveryPlanCreateScreen: React.FC<RecoveryPlanCreateScreenProps> = (props
 
     const [error, setError] = useState<string>('')
 
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+    const [recoveryPlanState, setRecoveryPlanState] = useState<string>('')
     // useEffect(() => {
     //     if (DEV) console.log('RecoveryPlanCreateScreen: useEffect: step:', step)
     // }, [step])
@@ -139,6 +144,56 @@ const RecoveryPlanCreateScreen: React.FC<RecoveryPlanCreateScreenProps> = (props
         console.log(contacts)
         setContacts(contacts)
     }, [])
+
+    const createRecoveryPlan = async () => {
+        setIsSubmitting(true)
+        const recoveryPlan = props.recoveryPlansManager.createRecoveryPlan(
+            'Base Recovery Plan', 'Description'
+        )
+        for (const pk of participants) {
+            const contact = contacts.filter((c: Contact) => c.pk === pk)[0]
+            console.log('Added contact', contact.toString())
+            recoveryPlan.addRecoveryParty(contact, 1, true)
+        }
+        const byteSecret = new TextEncoder().encode('MY SECRET')
+        recoveryPlan.setPayload(byteSecret, PayloadType.OBJECT)
+        recoveryPlan.setThreshold(threshold)
+        if(!recoveryPlan.checkValidPreSubmit()) {
+            console.error('ERROR SUBMITTING')
+            setIsSubmitting(false)
+        }
+        // SPLIT KEY
+        setRecoveryPlanState('Splitting Key')
+        let time = new Date().getTime()
+        console.log('XSTATE: ', recoveryPlan.state)
+        recoveryPlan.fsm.send('SPLIT_KEY')
+        while(recoveryPlan.state !== RecoveryPlanState.READY_TO_SEND_INVITES) {
+            console.log('XSTATE: ', recoveryPlan.state)
+            await new Promise(resolve => setTimeout(resolve, 100))
+        }
+        console.log('SPLIT_KEY_COMPLETE', (new Date().getTime() - time) / 1000)
+
+        // SPLIT KEY
+        setRecoveryPlanState('Sending Invites')
+        time = new Date().getTime()
+        console.log('XSTATE: ', recoveryPlan.state)
+        recoveryPlan.fsm.send('SEND_INVITES')
+        while(recoveryPlan.state !== RecoveryPlanState.WAITING_ON_PARTICIPANTS) {
+            await new Promise(resolve => setTimeout(resolve, 100))
+        }
+        console.log('INVITES_SENT', (new Date().getTime() - time) / 1000)
+
+        // DONE
+        setRecoveryPlanState('Done')
+        console.log('XSTATE: ', recoveryPlan.state)
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        console.log('XSTATE: ', recoveryPlan.state)
+        //
+        setRecoveryPlanState('Redirect')
+        // props.navigation.navigate(ROUTES.RecoveryPlanViewRoute, {pk: recoveryPlan.pk})
+        props.navigation.navigate(ROUTES.RecoveryPlansListRoute)
+    }
+
     const nextStep = () => {
         if (stepChecks[step]({participants, threshold, setError})) {
             setStep(step + 1)
@@ -149,6 +204,10 @@ const RecoveryPlanCreateScreen: React.FC<RecoveryPlanCreateScreenProps> = (props
         if(step === 0)
             return props.navigation.goBack()
         setStep(step - 1)
+    }
+
+    if (isSubmitting) {
+        return <LoadingScreen msg={'Building Recovery Plan: ' + recoveryPlanState} />
     }
 
     return <View style={ds.mainContainerPtGradient}>
@@ -170,17 +229,23 @@ const RecoveryPlanCreateScreen: React.FC<RecoveryPlanCreateScreenProps> = (props
                 }
             }} />
             <ThresholdInput step={step} selected={participants} threshold={threshold} setThreshold={setThreshold} />
-            {error && <View style={tw`my-1`}>
+            {error != '' && <View style={tw`my-1`}>
                 <Text style={tw`text-yellow-300 text-base`}>
                     {error}
                 </Text>
             </View>}
+            {step == maxStep ? <View>
+                <Pressable style={[ds.button, ds.blueButton, tw`mt-8 mb-8 w-full`]}
+                        onPress={() => createRecoveryPlan()}>
+                    <Text style={ds.buttonText}>Create Recovery Plan</Text>
+                </Pressable>
+            </View> : null}
         </ScrollView>
         <TopGradient />
         {/* <BottomGradient /> */}
         <View style={[ds.buttonRowB, tw`w-full`]}>
             {/* <GoBackButton onPressOut={() => props.navigation.goBack()} /> */}
-            <StepControls setStep={setStep} step={step} nextStep={nextStep} prevStep={prevStep} />
+            <StepControls step={step} nextStep={nextStep} prevStep={prevStep} />
         </View>
     </View>
 }

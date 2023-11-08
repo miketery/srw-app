@@ -90,11 +90,8 @@ export class RecoveryParty {
             recoveryParty: this,
             sender: sender,
         }))
-        this.fsm.onTransition((context: {recoveryPlan: RecoveryPlan}, event) => {
-            if(context.recoveryPlan)
-                console.log('[RecoveryParty.fsm.onTransition]', context.recoveryPlan.toString(), event)
-            else
-                console.log('[RecoveryParty.fsm.onTransition]', event)
+        this.fsm.onTransition((state: {context: {recoveryParty: RecoveryParty}}) => {
+            console.log('[RecoveryParty.fsm.onTransition]', state.context.recoveryParty.toString(), event)
         })
         this.fsm.start(this._state)
         return this.fsm
@@ -204,7 +201,7 @@ class RecoveryPlan {
                 partyMachines: {},
                 sender: DigitalAgentService.getSendMessageFunction(this.vault),
         }))
-        this.fsm.onTransition((state) => {
+        this.fsm.onTransition((state: {context: {recoveryPlan: RecoveryPlan}}) => {
             console.log('[RecoveryPlan.fsm.onTransitionX]', state.context.recoveryPlan.toString())
         })
         this.fsm.start(this._state)

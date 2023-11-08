@@ -12,12 +12,12 @@ import base58 from 'bs58'
 
 async function sendTestMessages(vaults, contacts) {
     const alice = vaults.alice
-    const bob_contact = contacts.alice.bob // alice has bob as a contact
-    const msg = Message.forContact(alice, bob_contact, 'Hello Bob', 'text', '0.0.1')
+    const bob_contact = Object.values(contacts.alice).filter(x => x.name == 'bob')[0] // alice has bob as a contact
+    const msg = Message.forContact(bob_contact, 'Hello Bob', 'text', '0.0.1')
     msg.encryptBox(bob_contact.private_key)
     const from_alice = msg.outboundFinal()
     console.log('Msg from alice', from_alice)
-    const for_bob = Message.inbound(from_alice)
+    const for_bob = Message.inbound(from_alice, vaults.bob)
     const bob_cm = new ContactsManager(vaults.bob, Object.fromEntries(
         Object.entries(contacts.bob).map(([name, contact]) => [contact.pk, contact])))
     console.log(bob_cm.getContacts())
