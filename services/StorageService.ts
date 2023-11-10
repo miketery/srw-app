@@ -5,8 +5,8 @@ export enum StoredType {
     contact = 'contact',
     notification = 'notification',
     secret = 'secret',
-    keyshare = 'keyshare', // TODO: rename to reocvery_manifest
-    contact_keyshare = 'contact_keyshare', //TODO: rename to guardian_share
+    recoveryPlan = 'recoveryPlan', // party (or external gaurdian) stored as child of recoveryPlan
+    guardian = 'guardian', // I am a guardian for someone else (i.e. they have me as a party in their recoveryPlan)
     message = 'message',
 }
 export const StoredTypePrefix: { [k in StoredType]: string } = {
@@ -15,8 +15,8 @@ export const StoredTypePrefix: { [k in StoredType]: string } = {
     [StoredType.contact]: 'c__',
     [StoredType.notification]: 'n__',
     [StoredType.secret]: 's__',
-    [StoredType.keyshare]: 'k__',
-    [StoredType.contact_keyshare]: 'ck_',
+    [StoredType.recoveryPlan]: 'rp_',
+    [StoredType.guardian]: 'g__',
     [StoredType.message]: 'm__',
 }
 // map prefix to StoredType
@@ -111,7 +111,7 @@ const SS = {
             if(error!=null) error()
         })
     },
-    getAll: async(t: StoredType, vault_pk: string|null=null) => {
+    getAll: async(t: StoredType, vaultPk: string|null=null) => {
         console.log('[SS.getAll]', t)
         const results = await AsyncStorage.multiGet(SS.getIndex(t))
         const array = results.map(([key, data]) => {
@@ -122,8 +122,14 @@ const SS = {
                 return null;
             }
         })
-        return vault_pk === null ? array : array.filter(obj => obj !== null && obj.vault_pk === vault_pk);
+        return vaultPk === null ? array : array.filter(obj => obj !== null && obj.vaultPk === vaultPk);
     },
+    deleteAllByType: async(t: StoredType) => {
+        // should only be relevant for testing / dev
+        console.log('[SS.deleteAllByType]', t)
+        const keys = SS.getIndex(t)
+        return AsyncStorage.multiRemove(keys)
+    }
 }
 Object.freeze(SS)
 

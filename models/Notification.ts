@@ -37,7 +37,7 @@ export interface NotificationData {
 
 interface NotificationDict {
     pk: string;
-    vault_pk: string;
+    vaultPk: string;
     type: string;
     data: NotificationData;
     created: number;
@@ -45,28 +45,28 @@ interface NotificationDict {
 
 class Notification {
     pk: string;
-    vault_pk: string;
+    vaultPk: string;
     type: string;
     data: NotificationData;
     created: number;
     
-    constructor(pk: string, vault_pk: string, type: string, data: NotificationData, created: number) {
+    constructor(pk: string, vaultPk: string, type: string, data: NotificationData, created: number) {
         this.pk = pk;
-        this.vault_pk = vault_pk;
+        this.vaultPk = vaultPk;
         this.type = type
         this.data = data;
         this.created = created;
     }
     static fromDict(data: NotificationDict): Notification {
-        return new Notification(data.pk, data.vault_pk, data.type, data.data, data.created);
+        return new Notification(data.pk, data.vaultPk, data.type, data.data, data.created);
     }
-    static create(vault_pk: string, type: string, data: any): Notification {
-        return new Notification(StoredTypePrefix.notification + uuidv4(), vault_pk, type, data, Math.floor(Date.now() / 1000));
+    static create(vaultPk: string, type: string, data: any): Notification {
+        return new Notification(StoredTypePrefix.notification + uuidv4(), vaultPk, type, data, Math.floor(Date.now() / 1000));
     }
     toDict(): NotificationDict {
         return {
             pk: this.pk,
-            vault_pk: this.vault_pk,
+            vaultPk: this.vaultPk,
             type: this.type,
             data: this.data,
             created: this.created,

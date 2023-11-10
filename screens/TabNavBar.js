@@ -1,30 +1,16 @@
-import { View, Text, TouchableOpacity, Pressable } from 'react-native'
+import { View, Text, Pressable } from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons'
-import { ROUTES, TAB_BAR_ROUTES } from '../config';
+import { TAB_BAR_ROUTES } from '../config';
 
 import tw from '../lib/tailwind'
 
-const screenOptions = (route, isFocused, options) => {
-    let iconName;
+const iconOptions = (route, isFocused, options) => {
     let color = isFocused ? '#673ab7' : '#222'
-  
-    switch (route.name) {
-        case ROUTES.MainHubRoute:
-            iconName = isFocused ? 'flash' : 'flash-outline';
-            break;
-        case ROUTES.ContactsRoute:
-            iconName = isFocused ? 'people' : 'people-outline';
-            break;
-        case ROUTES.SecretsRoute:
-            iconName = isFocused ? 'key' : 'key-outline';
-            break;
-        case ROUTES.NotificationsRoute:
-            iconName = isFocused ? 'notifications' : 'notifications-outline';
-            break;
-        default:
-            iconName = 'logo-react'
-            break;
-    }
+    
+    const iconName = Object.keys(TAB_BAR_ROUTES).includes(route.name) && TAB_BAR_ROUTES[route.name].icon ? 
+        TAB_BAR_ROUTES[route.name].icon + (isFocused ? '' : '-outline')
+        : 'logo-react'
+
     return <Icon name={iconName} color={color} size={22}>
         {options.tabBarBadge ? 
         <View style={tw`absolute left-2 top-1 -mt-3 rounded-full bg-red-800 p-2 h-5 flex items-center justify-center flex-row`}>
@@ -32,7 +18,7 @@ const screenOptions = (route, isFocused, options) => {
         </View> : null}
     </Icon>;
 };
-  
+
 
 export default function TabNavBar({ state, descriptors, navigation, possible_offline }) {
     const current_route_name = state.history[state.history.length - 1].key.split('-')[0]
@@ -84,7 +70,7 @@ export default function TabNavBar({ state, descriptors, navigation, possible_off
                         style={tw`w-15 py-4 text-center justify-center flex-row grow-1 border-slate-800`}
                         key={route.key}
                     >
-                        {screenOptions(route, isFocused, options)}
+                        {iconOptions(route, isFocused, options)}
                         <Text style={[{ color: isFocused ? '#673ab7' : '#222' }, tw`text-xs`]}>
                             {/* {label} */}
                         </Text>

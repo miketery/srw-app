@@ -16,7 +16,7 @@ interface SecretDict {
     data: any,
     updated: number,
     created: number,
-    vault_pk: string
+    vaultPk: string
 }
 
 class Secret {
@@ -27,7 +27,7 @@ class Secret {
     data: any
     updated: number // unix timestamp
     created: number // unix timestamp
-    vault_pk: string
+    vaultPk: string
 
     constructor(
             pk: string,
@@ -37,7 +37,7 @@ class Secret {
             data: any,
             updated: number|null,
             created: number|null,
-            vault_pk: string) {
+            vaultPk: string) {
         this.pk = pk
         this.secret_type = secret_type
         this.name = name
@@ -45,12 +45,12 @@ class Secret {
         this.data = data
         this.updated = updated || Math.floor(Date.now() / 1000)
         this.created = created || Math.floor(Date.now() / 1000)
-        this.vault_pk = vault_pk
+        this.vaultPk = vaultPk
     }
     static async create(secret_type: SecretType, name: string, 
-            description: string, data: any, vault_pk: string) {
+            description: string, data: any, vaultPk: string) {
         let pk = StoredTypePrefix[StoredType.secret] + uuidv4()
-        return new Secret(pk, secret_type, name, description, data, null, null, vault_pk)
+        return new Secret(pk, secret_type, name, description, data, null, null, vaultPk)
     }
     toDict(): SecretDict {
         return {
@@ -61,13 +61,13 @@ class Secret {
             data: this.data,
             updated: this.updated,
             created: this.created,
-            vault_pk: this.vault_pk
+            vaultPk: this.vaultPk
         }
     }
     static fromDict(data: SecretDict): Secret {
         return new Secret(
             data.pk, data.secret_type, data.name, data.description, data.data,
-            data.updated, data.created, data.vault_pk
+            data.updated, data.created, data.vaultPk
         )
     }
     // SAVE and DELETE done SecretManager

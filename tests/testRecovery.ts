@@ -1,8 +1,8 @@
 import { interpret } from 'xstate'
-import RecoveryManifestMachine from '../classes/machines/RecoveryManifestMachine';
+import RecoveryPlanMachine from '../classes/machines/RecoveryPlanMachine';
 
 
-const recoveryService = interpret(RecoveryManifestMachine);
+const recoveryService = interpret(RecoveryPlanMachine);
 
 recoveryService.onTransition((state) => {
   console.log("Current state:", state.value);
@@ -18,10 +18,10 @@ console.log('context ', snapshot.context);
 // recoveryService.send("DONE_SPLITTING");
 // recoveryService.send("SENT");
 
-const restoredState = RecoveryManifestMachine.transition(snapshot.value, { type: 'DUMMY' });
+const restoredState = RecoveryPlanMachine.transition(snapshot.value, { type: 'DUMMY' });
 
 // Start your service with the restored state
-const recoveryServiceB = interpret(RecoveryManifestMachine).start(restoredState);
+const recoveryServiceB = interpret(RecoveryPlanMachine).start(restoredState);
 
 recoveryServiceB.onTransition((state) => {
   console.log("Current state:", state.value);

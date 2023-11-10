@@ -3,21 +3,21 @@ import { Text, View, Pressable, ScrollView, TextInput } from 'react-native'
 import { CommonActions } from '@react-navigation/native'
 
 import ds from '../assets/styles'
-import { DEV, primary_route } from '../config'
+import { MOCKDATA, primary_route } from '../config'
 import tw from '../lib/tailwind'
 
 import { useSessionContext } from '../contexts/SessionContext'
 import VaultManager from '../managers/VaultManager'
 
 import { trimAndLower, validateEmail } from '../lib/utils'
-import { FieldError } from '../components/'
+import { FieldError, GoBackButton } from '../components/'
 
 export default function VaultCreateScreen(props) {
     const {setVault, setManager} = useSessionContext();
 
-    const [name, setName] = useState(DEV ? 'Alice Allison' : '');
-    const [displayName, setDisplayName] = useState(DEV ? 'Ali' : '');
-    const [email, setEmail] = useState(DEV ? 'alice@arxsky.com' : '');
+    const [name, setName] = useState(MOCKDATA ? 'Alice Allison' : '');
+    const [displayName, setDisplayName] = useState(MOCKDATA ? 'Ali' : '');
+    const [email, setEmail] = useState(MOCKDATA ? 'alice@arxsky.com' : '');
     const [createLoading, setCreateLoading] = useState(false);
     const [errors, setErrors] = useState({});
 
@@ -48,7 +48,7 @@ export default function VaultCreateScreen(props) {
         setTimeout(async () => {
             try {
                 const vaultManager = new VaultManager()
-                const words = DEV ? 
+                const words = MOCKDATA ? 
                     'alley maze evoke auto pull skull run credit margin ignore dune brisk' : ''
                 const vault = await vaultManager.createVault(
                     name, email, displayName, '', words, true)
@@ -108,6 +108,9 @@ export default function VaultCreateScreen(props) {
                 <Text style={ds.textXl}>{createLoading ? 'Working...' : 'Create & Save'}</Text>
             </Pressable>
             <View style={tw`flex-grow-1`} />
+            <View style={tw`flex-row justify-start`}>
+                <GoBackButton onPressOut={() => navigation.goBack()} />
+            </View>
         </View>
     )
 }
