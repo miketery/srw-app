@@ -27,7 +27,7 @@ const resolvedState = RecoveryPlanMachine.resolveState({
     context: {
         recoveryPlan: this,
         partyMachines: {},
-        sender: DigitalAgentService.getSendMessageFunction(this.vault),
+        sender: this.vault.sender,
     }
 })
 this.fsm = interpret(RecoveryPlanMachine) 

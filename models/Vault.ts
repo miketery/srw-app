@@ -8,8 +8,7 @@ import { SigningKey, VerifyKey, PrivateKey, PublicKey, SignedMessage } from '../
 import { signMsg, signingKeyFromWords, encryptionKeyFromWords, getRandom } from '../lib/utils'
 import SS, { StoredType, StoredTypePrefix } from '../services/StorageService';
 import { entropyToMnemonic } from 'bip39';
-import DigitalAgentService, { SenderFunction } from '../services/DigitalAgentService';
-
+import DigitalAgentService, { GetMessagesFunction, SenderFunction } from '../services/DigitalAgentService';
 
 export default class Vault {
     uuid: string;
@@ -25,7 +24,10 @@ export default class Vault {
     public_key: PublicKey;
     registered: boolean;
     short_code: string;
-    _sender: SenderFunction
+
+    // digital agent interface
+    private _sender: SenderFunction
+    private _getMessages: GetMessagesFunction
 
     constructor(
             uuid: string,
@@ -51,6 +53,7 @@ export default class Vault {
         this.short_code = short_code;
         
         this._sender = DigitalAgentService.getSendMessageFunction(this);
+        this._getMessages = DigitalAgentService.getGetMessagesFunction(this);
     }
     get pk(): string {
         return StoredTypePrefix[StoredType.vault] + this.b58_verify_key;
@@ -72,6 +75,9 @@ export default class Vault {
     }
     get sender(): SenderFunction {
         return this._sender;
+    }
+    get getMessages(): GetMessagesFunction {
+        return this._getMessages;
     }
     static async create(name: string, email: string, display_name: string,
             digital_agent_host: string, words: string): Promise<Vault> {

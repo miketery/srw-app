@@ -51,8 +51,8 @@ class Contact {
     their_verify_key: VerifyKey
     their_contact_public_key: PublicKey
     digital_agent: string
-    _state: ContactState
-    vault: Vault
+    private _state: ContactState
+    private _vault: Vault
     fsm: any
 
     constructor(
@@ -79,19 +79,22 @@ class Contact {
         this.their_contact_public_key = their_contact_public_key
         this.digital_agent = digital_agent
         this._state = state
-        this.vault = vault
+        this._vault = vault
         if(![ContactState.ESTABLISHED, ContactState.ARCHIVED].includes(state))
             this.initFSM()
     }
     initFSM() {
         this.fsm = interpret(ContactMachine.withContext({
             contact: this,
-            sender: DigitalAgentService.getSendMessageFunction(this.vault),
+            sender: this.vault.sender,
         }))
         this.fsm.onTransition((state: {context: {contact: Contact}}) => {
             console.log('[Contact.fsm.onTransition]', state.context.contact.toString(), event)
         })
         this.fsm.start(this._state)
+    }
+    get vault(): Vault {
+        return this._vault
     }
     get state(): ContactState {
         if(this.fsm)

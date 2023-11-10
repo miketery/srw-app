@@ -85,8 +85,6 @@ async function RecoverPlanFullFlow(
                 vault: Vault,
                 contactsManager: ContactsManager,
                 contacts: {[nameOrPk: string]: Contact},
-                getMessages: GetMessagesFunction,
-                sender: SenderFunction,
             }
         }): Promise<void> {
     deleteAllRecoveryRelated()
@@ -115,7 +113,7 @@ async function RecoverPlanFullFlow(
     // user fetch request and send accept
     const getRequestAndAccept = async (user, accept, originUser, originRecoveryPlanManager: RecoveryPlansManager) => {
         const name = user.vault.name
-        const request = (await user.getMessages())[0] as InboundMessageDict
+        const request = (await user.vault.getMessages())[0] as InboundMessageDict
         const guardianManager = new GuardiansManager(user.vault, {}, user.contactsManager)
         await new Promise(r => setTimeout(r, 300))
         guardianManager.processGuardianRequest(Message.inbound(request, user.vault))
@@ -123,7 +121,7 @@ async function RecoverPlanFullFlow(
         const guardian = Object.values(guardianManager.getGuardians())[0]
         const response = accept ? 'accepted' : 'declined'
         guardianManager.acceptGuardian(guardian.pk, () => console.log(name, response, guardian.toDict()))
-        const msgForRecoveryPlan = (await originUser.getMessages())[0] as InboundMessageDict
+        const msgForRecoveryPlan = (await originUser.vault.getMessages())[0] as InboundMessageDict
         originRecoveryPlanManager.processRecoveryPlanResponse(Message.inbound(msgForRecoveryPlan, originUser.vault))
     }
     await getRequestAndAccept(bob, true, alice, recoveryPlanManager)
@@ -165,8 +163,6 @@ const DevRecoveryPlanScreen: React.FC<DevRecoveryPlanScreenProps> = (props) => {
             vault: Vault,
             contactsManager: ContactsManager,
             contacts: {[name: string]: Contact},
-            getMessages: GetMessagesFunction,
-            sender: SenderFunction,
         }
     }>({})
 

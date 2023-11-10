@@ -9,14 +9,12 @@ import { Message } from '../models/Message'
 import { MessageTypes } from './MessagesManager'
 import ContactsManager from './ContactsManager'
 import { RecoveryPlanInvite } from '../models/MessagePayload'
-import DigitalAgentService, { SenderFunction } from '../services/DigitalAgentService'
 import Contact from '../models/Contact'
 
 class GuardiansManager {
     private _vault: Vault;
     private _guardians: {string?: Guardian}
     private _contactsManager: ContactsManager;
-    private _sender: SenderFunction;
 
     constructor(vault: Vault, guardians: {[pk: string]: Guardian} = {},
             contactsManager: ContactsManager) { 
@@ -24,7 +22,6 @@ class GuardiansManager {
         this._vault = vault;
         this._guardians = guardians;
         this._contactsManager = contactsManager;
-        this._sender = DigitalAgentService.getSendMessageFunction(this._vault)
     }
     clear() { this._guardians = {}; }
     createGuardian(name: string, description: string, recoveryPlanPk: string,
@@ -32,7 +29,7 @@ class GuardiansManager {
         const recoveryPlan = Guardian.create(name, description,
             this._vault.pk, recoveryPlanPk, shares, contactPk,
             this._contactsManager.getContact,
-            this._sender) // auto saves in FSM
+            this._vault.sender) // auto saves in FSM
         this._guardians[recoveryPlan.pk] = recoveryPlan;
         return recoveryPlan
     }
@@ -46,7 +43,7 @@ class GuardiansManager {
             StoredType.guardian, this._vault.pk);
         for (let recoveryPlanData of Object.values(guardiansData)) {
             const c = Guardian.fromDict(recoveryPlanData,
-                this._contactsManager.getContact, this._sender);
+                this._contactsManager.getContact, this._vault.sender);
             guardians[c.pk] = c;
         }
         this._guardians = guardians;

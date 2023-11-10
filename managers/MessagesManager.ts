@@ -59,7 +59,7 @@ const processMap: processMapType = {
             NotificationTypes.contact.request, {
                 title: 'Contact Request',
                 short_text: contact.name + ' wants to connect',
-                detailed_text: contact.name + ' wantts to conntect',
+                detailed_text: contact.name + ' wants to conntect',
                 metadata: {
                     timestamp: message.created,
                     did: contact.did // will be used in notificationActionsMap by contactsManager
@@ -129,7 +129,7 @@ class InboundMessageManager {
         this._vault = vault;
         this._manager = manager;
         this._inbound_messages = {};
-        this._getMessages = DigitalAgentService.getGetMessagesFunction(vault);
+        this._getMessages = vault.getMessages;
         if(last)
             this._last = last;
         else
@@ -170,7 +170,7 @@ class InboundMessageManager {
         this._inbound_messages[message.pk] = message
         return SS.save(message.pk, message.toDict())
     }
-    async loadMessages(): Promise<{string?: Message}> {
+    async loadMessages(): Promise<void> {
         const messages: {string?: Message} = {};
         const messages_data = await SS.getAll(StoredType.message, this._vault.pk);
         console.log('[InboundMessageManager.loadMessages] loaded ', messages_data.length, 'messages')
@@ -180,7 +180,6 @@ class InboundMessageManager {
         }
         this._inbound_messages = messages;
         await this.processAllMessages()
-        return messages;
     }
     async deleteMessage(message: Message): Promise<void> {
         await SS.delete(message.pk);
