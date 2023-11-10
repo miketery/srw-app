@@ -8,7 +8,7 @@ import DAS from '../../services/DigitalAgentService'
 import { useSessionContext } from '../../contexts/SessionContext'
 
 import { GoBackButton } from '../../components'
-import getTestVaultsAndContacts from '../../testdata/testContacts'
+import getTestVaultsAndContacts from '../../testdata/genData'
 
 function registerVault(vault) {
     console.log('registerVault')

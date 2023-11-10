@@ -7,7 +7,7 @@ import tw from '../../lib/tailwind'
 import ds from '../../assets/styles'
 
 import { test_vaults } from '../../testdata/testVaults'
-import { getTestContacts } from '../../testdata/testContacts'
+import { getTestContacts } from '../../testdata/genData'
 
 import Vault from '../../models/Vault'
 import VaultManager from '../../managers/VaultManager'
@@ -29,7 +29,7 @@ const loadFull = async (key, navigation) => {
     const vault = Vault.fromDict(test_vaults[key])
     const vaultManager = new VaultManager({[vault.pk]: vault})
     vaultManager.saveVault(vault)
-    const contacts = await getTestContacts(vault)
+    const contacts = await getTestContacts(vault.name)
     const contactsManager = new ContactsManager(vault, contacts)
     await contactsManager.saveAll()
     navigation.navigate(ROUTES.SplashRoute)

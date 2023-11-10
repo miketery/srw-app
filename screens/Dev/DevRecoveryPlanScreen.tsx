@@ -9,14 +9,7 @@ import tw from '../../lib/tailwind'
 import Vault from '../../models/Vault'
 import Contact from '../../models/Contact'
 import RecoveryPlansManager from '../../managers/RecoveryPlansManager'
-import getVaultsAndManagers from '../../testdata/testContacts'
-
-// import DAS from '../../services/DigitalAgentService'
-
-// import Vault from '../../models/Vault'
-// import RecoveryPlan from '../../models/RecoveryPlan'
-// import { Message } from '../../models/Message'
-// import InboundMessageManager from '../../managers/MessagesManager'
+import getVaultsAndManagers from '../../testdata/genData'
 
 import { useSessionContext } from '../../contexts/SessionContext'
 import RecoveryPlan, { PayloadType, RecoveryPlanState } from '../../models/RecoveryPlan'

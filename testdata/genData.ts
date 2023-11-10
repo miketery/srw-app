@@ -32,13 +32,15 @@ const words = { // seed words so keys are constant for testing...
 
 const names = Object.keys(words)
 
-const vaults = Object.fromEntries(test_vaults.map((vault) => {
+const genVaults = () => Object.fromEntries(test_vaults.map((vault) => {
     return Vault.fromDict(vault)
 }).map((vault) => [vault.name, vault]))
 
-export async function getTestContacts(vault: Vault): Promise<{[pk: string]: Contact}> {
+export async function getTestContacts(name: string, vaults?: {[name: string]: Vault}): Promise<{[pk: string]: Contact}> {
     let contacts = {}
-    const name = vault.name
+    if(!vaults)
+        vaults = genVaults()
+    const vault = vaults[name]
     const their_names = Object.keys(words[name])
     for(let j = 0; j < their_names.length; j++) {
         const their_name = their_names[j]
@@ -51,6 +53,7 @@ export async function getTestContacts(vault: Vault): Promise<{[pk: string]: Cont
             vault.pk, their_vault.did, their_name,
             their_vault.public_key, their_vault.verify_key,
             theirContactKeyPair.publicKey, '', ContactState.ESTABLISHED, vault)
+        contact.pk = 'c__' + their_name // for testing...
         contact.private_key = myContactKeyPair.secretKey
         contact.public_key = myContactKeyPair.publicKey
         contacts[contact.pk] = contact
@@ -61,10 +64,10 @@ export async function getTestContacts(vault: Vault): Promise<{[pk: string]: Cont
 
 export async function getTestVaultsAndContacts() {
     const contacts = {}
+    const vaults = genVaults()
     for(let i = 0; i < names.length; i++) {
         const name = names[i]
-        const my_vault = vaults[name]
-        contacts[name] = await getTestContacts(my_vault)
+        contacts[name] = await getTestContacts(name, vaults)
     }
     return [vaults, contacts]
 }
