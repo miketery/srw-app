@@ -52,7 +52,7 @@ export const encryptionKey = async (): Promise<nacl.BoxKeyPair> => {
     return nacl.box.keyPair.fromSecretKey(stretched_seed.subarray(0, 32))
 }
 export const getRandom = async (strength: number): Promise<Uint8Array> => {
-    console.log('getRandom(strength): ', strength)
+    // console.log('getRandom(strength): ', strength)
     if(['ios', 'android', 'native'].includes(Platform.OS)) {
     //   throw new Error('getRandom not implemented for native')
         return await generateSecureRandom(strength)
@@ -138,22 +138,6 @@ export const joinByteArrays = (a: Uint8Array, b: Uint8Array): Uint8Array => {
     out.set(b, a.length)
     return out
 }
-// shamir secret sharing
-// https://github.com/jwerle/shamirs-secret-sharing
-// import sss from 'shamirs-secret-sharing'
-// export function shamirSplit(key, total, threshold) { // m of n
-//     console.log('[shamirSplit] '+threshold+' of '+total+' shares total')
-//     let shares = sss.split(Buffer.from(key), {
-//         shares: total,
-//         threshold: threshold
-//     })
-//     return shares
-// }
-// export function shamirCombine(shares) {
-//     let key = sss.combine(shares)
-//     return key
-// }
-
 export function handleChange(e) {
     this.setState({
         ...this.state, 

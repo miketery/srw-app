@@ -38,5 +38,20 @@ export const test_vaults = [
         "verify_key": "D5EBA8cZDo7kQGCqepKGGkkWGy9b1c5oXnQE5N9T1xnK",
         "private_key": "4J9ojp1TvJe1B7yRGbuBtoW1LSMy3xZgu3sRGsCNTvi7",
         "public_key": "DXkGB7X2UbeS4Kk7uvXAEkdQ6bNAa3jBpo9GgwuYkXEm"
+    },
+    {
+        "pk": "v__9hBRoYiHKeGj1y49BSutEuFANaafBG3s1aVnrX5bwYFq",
+        "uuid": "4c7f6873-6284-4b32-bc26-068157805919",
+        "name": "dan",
+        "email": "dan@arxsky.com",
+        "display_name": "TV—Dan",
+        "digital_agent_host": "",
+        "words": "depth sweet minimum remember orient electric virtual maze blade dream hunt find",
+        "signing_key": "57AkBeA22ypf8cR4GmDBKbgofexDba7pWc6iGkEGqCq4zYRTPXCVDKmnbCC9RyT59MhBmsjjk6aUxQJLgouWBDvw",
+        "verify_key": "9hBRoYiHKeGj1y49BSutEuFANaafBG3s1aVnrX5bwYFq",
+        "private_key": "AiPiDob52BPyAwLm76JbyCabDKuVCCcQceQuwpFbXnpf",
+        "public_key": "2pVqFxzcckQXp8CxwzLc6KZySxAJURUApLeTRQufcXDf",
+        "registered": false,
+        "short_code": ""
     }
 ]

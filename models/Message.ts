@@ -31,6 +31,7 @@ interface GenericMessageDict {
 interface MessageDict extends GenericMessageDict {
     // internal representation
     pk: string | null;
+    vaultPk: string | null;
     server_uuid: string | null
     inbound: string | {};
     outbound: string | {};
@@ -119,6 +120,7 @@ class Receiver extends SenderReceiver {
 
 class Message {
     pk: string;
+    vaultPk: string;
     server_uuid: string | null;
     type: 'inbound' | 'outbound';
     
@@ -143,13 +145,14 @@ class Message {
 
     created: number;
 
-    constructor(pk: string|null, server_uuid: string|null,
+    constructor(pk: string|null, vaultPk: string, server_uuid: string|null,
             type: 'inbound'|'outbound',
             sender: Sender, receiver: Receiver,
             type_name: string, type_version: string,
             encryption: string | null = null, encrypt: boolean = true,
             created = Math.floor(Date.now() / 1000)) {
         this.pk = pk === null ? StoredTypePrefix.message + uuidv4() : pk;
+        this.vaultPk = vaultPk;
         this.server_uuid = server_uuid; // only matters for inbound
         this.type = type;
         this.sender = sender;
@@ -240,6 +243,7 @@ class Message {
     toDict(): MessageDict {
         return {
             pk: this.pk,
+            vaultPk: this.vaultPk,
             server_uuid: this.server_uuid,
             type: this.type,
             sender: this.sender.toDict(),
@@ -253,9 +257,10 @@ class Message {
             created: this.created
         }
     }
-    static inbound(message: InboundMessageDict): Message {
+    static inbound(message: InboundMessageDict, vault: Vault): Message {
         const msg = Message.fromDict({
             pk: null,
+            vaultPk: vault.pk,
             server_uuid: message.uuid,
             ...message, 
             inbound: message.data,
@@ -268,6 +273,7 @@ class Message {
     static fromDict(message: MessageDict): Message {
         const msg = new Message(
             message.pk,
+            message.vaultPk,
             message.server_uuid,
             message.type,
             new Sender(
@@ -303,7 +309,7 @@ class Message {
             type_name: string, type_version: string): Message {
         // TODO: assert Contacted has accepted since using their public key
         const msg = new Message(
-            null, null, 'outbound',
+            null, null, null, 'outbound',
             Sender.fromContact(contact),
             Receiver.fromContact(contact),
             type_name, type_version,

@@ -3,8 +3,8 @@ import { OutboundMessageDict } from "../models/Message";
 const Messages: { [key: string]: OutboundMessageDict[] } = {}
 
 const MockMessageQueue = {
-    postMessage: (message: OutboundMessageDict) => {
-        console.log('[MockMessageQueue.postMessage]', message)
+    sendMessage: (message: OutboundMessageDict) => {
+        console.log('[MockMessageQueue.sendMessage]', message)
         if (!Messages[message.receiver.did])
             Messages[message.receiver.did] = []
         Messages[message.receiver.did].push(message)

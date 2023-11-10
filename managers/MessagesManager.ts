@@ -9,8 +9,8 @@
 
 
 */
-import DigitalAgentService from "../services/DigitalAgentService";
-import { Message, OutboundMessageDict, InboundMessageDict } from "../models/Message";
+import DigitalAgentService, { GetMessagesFunction } from "../services/DigitalAgentService";
+import { Message, InboundMessageDict } from "../models/Message";
 import SS, { StoredType } from "../services/StorageService";
 import Vault from "../models/Vault";
 import { NotificationData, NotificationTypes } from "../models/Notification";
@@ -22,7 +22,7 @@ type processMapType = {
 
 export const MessageTypes = {
     'contact': {
-        'request': 'msg.contact.request',
+        'invite': 'msg.contact.invite',
         'accept': 'msg.contact.accept'
     },
     'app': {
@@ -32,14 +32,14 @@ export const MessageTypes = {
         'warning': 'msg.app.warning',
     },
     'recovery': {
-        'request': 'msg.recovery.request',
-        'accept': 'msg.recovery.accept'
+        'invite': 'msg.recovery.invite',
+        'response': 'msg.recovery.response',
     },
 }
 
+// if return true will delete message
 const processMap: processMapType = {
     [MessageTypes.app.test]: (message: Message, vault: Vault, m: VaultManager) => {
-        console.log('[processMap] app.test', message)
         message.decrypt(vault.private_key)
         const notification = m.notificationsManager.createNotification(
             NotificationTypes.app.alert, {
@@ -53,14 +53,13 @@ const processMap: processMapType = {
             } as NotificationData)
         return Promise.resolve(true)
     },
-    [MessageTypes.contact.request]: async (message: Message, vault: Vault, m: VaultManager) => {
-        console.log('[processMap] ', message.type_name, message)
+    [MessageTypes.contact.invite]: async (message: Message, vault: Vault, m: VaultManager) => {
         const contact = await m.contactsManager.processContactRequest(message)
         const notification = m.notificationsManager.createNotification(
             NotificationTypes.contact.request, {
                 title: 'Contact Request',
                 short_text: contact.name + ' wants to connect',
-                detailed_text: contact.name + ' accepted your request',
+                detailed_text: contact.name + ' wants to conntect',
                 metadata: {
                     timestamp: message.created,
                     did: contact.did // will be used in notificationActionsMap by contactsManager
@@ -69,7 +68,6 @@ const processMap: processMapType = {
         return Promise.resolve(true)
     },
     [MessageTypes.contact.accept]: async (message: Message, vault: Vault, m: VaultManager) => {
-        console.log('[processMap] ', message.type_name, message)
         const contact = await m.contactsManager.processContactAccept(message)
         const notification = m.notificationsManager.createNotification(
             NotificationTypes.contact.accept, {
@@ -78,6 +76,36 @@ const processMap: processMapType = {
                 detailed_text: contact.name + ' accepted your request',
                 metadata: {
                     timestamp: message.created
+                }
+            })
+        return Promise.resolve(true)
+    },
+    [MessageTypes.recovery.invite]: async (message: Message, vault: Vault, m: VaultManager) => {
+        console.log('[processMap] ', message.type_name, message)
+        const {guardian, contact} = await m.guardiansManager.processGuardianRequest(message)
+        const notification = m.notificationsManager.createNotification(
+            NotificationTypes.recoverySetup.invite, {
+                title: 'Recovery Plan Invite',
+                short_text: contact.name + ' wants you to be a guardian',
+                detailed_text: contact.name + ' wants you to be a part of their recovery plan.',
+                metadata: {
+                    timestamp: message.created,
+                    pk: guardian.pk,
+                    contactPk: guardian.contactPk
+                }
+            })
+        return Promise.resolve(true)
+    },
+    [MessageTypes.recovery.response]: async (message: Message, vault: Vault, m: VaultManager) => {
+        const {recoveryPlan, contact, accepted} = await m.recoveryPlansManager.processRecoveryPlanResponse(message)
+        const notification = m.notificationsManager.createNotification(
+            accepted ? NotificationTypes.recoverySetup.accept
+            : NotificationTypes.recoverySetup.decline , {
+                title: 'Recovery Plan Response',
+                short_text: contact.name + (accepted ? ' accepted' : ' declined') + ' your invite',
+                detailed_text: contact.name + (accepted ? ' accepted' : ' declined') + ' your invite',
+                metadata: {
+                    timestamp: message.created,
                 }
             })
         return Promise.resolve(true)
@@ -95,13 +123,13 @@ class InboundMessageManager {
     private _manager: VaultManager;
     private _inbound_messages: {string? : Message};
     private _last: LastReceivedStateDict;
-    private _getMessages: () => Promise<OutboundMessageDict[]>;
+    private _getMessages: GetMessagesFunction;
  
     constructor(vault: Vault, manager: VaultManager, last?: LastReceivedStateDict) {
         this._vault = vault;
         this._manager = manager;
         this._inbound_messages = {};
-        this._getMessages = DigitalAgentService.getGetMessagesFunction(vault);
+        this._getMessages = vault.getMessages;
         if(last)
             this._last = last;
         else
@@ -116,7 +144,7 @@ class InboundMessageManager {
     getMessages = async () => {
         const messages = await this._getMessages()
         messages.forEach(async (message) => {
-            const msg = Message.inbound(message as InboundMessageDict)
+            const msg = Message.inbound(message as InboundMessageDict, this._vault)
             await this.saveMessage(msg)
             this.processMessage(msg)
         })
@@ -142,16 +170,16 @@ class InboundMessageManager {
         this._inbound_messages[message.pk] = message
         return SS.save(message.pk, message.toDict())
     }
-    async loadMessages(): Promise<{string?: Message}> {
+    async loadMessages(): Promise<void> {
         const messages: {string?: Message} = {};
         const messages_data = await SS.getAll(StoredType.message, this._vault.pk);
+        console.log('[InboundMessageManager.loadMessages] loaded ', messages_data.length, 'messages')
         for (let message_data of Object.values(messages_data)) {
             const m = Message.fromDict(message_data);
             messages[m.pk] = m;
         }
         this._inbound_messages = messages;
-        this.processAllMessages()
-        return messages;
+        await this.processAllMessages()
     }
     async deleteMessage(message: Message): Promise<void> {
         await SS.delete(message.pk);
@@ -162,8 +190,11 @@ class InboundMessageManager {
     }
     async processMessage(message: Message): Promise<boolean> {
         console.log('[InboundMessageManager.processMessage]', message)
-        if(!Object.keys(processMap).includes(message.type_name))
+        if(!Object.keys(processMap).includes(message.type_name)) {
+            // TODO append to errors
             throw new Error('Message type not supported') // do we discard / delete?
+        }
+        console.log('[processMessage] calling processMap for:', message.type_name, message)
         const res = await processMap[message.type_name](message, this._vault, this._manager)
         if(res)
             await this.deleteMessage(message)

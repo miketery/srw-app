@@ -26,6 +26,7 @@
     "react-native": "0.72.4",
     "react-native-securerandom": "^1.0.1",
     "react-native-web": "~0.19.6",
+    "secrets.js-grempe": "^2.0.0",
     "tweetnacl-sealed-box": "^1.0.5",
     "twrnc": "^3.6.3",
     "xstate": "^4.38.2"

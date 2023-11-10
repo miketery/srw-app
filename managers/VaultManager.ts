@@ -1,18 +1,19 @@
 import Vault from '../models/Vault';
 import SS, { StoredType } from '../services/StorageService';
-import { signingKeyFromWords, encryptionKeyFromWords, getRandom } from '../lib/utils'
-import { v4 as uuidv4 } from 'uuid';
-import { entropyToMnemonic } from 'bip39';
 
 import ContactsManager from './ContactsManager';
 import SecretsManager from './SecretsManager';
+import RecoveryPlansManager from './RecoveryPlansManager';
+import GuardiansManager from './GuardiansManager';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DigitalAgentService from '../services/DigitalAgentService';
 import NotificationsManager from './NotificationsManager';
 import InboundMessageManager from './MessagesManager';
+import { MOCK } from '../config';
 
 interface SessionDict {
-    vault_pk: string;
+    vaultPk: string;
 }
 
 class VaultManager {
@@ -21,6 +22,9 @@ class VaultManager {
     private _currentVault: Vault | null;
     private _secretsManager: SecretsManager | null;
     private _contactsManager: ContactsManager | null;
+    private _recoveryPlansManager: RecoveryPlansManager | null;
+    private _guardiansManager: GuardiansManager | null;
+
     private _notificationsManager: NotificationsManager | null;
     private _messagesManager: InboundMessageManager | null;
     private _session: SessionDict;
@@ -28,7 +32,7 @@ class VaultManager {
     constructor(vaults: {string?: Vault} = {}) {
         this._vaults = vaults;
         this._currentVault = null;
-        this._session = {vault_pk: ''}
+        this._session = {vaultPk: ''}
     }
     async init(): Promise<void> {
         console.log('[VaultManager.init]')
@@ -36,9 +40,9 @@ class VaultManager {
         const session = await this.loadSession();
         console.log('[VaultManager.init] session: ', session)
         const promises: Promise<any>[] = [];
-        if(session.vault_pk in Object.keys(this._vaults)) { 
+        if(session.vaultPk in Object.keys(this._vaults)) { 
             // have session and the vault pk set in it
-            this.setVault(session.vault_pk);
+            this.setVault(session.vaultPk);
         } else if (Object.keys(this._vaults).length > 0) { 
             // no session or no vault pk set
             // but we have vaults? set first one to the sssion
@@ -49,7 +53,8 @@ class VaultManager {
             return
         promises.push(this.initManagers());
         // if not registered do it now (maybe was offline earlier)
-        // TODO: promises.push(this.checkRegistered(this._currentVault, true));
+        // TODO: 
+        !MOCK && promises.push(this.checkRegistered(this._currentVault, true));
         //       probably as part of state machine...
         await Promise.all(promises);
     }
@@ -81,9 +86,9 @@ class VaultManager {
     getVaultsArray(): Vault[] {
         return Object.values(this._vaults);
     }
-    setVault(vault_pk: string): void {
-        this._session.vault_pk = vault_pk;
-        this._currentVault = this.getVault(vault_pk);
+    setVault(vaultPk: string): void {
+        this._session.vaultPk = vaultPk;
+        this._currentVault = this.getVault(vaultPk);
     }
     async checkRegistered(vault: Vault, ifNotThenRegister: boolean): Promise<boolean> {
         console.log('[VaultManager.checkRegistered]')
@@ -113,6 +118,11 @@ class VaultManager {
             throw new Error('Current vault not set');
         this._secretsManager = new SecretsManager(this._currentVault);
         this._contactsManager = new ContactsManager(this._currentVault);
+        this._recoveryPlansManager = new RecoveryPlansManager(
+            this._currentVault, {}, this._contactsManager);
+        this._guardiansManager = new GuardiansManager(
+            this._currentVault, {}, this._contactsManager);
+
         this._notificationsManager = new NotificationsManager(
             this._currentVault);
         this._messagesManager = new InboundMessageManager(
@@ -120,6 +130,8 @@ class VaultManager {
         await Promise.all([
             this._secretsManager.loadSecrets(),
             this._contactsManager.loadContacts(),
+            this._recoveryPlansManager.loadRecoveryPlans(),
+            this._guardiansManager.loadGuardians(),
             this._notificationsManager.loadNotifications(),
             this._messagesManager.loadMessages(),
         ])
@@ -158,7 +170,7 @@ class VaultManager {
         }
         this._vaults[new_vault.pk] = new_vault;
         this._currentVault = new_vault;
-        this._session.vault_pk = new_vault.pk;
+        this._session.vaultPk = new_vault.pk;
         this.saveSession();
         return new_vault;
     }
@@ -195,6 +207,16 @@ class VaultManager {
         if (!this._contactsManager)
             throw new Error('Contacts Manager not set');
         return this._contactsManager;
+    }
+    get recoveryPlansManager(): RecoveryPlansManager {
+        if (!this._recoveryPlansManager)
+            throw new Error('Contacts Manager not set');
+        return this._recoveryPlansManager;
+    }
+    get guardiansManager(): GuardiansManager {
+        if (!this._guardiansManager)
+            throw new Error('Guardians Manager not set');
+        return this._guardiansManager;
     }
     get notificationsManager(): NotificationsManager {
         if (!this._notificationsManager)

@@ -24,10 +24,47 @@ const acceptContactRequestAction: NotificationAction = {
     }
 }
 
+const acceptRecoveryPlanInviteAction: NotificationAction = {
+    title: 'Accept',
+    action: (notification, manager) => {
+        manager.guardiansManager.acceptGuardian(notification.data.metadata.pk, () => {
+            manager.notificationsManager.deleteNotification(notification);
+        })
+    }
+}
+const declineRecoveryPlanInviteAction: NotificationAction = {
+    title: 'Decline',
+    action: (notification, manager) => {
+        manager.guardiansManager.declineGuardian(notification.data.metadata.pk, () => {
+            manager.notificationsManager.deleteNotification(notification);
+        })
+    }
+}
+
 const notificationActionsMap: {[key: string]: NotificationAction[]} = {
     [NotificationTypes.app.alert]: [consoleLogAction, dismissAction],
-    [NotificationTypes.contact.request]: [consoleLogAction, acceptContactRequestAction, dismissAction],
-    [NotificationTypes.contact.accept]: [consoleLogAction, dismissAction],
+    [NotificationTypes.contact.request]: [
+        consoleLogAction,
+        acceptContactRequestAction,
+        dismissAction
+    ],
+    [NotificationTypes.contact.accept]: [
+        consoleLogAction,
+        dismissAction
+    ],
+    [NotificationTypes.recoverySetup.invite]: [
+        consoleLogAction,
+        acceptRecoveryPlanInviteAction,
+        declineRecoveryPlanInviteAction,
+    ],
+    [NotificationTypes.recoverySetup.accept]: [
+        consoleLogAction,
+        dismissAction
+    ],
+    [NotificationTypes.recoverySetup.decline]: [
+        consoleLogAction,
+        dismissAction
+    ],
 }
 
 export default notificationActionsMap;
