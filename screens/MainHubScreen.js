@@ -1,7 +1,6 @@
 import { View, Text, Pressable, ScrollView } from 'react-native'
 import { useEffect, useState } from 'react'
 
-import DAS from '../services/DigitalAgentService'
 import { Message, Sender, Receiver } from '../models/Message'
 import { useSessionContext } from '../contexts/SessionContext'
 import { MessageTypes } from '../managers/MessagesManager'
@@ -13,7 +12,6 @@ import { TopGradient } from '../components'
 
 
 async function TestMessage(vault) {
-    const postMsg = DAS.getPostMessageFunction(vault)
     const random_date = new Date(Math.floor(Math.random() * Date.now()));
     const msg = new Message(null, null, 'outbound', 
         Sender.fromVault(vault),
@@ -26,7 +24,7 @@ async function TestMessage(vault) {
     })
     msg.encryptBox(vault.private_key)
     const outbound = msg.outboundFinal()
-    postMsg(outbound)
+    vault.sender(outbound)
 }
 
 function MainHubScreen(props) {
@@ -37,17 +35,25 @@ function MainHubScreen(props) {
             <View style={ds.headerRow}>
                 <Text style={ds.header}>{vault.name} — Main Hub</Text>
             </View>
+            <View style={tw`mb-10`}>
+                <Text style={ds.textLg}>{vault.short_code}</Text>
+            </View>
             <View style={tw`flex-grow-1`} />
-            <View style={tw`justify-around mb-10 flex-col items-center`}>
-                <Pressable style={[ds.button, ds.blueButton, tw`w-100`]}
-                    onPress={() => props.clearMessagesFetchInterval()}>
-                    <Text style={ds.buttonText}>Stop Fetch Message</Text>
-                </Pressable>
-                <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-100`]}
+            { DEV ? <View style={tw`justify-around mb-10 flex-col items-center`}>
+                {props.fetching ? 
+                    <Pressable style={[ds.button, ds.redButton, tw`w-100 mb-4`]}
+                        onPress={() => props.clear()}>
+                        <Text style={ds.buttonText}>Stop Fetch Message {props.fetching}</Text>
+                    </Pressable> :
+                    <Pressable style={[ds.button, ds.greenButton, tw`w-100 mb-4`]}
+                        onPress={() => props.start()}>
+                        <Text style={ds.buttonText}>Start Fetch Message {props.fetching}</Text>
+                    </Pressable>}
+                <Pressable style={[ds.button, ds.blueButton, tw`w-100 mb-4`]}
                     onPress={() => TestMessage(vault)}>
                     <Text style={ds.buttonText}>App.Test Self Message</Text>
                 </Pressable>
-            </View>
+            </View> : null}
         </ScrollView>
         <TopGradient />
         {/* <BottomGradient /> */}

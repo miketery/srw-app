@@ -8,7 +8,7 @@ import DAS from '../../services/DigitalAgentService'
 import { useSessionContext } from '../../contexts/SessionContext'
 
 import { GoBackButton } from '../../components'
-import getTestVaultsAndContacts from '../../testdata/testContacts'
+import getTestVaultsAndContacts from '../../testdata/genData'
 
 function registerVault(vault) {
     console.log('registerVault')
@@ -21,14 +21,14 @@ async function amIRegistered(vault, setRegisteration) {
         return setRegisteration({registered: false})
     setRegisteration({registered: true, ...data})
 }
-async function postMessage() {
-    console.log('postMessage')
+async function sendMessage() {
+    console.log('sendMessage')
     const vm = Cache.vaultManager
     // const cm = vm.contactsManager
     // const bob = cm.getContactByDid('Bob')
     // const vault = vm.currentVault
     // const msg = Message.forContact(vault, )
-    // DAS.postMessage(vault)
+    // DAS.sendMessage(vault)
     const [vaults, contacts] = await getTestVaultsAndContacts()
     console.log(vaults)
     console.log(contacts)

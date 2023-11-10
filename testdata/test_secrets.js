@@ -6,7 +6,7 @@ export const test_secrets = [
         "data": "Secret Data",
         "updated": 1692612012,
         "created": 1692602012,
-        "vault_pk": "v__9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS"
+        "vaultPk": "v__9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS"
     },
     {
         "pk": "s__15b4abec-9e78-4827-8547-92d0c98f01c1",
@@ -15,7 +15,7 @@ export const test_secrets = [
         "data": "Secret Data",
         "updated": 1692622012,
         "created": 1692612012,
-        "vault_pk": "v__9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS"
+        "vaultPk": "v__9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS"
     },
     {
         "pk": "s__4c500131-7f72-4f0b-83ff-f25a9b5ee267",
@@ -24,7 +24,7 @@ export const test_secrets = [
         "data": "Secret Data",
         "updated": 1692632013,
         "created": 1692622013,
-        "vault_pk": "v__9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS"
+        "vaultPk": "v__9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS"
     },
     {
         "pk": "s__b9baa69d-eac1-49d8-9b11-fb72bbcb9829",
@@ -33,7 +33,7 @@ export const test_secrets = [
         "data": "Secret Data",
         "updated": 1692632013,
         "created": 1692632013,
-        "vault_pk": "v__9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS"
+        "vaultPk": "v__9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS"
     },
     {
         "pk": "s__58d1e28a-d6d6-45dd-b2a3-490c7a2aa077",
@@ -42,7 +42,7 @@ export const test_secrets = [
         "data": "Secret Data",
         "updated": 1692631771,
         "created": 1692631771,
-        "vault_pk": "v__9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS"
+        "vaultPk": "v__9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS"
     },
     {
         "pk": "s__12a7c756-a6ab-456c-a859-fc436ba52346",
@@ -51,6 +51,6 @@ export const test_secrets = [
         "data": "Secret Data",
         "updated": 1692631790,
         "created": 1692631790,
-        "vault_pk": "v__9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS"
+        "vaultPk": "v__9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS"
     }
 ]

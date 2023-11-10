@@ -7,12 +7,13 @@ import Vault from '../models/Vault';
 import Contact, { ContactState } from '../models/Contact';
 import { Message } from '../models/Message';
 import { MessageTypes } from './MessagesManager';
+import { ContactAccept } from '../models/MessagePayload';
 
 class ContactsManager {
-    private _contacts: {string?: Contact};
+    private _contacts: {[pk: string]: Contact};
     private _vault: Vault;
 
-    constructor(vault: Vault, contacts: {string?: Contact} = {}) { 
+    constructor(vault: Vault, contacts: {[pk: string]: Contact} = {}) { 
         console.log('[ContactsManager.constructor] ' + vault.pk)
         this._contacts = contacts; 
         this._vault = vault;
@@ -26,11 +27,14 @@ class ContactsManager {
         await SS.save(contact.pk, contact.toDict())
         this._contacts[contact.pk] = contact;
     }
+    async saveAll(): Promise<void[]> {
+        return await Promise.all(Object.values(this._contacts).map(c => this.saveContact(c)));
+    }
     async loadContacts(): Promise<{string?: Contact}> {
         const contacts: {string?: Contact} = {};
-        const contacts_data = await SS.getAll(StoredType.contact, this._vault.pk);
-        for (let contact_data of Object.values(contacts_data)) {
-            const c = Contact.fromDict(contact_data, this.vault);
+        const contactsData = await SS.getAll(StoredType.contact, this._vault.pk);
+        for (let contactData of Object.values(contactsData)) {
+            const c = Contact.fromDict(contactData, this._vault);
             contacts[c.pk] = c;
         }
         this._contacts = contacts;
@@ -42,7 +46,7 @@ class ContactsManager {
     getContactsArray(): Contact[] {
         return Object.values(this._contacts);
     }
-    getContact(pk: string): Contact {
+    getContact = (pk: string): Contact => {
         if(pk in this._contacts)
             return this._contacts[pk];
         throw new Error(`Contact not found: ${pk}`);
@@ -111,7 +115,7 @@ class ContactsManager {
          * Note: in app will be called from processMap in MessagesManager
          */
         console.log('[ContactsManager.processContactRequest]')
-        if (message.type_name !== MessageTypes.contact.request)
+        if (message.type_name !== MessageTypes.contact.invite)
             throw new Error('108 Invalid data type');
         // const message = Message.inbound(inbound);
         message.decrypt(this.vault.private_key);
@@ -158,10 +162,9 @@ class ContactsManager {
             throw new Error('Invalid data type, required: "' + MessageTypes.contact.accept + '"');
         const sender_did = message.sender.did;
         const contact = this.getContactByDid(sender_did);
-        // const message = Message.inbound(inbound);
         message.decrypt(contact.private_key);
         // TODO: did not decrypt... throw
-        const data = message.getData();
+        const data = message.getData() as ContactAccept;
         if(contact.state == ContactState.ESTABLISHED)
             // already accepted...
             return contact;

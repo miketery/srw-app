@@ -1,17 +1,17 @@
 import base58 from 'bs58'
-const bip39 = require('bip39')
-
 import { v4 as uuidv4 } from 'uuid';
+import { interpret } from 'xstate';
 
-import { VerifyKey, PrivateKey, PublicKey } from '../lib/nacl';
 import { encryptionKey } from '../lib/utils'
+import { VerifyKey, PrivateKey, PublicKey } from '../lib/nacl';
+
 import SS, { StoredTypePrefix } from '../services/StorageService';
 import ContactMachine from '../machines/ContactMachine';
-import { interpret } from 'xstate';
-import Vault from './Vault';
 import { Message, OutboundMessageDict } from './Message';
 import DigitalAgentService from '../services/DigitalAgentService';
 import { MessageTypes } from '../managers/MessagesManager';
+import Vault from './Vault';
+import { ContactAccept, ContactInvite } from './MessagePayload';
 
 export enum ContactState {
     INIT = 'INIT',
@@ -26,7 +26,7 @@ export enum ContactState {
 
 interface ContactDict {
     pk: string,
-    vault_pk: string,
+    vaultPk: string,
     did: string,
     name: string,
     private_key: string,
@@ -42,7 +42,7 @@ interface ContactDict {
 
 class Contact {
     pk: string
-    vault_pk: string
+    vaultPk: string
     did: string // TODO: change to DID
     name: string
     private_key: PrivateKey
@@ -51,13 +51,13 @@ class Contact {
     their_verify_key: VerifyKey
     their_contact_public_key: PublicKey
     digital_agent: string
-    _state: ContactState
-    vault: Vault
+    private _state: ContactState
+    private _vault: Vault
     fsm: any
 
     constructor(
             pk: string,
-            vault_pk: string,
+            vaultPk: string,
             did: string,
             name: string,
             private_key: PrivateKey,
@@ -69,7 +69,7 @@ class Contact {
             state: ContactState,
             vault: Vault) {
         this.pk = pk
-        this.vault_pk = vault_pk
+        this.vaultPk = vaultPk
         this.did = did
         this.name = name
         this.private_key = private_key
@@ -79,27 +79,27 @@ class Contact {
         this.their_contact_public_key = their_contact_public_key
         this.digital_agent = digital_agent
         this._state = state
-        this.vault = vault
-        const resolvedState = ContactMachine.resolveState({
-            ...ContactMachine.initialState,
-            value: this._state,
-            context: {
-                contact: this,
-                sender: DigitalAgentService.getPostMessageFunction(this.vault),
-            }
+        this._vault = vault
+        if(![ContactState.ESTABLISHED, ContactState.ARCHIVED].includes(state))
+            this.initFSM()
+    }
+    initFSM() {
+        this.fsm = interpret(ContactMachine.withContext({
+            contact: this,
+            sender: this.vault.sender,
+        }))
+        this.fsm.onTransition((state: {context: {contact: Contact}}) => {
+            console.log('[Contact.fsm.onTransition]', state.context.contact.toString(), event)
         })
-        // this.fsm = useMachine(ContactMachine, {state: resolvedState})
-        this.fsm = interpret(ContactMachine)
-        this.fsm.onTransition((context: {contact: Contact}, event) => {
-            if(context.contact)
-                console.log('[Contact.fsm.onTransition]', context.contact.toString())
-            console.log('[Contact.fsm.onTransition]', event)
-        }) 
-        this.fsm.start(resolvedState)
-        console.log('FSM', this.name, this.state)
+        this.fsm.start(this._state)
+    }
+    get vault(): Vault {
+        return this._vault
     }
     get state(): ContactState {
-        return this.fsm.getSnapshot().value
+        if(this.fsm)
+            return this.fsm.getSnapshot().value
+        return this._state
     }
     get b58_private_key(): string {
         return base58.encode(this.private_key)
@@ -116,13 +116,13 @@ class Contact {
     get b58_their_contact_public_key(): string {
         return base58.encode(this.their_contact_public_key)
     }
-    static async create(vault_pk: string, did: string, name: string, 
+    static async create(vaultPk: string, did: string, name: string, 
             their_public_key: PublicKey, their_verify_key: VerifyKey, their_contact_public_key: PublicKey,
             digital_agent: string,
             state: ContactState, vault: Vault) {
         let pk = StoredTypePrefix.contact + uuidv4()
         let enc_key_pair = await encryptionKey()
-        return new Contact(pk, vault_pk, did, name, 
+        return new Contact(pk, vaultPk, did, name, 
             enc_key_pair.secretKey, enc_key_pair.publicKey,
             their_public_key, their_verify_key, their_contact_public_key,
             digital_agent, state, vault)
@@ -136,7 +136,7 @@ class Contact {
     toDict(): ContactDict {
         return {
             pk: this.pk,
-            vault_pk: this.vault_pk,
+            vaultPk: this.vaultPk,
             did: this.did,
             name: this.name,
             private_key: base58.encode(this.private_key),
@@ -151,11 +151,11 @@ class Contact {
     static fromDict(data: ContactDict, vault: Vault): Contact {
         const private_key = base58.decode(data.private_key)
         const public_key = base58.decode(data.public_key)
-        const their_public_key = data.their_public_key == '' ? base58.decode(data.their_public_key) : Uint8Array.from([])
-        const their_verify_key = data.their_verify_key == '' ? base58.decode(data.their_verify_key) : Uint8Array.from([])
-        const their_contact_public_key = data.their_contact_public_key == '' ? base58.decode(data.their_contact_public_key) : Uint8Array.from([])
+        const their_public_key = data.their_public_key != '' ? base58.decode(data.their_public_key) : Uint8Array.from([])
+        const their_verify_key = data.their_verify_key != '' ? base58.decode(data.their_verify_key) : Uint8Array.from([])
+        const their_contact_public_key = data.their_contact_public_key != '' ? base58.decode(data.their_contact_public_key) : Uint8Array.from([])
         return new Contact(
-            data.pk, data.vault_pk, data.did, data.name,
+            data.pk, data.vaultPk, data.did, data.name,
             private_key, public_key,
             their_public_key, their_verify_key, their_contact_public_key,
             data.digital_agent,
@@ -167,7 +167,7 @@ class Contact {
     }
     // invite message
     inviteMsg(): OutboundMessageDict {
-        const data = {
+        const data: ContactInvite = {
             did: this.vault.did,
             name: this.vault.name,
             verify_key: this.vault.b58_verify_key,
@@ -175,7 +175,7 @@ class Contact {
             contact_public_key: this.b58_public_key,
         }
         const message = Message.forContact(this, data,
-            MessageTypes.contact.request, '0.0.1');
+            MessageTypes.contact.invite, '0.0.1');
         // null the sender sub key because we're not using it (even though
         // the contact will receive it inside the encrypted msg, will use in future
         message.sender.sub_public_key = Uint8Array.from([])
@@ -185,14 +185,14 @@ class Contact {
     }
     // accept message
     acceptInviteMsg(): OutboundMessageDict {
-        const data = {
+        const data: ContactAccept = {
             did: this.vault.did,
             verify_key: this.vault.b58_verify_key,
             public_key: this.vault.b58_public_key,
             contact_public_key: this.b58_public_key,
         }
         const message = Message.forContact(this, data,
-            MessageTypes.contact.accept, '0.0.1');
+            MessageTypes.contact.accept, '0.1');
         message.encryptBox(this.private_key)
         return message.outboundFinal();
     }
