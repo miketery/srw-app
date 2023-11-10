@@ -1,7 +1,6 @@
 import { View, Text, Pressable, ScrollView } from 'react-native'
 import { useEffect, useState } from 'react'
 
-import DAS from '../services/DigitalAgentService'
 import { Message, Sender, Receiver } from '../models/Message'
 import { useSessionContext } from '../contexts/SessionContext'
 import { MessageTypes } from '../managers/MessagesManager'
@@ -13,7 +12,6 @@ import { TopGradient } from '../components'
 
 
 async function TestMessage(vault) {
-    const sender = DAS.getSendMessageFunction(vault)
     const random_date = new Date(Math.floor(Math.random() * Date.now()));
     const msg = new Message(null, null, 'outbound', 
         Sender.fromVault(vault),
@@ -26,7 +24,7 @@ async function TestMessage(vault) {
     })
     msg.encryptBox(vault.private_key)
     const outbound = msg.outboundFinal()
-    sender(outbound)
+    vault.sender(outbound)
 }
 
 function MainHubScreen(props) {

@@ -37,9 +37,6 @@ async function ContactRequestFlowBasic() {
     bob_cm.getContactsArray().forEach((c) => bob_cm.deleteContact(c))
     bob_cm.printContacts() && alice_cm.printContacts()
 
-    const alice_get_msg = DAS.getGetMessagesFunction(alice_vault)
-    const bob_get_msg = DAS.getGetMessagesFunction(bob_vault)
-
     /// START
     const bob_contact =  await alice_cm.addContact('Bob', bob_vault.did, 
         bob_vault.public_key, bob_vault.verify_key, Uint8Array.from([]), '')
@@ -52,7 +49,7 @@ async function ContactRequestFlowBasic() {
     // bob_cm.acceptContactRequest(bob_contact.did, () => console.log('CALLBACK'))
     bob_contact.fsm.send('REQUEST', {callback: () => console.log('Sending request, CALLBACK')})
     await new Promise(r => setTimeout(r, 300));
-    const contact_request = (await bob_get_msg())[0]
+    const contact_request = (await bob_vault.getMessages())[0]
     console.log('[DevContacts] contact_request', contact_request) // encrypted
 
     console.log('\n###################### B3 - bob_cm.process_inbound_contactRequest()')
@@ -65,7 +62,7 @@ async function ContactRequestFlowBasic() {
     // alice_contact.fsm.send('ACCEPT')
     await new Promise(r => setTimeout(r, 1000));
     bob_cm.printContacts()
-    const response = (await alice_get_msg())[0]
+    const response = (await alice_vault.getMessages())[0]
     console.log('[DevContacts] accept_response', response) // encrypted
 
     console.log('\n###################### A5 - alice_cm.process_inbound_accept_contact_request_response()')
@@ -93,7 +90,7 @@ async function ContactFullFlow(manager) {
     const bobContact =  await aliceContactManager.addContact('Bob', bobVault.did, 
         bobVault.public_key, bobVault.verify_key, Uint8Array.from([]), '')
     aliceContactManager.sendContactRequest(bobContact, () => console.log('CALLBACK on request send'))
-    const contactRequest = (await DAS.getGetMessagesFunction(bobVault)())[0]
+    const contactRequest = (await bobVault.getMessages())[0]
     console.log(contactRequest)
     const bobContactManager = new ContactsManager(bobVault)
     const aliceContact = await bobContactManager.processContactRequest(Message.inbound(contactRequest, bobVault))
