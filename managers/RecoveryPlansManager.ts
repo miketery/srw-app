@@ -8,6 +8,7 @@ import RecoveryPlan from '../models/RecoveryPlan'
 import { RecoveryPlanResponse } from '../models/MessagePayload'
 import { Message } from '../models/Message'
 import ContactsManager from './ContactsManager'
+import Contact from '../models/Contact'
 
 class RecoveryPlansManager {
     private _vault: Vault;
@@ -65,20 +66,22 @@ class RecoveryPlansManager {
         recoveryPlan.fsm.send('SUBMIT', {callback})
     }
     // flows
-    async processRecoveryPlanResponse(message: Message, callback?: () => void): Promise<void> {
+    async processRecoveryPlanResponse(message: Message, callback?: () => void)
+            : Promise<{recoveryPlan: RecoveryPlan, contact: Contact, accepted: boolean}> {
         console.log('[RecoveryPlansManager.processRecoveryPlanResponse]', message)
         const contact = this._contactsManager.getContactByDid(message.sender.did)
         message.decrypt(contact.private_key)
         const payload = message.getData() as RecoveryPlanResponse
-        console.log('PAYLOAD', payload)
         const recoveryPlan: RecoveryPlan = this.getRecoveryPlan(payload.recoveryPlanPk)
+        const party = recoveryPlan.recoveryPartys.filter(rp => rp.contactPk === contact.pk)[0]
+        let accepted = false
         if(payload.response === 'accept') {
-            const party = recoveryPlan.recoveryPartys.filter(rp => rp.contactPk === contact.pk)[0]
             party.fsm.send('ACCEPT', {callback})
+            accepted = true
         } else if (payload.response === 'decline') {
-            const party = recoveryPlan.recoveryPartys.filter(rp => rp.contactPk === contact.pk)[0]
             party.fsm.send('DECLINE', {callback})
         }
+        return {recoveryPlan, contact, accepted}
     }
 }
 

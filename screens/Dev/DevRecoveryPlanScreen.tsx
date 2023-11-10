@@ -128,10 +128,8 @@ async function RecoverPlanFullFlow(
         guardianManager.processGuardianRequest(Message.inbound(request, user.vault))
         await new Promise(r => setTimeout(r, 300))
         const guardian = Object.values(guardianManager.getGuardians())[0]
-        if(accept)
-            guardianManager.acceptGuardian(guardian, () => console.log(name, 'accepted', guardian.toDict()))
-        else
-            guardianManager.declineGuardian(guardian, () => console.log(name, 'declined', guardian.toDict()))
+        const response = accept ? 'accepted' : 'declined'
+        guardianManager.acceptGuardian(guardian.pk, () => console.log(name, response, guardian.toDict()))
         const msgForRecoveryPlan = (await originUser.getMessages())[0] as InboundMessageDict
         originRecoveryPlanManager.processRecoveryPlanResponse(Message.inbound(msgForRecoveryPlan, originUser.vault))
     }

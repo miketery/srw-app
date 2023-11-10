@@ -86,18 +86,29 @@ const processMap: processMapType = {
         const notification = m.notificationsManager.createNotification(
             NotificationTypes.recoverySetup.invite, {
                 title: 'Recovery Plan Invite',
-                short_text: contact.name + ' wants you to be apart of their recovery plan.',
-                detailed_text: contact.name + ' wants to be a guardian',
+                short_text: contact.name + ' wants you to be a guardian',
+                detailed_text: contact.name + ' wants you to be a part of their recovery plan.',
                 metadata: {
                     timestamp: message.created,
                     pk: guardian.pk,
                     contactPk: guardian.contactPk
                 }
             })
-        return Promise.resolve(false)
+        return Promise.resolve(true)
     },
     [MessageTypes.recovery.response]: async (message: Message, vault: Vault, m: VaultManager) => {
-        return Promise.resolve(false)
+        const {recoveryPlan, contact, accepted} = await m.recoveryPlansManager.processRecoveryPlanResponse(message)
+        const notification = m.notificationsManager.createNotification(
+            accepted ? NotificationTypes.recoverySetup.accept
+            : NotificationTypes.recoverySetup.decline , {
+                title: 'Recovery Plan Response',
+                short_text: contact.name + (accepted ? ' accepted' : ' declined') + ' your invite',
+                detailed_text: contact.name + (accepted ? ' accepted' : ' declined') + ' your invite',
+                metadata: {
+                    timestamp: message.created,
+                }
+            })
+        return Promise.resolve(true)
     },
 }
 

@@ -7,9 +7,8 @@ import SS, { StoredTypePrefix } from '../services/StorageService';
 import RecoveryPlanMachine from '../machines/RecoveryPlanMachine';
 import RecoveryPartyMachine from '../machines/RecoveryPartyMachine';
 import Contact from "./Contact";
-import DigitalAgentService, { SenderFunction } from "../services/DigitalAgentService";
+import { SenderFunction } from "../services/DigitalAgentService";
 import Vault from "./Vault";
-import ContactsManager from "../managers/ContactsManager";
 import { Message , OutboundMessageDict } from "./Message";
 import { MessageTypes } from "../managers/MessagesManager";
 import { RecoveryPlanInvite } from "./MessagePayload";
@@ -56,6 +55,9 @@ export class RecoveryParty {
         this._state = state
         this.recoveryPlan = recoveryPlan
         console.log('[RecoveryParty.constructor]', this.toString(), this.recoveryPlan.name)
+        //
+        if(!['ACCEPTED', 'DECLINED'].includes(this.state))
+            this.initFSM()
     }
     get state(): RecoveryPartyState {
         if(this.fsm)
@@ -64,7 +66,8 @@ export class RecoveryParty {
     }
     static fromDict(data: RecoveryPartyDict, recoveryPlan: RecoveryPlan): RecoveryParty {
         return new RecoveryParty(data.pk, data.contactPk, data.name,
-            data.numShares, data.shares, data.receiveManifest, data.state, recoveryPlan)
+            data.numShares, data.shares, data.receiveManifest, data.state,
+            recoveryPlan)
     }
     toDict(): RecoveryPartyDict {
         return {
@@ -80,20 +83,23 @@ export class RecoveryParty {
     toString(): string {
         return 'RecoveryParty<'+[this.pk, this.contactPk, this.name, this.state].join(', ')+'>'
     }
-    startAndGetFsm(sender: SenderFunction): any {
-        console.log('[RecoveryParty.startAndGetFsm]', this.toString())
+    initFSM(): any {
+        console.log('[RecoveryParty.initFSM]', this.toString())
         if(this.fsm) {
-            console.log('[RecoveryParty.startAndGetFsm] fsm already exists')
+            console.log('[RecoveryParty.initFSM] fsm already exists')
             return this.fsm
         }
         this.fsm = interpret(RecoveryPartyMachine.withContext({
             recoveryParty: this,
-            sender: sender,
+            sender: this.recoveryPlan.sender,
         }))
         this.fsm.onTransition((state: {context: {recoveryParty: RecoveryParty}}) => {
             console.log('[RecoveryParty.fsm.onTransition]', state.context.recoveryParty.toString(), event)
         })
         this.fsm.start(this._state)
+        this.fsm.send('REDO')
+        // ^^^^ v4 workaround to get invoke to work
+        // if in SENDING_INVITE state
         return this.fsm
     }
     assignShare(share: string): void {
@@ -187,22 +193,20 @@ class RecoveryPlan {
         this.payloadType = payloadType
         
         this.key = key
-
-        this.recoveryPartys = recoveryPartys.map(
-            p => RecoveryParty.fromDict(p, this))
         this.threshold = threshold
         
         this._state = state;
         this.getContact = getContact
         this.created = created;
         this.vault = vault
-        this.fsm = interpret(RecoveryPlanMachine.withContext({
-                recoveryPlan: this,
-                partyMachines: {},
-                sender: DigitalAgentService.getSendMessageFunction(this.vault),
-        }))
+
+        this.recoveryPartys = recoveryPartys.map(
+            p => RecoveryParty.fromDict(p, this))
+        const machine = RecoveryPlanMachine.withContext({recoveryPlan: this})
+        this.fsm = interpret(machine)
         this.fsm.onTransition((state: {context: {recoveryPlan: RecoveryPlan}}) => {
-            console.log('[RecoveryPlan.fsm.onTransitionX]', state.context.recoveryPlan.toString())
+            console.log('[RecoveryPlan.onTransition]',
+                state.context.recoveryPlan.toString())
         })
         this.fsm.start(this._state)
     }
@@ -212,6 +216,9 @@ class RecoveryPlan {
     // }
     get state(): RecoveryPlanState {
         return this.fsm.getSnapshot().value
+    }
+    get sender(): SenderFunction {
+        return this.vault.sender
     }
     save(): void {
         console.log('[RecoveryPlan.save]', this.toString())        

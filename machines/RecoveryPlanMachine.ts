@@ -10,8 +10,6 @@ const RecoveryPlanMachine = createMachine({
     tsTypes: {} as import("./RecoveryPlanMachine.typegen").Typegen0,
     context: {} as {
         recoveryPlan: RecoveryPlan,
-        partyMachines: {string?: any},
-        sender: SenderFunction,
     },
     schema: {
         services: {} as {
@@ -39,7 +37,7 @@ const RecoveryPlanMachine = createMachine({
             }
         },
         READY_TO_SEND_INVITES: {
-            entry: ['save', 'spawnRecoveryPartys'],
+            entry: ['save'],
             on: {
                 SEND_INVITES: {
                     target: 'SENDING_INVITES'
@@ -47,7 +45,7 @@ const RecoveryPlanMachine = createMachine({
             }
         },
         SENDING_INVITES: {
-            entry: ['save', 'spawnRecoveryPartys', 'sendInvites'],
+            entry: ['save', 'sendInvites'],
             on: {
                 SENT: {
                     target: 'WAITING_ON_PARTICIPANTS'
@@ -58,7 +56,7 @@ const RecoveryPlanMachine = createMachine({
             ]
         },
         WAITING_ON_PARTICIPANTS: {
-            entry: ['save', 'spawnRecoveryPartys'],
+            entry: ['save'],
             on: {
                 forceReady: {
                     target: 'READY',
@@ -93,13 +91,6 @@ const RecoveryPlanMachine = createMachine({
                 recoveryParty.fsm.send('SEND_INVITE', {callback: () => {
                     console.log('[FSM.RecoveryPlanMachine.sendInvites] callback', recoveryParty.name)
                 }})
-            }
-        },
-        spawnRecoveryPartys: (context, event): void => {
-            console.log('[FSM.RecoveryPlanMachine.spawnRecoveryPartys]', context.recoveryPlan.name, event)
-            for(let recoveryParty of context.recoveryPlan.recoveryPartys) {
-                if(!Object.keys(context.partyMachines).includes(recoveryParty.pk))
-                    context.partyMachines[recoveryParty.pk] = recoveryParty.startAndGetFsm(context.sender)
             }
         },
         save: (context, event): void => {

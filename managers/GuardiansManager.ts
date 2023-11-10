@@ -67,7 +67,8 @@ class GuardiansManager {
             return this._guardians[pk];
         throw new Error(`[GuardiansManager] not found: ${pk}`);
     }
-    async processGuardianRequest(message: Message, callback?: () => void): Promise<{guardian: Guardian, contact: Contact}> {
+    async processGuardianRequest(message: Message, callback?: () => void)
+            : Promise<{guardian: Guardian, contact: Contact}> {
         console.log('[GuardiansManager.processGuardianRequest]')
         if(message.type_name !== MessageTypes.recovery.invite) {
             throw new Error(`65 Invalid message type: ${message.type_name} should be ${MessageTypes.recovery.invite}`)
@@ -81,11 +82,13 @@ class GuardiansManager {
         await this.saveGuardian(guardian)
         return {guardian,contact}
     }
-    async acceptGuardian(guardian: Guardian, callback: () => void): Promise<void> {
+    async acceptGuardian(pk: string, callback: () => void): Promise<void> {
+        const guardian = this.getGuardian(pk)
         console.log('[GuardiansManager.acceptGuardian]', guardian.name)    
         guardian.fsm.send('ACCEPT', {callback})
     }
-    async declineGuardian(guardian: Guardian, callback: () => void): Promise<void> {
+    async declineGuardian(pk: string, callback: () => void): Promise<void> {
+        const guardian = this.getGuardian(pk)
         console.log('[GuardiansManager.declineGuardian]', guardian.name)    
         guardian.fsm.send('DECLINE', {callback})
     }

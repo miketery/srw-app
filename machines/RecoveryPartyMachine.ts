@@ -1,6 +1,6 @@
 import { createMachine } from 'xstate';
 
-import { RecoveryParty } from '../models/RecoveryPlan';
+import { RecoveryParty, RecoveryPlanState } from '../models/RecoveryPlan';
 import { SenderFunction } from '../services/DigitalAgentService';
 
 const RecoveryPartyMachine = createMachine({
@@ -34,7 +34,10 @@ const RecoveryPartyMachine = createMachine({
                     target: 'INIT',
                     actions: ['sendInviteError']
                 },
-            }
+            },
+            on: {
+                REDO: 'SENDING_INVITE',
+            },
         },
         PENDING: {
             entry: ['save', 'recoveryPlanTrigger'],
@@ -69,21 +72,30 @@ const RecoveryPartyMachine = createMachine({
         },
         save: (context, event): void => {
             console.log('[RecoveryPartyMachine.save]', event)
-            // context.recoveryParty.save()
+            context.recoveryParty.recoveryPlan.save()
         },
         recoveryPlanTrigger: (context, event): void => {
             console.log('[RecoveryPartyMachine.recoveryPlanTrigger]', event)
             context.recoveryParty.recoveryPlan.fsm.send('')
         },
     },
-    guards :{},
+    guards :{
+        // inviteNotSent: (context, event) => {
+        //     const res = [
+        //         RecoveryPlanState.SENDING_INVITES,
+        //         RecoveryPlanState.WAITING_ON_PARTICIPANTS].includes(
+        //             context.recoveryParty.recoveryPlan.state)
+        //     console.log('[RecoveryPartyMachine.inviteNotSent] Guard: ', res, event)
+        //     return res
+        // }
+    },
     services: {
         sendInvite: async (context, event: {callback: () => void}): Promise<boolean> => {
             console.log('[RecoveryPartyMachine.sendInvite]', event)
             const msg = context.recoveryParty.inviteMessage()
             const res = await context.sender(msg)
             if(res) {
-                event.callback()
+                // event.callback()
                 return true
             }
             return false

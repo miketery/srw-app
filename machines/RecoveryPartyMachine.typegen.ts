@@ -29,7 +29,7 @@
           
         };
         eventsCausingServices: {
-          "sendInvite": "RESEND_INVITE" | "SEND_INVITE";
+          "sendInvite": "REDO" | "RESEND_INVITE" | "SEND_INVITE";
         };
         matchesStates: "ACCEPTED" | "DECLINED" | "FINAL" | "INIT" | "PENDING" | "SENDING_INVITE";
         tags: never;

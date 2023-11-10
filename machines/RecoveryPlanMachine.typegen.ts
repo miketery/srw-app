@@ -21,7 +21,6 @@
         eventsCausingActions: {
           "save": "" | "SEND_INVITES" | "SENT" | "SPLIT_KEY" | "done.invoke.splitKeyId" | "error.platform.splitKeyId" | "xstate.init";
 "sendInvites": "SEND_INVITES";
-"spawnRecoveryPartys": "" | "SEND_INVITES" | "SENT" | "done.invoke.splitKeyId";
         };
         eventsCausingDelays: {
           

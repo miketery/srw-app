@@ -44,4 +44,5 @@ this.fsm.start(this._state)
 # Adding New Notiifcation Process & Response
 
 1. MessagesManager - processMap
-
+2. NotificationTypes
+3. NotificationAction
