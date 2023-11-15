@@ -10,6 +10,8 @@ import Vault from '../../models/Vault'
 import RecoveryPlan from '../../models/RecoveryPlan'
 import RecoveryPlansManager from '../../managers/RecoveryPlansManager'
 import { DEV, ROUTES } from '../../config';
+import Guardian from '../../models/Guardian';
+import GuardiansManager from '../../managers/GuardiansManager';
 
 const RecoveryPlanRow = ({recoveryPlan}: {recoveryPlan: RecoveryPlan}) => {
     return <View style={[ds.row, tw`flex-col`]}>
@@ -22,20 +24,30 @@ const RecoveryPlanRow = ({recoveryPlan}: {recoveryPlan: RecoveryPlan}) => {
         </View>
     </View>
 }
+const GuardianRow = ({guardian}: {guardian: Guardian}) => {
+    return <View style={[ds.row, tw`flex-col`]}>
+        <Text style={ds.text}>{guardian.contact.name}</Text>
+        <Text style={ds.text}>{guardian.state}</Text>
+    </View>
+}
 
 type RecoveryPlanListProps = {
     navigation: any,
-    recoveryPlansManager: RecoveryPlansManager
+    recoveryPlansManager: RecoveryPlansManager,
+    guardiansManager: GuardiansManager,
 }
 
 const RecoveryPlanList: React.FC<RecoveryPlanListProps> = (props) => {
     const [recoveryPlans, setRecoveryPlans] = useState<RecoveryPlan[]>([])
+    const [guardians, setGuardians] = useState<Guardian[]>([])
 
     useEffect(() => {
         const unsubscribe = props.navigation.addListener('focus', async() => {
-            console.log('[RecoverPlansListScreen.js] focus()')
-            const plans = props.recoveryPlansManager.getRecoveryPlansArray()
-            setRecoveryPlans(plans.sort((a, b) => a.name.localeCompare(b.name)))
+            console.log('[RecoverPlansListScreen] focus()')
+            const recoveryPlansData = props.recoveryPlansManager.getRecoveryPlansArray()
+            setRecoveryPlans(recoveryPlansData.sort((a, b) => a.name.localeCompare(b.name)))
+            const guardiansData = props.guardiansManager.getGuardianArray()
+            setGuardians(guardiansData.sort((a, b) => a.name.localeCompare(b.name)))
         });
         return unsubscribe;
     }, [])
@@ -47,9 +59,25 @@ const RecoveryPlanList: React.FC<RecoveryPlanListProps> = (props) => {
             </View>
             <View>
                 {recoveryPlans.map((recoveryPlan, index) => {
-                    return <Pressable key={index} onPress={() => props.navigation.navigate('RecoveryPlan', {recoveryPlan: recoveryPlan})}>
+                    return <Pressable key={index} onPress={() => 
+                            props.navigation.navigate(
+                                ROUTES.RecoveryPlanViewRoute,
+                                {recoveryPlanPk: recoveryPlan.pk})}>
                         <RecoveryPlanRow recoveryPlan={recoveryPlan} />
                     </Pressable>
+                })}
+            </View>
+            <View style={ds.headerRow}>
+                <Text style={ds.header}>Your a Guardian for</Text>
+            </View>
+            <View>
+                {guardians.map((guardian, index) => {
+                    return <Pressable key={index} onPress={() =>
+                        props.navigation.navigate(
+                                ROUTES.GuardianViewRoute,
+                                {guardian: guardian.pk})}>
+                    <GuardianRow guardian={guardian} />
+                </Pressable>
                 })}
             </View>
         </ScrollView>

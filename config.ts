@@ -88,6 +88,9 @@ export const ROUTES = {
     RecoveryPlanCreateRoute: 'RecoveryPlanCreateRoute',
     RecoveryPlanViewRoute: 'RecoveryPlanViewRoute',
 
+    //
+    GuardianViewRoute: 'GuardianViewRoute',
+
 }
 
 // route which is a dictrionary with a name and params
