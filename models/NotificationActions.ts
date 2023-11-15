@@ -7,8 +7,8 @@ type NotificationAction = {
     action: (notification: Notification, manager: VaultManager) => void
 }
 
-const consoleLogAction: NotificationAction = {
-    title: 'Console Log',
+export const consoleLogAction: NotificationAction = {
+    title: 'console.log',
     action: (notification) => console.log(notification)    
 }
 const dismissAction: NotificationAction = {
@@ -42,27 +42,22 @@ const declineRecoveryPlanInviteAction: NotificationAction = {
 }
 
 const notificationActionsMap: {[key: string]: NotificationAction[]} = {
-    [NotificationTypes.app.alert]: [consoleLogAction, dismissAction],
+    [NotificationTypes.app.alert]: [dismissAction],
     [NotificationTypes.contact.request]: [
-        consoleLogAction,
         acceptContactRequestAction,
         dismissAction
     ],
     [NotificationTypes.contact.accept]: [
-        consoleLogAction,
         dismissAction
     ],
     [NotificationTypes.recoverySetup.invite]: [
-        consoleLogAction,
         acceptRecoveryPlanInviteAction,
         declineRecoveryPlanInviteAction,
     ],
     [NotificationTypes.recoverySetup.accept]: [
-        consoleLogAction,
         dismissAction
     ],
     [NotificationTypes.recoverySetup.decline]: [
-        consoleLogAction,
         dismissAction
     ],
 }

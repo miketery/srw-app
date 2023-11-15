@@ -13,7 +13,7 @@ import { TopGradient } from '../components'
 
 async function TestMessage(vault) {
     const random_date = new Date(Math.floor(Math.random() * Date.now()));
-    const msg = new Message(null, null, 'outbound', 
+    const msg = new Message(null, null, null, 'outbound', 
         Sender.fromVault(vault),
         Receiver.fromVault(vault),
         MessageTypes.app.test, '1.0',

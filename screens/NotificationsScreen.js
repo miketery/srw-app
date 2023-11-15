@@ -6,12 +6,13 @@ import tw from '../lib/tailwind';
 import { TopGradient } from '../components';
 
 import { useSessionContext } from '../contexts/SessionContext';
-import actionMap from '../models/NotificationActions';
+import actionMap, { consoleLogAction } from '../models/NotificationActions';
+import { DEV } from '../config';
 
 
 function NotificationActions({ actions, notification, manager }) {
-    return actions.map((action) => {
-        return <Pressable key={action.title} style={[ds.buttonSm, ds.blueButton, tw`ml-1 p-1 rounded-full`]}
+    return actions.map((action, index) => {
+        return <Pressable key={index} style={[ds.buttonSm, ds.blueButton, tw`ml-1 p-1 rounded-full`]}
             onPress={() => action.action(notification, manager)}>
             <Text style={ds.buttonTextSm}>{action.title}</Text>
         </Pressable>
@@ -24,7 +25,9 @@ function NotificationRow(props) {
     const { title, short_text, detailed_text } = notification.data
     let actions = []
     if(Object.keys(actionMap).includes(notification.type))
-        actions = actionMap[notification.type]
+    actions = actionMap[notification.type]
+    if(DEV)
+        actions = [consoleLogAction, ...actions]
     return <View style={tw`flex flex-col items-start justify-center p-1 mb-1 bg-slate-600`}>
         <View style={tw`mr-1`}>
             <Text style={ds.textLg}>{title}</Text>
