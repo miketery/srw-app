@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Text, View, ScrollView, Pressable } from 'react-native'
 
-// import secrets from 'secrets.js-grempe'
+import secrets from 'secrets.js-grempe'
 
 import ds from '../../assets/styles'
 import tw from '../../lib/tailwind'
@@ -71,12 +71,12 @@ async function RecoverPlanCreate(
         }
     }
     // only 2 shares
-    // const testNoWork = secrets.combine(allShares.slice(0, 2))
-    // console.assert(testNoWork !== keyHex)
-    // // 3 shares
-    // const willWork = secrets.combine(allShares.slice(0, 3))
-    // console.assert(willWork === keyHex)
-    // console.log('combine test complete')
+    const testNoWork = secrets.combine(allShares.slice(0, 2))
+    console.assert(testNoWork !== keyHex)
+    // 3 shares
+    const willWork = secrets.combine(allShares.slice(0, 3))
+    console.assert(willWork === keyHex)
+    console.log('combine test complete')
     //TODO
 }
 async function RecoverPlanFullFlow(
@@ -141,10 +141,15 @@ const testShamir = () => {
     const secretBytes = new TextEncoder().encode(secret)
     const secretHex = bytesToHex(secretBytes)
     console.log(secretHex)
-    // const shares1 = secrets.share(secretHex, 3, 2)
-    // const shares2 = secrets.share(secretHex, 3, 2)
-    // shares1.forEach( (s) => console.log('A', s))
-    // shares2.forEach( (s) => console.log('B', s))
+    const shares1 = secrets.share(secretHex, 3, 2)
+    const shares2 = secrets.share(secretHex, 3, 2)
+    shares1.forEach( (s) => console.log('A', s))
+    shares2.forEach( (s) => console.log('B', s))
+
+    const a = secrets.combine([shares1[0], shares1[1]])
+    console.log(a)
+    const b = secrets.combine([shares2[0], shares2[1]])
+    console.log(b)
 }
 
 type DevRecoveryPlanScreenProps = {
