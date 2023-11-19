@@ -1,6 +1,3 @@
-import base58 from 'bs58'
-
-import { PublicKey, VerifyKey } from '../lib/nacl'
 import SS, { StoredType } from '../services/StorageService'
 
 import Vault from '../models/Vault'
@@ -8,8 +5,9 @@ import Guardian from '../models/Guardian'
 import { Message } from '../models/Message'
 import { MessageTypes } from './MessagesManager'
 import ContactsManager from './ContactsManager'
-import { RecoveryPlanInvite } from '../models/MessagePayload'
+import { RecoveryPlanInvite, RecoverCombineRequest } from '../models/MessagePayload'
 import Contact from '../models/Contact'
+import { ManifestDict } from '../models/RecoveryPlan'
 
 class GuardiansManager {
     private _vault: Vault;
@@ -24,10 +22,10 @@ class GuardiansManager {
         this._contactsManager = contactsManager;
     }
     clear() { this._guardians = {}; }
-    createGuardian(name: string, description: string, recoveryPlanPk: string,
+    createGuardian(name: string, description: string, manifest: ManifestDict,
             shares: string[], contactPk: string): Guardian {
         const recoveryPlan = Guardian.create(name, description,
-            this._vault.pk, recoveryPlanPk, shares, contactPk,
+            this._vault.pk, manifest, shares, contactPk,
             this._contactsManager.getContact,
             this._vault.sender) // auto saves in FSM
         this._guardians[recoveryPlan.pk] = recoveryPlan;
@@ -56,7 +54,7 @@ class GuardiansManager {
     getGuardians(): {[pk: string]: Guardian} {
         return this._guardians;
     }
-    getGuardianArray(): Guardian[] {
+    getGuardiansArray(): Guardian[] {
         return Object.values(this._guardians);
     }
     getGuardian(pk: string): Guardian {
@@ -75,7 +73,7 @@ class GuardiansManager {
         const data = message.getData() as RecoveryPlanInvite
         const guardian = this.createGuardian(
             data.name, data.description,
-            data.recoveryPlanPk, data.shares, contact.pk)
+            data.manifest, data.shares, contact.pk)
         await this.saveGuardian(guardian)
         return {guardian,contact}
     }
@@ -88,6 +86,24 @@ class GuardiansManager {
         const guardian = this.getGuardian(pk)
         console.log('[GuardiansManager.declineGuardian]', guardian.name)    
         guardian.fsm.send('DECLINE', {callback})
+    }
+    //
+    async processShareRequest(message: Message, callback?: () => void) {
+        console.log('[GuardiansManager.processShareRequest]')
+        if(message.type_name !== MessageTypes.recoverCombine.request) {
+            throw new Error(`96 Invalid message type: ${message.type_name} should be ${MessageTypes.recoverCombine.request}`)
+        }
+        // const contact = this._contactsManager.getContactByDid(message.sender.did)
+        message.decrypt(this._vault.private_key)
+        const data = message.getData() as RecoverCombineRequest
+        const guardian = this.getGuardiansArray().filter((g) => g.manifest.recoveryPlanPk === data.recoveryPlanPk)[0]
+        // const guardian = this.createGuardian(
+        //     data.name, data.description,
+        //     data.recoveryPlanPk, data.shares, contact.pk)
+        // await this.saveGuardian(guardian)
+        
+        return {guardian}
+        
     }
 }
 

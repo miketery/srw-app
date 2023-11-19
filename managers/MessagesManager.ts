@@ -35,6 +35,10 @@ export const MessageTypes = {
         'invite': 'msg.recovery.invite',
         'response': 'msg.recovery.response',
     },
+    'recoverCombine': {
+        'request': 'msg.recoverCombine.request',
+        'response': 'msg.recoverCombine.response',
+    },
 }
 
 // if return true will delete message

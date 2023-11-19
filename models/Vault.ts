@@ -10,6 +10,22 @@ import SS, { StoredType, StoredTypePrefix } from '../services/StorageService';
 import { entropyToMnemonic } from 'bip39';
 import DigitalAgentService, { GetMessagesFunction, SenderFunction } from '../services/DigitalAgentService';
 
+export type VaultDict = {
+    pk: string,
+    uuid: string,
+    name: string,
+    email: string,
+    display_name: string,
+    digital_agent_host: string,
+    words: string,
+    signing_key: string,
+    verify_key: string,
+    private_key: string,
+    public_key: string,
+    registered: boolean,
+    short_code: string,
+}
+
 export default class Vault {
     uuid: string;
     name: string;
@@ -93,7 +109,7 @@ export default class Vault {
             encryption_key.secretKey, encryption_key.publicKey,
             false, '');
     }
-    toDict() {
+    toDict(): VaultDict {
         return {
             'pk': this.pk,
             'uuid': this.uuid,
@@ -110,7 +126,7 @@ export default class Vault {
             'short_code': this.short_code
         };
     }
-    static fromDict(data: any): Vault {
+    static fromDict(data: VaultDict): Vault {
         let signing_key = base58.decode(data['signing_key']);
         let verify_key = base58.decode(data['verify_key']);
         let private_key = base58.decode(data['private_key']);

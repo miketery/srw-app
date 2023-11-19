@@ -8,9 +8,9 @@ import { LoadingScreen, MyTextInput, TopGradient } from '../../components';
 
 import Vault from '../../models/Vault'
 
-import RecoveryPlan, { PayloadType, RecoveryPlanState } from '../../models/RecoveryPlan'
+import { RecoveryPlanState } from '../../models/RecoveryPlan'
 import RecoveryPlansManager from '../../managers/RecoveryPlansManager'
-import { DEV, ROUTES } from '../../config';
+import { ROUTES } from '../../config';
 import Contact from '../../models/Contact';
 
 type ContactPk = string
@@ -156,7 +156,7 @@ const RecoveryPlanCreateScreen: React.FC<RecoveryPlanCreateScreenProps> = (props
             recoveryPlan.addRecoveryParty(contact, 1, true)
         }
         const byteSecret = new TextEncoder().encode('MY SECRET')
-        recoveryPlan.setPayload(byteSecret, PayloadType.OBJECT)
+        recoveryPlan.setPayload(byteSecret)
         recoveryPlan.setThreshold(threshold)
         if(!recoveryPlan.checkValidPreSubmit()) {
             console.error('ERROR SUBMITTING')

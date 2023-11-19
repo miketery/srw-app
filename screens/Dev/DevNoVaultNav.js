@@ -5,6 +5,7 @@ import { ROUTES } from '../../config';
 
 import DevLoadVaultsScreen from './DevLoadVaultsScreen'
 import DevMessagesScreen from './DevMessagesScreen'
+import DevRecoverCombineScreen from './DevRecoverCombineScreen'
 
 const Stack = createNativeStackNavigator();
 
@@ -29,6 +30,10 @@ export function DevNoVaultNav({navigation}) {
                             navigation.navigate(ROUTES.DevMessagesRoute)} >
                         <Text style={ds.buttonText}>Messages between contacts</Text>
                     </Pressable>
+                    <Pressable style={[ds.button, ds.greenButton, tw`mt-4`]} onPress={() => 
+                            navigation.navigate(ROUTES.DevRecoverCombineRoute)} >
+                        <Text style={ds.buttonText}>Recover Combine</Text>
+                    </Pressable>
                 </View>
                 <GoBackButton onPressOut={() => navigation.goBack()} />
             </View>}
@@ -41,6 +46,10 @@ export function DevNoVaultNav({navigation}) {
         <Stack.Screen name={ROUTES.DevMessagesRoute} options={{title:'Dev Load Vaults'}}>
             {props => 
                 <DevMessagesScreen {...props} />}
+        </Stack.Screen>
+        <Stack.Screen name={ROUTES.DevRecoverCombineRoute} options={{title:'Dev Recover Combine'}}>
+            {props => 
+                <DevRecoverCombineScreen {...props} />}
         </Stack.Screen>
     </Stack.Navigator>
 }

@@ -120,7 +120,7 @@ export function open_sealed_box(sealed_box: Uint8Array, private_key: Uint8Array)
     return nacl.secretbox.open(enc, nonce, private_key)
 }
 // SYMMETRIC
-export function secret_box(message, key) { // key size 32bytes / 256bits
+export function secret_box(message: Uint8Array, key: Uint8Array) { // key size 32bytes / 256bits
     let nonce = nacl.randomBytes(NONCE_LENGTH)
     let box = nacl.secretbox(message, nonce, key)
     return joinByteArrays(nonce, box)

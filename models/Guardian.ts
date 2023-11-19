@@ -1,4 +1,3 @@
-import { base64toBytes, bytesToBase64, bytesToHex, getRandom, hexToBytes } from "../lib/utils";
 import { v4 as uuidv4 } from 'uuid';
 import { interpret } from 'xstate';
 
@@ -9,6 +8,7 @@ import Contact from "./Contact";
 import { MessageTypes } from "../managers/MessagesManager";
 import { RecoveryPlanResponse } from "./MessagePayload";
 import { SenderFunction } from "../services/DigitalAgentService";
+import { ManifestDict } from "./RecoveryPlan";
 
 export enum GuardianState {
     INIT = 'INIT',
@@ -21,7 +21,7 @@ export enum GuardianState {
 interface GuardianDict {
     pk: string,
     vaultPk: string,
-    recoveryPlanPk: string, // i.e. theirPk local to their vault for this recovery plan
+    manifest: ManifestDict, // i.e. theirPk local to their vault for this recovery plan
     contactPk: string,
 
     name: string,
@@ -35,7 +35,7 @@ export default class Guardian {
     pk: string
     vaultPk: string
 
-    recoveryPlanPk: string
+    manifest: ManifestDict
     contactPk: string
     name: string
     description: string
@@ -46,12 +46,12 @@ export default class Guardian {
     fsm: any
     getContact: (pk: string) => Contact
 
-    constructor(pk: string, vaultPk: string, recoveryPlanPk: string, contactPk: string,
+    constructor(pk: string, vaultPk: string, manifest: ManifestDict, contactPk: string,
             name: string, description: string, shares: string[],
             state: GuardianState, archived: boolean, getContact: (pk: string) => Contact, sender: SenderFunction) {
         this.pk = pk
         this.vaultPk = vaultPk
-        this.recoveryPlanPk = recoveryPlanPk
+        this.manifest = manifest
         this.contactPk = contactPk
         this.name = name
         this.description = description
@@ -83,12 +83,12 @@ export default class Guardian {
         return this._state
     }
     static create(name: string, description: string,
-            vaultPk: string, recoveryPlanPk: string,
+            vaultPk: string, manifest: ManifestDict,
             shares: string[], contactPk: string,
             getContact: (pk: string) => Contact,
             sender: SenderFunction): Guardian {
         const pk = StoredTypePrefix.guardian + uuidv4()
-        const guardian = new Guardian(pk, vaultPk, recoveryPlanPk, contactPk,
+        const guardian = new Guardian(pk, vaultPk, manifest, contactPk,
             name, description, shares, GuardianState.INIT, false,
             getContact, sender)
         return guardian
@@ -96,7 +96,7 @@ export default class Guardian {
     static fromDict(data: GuardianDict, getContact: (pk: string) => Contact,
             sender: SenderFunction): Guardian {
         const guardian = new Guardian(
-            data.pk, data.vaultPk, data.recoveryPlanPk, data.contactPk,
+            data.pk, data.vaultPk, data.manifest, data.contactPk,
             data.name, data.description, data.shares, data.state, data.archived,
             getContact, sender)
         return guardian
@@ -105,7 +105,7 @@ export default class Guardian {
         return {
             pk: this.pk,
             vaultPk: this.vaultPk,
-            recoveryPlanPk: this.recoveryPlanPk,
+            manifest: this.manifest,
             contactPk: this.contactPk,
             name: this.name,
             description: this.description,
@@ -123,7 +123,7 @@ export default class Guardian {
     // message flows
     responseMsg(response: 'accept' | 'decline'): OutboundMessageDict {
         const data: RecoveryPlanResponse = {
-            recoveryPlanPk: this.recoveryPlanPk,
+            recoveryPlanPk: this.manifest.recoveryPlanPk,
             response: response,
         }
         const contact = this.contact

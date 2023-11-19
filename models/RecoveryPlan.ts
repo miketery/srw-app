@@ -1,4 +1,4 @@
-import { base64toBytes, bytesToBase64, bytesToHex, getRandom, hexToBytes } from "../lib/utils";
+import { base64toBytes, bytesToBase64, bytesToHex, getRandom, hexToBytes, secret_box } from "../lib/utils";
 import { v4 as uuidv4 } from 'uuid';
 import secrets from 'secrets.js-grempe';
 import { interpret } from 'xstate';
@@ -12,6 +12,18 @@ import Vault from "./Vault";
 import { Message , OutboundMessageDict } from "./Message";
 import { MessageTypes } from "../managers/MessagesManager";
 import { RecoveryPlanInvite } from "./MessagePayload";
+import nacl from "tweetnacl-sealed-box";
+
+export enum RecoveryPlanState {
+    DRAFT = 'DRAFT',
+    SPLITTING_KEY = 'SPLITTING_KEY',
+    READY_TO_SEND_INVITES = 'READY_TO_SEND_INVITES',
+    SENDING_INVITES = 'SENDING_INVITES',
+    WAITING_ON_PARTICIPANTS = 'WAITING_ON_PARTICIPANTS',
+    READY = 'READY',
+    FINAL = 'FINAL',
+    ARCHIVED = 'ARCHIVED'
+}
 
 export enum RecoveryPartyState {
     INIT = 'INIT',
@@ -21,7 +33,38 @@ export enum RecoveryPartyState {
     DECLINED = 'DECLINED',
     FINALIZED = 'FINALIZED',
 }
-interface RecoveryPartyDict {
+
+export type ManifestDict = {
+    recoveryPlanPk: string,
+    name: string,
+    payloadHash: string,
+    encryptedPayload: string, // base64
+    recoveryPartys: {
+        name: string,
+        did: string,
+    }[]
+}
+interface RecoveryPlanDict {
+    pk: string,
+    vaultPk: string,
+
+    name: string,
+    description: string,
+
+    payload: string, // base 64
+    encryptedPayload: string, // base 64
+
+    key: string, //hex
+    
+    recoveryPartys: RecoveryPartyDict[],
+    threshold: number,
+    // no need for totalShares since derived from recoveryParty.numShares
+
+    state: RecoveryPlanState,
+    created: number, // unix timestamp
+}
+
+type RecoveryPartyDict = {
     pk: string,
     contactPk: string,
     name: string,
@@ -109,49 +152,16 @@ export class RecoveryParty {
     inviteMessage(): OutboundMessageDict {
         const contact = this.recoveryPlan.getContact(this.contactPk)
         const payload: RecoveryPlanInvite = {
-            recoveryPlanPk: this.recoveryPlan.pk,
             name: this.recoveryPlan.name,
             description: this.recoveryPlan.description,
             shares: this.shares,
+            manifest: this.recoveryPlan.getManifest(),
         }
         const message = Message.forContact(contact, payload,
             MessageTypes.recovery.invite, '0.1')
         message.encryptBox(contact.private_key)
         return message.outboundFinal()
     }
-}
-export enum RecoveryPlanState {
-    DRAFT = 'DRAFT',
-    SPLITTING_KEY = 'SPLITTING_KEY',
-    READY_TO_SEND_INVITES = 'READY_TO_SEND_INVITES',
-    SENDING_INVITES = 'SENDING_INVITES',
-    WAITING_ON_PARTICIPANTS = 'WAITING_ON_PARTICIPANTS',
-    READY = 'READY',
-    FINAL = 'FINAL',
-    ARCHIVED = 'ARCHIVED'
-}
-export enum PayloadType {
-    OBJECT = 'OBJECT',
-    STRING = 'STRING',
-}
-interface RecoveryPlanDict {
-    pk: string,
-    vaultPk: string,
-
-    name: string,
-    description: string,
-
-    payload: string, // base 64?
-    payloadType: PayloadType,
-
-    key: string, //hex
-    
-    recoveryPartys: RecoveryPartyDict[],
-    threshold: number,
-    // no need for totalShares since derived from recoveryParty.numShares
-
-    state: RecoveryPlanState,
-    created: number, // unix timestamp
 }
 
 class RecoveryPlan {
@@ -162,7 +172,7 @@ class RecoveryPlan {
     description: string;
     
     payload: Uint8Array;
-    payloadType: PayloadType;
+    encryptedPayload: Uint8Array;
     
     key: Uint8Array;
     recoveryPartys: RecoveryParty[];
@@ -175,9 +185,11 @@ class RecoveryPlan {
     fsm: any;
     getContact: (pk: string) => Contact;
 
+    _cachedManifest: ManifestDict | null = null
+
     constructor(pk: string, vaultPk: string,
             name: string, description: string,
-            payload: Uint8Array, payloadType: PayloadType,
+            payload: Uint8Array, encryptedPayload: Uint8Array,
             key: Uint8Array,
             recoveryPartys: RecoveryPartyDict[], threshold: number,
             state: RecoveryPlanState, created: number,
@@ -190,8 +202,8 @@ class RecoveryPlan {
         this.description = description;
 
         this.payload = payload
-        this.payloadType = payloadType
-        
+        this.encryptedPayload = this.encryptedPayload
+
         this.key = key
         this.threshold = threshold
         
@@ -229,7 +241,8 @@ class RecoveryPlan {
         const pk = StoredTypePrefix.recoveryPlan + uuidv4()
         return new RecoveryPlan(
             pk, vault.pk, name, description,
-            Uint8Array.from([]), PayloadType.OBJECT,
+            Uint8Array.from([]),
+            Uint8Array.from([]),
             Uint8Array.from([]),
             [], 0,
             RecoveryPlanState.DRAFT, Math.floor(Date.now() / 1000),
@@ -239,9 +252,10 @@ class RecoveryPlan {
             vault: Vault, getContact: (pk: string) => Contact): RecoveryPlan {
         const key = hexToBytes(data.key)
         const payload = base64toBytes(data.payload)
+        const encryptedPayload = base64toBytes(data.encryptedPayload)
         return new RecoveryPlan(data.pk, data.vaultPk,
             data.name, data.description, 
-            payload, data.payloadType,
+            payload, encryptedPayload,
             key, data.recoveryPartys, data.threshold,
             data.state, data.created, vault, getContact)
     }
@@ -254,7 +268,7 @@ class RecoveryPlan {
             description: this.description,
 
             payload: bytesToBase64(this.payload),
-            payloadType: this.payloadType,
+            encryptedPayload: bytesToBase64(this.encryptedPayload),
 
             key: bytesToHex(this.key),
 
@@ -278,12 +292,18 @@ class RecoveryPlan {
             [], receiveManifest, RecoveryPartyState.INIT, this)
         this.recoveryPartys.push(recoveryParty)
     }
-    setPayload(payload: Uint8Array, payloadType: PayloadType): void {
-        this.payload = payload
-        this.payloadType = payloadType
-    }
     async generateKey(): Promise<void> {
         this.key = await getRandom(32)
+    }
+    setPayload(payload: Uint8Array): void {
+        this.payload = payload
+    }
+    encryptPayload(): void {
+        this.encryptedPayload = secret_box(this.payload, this.key)
+    }
+    clearPayloadAndKey(): void {
+        this.payload = Uint8Array.from([])
+        this.key = Uint8Array.from([])
     }
     setThreshold(threshold: number): void {
         this.threshold = threshold
@@ -300,6 +320,7 @@ class RecoveryPlan {
                 valid: false,
                 error: 'Threshold can not exceed total possible shares ('+maxShares+')'
             }
+        // TODO: check payload and ecnrytped is set
         return {
             valid: true,
         }
@@ -314,6 +335,23 @@ class RecoveryPlan {
                 this.recoveryPartys[i].assignShare(shares.shift())
         }
         return Promise.resolve(true)
+    }
+    getManifest(): ManifestDict {
+        if(this._cachedManifest)
+            return this._cachedManifest
+        this._cachedManifest = {
+            recoveryPlanPk: this.pk,
+            name: this.name,
+            encryptedPayload: bytesToBase64(this.encryptedPayload),
+            payloadHash: bytesToHex(nacl.hash(this.payload)),
+            recoveryPartys: this.recoveryPartys.map(p => {
+                return {
+                    did: this.getContact(p.contactPk).did,
+                    name: p.name,
+                }
+            })
+        }
+        return this._cachedManifest
     }
     allPartysAccepted(): boolean {
         return this.recoveryPartys.every(p => p.state === RecoveryPartyState.ACCEPTED)
