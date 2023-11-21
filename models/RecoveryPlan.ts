@@ -1,6 +1,6 @@
 import { base64toBytes, bytesToBase64, bytesToHex, getRandom, hexToBytes, secret_box } from "../lib/utils";
 import { v4 as uuidv4 } from 'uuid';
-import secrets from 'secrets.js-grempe';
+import secrets from '../lib/secretsGrempe';
 import { interpret } from 'xstate';
 
 import SS, { StoredTypePrefix } from '../services/StorageService';

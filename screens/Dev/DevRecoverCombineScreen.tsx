@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Text, View, ScrollView, Pressable } from 'react-native'
+import base58 from 'bs58'
 
 import ds from '../../assets/styles'
 import tw from '../../lib/tailwind'
@@ -47,7 +48,7 @@ async function RecoverPlanFullFlow(
     recoveryPlan.addRecoveryParty(alice.contacts['dan'], 2, true)
     console.log('Parties added:', recoveryPlan.toDict())
 
-    const byteSecret = new TextEncoder().encode('MY SECRET')
+    const byteSecret = new TextEncoder().encode(JSON.stringify({secret: 'MY SECRET'}))
     recoveryPlan.setPayload(byteSecret)
     recoveryPlan.setThreshold(3)
     console.assert(recoveryPlan.checkValidPreSubmit())
@@ -102,16 +103,35 @@ async function recoverCombineFlow(
     const { alice, bob, charlie, dan } = vaultsAndManagers
     const partys = [bob, charlie, dan]
     let promises = []
-    const guardianManagers = partys.map((user) => {
+    const guardiansManagers = partys.map((user) => {
         const gm = new GuardiansManager(user.vault, {}, user.contactsManager)
         promises.push(gm.loadGuardians())
+        user['guardiansManager'] = gm
         return gm
     })
     await Promise.all(promises)
-    console.log(guardianManagers[0].getGuardiansArray())
-    const manifest = guardianManagers[0].getGuardiansArray()[0].manifest
+    console.log(guardiansManagers[0].getGuardiansArray())
+    const manifest = guardiansManagers[0].getGuardiansArray()[0].manifest
     console.log('MANIFEST', manifest)
     const recoverCombine = await RecoverCombine.create(manifest)
+    const gerReqeustAndAccept = async (vault: Vault, guardiansManager: GuardiansManager, recoverCombine: RecoverCombine) => {
+        const combineParty = recoverCombine.combinePartys.filter((cp) => cp.did === vault.did)[0]
+        const request = combineParty.recoverCombineRequestMsg(recoverCombine) as InboundMessageDict
+        console.log(request)
+        const {guardian, metadata} = await guardiansManager.processRecoverCombineRequest(Message.inbound(request, vault))
+        console.log('GUARDIAN', guardian.toDict())
+        console.log('METADATA', metadata)
+        const response = guardian.recoverCombineResponseMsg('accept', {
+            verify_key: base58.decode(metadata.verify_key),
+            public_key: base58.decode(metadata.public_key)}) as InboundMessageDict
+        console.log('RESPONSE', response)
+        recoverCombine.processRecoverCombineResponse(Message.inbound(response, recoverCombine.vault))
+    }
+    partys.map((user, i) => gerReqeustAndAccept(user.vault, guardiansManagers[i], recoverCombine))
+    await new Promise(r => setTimeout(r, 300))
+    console.log(recoverCombine.toDict())
+    recoverCombine.combine()
+
     // // recoverCombine.fsm.send('SEND_REQUEST')
     // const requestMsgs = recoverCombine.combinePartys.map((cp) => cp.requestSharesMsg())
     // const acceptMsgs = guardianManagers.map((gm, i) => {

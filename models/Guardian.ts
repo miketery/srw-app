@@ -6,9 +6,10 @@ import GuardianMachine from '../machines/GuardianMachine';
 import { Message, OutboundMessageDict } from "./Message";
 import Contact from "./Contact";
 import { MessageTypes } from "../managers/MessagesManager";
-import { RecoveryPlanResponse } from "./MessagePayload";
+import { RecoverCombineResponse, RecoveryPlanResponse } from "./MessagePayload";
 import { SenderFunction } from "../services/DigitalAgentService";
 import { ManifestDict } from "./RecoveryPlan";
+import { PublicKey, VerifyKey } from '../lib/nacl';
 
 export enum GuardianState {
     INIT = 'INIT',
@@ -120,7 +121,7 @@ export default class Guardian {
     async save(): Promise<void> {
         await SS.save(this.pk, this.toDict())
     }
-    // message flows
+    // message flows for recoverSplit
     responseMsg(response: 'accept' | 'decline'): OutboundMessageDict {
         const data: RecoveryPlanResponse = {
             recoveryPlanPk: this.manifest.recoveryPlanPk,
@@ -130,6 +131,24 @@ export default class Guardian {
         const message = Message.forContact(contact, data,
             MessageTypes.recoverSplit.response, '0.1')
         message.encryptBox(contact.private_key)
+        return message.outboundFinal()
+    }
+    // response for recoverCombine
+    recoverCombineResponseMsg(response: 'accept' | 'decline',
+            receiver: {verify_key: VerifyKey, public_key: PublicKey})
+            : OutboundMessageDict {
+        const data: RecoverCombineResponse = {
+            recoveryPlanPk: this.manifest.recoveryPlanPk,
+            response: response,
+        }
+        if(response === 'accept')
+            data.shares = this.shares
+        const contact = this.contact
+        const message = Message.forNonContact(contact.vault, 
+            {did: '', verify_key: receiver.verify_key, public_key: receiver.public_key, name: contact.name},
+            data,
+            MessageTypes.recoverCombine.response, '0.1')
+        message.encryptBox(contact.vault.private_key)
         return message.outboundFinal()
     }
 }

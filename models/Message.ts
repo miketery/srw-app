@@ -318,6 +318,20 @@ class Message {
         msg.setData(data);
         return msg;
     }
+    static forNonContact(vault: Vault, 
+            receiver: {did: string, verify_key: VerifyKey, public_key: PublicKey, name: string},
+            data: Record<string, any>, type_name: string, type_version: string): Message {
+        // we only know the verify key & public key of the receiver
+        const msg = new Message(
+            null, null, null, 'outbound',
+            Sender.fromVault(vault),
+            new Receiver(receiver.did, receiver.verify_key, receiver.public_key, Uint8Array.from([]), receiver.name),
+            type_name, type_version,
+            'X25519Box', true
+        );
+        msg.setData(data);
+        return msg;
+    }
 }
 export { MessageDict, InboundMessageDict, OutboundMessageDict }
 export { SignedPayloadDict, SenderDict, ReceiverDict}

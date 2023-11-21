@@ -89,7 +89,7 @@ class GuardiansManager {
     }
     //
     async processRecoverCombineRequest(message: Message)
-            : Promise<{guardian: Guardian}> {
+            : Promise<{guardian: Guardian, metadata: {verify_key: string, public_key: string}}> {
         console.log('[GuardiansManager.processRecoveryCombineRequest]')
         if(message.type_name !== MessageTypes.recoverCombine.request) {
             throw new Error(`96 Invalid message type: ${message.type_name} should be ${MessageTypes.recoverCombine.request}`)
@@ -97,7 +97,8 @@ class GuardiansManager {
         message.decrypt(this._vault.private_key)
         const data = message.getData() as RecoverCombineRequest
         const guardian = this.getGuardiansArray().filter((g) => g.manifest.recoveryPlanPk === data.recoveryPlanPk)[0]
-        return {guardian}
+        const metadata = {verify_key: data.verify_key, public_key: data.public_key}
+        return {guardian, metadata}
     }
 }
 

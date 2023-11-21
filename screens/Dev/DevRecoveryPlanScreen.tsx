@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Text, View, ScrollView, Pressable } from 'react-native'
 
-import secrets from 'secrets.js-grempe'
+import secrets from '../../lib/secretsGrempe';
 
 import ds from '../../assets/styles'
 import tw from '../../lib/tailwind'

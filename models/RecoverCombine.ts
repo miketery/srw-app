@@ -5,11 +5,13 @@ import Vault, { VaultDict } from "./Vault";
 import SS, { StoredTypePrefix } from '../services/StorageService';
 import RecoverVaultMachine from '../machines/RecoverVaultMachine';
 import { ManifestDict } from './RecoveryPlan';
-import { Message, OutboundMessageDict, Receiver, Sender } from './Message';
-import { RecoverCombineRequest } from './MessagePayload';
+import { Message, OutboundMessageDict } from './Message';
+import { RecoverCombineRequest, RecoverCombineResponse } from './MessagePayload';
+import secrets from '../lib/secretsGrempe';
 import { PublicKey, VerifyKey } from '../lib/nacl';
 import base58 from 'bs58';
 import { MessageTypes } from '../managers/MessagesManager';
+import { base64toBytes, hexToBytes, open_sealed_box } from '../lib/utils';
 
 enum RecoverCombineState {
     START = 'START',
@@ -101,11 +103,9 @@ class CombineParty {
             verify_key: recoverCombine.vault.b58_verify_key,
             public_key: recoverCombine.vault.b58_public_key,
         }
-        const message = new Message(null, recoverCombine.vault.pk, null, 'outbound',
-            Sender.fromVault(recoverCombine.vault),
-            new Receiver(this.did, this.verify_key, this.public_key, Uint8Array.from([]), this.name),
-            MessageTypes.recoverCombine.request, '0.1', 'X25519Box');
-        message.setData(data);
+        const message = Message.forNonContact(recoverCombine.vault,
+            {did: this.did, name: this.name, verify_key: this.verify_key, public_key: this.public_key},
+            data, MessageTypes.recoverCombine.request, '0.1')
         message.encryptBox(recoverCombine.vault.private_key)
         return message.outboundFinal();
     }
@@ -181,10 +181,27 @@ class RecoverCombine {
         return SS.delete(this.pk);
     }
     combine(): void { //TODO
-        throw new Error('Not implemented');
+        const shares = this.combinePartys.map((cp) => cp.shares).flat();
+        const secret = hexToBytes(secrets.combine(shares));
+        const decrypted = open_sealed_box(base64toBytes(this.manifest.encryptedPayload), secret);
+        const data = JSON.parse(new TextDecoder().decode(decrypted));
+        console.log(data)
     }
     processRecoverCombineResponse(message: Message): void {
-        throw new Error('Not implemented');
+        console.log('[RecoveryCombine.processRecoverCombineResponse]', message)
+        message.decrypt(this.vault.private_key);
+        const data = message.getData() as RecoverCombineResponse;
+        const combineParty = this.combinePartys.filter((cp) => cp.did === message.sender.did)[0]
+        if (!combineParty) {
+            throw new Error(`Could not find combineParty for ${message.sender.did}`);
+        }
+        //TODO: use fsm
+        if (data.response === 'accept') {
+            combineParty.state = CombinePartyState.APPROVED;
+            combineParty.shares = data.shares;
+        } else {
+            combineParty.state = CombinePartyState.REJECTED;
+        }
     }
 }
 

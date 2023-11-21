@@ -31,3 +31,8 @@ export type RecoverCombineRequest = {
     verify_key: string, // base58
     public_key: string, // base58
 }
+export type RecoverCombineResponse = {
+    recoveryPlanPk: string,
+    response: 'accept' | 'decline',
+    shares?: string[],
+}
