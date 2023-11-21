@@ -5,6 +5,11 @@ import Vault, { VaultDict } from "./Vault";
 import SS, { StoredTypePrefix } from '../services/StorageService';
 import RecoverVaultMachine from '../machines/RecoverVaultMachine';
 import { ManifestDict } from './RecoveryPlan';
+import { Message, OutboundMessageDict, Receiver, Sender } from './Message';
+import { RecoverCombineRequest } from './MessagePayload';
+import { PublicKey, VerifyKey } from '../lib/nacl';
+import base58 from 'bs58';
+import { MessageTypes } from '../managers/MessagesManager';
 
 enum RecoverCombineState {
     START = 'START',
@@ -35,6 +40,8 @@ enum CombinePartyState {
 type CombinePartyDict = {
     name: string,
     did: string,
+    verify_key: string,
+    public_key: string,
     shares: string[],
     state: CombinePartyState,
 }
@@ -55,12 +62,20 @@ const vaultForRecovery = async (manifest: ManifestDict): Promise<Vault> => {
 class CombineParty {
     name: string;
     did: string;
+    verify_key: VerifyKey;
+    public_key: PublicKey;
     shares: string[];
     state: CombinePartyState;
 
-    constructor(name: string, did: string, shares: string[], state: CombinePartyState) {
+    recoverCombine: RecoverCombine
+
+    constructor(name: string, did: string,
+            verify_key: VerifyKey, public_key: PublicKey,
+            shares: string[], state: CombinePartyState, recoverCombine: RecoverCombine) {
         this.name = name;
         this.did = did;
+        this.verify_key = verify_key;
+        this.public_key = public_key;
         this.shares = shares;
         this.state = state;
     }
@@ -68,12 +83,31 @@ class CombineParty {
         return {
             name: this.name,
             did: this.did,
+            verify_key: base58.encode(this.verify_key),
+            public_key: base58.encode(this.public_key),
             shares: this.shares,
             state: this.state,
         }
     }
-    static fromDict(data: CombinePartyDict): CombineParty {
-        return new CombineParty(data.name, data.did, data.shares, data.state);
+    static fromDict(data: CombinePartyDict, recoverCombine: RecoverCombine): CombineParty {
+        const verify_key = base58.decode(data.verify_key);
+        const public_key = base58.decode(data.public_key);
+        return new CombineParty(data.name,data.did,
+            verify_key, public_key, data.shares, data.state, recoverCombine);
+    }
+    recoverCombineRequestMsg(recoverCombine: RecoverCombine): OutboundMessageDict { //TODO
+        const data: RecoverCombineRequest = {
+            recoveryPlanPk: recoverCombine.manifest.recoveryPlanPk,
+            verify_key: recoverCombine.vault.b58_verify_key,
+            public_key: recoverCombine.vault.b58_public_key,
+        }
+        const message = new Message(null, recoverCombine.vault.pk, null, 'outbound',
+            Sender.fromVault(recoverCombine.vault),
+            new Receiver(this.did, this.verify_key, this.public_key, Uint8Array.from([]), this.name),
+            MessageTypes.recoverCombine.request, '0.1', 'X25519Box');
+        message.setData(data);
+        message.encryptBox(recoverCombine.vault.private_key)
+        return message.outboundFinal();
     }
 }
 
@@ -93,14 +127,12 @@ class RecoverCombine {
     fsm: any;
 
     constructor(pk: string, vault: Vault,
-            manifest: ManifestDict, combinePartys: CombineParty[],
+            manifest: ManifestDict, combinePartys: CombinePartyDict[],
             state: RecoverCombineState) {
         this.pk = pk;
         this.vault = vault;
         this.manifest = manifest;
-        this.combinePartys = combinePartys.map((g) => {
-            return new CombineParty(g.name, g.did, g.shares, g.state);
-        });
+        this.combinePartys = combinePartys.map((cp) => CombineParty.fromDict(cp, this));
         this.state = state
     }
     initFSM() {
@@ -113,8 +145,8 @@ class RecoverCombine {
         const pk = StoredTypePrefix.recoverVault + uuidv4();
         const vault = await vaultForRecovery(manifest);
         const combinePartys = manifest.recoveryPartys.map((g) => {
-            return new CombineParty(g.name, g.did, [], CombinePartyState.START);
-        })
+            return {...g, state: CombinePartyState.START, shares: []}
+        });
         const recoveryVault = new RecoverCombine(pk, vault, manifest,
             combinePartys, RecoverCombineState.START);
         return recoveryVault;
@@ -133,8 +165,7 @@ class RecoverCombine {
     }
     static fromDict(data: RecoverCombineDict): RecoverCombine {
         const vault = Vault.fromDict(data.vault);
-        const combinePartys = data.combinePartys.map((cp) => CombineParty.fromDict(cp));
-        return new RecoverCombine(data.pk, vault, data.manifest, combinePartys, data.state);
+        return new RecoverCombine(data.pk, vault, data.manifest, data.combinePartys, data.state);
     }
     async save(): Promise<void> {
         return SS.save(this.pk, this.toDict());
@@ -150,6 +181,9 @@ class RecoverCombine {
         return SS.delete(this.pk);
     }
     combine(): void { //TODO
+        throw new Error('Not implemented');
+    }
+    processRecoverCombineResponse(message: Message): void {
         throw new Error('Not implemented');
     }
 }

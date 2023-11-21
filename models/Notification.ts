@@ -13,15 +13,15 @@ export const NotificationTypes = {
         'request': 'contact.request', // Alice invites Bob to be her contact
         'accept': 'contact.accept', // Bob accepts Alice's invitation
     },
-    recoverySetup: {
-        'invite': 'recoverySetup.invite', // Alice invites Bob to be in her recovery setup
-        'accept': 'recoverySetup.accept', // Bob accepts Alice's invitation
-        'decline': 'recoverySetup.decline', // Bob declines Alice's invitation
+    recoverSplit: {
+        'invite': 'recoverSplit.invite', // Alice invites Bob to be in her recovery setup
+        'accept': 'recoverSplit.accept', // Bob accepts Alice's invitation
+        'decline': 'recoverSplit.decline', // Bob declines Alice's invitation
     },
-    recoverVault: {
-        'request': 'recoverVault.request', // Alice requests Bob for recovery keyshare
-        'accept': 'recoverVault.accept', // Bob accepts Alice's request
-        'decline': 'recoverVault.decline', // Bob declines Alice's request
+    recoverCombine: {
+        'request': 'recoverCombine.request', // Alice requests Bob for recovery keyshare
+        'accept': 'recoverCombine.accept', // Bob accepts Alice's request
+        'decline': 'recoverCombine.decline', // Bob declines Alice's request
         // 'initiated': 'recoverVault.initiated', // Alice is informed of recovery initiation (in case of hacker)
     },
 }

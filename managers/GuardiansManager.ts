@@ -65,8 +65,8 @@ class GuardiansManager {
     async processGuardianRequest(message: Message, callback?: () => void)
             : Promise<{guardian: Guardian, contact: Contact}> {
         console.log('[GuardiansManager.processGuardianRequest]')
-        if(message.type_name !== MessageTypes.recovery.invite) {
-            throw new Error(`65 Invalid message type: ${message.type_name} should be ${MessageTypes.recovery.invite}`)
+        if(message.type_name !== MessageTypes.recoverSplit.invite) {
+            throw new Error(`65 Invalid message type: ${message.type_name} should be ${MessageTypes.recoverSplit.invite}`)
         }
         const contact = this._contactsManager.getContactByDid(message.sender.did)
         message.decrypt(contact.private_key)
@@ -88,22 +88,16 @@ class GuardiansManager {
         guardian.fsm.send('DECLINE', {callback})
     }
     //
-    async processShareRequest(message: Message, callback?: () => void) {
-        console.log('[GuardiansManager.processShareRequest]')
+    async processRecoverCombineRequest(message: Message)
+            : Promise<{guardian: Guardian}> {
+        console.log('[GuardiansManager.processRecoveryCombineRequest]')
         if(message.type_name !== MessageTypes.recoverCombine.request) {
             throw new Error(`96 Invalid message type: ${message.type_name} should be ${MessageTypes.recoverCombine.request}`)
         }
-        // const contact = this._contactsManager.getContactByDid(message.sender.did)
         message.decrypt(this._vault.private_key)
         const data = message.getData() as RecoverCombineRequest
         const guardian = this.getGuardiansArray().filter((g) => g.manifest.recoveryPlanPk === data.recoveryPlanPk)[0]
-        // const guardian = this.createGuardian(
-        //     data.name, data.description,
-        //     data.recoveryPlanPk, data.shares, contact.pk)
-        // await this.saveGuardian(guardian)
-        
         return {guardian}
-        
     }
 }
 

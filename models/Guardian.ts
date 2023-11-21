@@ -128,7 +128,7 @@ export default class Guardian {
         }
         const contact = this.contact
         const message = Message.forContact(contact, data,
-            MessageTypes.recovery.response, '0.1')
+            MessageTypes.recoverSplit.response, '0.1')
         message.encryptBox(contact.private_key)
         return message.outboundFinal()
     }

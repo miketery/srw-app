@@ -46,3 +46,8 @@ this.fsm.start(this._state)
 1. MessagesManager - processMap
 2. NotificationTypes
 3. NotificationAction
+
+1. Need message type to send (usually in the class e.g. Contact.ts)
+  - `inviteMsg(): OutboundMessageDict`
+2. Send it (e.g. in FSM using sender)
+3. 

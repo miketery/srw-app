@@ -50,16 +50,27 @@ const notificationActionsMap: {[key: string]: NotificationAction[]} = {
     [NotificationTypes.contact.accept]: [
         dismissAction
     ],
-    [NotificationTypes.recoverySetup.invite]: [
+    // recoverSplit
+    [NotificationTypes.recoverSplit.invite]: [
         acceptRecoveryPlanInviteAction,
         declineRecoveryPlanInviteAction,
     ],
-    [NotificationTypes.recoverySetup.accept]: [
+    [NotificationTypes.recoverSplit.accept]: [
         dismissAction
     ],
-    [NotificationTypes.recoverySetup.decline]: [
+    [NotificationTypes.recoverSplit.decline]: [
         dismissAction
     ],
+    // recoverCombine
+    // [NotificationTypes.recoverCombine.request]: [
+
+    // ],
+    // [NotificationTypes.recoverCombine.accept]: [
+
+    // ],
+    // [NotificationTypes.recoverCombine.decline]: [
+
+    // ],
 }
 
 export default notificationActionsMap;

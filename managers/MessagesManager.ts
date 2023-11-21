@@ -31,9 +31,9 @@ export const MessageTypes = {
         'alert': 'msg.app.alert',
         'warning': 'msg.app.warning',
     },
-    'recovery': {
-        'invite': 'msg.recovery.invite',
-        'response': 'msg.recovery.response',
+    'recoverSplit': {
+        'invite': 'msg.recoverSplit.invite',
+        'response': 'msg.recoverSplit.response',
     },
     'recoverCombine': {
         'request': 'msg.recoverCombine.request',
@@ -57,6 +57,9 @@ const processMap: processMapType = {
             } as NotificationData)
         return Promise.resolve(true)
     },
+    /*
+     * Contacts
+     */
     [MessageTypes.contact.invite]: async (message: Message, vault: Vault, m: VaultManager) => {
         const contact = await m.contactsManager.processContactRequest(message)
         const notification = m.notificationsManager.createNotification(
@@ -84,11 +87,14 @@ const processMap: processMapType = {
             })
         return Promise.resolve(true)
     },
-    [MessageTypes.recovery.invite]: async (message: Message, vault: Vault, m: VaultManager) => {
+    /*
+     * Recover Split
+     */
+    [MessageTypes.recoverSplit.invite]: async (message: Message, vault: Vault, m: VaultManager) => {
         console.log('[processMap] ', message.type_name, message)
         const {guardian, contact} = await m.guardiansManager.processGuardianRequest(message)
         const notification = m.notificationsManager.createNotification(
-            NotificationTypes.recoverySetup.invite, {
+            NotificationTypes.recoverSplit.invite, {
                 title: 'Recovery Plan Invite',
                 short_text: contact.name + ' wants you to be a guardian',
                 detailed_text: contact.name + ' wants you to be a part of their recovery plan.',
@@ -100,11 +106,11 @@ const processMap: processMapType = {
             })
         return Promise.resolve(true)
     },
-    [MessageTypes.recovery.response]: async (message: Message, vault: Vault, m: VaultManager) => {
+    [MessageTypes.recoverSplit.response]: async (message: Message, vault: Vault, m: VaultManager) => {
         const {recoveryPlan, contact, accepted} = await m.recoveryPlansManager.processRecoveryPlanResponse(message)
         const notification = m.notificationsManager.createNotification(
-            accepted ? NotificationTypes.recoverySetup.accept
-            : NotificationTypes.recoverySetup.decline , {
+            accepted ? NotificationTypes.recoverSplit.accept
+            : NotificationTypes.recoverSplit.decline , {
                 title: 'Recovery Plan Response',
                 short_text: contact.name + (accepted ? ' accepted' : ' declined') + ' your invite',
                 detailed_text: contact.name + (accepted ? ' accepted' : ' declined') + ' your invite',
@@ -114,6 +120,38 @@ const processMap: processMapType = {
             })
         return Promise.resolve(true)
     },
+    /*
+     * Recover Combine
+     */
+    // [MessageTypes.recoverCombine.request]: async (message: Message, vault: Vault, m: VaultManager) => {
+    //     const {guardian} = await m.guardiansManager.processRecoverCombineRequest(message)
+    //     const notification = m.notificationsManager.createNotification(
+    //         NotificationTypes.recoverCombine.request, {
+    //             title: 'Recovery Plan Request',
+    //             short_text: guardian.name + ' wants to recover',
+    //             detailed_text: guardian.name + ' wants to recover',
+    //             metadata: {
+    //                 timestamp: message.created,
+    //                 pk: guardian.manifest.recoveryPlanPk,
+    //                 contactPk: guardian.contactPk
+    //             }
+    //         })
+    //     return Promise.resolve(true)
+    // },
+    // [MessageTypes.recoverCombine.response]: async (message: Message, vault: Vault, m: VaultManager) => {
+    //     const {recoveryPlan, contact, accepted} = await m.recoverCombineManager.processRecoveryPlanResponse(message)
+    //     const notification = m.notificationsManager.createNotification(
+    //         accepted ? NotificationTypes.recoverCombine.accept
+    //         : NotificationTypes.recoverCombine.decline , {
+    //             title: 'Recovery Plan Response',
+    //             short_text: contact.name + (accepted ? ' accepted' : ' declined') + ' your request',
+    //             detailed_text: contact.name + (accepted ? ' accepted' : ' declined') + ' your request',
+    //             metadata: {
+    //                 timestamp: message.created,
+    //             }
+    //         })
+    //     return Promise.resolve(true)
+    // },
 }
 
 

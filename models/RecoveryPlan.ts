@@ -42,6 +42,8 @@ export type ManifestDict = {
     recoveryPartys: {
         name: string,
         did: string,
+        verify_key: string,
+        public_key: string,
     }[]
 }
 interface RecoveryPlanDict {
@@ -158,7 +160,7 @@ export class RecoveryParty {
             manifest: this.recoveryPlan.getManifest(),
         }
         const message = Message.forContact(contact, payload,
-            MessageTypes.recovery.invite, '0.1')
+            MessageTypes.recoverSplit.invite, '0.1')
         message.encryptBox(contact.private_key)
         return message.outboundFinal()
     }
@@ -345,8 +347,11 @@ class RecoveryPlan {
             encryptedPayload: bytesToBase64(this.encryptedPayload),
             payloadHash: bytesToHex(nacl.hash(this.payload)),
             recoveryPartys: this.recoveryPartys.map(p => {
+                const contact = this.getContact(p.contactPk)
                 return {
-                    did: this.getContact(p.contactPk).did,
+                    did: contact.did,
+                    verify_key: contact.b58_their_verify_key,
+                    public_key: contact.b58_their_public_key,
                     name: p.name,
                 }
             })
