@@ -219,7 +219,7 @@ class RecoveryPlan {
         const machine = RecoveryPlanMachine.withContext({recoveryPlan: this})
         this.fsm = interpret(machine)
         this.fsm.onTransition((state: {context: {recoveryPlan: RecoveryPlan}}) => {
-            console.log('[RecoveryPlan.onTransition]',
+            console.log('[RecoveryPlan.fsm.onTransition]',
                 state.context.recoveryPlan.toString())
         })
         this.fsm.start(this._state)

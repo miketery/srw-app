@@ -3,7 +3,7 @@ import { interpret } from 'xstate';
 
 import Vault, { VaultDict } from "./Vault";
 import SS, { StoredTypePrefix } from '../services/StorageService';
-import RecoverVaultMachine from '../machines/RecoverVaultMachine';
+import RecoverCombineMachine from '../machines/RecoverCombineMachine';
 import { ManifestDict } from './RecoveryPlan';
 import { Message, OutboundMessageDict } from './Message';
 import { RecoverCombineRequest, RecoverCombineResponse } from './MessagePayload';
@@ -12,21 +12,22 @@ import { PublicKey, VerifyKey } from '../lib/nacl';
 import base58 from 'bs58';
 import { MessageTypes } from '../managers/MessagesManager';
 import { base64toBytes, hexToBytes, open_sealed_box } from '../lib/utils';
+import { SenderFunction } from '../services/DigitalAgentService';
 
 enum RecoverCombineState {
     START = 'START',
     MANIFEST_LOADED = 'MANIFEST_LOADED',
     REQUESTING_SHARES = 'REQUESTING_SHARES',
-    WAITING_ON_GUARDIANS = 'WAITING_ON_GUARDIANS',
+    WAITING_ON_PARTICIPANTS = 'WAITING_ON_PARTICIPANTS',
     RECOVERING = 'RECOVERING',
+    FINAL = 'FINAL'
 }
 
 enum CombinePartyState {
     START = 'START',
     REQUESTED = 'REQUESTED',
-    WAITING = 'WAITING',
-    APPROVED = 'APPROVED',
-    REJECTED = 'REJECTED',
+    ACCEPTED = 'ACCEPTED',
+    DECLINED = 'DECLINED',
 }
 
 // type Manifest = {
@@ -80,7 +81,14 @@ class CombineParty {
         this.public_key = public_key;
         this.shares = shares;
         this.state = state;
+        this.recoverCombine = recoverCombine;
+
+        // if(state !== CombinePartyState.ACCEPTED && this.recoverCombine.state !== RecoverCombineState.FINAL)
+        //     this.initFSM();
     }
+    // initFSM() {
+
+    // }
     toDict(): CombinePartyDict {
         return {
             name: this.name,
@@ -122,7 +130,7 @@ class RecoverCombine {
     vault: Vault;
     manifest: ManifestDict;
     combinePartys: CombineParty[];
-    state: RecoverCombineState;
+    _state: RecoverCombineState;
 
     fsm: any;
 
@@ -133,13 +141,28 @@ class RecoverCombine {
         this.vault = vault;
         this.manifest = manifest;
         this.combinePartys = combinePartys.map((cp) => CombineParty.fromDict(cp, this));
-        this.state = state
+        this._state = state
+        
+        // if(state !== RecoverCombineState.FINAL)
+        //     this.initFSM();
     }
     initFSM() {
-        this.fsm = interpret(RecoverVaultMachine.withContext({
-            recoverVault: this,
-            sender: this.vault.sender,
-        }))
+        // this.fsm = interpret(RecoverCombineMachine.withContext({
+        //     recoverCombine: this,
+        //     sender: this.sender,
+        // }))
+        // this.fsm.onTransition((state: {context: {recoverCombine: RecoverCombine}}) => {
+        //     console.log('[RecoverCombine.fsm.onTransition]', state.context.recoverCombine.toString())
+        // })
+        // this.fsm.start(this._state)
+    }
+    get state(): RecoverCombineState {
+        if(this.fsm)
+            return this.fsm.getSnapshot().value;
+        return this._state;
+    }
+    get sender(): SenderFunction {
+        return this.vault.sender
     }
     static async create(manifest: ManifestDict): Promise<RecoverCombine> {
         const pk = StoredTypePrefix.recoverVault + uuidv4();
@@ -187,6 +210,9 @@ class RecoverCombine {
         const data = JSON.parse(new TextDecoder().decode(decrypted));
         console.log(data)
     }
+    allRecoverCombineRequestsSent(): boolean {
+        return this.combinePartys.every((cp) => cp.state !== CombinePartyState.START);
+    }
     processRecoverCombineResponse(message: Message): void {
         console.log('[RecoveryCombine.processRecoverCombineResponse]', message)
         message.decrypt(this.vault.private_key);
@@ -197,10 +223,10 @@ class RecoverCombine {
         }
         //TODO: use fsm
         if (data.response === 'accept') {
-            combineParty.state = CombinePartyState.APPROVED;
+            combineParty.state = CombinePartyState.ACCEPTED;
             combineParty.shares = data.shares;
         } else {
-            combineParty.state = CombinePartyState.REJECTED;
+            combineParty.state = CombinePartyState.DECLINED;
         }
     }
 }
