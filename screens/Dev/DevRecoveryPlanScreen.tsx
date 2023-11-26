@@ -107,7 +107,7 @@ async function RecoverPlanFullFlow(
     recoveryPlan.fsm.send('SEND_INVITES') 
     // ^^^ will be in SENDING_INVITES state until all sent, then in WAITING_ON_PARTICIPANTS
     await new Promise(r => setTimeout(r, 300))
-    console.log('STATE', recoveryPlan.state, recoveryPlan.allPartysSent())
+    console.log('STATE', recoveryPlan.state, recoveryPlan.allInvitesSent())
     console.log('BEFORE ACCEPTS', recoveryPlan.toDict())
     // user fetch request and send accept
     const getRequestAndAccept = async (user, accept, originUser, originRecoveryPlanManager: RecoveryPlansManager) => {

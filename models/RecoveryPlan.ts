@@ -15,7 +15,7 @@ import { RecoveryPlanInvite } from "./MessagePayload";
 import nacl from "tweetnacl-sealed-box";
 
 export enum RecoveryPlanState {
-    DRAFT = 'DRAFT',
+    START = 'START',
     SPLITTING_KEY = 'SPLITTING_KEY',
     READY_TO_SEND_INVITES = 'READY_TO_SEND_INVITES',
     SENDING_INVITES = 'SENDING_INVITES',
@@ -26,9 +26,9 @@ export enum RecoveryPlanState {
 }
 
 export enum RecoveryPartyState {
-    INIT = 'INIT',
-    INVITED = 'INVITED',
-    CAN_RESEND_INVITE = 'CAN_RESEND_INVITE',
+    START = 'START',
+    SENDING_INVITE = 'SENDING_INVITE',
+    PENDING = 'PENDING',
     ACCEPTED = 'ACCEPTED',
     DECLINED = 'DECLINED',
     FINALIZED = 'FINALIZED',
@@ -101,7 +101,7 @@ export class RecoveryParty {
         this.recoveryPlan = recoveryPlan
         console.log('[RecoveryParty.constructor]', this.toString(), this.recoveryPlan.name)
         //
-        if(!['ACCEPTED', 'DECLINED'].includes(this.state))
+        if(!['ACCEPTED', 'FINAL'].includes(this.state))
             this.initFSM()
     }
     get state(): RecoveryPartyState {
@@ -216,6 +216,11 @@ class RecoveryPlan {
 
         this.recoveryPartys = recoveryPartys.map(
             p => RecoveryParty.fromDict(p, this))
+        
+        if(!['FINAL', 'ARCHIVED'].includes(this._state))
+            this.initFSM()
+    }
+    initFSM() {
         const machine = RecoveryPlanMachine.withContext({recoveryPlan: this})
         this.fsm = interpret(machine)
         this.fsm.onTransition((state: {context: {recoveryPlan: RecoveryPlan}}) => {
@@ -247,7 +252,7 @@ class RecoveryPlan {
             Uint8Array.from([]),
             Uint8Array.from([]),
             [], 0,
-            RecoveryPlanState.DRAFT, Math.floor(Date.now() / 1000),
+            RecoveryPlanState.START, Math.floor(Date.now() / 1000),
             vault, getContact)
     }
     static fromDict(data: RecoveryPlanDict,
@@ -291,7 +296,7 @@ class RecoveryPlan {
     addRecoveryParty(contact: Contact, numShares: number, receiveManifest: boolean) {
         const recoveryParty = new RecoveryParty(
             uuidv4(), contact.pk, contact.name, numShares,
-            [], receiveManifest, RecoveryPartyState.INIT, this)
+            [], receiveManifest, RecoveryPartyState.START, this)
         this.recoveryPartys.push(recoveryParty)
     }
     async generateKey(): Promise<void> {
@@ -361,8 +366,8 @@ class RecoveryPlan {
     allPartysAccepted(): boolean {
         return this.recoveryPartys.every(p => p.state === RecoveryPartyState.ACCEPTED)
     }
-    allPartysSent(): boolean {
-        return this.recoveryPartys.every(p => p.state !== RecoveryPartyState.INIT)
+    allInvitesSent(): boolean {
+        return this.recoveryPartys.every(p => p.state !== RecoveryPartyState.START)
     }
 }
 

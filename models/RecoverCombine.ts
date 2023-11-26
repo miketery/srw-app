@@ -4,6 +4,7 @@ import { interpret } from 'xstate';
 import Vault, { VaultDict } from "./Vault";
 import SS, { StoredTypePrefix } from '../services/StorageService';
 import RecoverCombineMachine from '../machines/RecoverCombineMachine';
+import CombinePartyMachine from '../machines/CombinePartyMachine';
 import { ManifestDict } from './RecoveryPlan';
 import { Message, OutboundMessageDict } from './Message';
 import { RecoverCombineRequest, RecoverCombineResponse } from './MessagePayload';
@@ -17,7 +18,7 @@ import { SenderFunction } from '../services/DigitalAgentService';
 enum RecoverCombineState {
     START = 'START',
     MANIFEST_LOADED = 'MANIFEST_LOADED',
-    REQUESTING_SHARES = 'REQUESTING_SHARES',
+    SENDING_REQUESTS = 'SENDING_REQUESTS',
     WAITING_ON_PARTICIPANTS = 'WAITING_ON_PARTICIPANTS',
     RECOVERING = 'RECOVERING',
     FINAL = 'FINAL'
@@ -25,7 +26,8 @@ enum RecoverCombineState {
 
 enum CombinePartyState {
     START = 'START',
-    REQUESTED = 'REQUESTED',
+    SENDING_REQUEST = 'SENDING_REQUEST',
+    PENDING = 'PENDING',
     ACCEPTED = 'ACCEPTED',
     DECLINED = 'DECLINED',
 }
@@ -62,15 +64,16 @@ const vaultForRecovery = async (manifest: ManifestDict): Promise<Vault> => {
         '', '');
 }
 
-class CombineParty {
+export class CombineParty {
     name: string;
     did: string;
     verify_key: VerifyKey;
     public_key: PublicKey;
     shares: string[];
-    state: CombinePartyState;
+    _state: CombinePartyState;
 
-    recoverCombine: RecoverCombine
+    recoverCombine: RecoverCombine;
+    fsm: any;
 
     constructor(name: string, did: string,
             verify_key: VerifyKey, public_key: PublicKey,
@@ -80,15 +83,36 @@ class CombineParty {
         this.verify_key = verify_key;
         this.public_key = public_key;
         this.shares = shares;
-        this.state = state;
+        this._state = state;
         this.recoverCombine = recoverCombine;
 
-        // if(state !== CombinePartyState.ACCEPTED && this.recoverCombine.state !== RecoverCombineState.FINAL)
-        //     this.initFSM();
+        if(state !== CombinePartyState.ACCEPTED && this.recoverCombine.state !== RecoverCombineState.FINAL)
+            this.initFSM();
     }
-    // initFSM() {
-
-    // }
+    get state(): CombinePartyState {
+        if(this.fsm)
+            return this.fsm.getSnapshot().value
+        return this._state
+    }
+    initFSM() {
+        console.log('[CombineParty.initFSM]', this.toString())
+        if(this.fsm) {
+            console.log('[CombineParty.initFSM] fsm already exists')
+            return this.fsm
+        }
+        this.fsm = interpret(CombinePartyMachine.withContext({
+            combineParty: this,
+            sender: this.recoverCombine.sender,
+        }))
+        this.fsm.onTransition((state: {context: {combineParty: CombineParty}}) => {
+            console.log('[RecoveryParty.fsm.onTransition]', state.context.combineParty.toString(), event)
+        })
+        this.fsm.start(this._state)
+        this.fsm.send('REDO')
+        // ^^^^ v4 workaround to get invoke to work
+        // if in SENDING_REQUEST state
+        return this.fsm
+    }
     toDict(): CombinePartyDict {
         return {
             name: this.name,
@@ -105,16 +129,19 @@ class CombineParty {
         return new CombineParty(data.name,data.did,
             verify_key, public_key, data.shares, data.state, recoverCombine);
     }
-    recoverCombineRequestMsg(recoverCombine: RecoverCombine): OutboundMessageDict { //TODO
+    save(): Promise<void> {
+        return this.recoverCombine.save();
+    }
+    recoverCombineRequestMsg(): OutboundMessageDict { //TODO
         const data: RecoverCombineRequest = {
-            recoveryPlanPk: recoverCombine.manifest.recoveryPlanPk,
-            verify_key: recoverCombine.vault.b58_verify_key,
-            public_key: recoverCombine.vault.b58_public_key,
+            recoveryPlanPk: this.recoverCombine.manifest.recoveryPlanPk,
+            verify_key: this.recoverCombine.vault.b58_verify_key,
+            public_key: this.recoverCombine.vault.b58_public_key,
         }
-        const message = Message.forNonContact(recoverCombine.vault,
+        const message = Message.forNonContact(this.recoverCombine.vault,
             {did: this.did, name: this.name, verify_key: this.verify_key, public_key: this.public_key},
             data, MessageTypes.recoverCombine.request, '0.1')
-        message.encryptBox(recoverCombine.vault.private_key)
+        message.encryptBox(this.recoverCombine.vault.private_key)
         return message.outboundFinal();
     }
 }
@@ -130,7 +157,7 @@ class RecoverCombine {
     vault: Vault;
     manifest: ManifestDict;
     combinePartys: CombineParty[];
-    _state: RecoverCombineState;
+    _state: RecoverCombineState; //StateFrom<typeof RecoverCombineMachine>;
 
     fsm: any;
 
@@ -143,18 +170,18 @@ class RecoverCombine {
         this.combinePartys = combinePartys.map((cp) => CombineParty.fromDict(cp, this));
         this._state = state
         
-        // if(state !== RecoverCombineState.FINAL)
-        //     this.initFSM();
+        if(state !== RecoverCombineState.FINAL)
+            this.initFSM();
     }
     initFSM() {
-        // this.fsm = interpret(RecoverCombineMachine.withContext({
-        //     recoverCombine: this,
-        //     sender: this.sender,
-        // }))
-        // this.fsm.onTransition((state: {context: {recoverCombine: RecoverCombine}}) => {
-        //     console.log('[RecoverCombine.fsm.onTransition]', state.context.recoverCombine.toString())
-        // })
-        // this.fsm.start(this._state)
+        this.fsm = interpret(RecoverCombineMachine.withContext({
+            recoverCombine: this,
+            // sender: this.sender,
+        }))
+        this.fsm.onTransition((state: {context: {recoverCombine: RecoverCombine}}) => {
+            console.log('[RecoverCombine.fsm.onTransition]', state.context.recoverCombine.toString())
+        })
+        this.fsm.start(this._state)
     }
     get state(): RecoverCombineState {
         if(this.fsm)
@@ -210,7 +237,7 @@ class RecoverCombine {
         const data = JSON.parse(new TextDecoder().decode(decrypted));
         console.log(data)
     }
-    allRecoverCombineRequestsSent(): boolean {
+    allRequestsSent(): boolean {
         return this.combinePartys.every((cp) => cp.state !== CombinePartyState.START);
     }
     processRecoverCombineResponse(message: Message): void {
@@ -218,15 +245,13 @@ class RecoverCombine {
         message.decrypt(this.vault.private_key);
         const data = message.getData() as RecoverCombineResponse;
         const combineParty = this.combinePartys.filter((cp) => cp.did === message.sender.did)[0]
-        if (!combineParty) {
+        if (!combineParty)
             throw new Error(`Could not find combineParty for ${message.sender.did}`);
-        }
-        //TODO: use fsm
         if (data.response === 'accept') {
-            combineParty.state = CombinePartyState.ACCEPTED;
+            combineParty.fsm.send('ACCEPT')
             combineParty.shares = data.shares;
         } else {
-            combineParty.state = CombinePartyState.DECLINED;
+            combineParty.fsm.send('DECLINE')
         }
     }
 }

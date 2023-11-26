@@ -4,14 +4,17 @@ import RecoverCombine from '../models/RecoverCombine';
 import { SenderFunction } from '../services/DigitalAgentService';
 
 const RecoverCombineMachine = createMachine({
-    id: 'recoverVaultFsm',
+    id: 'recoverCombineFsm',
     initial: 'START',
     tsTypes: {} as import("./RecoverCombineMachine.typegen").Typegen0,
     context: {} as {
         recoverCombine: RecoverCombine,
-        sender: SenderFunction,
+        // sender: SenderFunction,
     },
     schema: {
+        services: {} as {
+            combineSharesAndDecrypt: {data: boolean},
+        },
     },
     states: {
         START: {
@@ -23,16 +26,16 @@ const RecoverCombineMachine = createMachine({
         MANIFEST_LOADED: {
             entry: ['save'],
             on: {
-                SEND_REQUESTS: 'REQUESTING_SHARES',
+                SEND_REQUESTS: 'SENDING_REQUESTS',
             },
         },
-        REQUESTING_SHARES: {
+        SENDING_REQUESTS: {
             entry: ['save', 'sendRequests'],
             on: {
                 SENT: 'WAITING_ON_PARTICIPANTS',
             },
             always: [
-                {target: 'WAITING_ON_PARTICIPANTS', cond: 'allRecoverCombineRequestsSent'}
+                {target: 'WAITING_ON_PARTICIPANTS', cond: 'allRequestsSent'}
             ]
         },
         WAITING_ON_PARTICIPANTS: {
@@ -81,12 +84,16 @@ const RecoverCombineMachine = createMachine({
         }
     },
     guards: {
-        allRecoverCombineRequestsSent: (context, event): boolean => {
-            return context.recoverCombine.allRecoverCombineRequestsSent()
+        allRequestsSent: (context, event): boolean => {
+            return context.recoverCombine.allRequestsSent()
         }
     },
     services: {
-
+        combineSharesAndDecrypt: async (context, event): Promise<boolean> => {
+            console.log('[FSM.RecoverCombineMachine.combineSharesAndDecrypt]', context.recoverCombine.toString())
+            context.recoverCombine.combine()
+            return Promise.resolve(true)
+        }
     }
 });
 

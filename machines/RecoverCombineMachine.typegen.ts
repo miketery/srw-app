@@ -16,7 +16,7 @@
           actions: never;
           delays: never;
           guards: never;
-          services: "combineSharesAndDecrypt";
+          services: never;
         };
         eventsCausingActions: {
           "save": "" | "FINALIZE" | "LOAD_MANIFEST" | "RECOVER" | "SEND_REQUESTS" | "SENT" | "done.invoke.combineSharesAndDecryptId" | "error.platform.combineSharesAndDecryptId" | "xstate.init";
@@ -26,12 +26,12 @@
           
         };
         eventsCausingGuards: {
-          "allRecoverCombineRequestsSent": "";
+          "allRequestsSent": "";
         };
         eventsCausingServices: {
           "combineSharesAndDecrypt": "RECOVER";
         };
-        matchesStates: "ERROR_RECOVERING" | "FINAL" | "MANIFEST_LOADED" | "RECOVERING" | "REQUESTING_SHARES" | "START" | "WAITING_ON_PARTICIPANTS";
+        matchesStates: "ERROR_RECOVERING" | "FINAL" | "MANIFEST_LOADED" | "RECOVERING" | "SENDING_REQUESTS" | "START" | "WAITING_ON_PARTICIPANTS";
         tags: never;
       }
   

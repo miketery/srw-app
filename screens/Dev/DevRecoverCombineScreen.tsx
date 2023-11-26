@@ -11,7 +11,7 @@ import RecoveryPlansManager from '../../managers/RecoveryPlansManager'
 import getVaultsAndManagers from '../../testdata/genData'
 
 import RecoveryPlan, { RecoveryPlanState } from '../../models/RecoveryPlan'
-import RecoverCombine from '../../models/RecoverCombine'
+import RecoverCombine, { CombineParty } from '../../models/RecoverCombine'
 
 import SS, { StoredType } from '../../services/StorageService'
 
@@ -59,7 +59,7 @@ async function RecoverPlanFullFlow(
     recoveryPlan.fsm.send('SEND_INVITES') 
     // ^^^ will be in SENDING_INVITES state until all sent, then in WAITING_ON_PARTICIPANTS
     await new Promise(r => setTimeout(r, 300))
-    console.log('STATE', recoveryPlan.state, recoveryPlan.allPartysSent())
+    console.log('STATE', recoveryPlan.state, recoveryPlan.allInvitesSent())
     console.log('BEFORE ACCEPTS', recoveryPlan.toDict())
     // user fetch request and send accept
     const getRequestAndAccept = async (user, accept, originUser, originRecoveryPlanManager: RecoveryPlansManager) => {
@@ -115,7 +115,7 @@ async function recoverCombineFlow(
     console.log('MANIFEST', manifest)
     const recoverCombine = await RecoverCombine.create(manifest)
     const gerReqeustAndAccept = async (vault: Vault, guardiansManager: GuardiansManager, recoverCombine: RecoverCombine) => {
-        const combineParty = recoverCombine.combinePartys.filter((cp) => cp.did === vault.did)[0]
+        const combineParty: CombineParty = recoverCombine.combinePartys.filter((cp) => cp.did === vault.did)[0]
         const request = combineParty.recoverCombineRequestMsg(recoverCombine) as InboundMessageDict
         console.log(request)
         const {guardian, metadata} = await guardiansManager.processRecoverCombineRequest(Message.inbound(request, vault))
