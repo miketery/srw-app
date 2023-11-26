@@ -40,6 +40,9 @@ const RecoverCombineMachine = createMachine({
         },
         WAITING_ON_PARTICIPANTS: {
             entry: ['save'],
+            always: [
+                {target: 'RECOVERING', cond: 'allRequestsAccepted'}
+            ]
         },
         RECOVERING: {
             entry: ['save'],
@@ -50,7 +53,8 @@ const RecoverCombineMachine = createMachine({
                     target: 'FINAL',
                 },
                 onError: {
-                    target: 'ERROR_RECOVERING'
+                    target: 'ERROR_RECOVERING',
+                    actions: ['recoveringError']
                 }
             },
             on: {
@@ -70,23 +74,30 @@ const RecoverCombineMachine = createMachine({
     }
 }, {
     actions: {
+        save: (context, event): void => {
+            console.log('[FSM.RecoverCombineMachine.save]', context.recoverCombine.toString())
+            context.recoverCombine.save()
+        },
         sendRequests: (context, event): void => {
             console.log('[FSM.RecoverCombineMachine.sendRequests]', context.recoverCombine.toString())
             for(let combineParty of context.recoverCombine.combinePartys) {
-                combineParty.fsm.send('SEND_REQUEST', {callback: () => {
+                combineParty.fsm.send('REQUEST', {callback: () => {
                     console.log('[FSM.RecoveryPlanMachine.sendRequests] callback', combineParty.name)
                 }})
             }        
         },
-        save: (context, event): void => {
-            console.log('[FSM.RecoverCombineMachine.save]', context.recoverCombine.toString())
-            context.recoverCombine.save()
+        recoveringError: (context, event): void => {
+            console.log('[FSM.RecoverCombineMachine.recoveringError]', event)
+            console.log(event.data.stack)
         }
     },
     guards: {
         allRequestsSent: (context, event): boolean => {
             return context.recoverCombine.allRequestsSent()
-        }
+        },
+        allRequestsAccepted: (context, event): boolean => {
+            return context.recoverCombine.allRequestsAccepted()
+        },
     },
     services: {
         combineSharesAndDecrypt: async (context, event): Promise<boolean> => {

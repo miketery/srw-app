@@ -116,12 +116,13 @@ async function recoverCombineFlow(
     const recoverCombine = await RecoverCombine.create(manifest)
     const gerReqeustAndAccept = async (vault: Vault, guardiansManager: GuardiansManager, recoverCombine: RecoverCombine) => {
         const combineParty: CombineParty = recoverCombine.combinePartys.filter((cp) => cp.did === vault.did)[0]
-        const request = combineParty.recoverCombineRequestMsg(recoverCombine) as InboundMessageDict
+        const request = combineParty.recoverCombineRequestMsg() as InboundMessageDict
         console.log(request)
         const {guardian, metadata} = await guardiansManager.processRecoverCombineRequest(Message.inbound(request, vault))
         console.log('GUARDIAN', guardian.toDict())
         console.log('METADATA', metadata)
         const response = guardian.recoverCombineResponseMsg('accept', {
+            did: `did:arx:${base58.decode(metadata.verify_key)}`,
             verify_key: base58.decode(metadata.verify_key),
             public_key: base58.decode(metadata.public_key)}) as InboundMessageDict
         console.log('RESPONSE', response)
@@ -131,17 +132,59 @@ async function recoverCombineFlow(
     await new Promise(r => setTimeout(r, 300))
     console.log(recoverCombine.toDict())
     recoverCombine.combine()
-
-    // // recoverCombine.fsm.send('SEND_REQUEST')
-    // const requestMsgs = recoverCombine.combinePartys.map((cp) => cp.requestSharesMsg())
-    // const acceptMsgs = guardianManagers.map((gm, i) => {
-    //     const guardian = gm.getGuardians()[0]
-    //     return guardian.acceptRequest(requestMsgs.filter((msg) => msg.receiver.did === gm.vault.did)[0])
-    // })
-    // await new Promise(r => setTimeout(r, 300))
+}
+async function recoverCombineFsmFlow(
+        vaultsAndManagers: {
+            [name: string]: {
+                vault: Vault,
+                contactsManager: ContactsManager,
+                contacts: {[nameOrPk: string]: Contact},
+            }
+        }): Promise<void> {
+    const { alice, bob, charlie, dan } = vaultsAndManagers
+    const partys = [bob, charlie, dan]
+    let promises = []
+    const guardiansManagers = partys.map((user) => {
+        const gm = new GuardiansManager(user.vault, {}, user.contactsManager)
+        promises.push(gm.loadGuardians())
+        user['guardiansManager'] = gm
+        return gm
+    })
+    await Promise.all(promises)
+    console.log(guardiansManagers[0].getGuardiansArray())
+    const manifest = guardiansManagers[0].getGuardiansArray()[0].manifest
+    console.log('MANIFEST', manifest)
+    const recoverCombine = await RecoverCombine.create(manifest)
+    recoverCombine.fsm.send('LOAD_MANIFEST')
+    await new Promise(r => setTimeout(r, 50))
+    recoverCombine.fsm.send('SEND_REQUESTS')
+    await new Promise(r => setTimeout(r, 500))
+    const gerReqeustAndAccept = async (vault: Vault, guardiansManager: GuardiansManager, recoverCombine: RecoverCombine) => {
+        const request = (await vault.getMessages())[0] as InboundMessageDict
+        console.log(request)
+        const {guardian, metadata} = await guardiansManager.processRecoverCombineRequest(Message.inbound(request, vault))
+        console.log('GUARDIAN', guardian.toDict())
+        console.log('METADATA', metadata)
+        const response = guardian.recoverCombineResponseMsg('accept', {
+            did: `did:arx:${metadata.verify_key}`,
+            verify_key: base58.decode(metadata.verify_key),
+            public_key: base58.decode(metadata.public_key)}) as InboundMessageDict
+        vault.sender(response)
+        console.log('RESPONSE', response)
+    }
+    partys.map((user, i) => gerReqeustAndAccept(user.vault, guardiansManagers[i], recoverCombine))
+    await new Promise(r => setTimeout(r, 500))
+    const responses = await recoverCombine.vault.getMessages()
+    console.log(responses)
+    for(let response of responses) {
+        recoverCombine.processRecoverCombineResponse(Message.inbound(response as InboundMessageDict, recoverCombine.vault))
+        await new Promise(r => setTimeout(r, 100))
+    }
+    await new Promise(r => setTimeout(r, 200))
+    console.log(recoverCombine.toString())
+    console.log(recoverCombine.toDict())
 
 }
-
 
 type DevRecoverCombineScreenProps = {
     route: {
@@ -190,6 +233,12 @@ const DevRecoverCombineScreen: React.FC<DevRecoverCombineScreenProps> = (props) 
                 <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
                         onPress={() => recoverCombineFlow(vaultsAndManagers)}>
                     <Text style={ds.buttonText}>Combine</Text>
+                </Pressable>
+            </View>
+            <View>
+                <Pressable style={[ds.button, ds.greenButton, tw`mt-4 w-full`]}
+                        onPress={() => recoverCombineFsmFlow(vaultsAndManagers)}>
+                    <Text style={ds.buttonText}>Combine with FSM</Text>
                 </Pressable>
             </View>
             <View>

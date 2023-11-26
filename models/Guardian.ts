@@ -135,7 +135,7 @@ export default class Guardian {
     }
     // response for recoverCombine
     recoverCombineResponseMsg(response: 'accept' | 'decline',
-            receiver: {verify_key: VerifyKey, public_key: PublicKey})
+            receiver: {did: string, verify_key: VerifyKey, public_key: PublicKey})
             : OutboundMessageDict {
         const data: RecoverCombineResponse = {
             recoveryPlanPk: this.manifest.recoveryPlanPk,
@@ -144,10 +144,13 @@ export default class Guardian {
         if(response === 'accept')
             data.shares = this.shares
         const contact = this.contact
-        const message = Message.forNonContact(contact.vault, 
-            {did: '', verify_key: receiver.verify_key, public_key: receiver.public_key, name: contact.name},
-            data,
-            MessageTypes.recoverCombine.response, '0.1')
+        const message = Message.forNonContact(contact.vault, {
+                did: receiver.did, 
+                verify_key: receiver.verify_key,
+                public_key: receiver.public_key,
+                name: contact.name
+            },
+            data, MessageTypes.recoverCombine.response, '0.1')
         message.encryptBox(contact.vault.private_key)
         return message.outboundFinal()
     }

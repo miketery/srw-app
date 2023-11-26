@@ -57,6 +57,7 @@ type RecoverCombineDict = {
     manifest: ManifestDict,
     combinePartys: CombinePartyDict[],
     vault: VaultDict,
+    data: {},
 }
 
 const vaultForRecovery = async (manifest: ManifestDict): Promise<Vault> => {
@@ -105,13 +106,16 @@ export class CombineParty {
             sender: this.recoverCombine.sender,
         }))
         this.fsm.onTransition((state: {context: {combineParty: CombineParty}}) => {
-            console.log('[RecoveryParty.fsm.onTransition]', state.context.combineParty.toString(), event)
+            console.log('[CombineParty.fsm.onTransition]', state.context.combineParty.toString())
         })
         this.fsm.start(this._state)
         this.fsm.send('REDO')
         // ^^^^ v4 workaround to get invoke to work
         // if in SENDING_REQUEST state
         return this.fsm
+    }
+    toString(): string {
+        return `CombineParty<${this.name} ${this.did} ${this.state}>`;
     }
     toDict(): CombinePartyDict {
         return {
@@ -158,16 +162,18 @@ class RecoverCombine {
     manifest: ManifestDict;
     combinePartys: CombineParty[];
     _state: RecoverCombineState; //StateFrom<typeof RecoverCombineMachine>;
+    data: {}; // for decrypted payload
 
     fsm: any;
 
     constructor(pk: string, vault: Vault,
-            manifest: ManifestDict, combinePartys: CombinePartyDict[],
+            manifest: ManifestDict, combinePartys: CombinePartyDict[], data: {},
             state: RecoverCombineState) {
         this.pk = pk;
         this.vault = vault;
         this.manifest = manifest;
         this.combinePartys = combinePartys.map((cp) => CombineParty.fromDict(cp, this));
+        this.data = data;
         this._state = state
         
         if(state !== RecoverCombineState.FINAL)
@@ -198,11 +204,11 @@ class RecoverCombine {
             return {...g, state: CombinePartyState.START, shares: []}
         });
         const recoveryVault = new RecoverCombine(pk, vault, manifest,
-            combinePartys, RecoverCombineState.START);
+            combinePartys, {}, RecoverCombineState.START);
         return recoveryVault;
     }
     toString(): string {
-        return `RecoverVault<${this.pk} ${this.manifest.name} ${this.state}>`;
+        return `RecoverCombine<${this.pk} ${this.manifest.name} ${this.state}>`;
     }
     toDict(): RecoverCombineDict {
         return {
@@ -211,11 +217,13 @@ class RecoverCombine {
             manifest: this.manifest,
             state: this.state,
             combinePartys: this.combinePartys.map((cp) => cp.toDict()),
+            data: this.data,
         }
     }
     static fromDict(data: RecoverCombineDict): RecoverCombine {
         const vault = Vault.fromDict(data.vault);
-        return new RecoverCombine(data.pk, vault, data.manifest, data.combinePartys, data.state);
+        return new RecoverCombine(data.pk, vault, data.manifest,
+            data.combinePartys, data.data, data.state);
     }
     async save(): Promise<void> {
         return SS.save(this.pk, this.toDict());
@@ -223,7 +231,7 @@ class RecoverCombine {
     static async load(pk: string): Promise<RecoverCombine> {
         return SS.get(pk).then((data) => {
             if (!data)
-                throw new Error(`Could not load RecoveryVault ${pk}`);
+                throw new Error(`Could not load RecoverCombine ${pk}`);
             return RecoverCombine.fromDict(data);
         });
     }
@@ -234,22 +242,26 @@ class RecoverCombine {
         const shares = this.combinePartys.map((cp) => cp.shares).flat();
         const secret = hexToBytes(secrets.combine(shares));
         const decrypted = open_sealed_box(base64toBytes(this.manifest.encryptedPayload), secret);
-        const data = JSON.parse(new TextDecoder().decode(decrypted));
-        console.log(data)
+        this.data = JSON.parse(new TextDecoder().decode(decrypted));
+        console.log(this.data)
     }
     allRequestsSent(): boolean {
         return this.combinePartys.every((cp) => cp.state !== CombinePartyState.START);
     }
+    allRequestsAccepted(): boolean {
+        // TODO: should be when enough shares received
+        return this.combinePartys.every((cp) => cp.state === CombinePartyState.ACCEPTED);
+    }
     processRecoverCombineResponse(message: Message): void {
-        console.log('[RecoveryCombine.processRecoverCombineResponse]', message)
+        console.log('[RecoverCombine.processRecoverCombineResponse]', message)
         message.decrypt(this.vault.private_key);
         const data = message.getData() as RecoverCombineResponse;
         const combineParty = this.combinePartys.filter((cp) => cp.did === message.sender.did)[0]
         if (!combineParty)
             throw new Error(`Could not find combineParty for ${message.sender.did}`);
         if (data.response === 'accept') {
-            combineParty.fsm.send('ACCEPT')
             combineParty.shares = data.shares;
+            combineParty.fsm.send('ACCEPT')
         } else {
             combineParty.fsm.send('DECLINE')
         }

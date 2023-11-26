@@ -19,17 +19,19 @@
           services: never;
         };
         eventsCausingActions: {
-          "save": "" | "FINALIZE" | "LOAD_MANIFEST" | "RECOVER" | "SEND_REQUESTS" | "SENT" | "done.invoke.combineSharesAndDecryptId" | "error.platform.combineSharesAndDecryptId" | "xstate.init";
+          "recoveringError": "error.platform.combineSharesAndDecryptId";
+"save": "" | "FINALIZE" | "LOAD_MANIFEST" | "RECOVER" | "SEND_REQUESTS" | "SENT" | "done.invoke.combineSharesAndDecryptId" | "error.platform.combineSharesAndDecryptId" | "xstate.init";
 "sendRequests": "SEND_REQUESTS";
         };
         eventsCausingDelays: {
           
         };
         eventsCausingGuards: {
-          "allRequestsSent": "";
+          "allRequestsAccepted": "";
+"allRequestsSent": "";
         };
         eventsCausingServices: {
-          "combineSharesAndDecrypt": "RECOVER";
+          "combineSharesAndDecrypt": "" | "RECOVER";
         };
         matchesStates: "ERROR_RECOVERING" | "FINAL" | "MANIFEST_LOADED" | "RECOVERING" | "SENDING_REQUESTS" | "START" | "WAITING_ON_PARTICIPANTS";
         tags: never;

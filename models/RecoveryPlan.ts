@@ -139,7 +139,7 @@ export class RecoveryParty {
             sender: this.recoveryPlan.sender,
         }))
         this.fsm.onTransition((state: {context: {recoveryParty: RecoveryParty}}) => {
-            console.log('[RecoveryParty.fsm.onTransition]', state.context.recoveryParty.toString(), event)
+            console.log('[RecoveryParty.fsm.onTransition]', state.context.recoveryParty.toString())
         })
         this.fsm.start(this._state)
         this.fsm.send('REDO')
