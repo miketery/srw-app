@@ -1,7 +1,7 @@
 import { Text, View, Pressable } from 'react-native'
 import React, { useState } from 'react'
 import { CommonActions } from '@react-navigation/native'
-import { primary_route } from '../../config'
+import { ROUTES } from '../../config'
 
 import ds from '../../assets/styles'
 import tw from '../../lib/tailwind'
@@ -17,9 +17,16 @@ export default function RecoverInitScreen({navigation}) {
         console.log('[RecoverInitScreen.vaulRecoverInit]')
         const { vault, recoverCombine } = await RecoverVaultUtil.init()
         vault.save()
-        const vaultManager = new VaultManager({[vault.pk]: vault})
-        vaultManager.setVault(vault.pk)
-        navigation.dispatch(CommonActions.reset(primary_route()))
+        const vaultManager = new VaultManager()
+        await vaultManager.init()
+        const splash = {
+            routes: [
+                {
+                    name: ROUTES.SplashRoute,
+                },
+            ]
+        }
+        navigation.dispatch(CommonActions.reset(splash))
     }
 
     return (

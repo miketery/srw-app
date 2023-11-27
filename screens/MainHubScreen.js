@@ -1,5 +1,4 @@
 import { View, Text, Pressable, ScrollView } from 'react-native'
-import { useEffect, useState } from 'react'
 
 import { Message, Sender, Receiver } from '../models/Message'
 import { useSessionContext } from '../contexts/SessionContext'
@@ -10,6 +9,7 @@ import tw from '../lib/tailwind'
 import { DEV, ROUTES } from '../config'
 import { TopGradient } from '../components'
 
+import RecoverVaultHub from './RecoverVault/RecoverVaultHub'
 
 async function TestMessage(vault) {
     const random_date = new Date(Math.floor(Math.random() * Date.now()));
@@ -56,6 +56,7 @@ function MainHubScreen(props) {
                     <Text style={ds.buttonText}>App.Test Self Message</Text>
                 </Pressable>
             </View> : null}
+            { vault.recovery && <RecoverVaultHub vault={vault} />}
         </ScrollView>
         <TopGradient />
         {/* <BottomGradient /> */}

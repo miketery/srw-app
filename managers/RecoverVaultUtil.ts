@@ -13,16 +13,15 @@ class RecoverVaultUtil {
     //     this.loadRecoverCombine(vault);
     // }
     static async init(): Promise<{vault: Vault, recoverCombine: RecoverCombine}> {
-        const vault = await Vault.create(`Recovery for Test`, '', 'Test',
+        const vault = await Vault.create(`Recovery for Test`, 'recovery@arxsky.com', 'Test',
         '', '', true);
         const recoverCombine = RecoverCombine.create(vault, null);
         return { vault, recoverCombine };
     }
-    static loadRecoverCombine(vault: Vault): Promise<RecoverCombine> {
-        // this.recoverCombine = new RecoverCombine(vault);
-        const recoverCombine = SS.getAll(
+    static async loadRecoverCombine(vault: Vault): Promise<RecoverCombine|null> {
+        const recoverCombine = await SS.getAll(
             StoredType.recoverCombine, vault.pk);
-        return recoverCombine[0];
+        return recoverCombine.length === 0 ? null : recoverCombine[0];
     }
     static recoverVault() {
         
