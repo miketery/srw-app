@@ -115,6 +115,7 @@ async function recoverCombineFlow(
     const manifest = guardiansManagers[0].getGuardiansArray()[0].manifest
     console.log('MANIFEST', manifest)
     const { vault, recoverCombine } = await RecoverVaultUtil.init()
+    recoverCombine.setManifest(manifest)
     const gerReqeustAndAccept = async (vault: Vault, guardiansManager: GuardiansManager, recoverCombine: RecoverCombine) => {
         const combineParty: CombineParty = recoverCombine.combinePartys.filter((cp) => cp.did === vault.did)[0]
         const request = combineParty.recoverCombineRequestMsg() as InboundMessageDict
@@ -154,8 +155,15 @@ async function recoverCombineFsmFlow(
     await Promise.all(promises)
     console.log(guardiansManagers[0].getGuardiansArray())
     const manifest = guardiansManagers[0].getGuardiansArray()[0].manifest
-    console.log('MANIFEST', manifest)
     const { vault, recoverCombine } = await RecoverVaultUtil.init()
+    const mm = guardiansManagers[0].getGuardiansArray()[0].manifestMsg({
+        did: `did:arx:${vault.b58_verify_key}`,
+        verify_key: vault.verify_key,
+        public_key: vault.public_key
+    }) as InboundMessageDict
+    RecoverVaultUtil.processManifest(vault, recoverCombine, Message.inbound(mm, vault))
+    console.log(recoverCombine.manifest)
+    console.log('MANIFEST', manifest)
     recoverCombine.fsm.send('LOAD_MANIFEST')
     await new Promise(r => setTimeout(r, 50))
     recoverCombine.fsm.send('SEND_REQUESTS')

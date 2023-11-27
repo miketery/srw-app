@@ -9,6 +9,7 @@ import RecoveryPlanCreateScreen from './RecoveryPlanCreateScreen'
 import RecoveryPlanViewScreen from './RecoveryPlanViewScreen'
 // import RecoveryPlanEditScreen from './RecoveryPlantEditScreen'
 // import RecoveryPlanDeleteScreen from './RecoveryPlanDeleteScreen'
+import GuardianViewScreen from './GuardianViewScreen'
 
 import DevRecoveryPlan from '../Dev/DevRecoveryPlanScreen'
 
@@ -29,6 +30,11 @@ const routeConfigs = [
         name: ROUTES.RecoveryPlanViewRoute,
         title: 'View Recovery Plan',
         component: RecoveryPlanViewScreen
+    },
+    {
+        name: ROUTES.GuardianViewRoute,
+        title: 'View Guardian',
+        component: GuardianViewScreen
     },
     {
         name: ROUTES.DevReocveryPlanRoute,

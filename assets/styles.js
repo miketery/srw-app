@@ -46,6 +46,7 @@ const ds = StyleSheet.create({
     disabled: tw`bg-slate-600 opacity-30`,
 
     rows: tw`flex-col w-full`,
+    card: tw`bg-slate-700 rounded-lg p-3 mb-2`,
     row: tw`flex flex-row rounded-lg p-3 mb-2 bg-slate-700`,
     buttonRow: tw`w-full flex-row justify-between items-center my-2`,
     buttonRowB: tw`-mt-16 items-end pb-4 flex-row`,

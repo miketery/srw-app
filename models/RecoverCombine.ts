@@ -56,7 +56,6 @@ type RecoverCombineDict = {
     state: RecoverCombineState,
     manifest: ManifestDict,
     combinePartys: CombinePartyDict[],
-    vault: VaultDict,
     data: {},
 }
 
@@ -219,26 +218,26 @@ class RecoverCombine {
     toDict(): RecoverCombineDict {
         return {
             pk: this.pk,
-            vault: this.vault.toDict(),
             manifest: this.manifest,
             state: this.state,
             combinePartys: this.combinePartys.map((cp) => cp.toDict()),
             data: this.data,
         }
     }
-    static fromDict(data: RecoverCombineDict): RecoverCombine {
-        const vault = Vault.fromDict(data.vault);
+    static fromDict(data: RecoverCombineDict, vault: Vault): RecoverCombine {
         return new RecoverCombine(data.pk, vault, data.manifest,
             data.combinePartys, data.data, data.state);
     }
     async save(): Promise<void> {
         return SS.save(this.pk, this.toDict());
     }
-    static async load(pk: string): Promise<RecoverCombine> {
+    static async load(pk: string, vault: Vault): Promise<RecoverCombine> {
+        // TODO: not used, but if PK for recoveryCombine
+        //       stored in temp vault can use this
         return SS.get(pk).then((data) => {
             if (!data)
                 throw new Error(`Could not load RecoverCombine ${pk}`);
-            return RecoverCombine.fromDict(data);
+            return RecoverCombine.fromDict(data, vault);
         });
     }
     delete(): Promise<void> {

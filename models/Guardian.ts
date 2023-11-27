@@ -6,7 +6,7 @@ import GuardianMachine from '../machines/GuardianMachine';
 import { Message, OutboundMessageDict } from "./Message";
 import Contact from "./Contact";
 import { MessageTypes } from "../managers/MessagesManager";
-import { RecoverCombineResponse, RecoveryPlanResponse } from "./MessagePayload";
+import { RecoverCombineManifest, RecoverCombineResponse, RecoveryPlanResponse } from "./MessagePayload";
 import { SenderFunction } from "../services/DigitalAgentService";
 import { ManifestDict } from "./RecoveryPlan";
 import { PublicKey, VerifyKey } from '../lib/nacl';
@@ -131,6 +131,22 @@ export default class Guardian {
         const message = Message.forContact(contact, data,
             MessageTypes.recoverSplit.response, '0.1')
         message.encryptBox(contact.private_key)
+        return message.outboundFinal()
+    }
+    // share manifest for recoverCombine (typically Vault)
+    manifestMsg(receiver: {did: string, verify_key: VerifyKey, public_key: PublicKey}): OutboundMessageDict {
+        const data: RecoverCombineManifest = {
+            manifest: this.manifest,
+        }
+        const contact = this.contact
+        const message = Message.forNonContact(contact.vault, {
+                did: receiver.did, 
+                verify_key: receiver.verify_key,
+                public_key: receiver.public_key,
+                name: contact.name
+            },
+            data, MessageTypes.recoverCombine.manifest, '0.1')
+        message.encryptBox(contact.vault.private_key)
         return message.outboundFinal()
     }
     // response for recoverCombine

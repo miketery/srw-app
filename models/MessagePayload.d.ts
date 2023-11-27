@@ -26,6 +26,9 @@ export type RecoveryPlanResponse = {
     response: 'accept' | 'decline',
 }
 
+export type RecoverCombineManifest = {
+    manifest: ManifestDict,
+}
 export type RecoverCombineRequest = {
     recoveryPlanPk: string,
     verify_key: string, // base58

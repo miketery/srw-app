@@ -75,7 +75,7 @@ const RecoveryPlanList: React.FC<RecoveryPlanListProps> = (props) => {
                     return <Pressable key={index} onPress={() =>
                         props.navigation.navigate(
                                 ROUTES.GuardianViewRoute,
-                                {guardian: guardian.pk})}>
+                                {guardianPk: guardian.pk})}>
                     <GuardianRow guardian={guardian} />
                 </Pressable>
                 })}

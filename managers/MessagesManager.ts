@@ -36,6 +36,7 @@ export const MessageTypes = {
         'response': 'msg.recoverSplit.response',
     },
     'recoverCombine': {
+        'manifest': 'msg.recoverCombine.manifest',
         'request': 'msg.recoverCombine.request',
         'response': 'msg.recoverCombine.response',
     },
@@ -234,9 +235,9 @@ class InboundMessageManager {
         console.log('[InboundMessageManager.processMessage]', message)
         if(!Object.keys(processMap).includes(message.type_name)) {
             // TODO append to errors
-            throw new Error('Message type not supported') // do we discard / delete?
+            throw new Error('Message type not supported:' +  message.type_name) // do we discard / delete?
         }
-        console.log('[processMessage] calling processMap for:', message.type_name, message)
+        console.log('[processMessage] calling processMap for: ', message.type_name, message)
         const res = await processMap[message.type_name](message, this._vault, this._manager)
         if(res)
             await this.deleteMessage(message)
