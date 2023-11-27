@@ -143,7 +143,7 @@ class VaultManager {
             digital_agent_host: string, words: string,
             save: boolean = true): Promise<Vault> {
         const new_vault = await Vault.create(name, email, display_name,
-            digital_agent_host, words);
+            digital_agent_host, words, false);
         if (Object.keys(this._vaults).includes(new_vault.pk))
             throw new Error(`Vault with Verify Key ${new_vault.pk} already exists`);
         if (save) {

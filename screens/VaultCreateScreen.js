@@ -51,7 +51,7 @@ export default function VaultCreateScreen(props) {
                 const words = MOCKDATA ? 
                     'alley maze evoke auto pull skull run credit margin ignore dune brisk' : ''
                 const vault = await vaultManager.createVault(
-                    name, email, displayName, '', words, true)
+                    name, email, displayName, '', words, false)
                 await vaultManager.initManagers()
                 setVault(vaultManager.currentVault)
                 setManager(vaultManager)

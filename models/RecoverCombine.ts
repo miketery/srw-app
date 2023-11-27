@@ -60,10 +60,10 @@ type RecoverCombineDict = {
     data: {},
 }
 
-const vaultForRecovery = async (manifest: ManifestDict): Promise<Vault> => {
-    return await Vault.create(`Recovery for ${manifest.name}`, '', manifest.name,
-        '', '');
-}
+// const vaultForRecovery = async (manifest: ManifestDict): Promise<Vault> => {
+//     return await Vault.create(`Recovery for ${manifest.name}`, '', manifest.name,
+//         '', '', true);
+// }
 
 export class CombineParty {
     name: string;
@@ -159,7 +159,7 @@ class RecoverCombine {
      */
     pk: string;
     vault: Vault;
-    manifest: ManifestDict;
+    manifest: ManifestDict | null;
     combinePartys: CombineParty[];
     _state: RecoverCombineState; //StateFrom<typeof RecoverCombineMachine>;
     data: {}; // for decrypted payload
@@ -167,7 +167,7 @@ class RecoverCombine {
     fsm: any;
 
     constructor(pk: string, vault: Vault,
-            manifest: ManifestDict, combinePartys: CombinePartyDict[], data: {},
+            manifest: ManifestDict | null, combinePartys: CombinePartyDict[], data: {},
             state: RecoverCombineState) {
         this.pk = pk;
         this.vault = vault;
@@ -197,18 +197,24 @@ class RecoverCombine {
     get sender(): SenderFunction {
         return this.vault.sender
     }
-    static async create(manifest: ManifestDict): Promise<RecoverCombine> {
-        const pk = StoredTypePrefix.recoverVault + uuidv4();
-        const vault = await vaultForRecovery(manifest);
-        const combinePartys = manifest.recoveryPartys.map((g) => {
+    static create(vault: Vault, manifest: ManifestDict | null): RecoverCombine {
+        const pk = StoredTypePrefix.recoverCombine + uuidv4();
+        const combinePartys = manifest === null ? [] : manifest.recoveryPartys.map((g) => {
             return {...g, state: CombinePartyState.START, shares: []}
-        });
+        })
         const recoveryVault = new RecoverCombine(pk, vault, manifest,
             combinePartys, {}, RecoverCombineState.START);
         return recoveryVault;
     }
+    setManifest(manifest: ManifestDict): void {
+        this.manifest = manifest;
+        const combinePartys = manifest.recoveryPartys.map((g) => {
+            return {...g, state: CombinePartyState.START, shares: []}
+        })
+        this.combinePartys = combinePartys.map((cp) => CombineParty.fromDict(cp, this));
+    }
     toString(): string {
-        return `RecoverCombine<${this.pk} ${this.manifest.name} ${this.state}>`;
+        return `RecoverCombine<${this.pk} ${this.manifest?.name} ${this.state}>`;
     }
     toDict(): RecoverCombineDict {
         return {

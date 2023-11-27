@@ -24,6 +24,8 @@ export type VaultDict = {
     public_key: string,
     registered: boolean,
     short_code: string,
+
+    recovery: boolean
 }
 
 export default class Vault {
@@ -41,6 +43,8 @@ export default class Vault {
     registered: boolean;
     short_code: string;
 
+    recovery: boolean;
+
     // digital agent interface
     private _sender: SenderFunction
     private _getMessages: GetMessagesFunction
@@ -54,7 +58,7 @@ export default class Vault {
             words: string,
             signing_key: SigningKey, verify_key: VerifyKey,
             private_key: PrivateKey, public_key: PublicKey,
-            registered: boolean, short_code: string) {
+            registered: boolean, short_code: string, recovery: boolean) {
         this.uuid = uuid;
         this.name = name;
         this.email = email;
@@ -68,6 +72,8 @@ export default class Vault {
         this.registered = registered;
         this.short_code = short_code;
         
+        this.recovery = recovery;
+
         this._sender = DigitalAgentService.getSendMessageFunction(this);
         this._getMessages = DigitalAgentService.getGetMessagesFunction(this);
     }
@@ -96,7 +102,7 @@ export default class Vault {
         return this._getMessages;
     }
     static async create(name: string, email: string, display_name: string,
-            digital_agent_host: string, words: string): Promise<Vault> {
+            digital_agent_host: string, words: string, recovery: boolean): Promise<Vault> {
         if(!words || words.length === 0) {
             const entropy = await getRandom(32);
             words = entropyToMnemonic(Buffer.from(entropy));
@@ -107,7 +113,7 @@ export default class Vault {
             uuidv4(), name, email, display_name, digital_agent_host, words,
             signing_key.secretKey, signing_key.publicKey,
             encryption_key.secretKey, encryption_key.publicKey,
-            false, '');
+            false, '', recovery);
     }
     toDict(): VaultDict {
         return {
@@ -123,7 +129,8 @@ export default class Vault {
             'private_key': this.b58_private_key,
             'public_key': this.b58_public_key,
             'registered': this.registered,
-            'short_code': this.short_code
+            'short_code': this.short_code,
+            'recovery': this.recovery
         };
     }
     static fromDict(data: VaultDict): Vault {
@@ -135,8 +142,7 @@ export default class Vault {
             data['uuid'], data['name'], data['email'], data['display_name'],
             data['digital_agent_host'], data['words'],
             signing_key, verify_key, private_key, public_key,
-            data['registered'], data['short_code']
-        );
+            data['registered'], data['short_code'], data['recovery']);
     }
     signPayload(payload: any): {signed: string, verify_key: string} {
         payload.sig_ts = Math.floor(Date.now() / 1000);

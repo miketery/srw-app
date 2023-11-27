@@ -62,6 +62,7 @@ export const ROUTES = {
 
     VaultCreateRoute: 'VaultCreateRoute',
     RecoverInitRoute: 'RecoverInitRoute',
+
     //
     HomeNavRoute: 'HomeNavRoute',
     MainHubRoute: 'MainHubRoute',
@@ -92,6 +93,9 @@ export const ROUTES = {
     //
     GuardianViewRoute: 'GuardianViewRoute',
 
+
+    // RECOVER VAULT
+    RecoverVaultRoute: 'RecoverVaultRoute',
 }
 
 // route which is a dictrionary with a name and params

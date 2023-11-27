@@ -33,7 +33,9 @@ function MainHubScreen(props) {
     return <View style={ds.mainContainerPtGradient}>
         <ScrollView style={ds.scrollViewGradient}>
             <View style={ds.headerRow}>
-                <Text style={ds.header}>{vault.name} — Main Hub</Text>
+                {vault.recovery ? 
+                <Text style={ds.header}>⚠️ Recovering Vault ⚠️</Text> :
+                <Text style={ds.header}>{vault.name} — Main Hub</Text>}
             </View>
             <View style={tw`mb-10`}>
                 <Text style={ds.textLg}>{vault.short_code}</Text>

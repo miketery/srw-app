@@ -46,7 +46,7 @@ const RecoveryPlanList: React.FC<RecoveryPlanListProps> = (props) => {
             console.log('[RecoverPlansListScreen] focus()')
             const recoveryPlansData = props.recoveryPlansManager.getRecoveryPlansArray()
             setRecoveryPlans(recoveryPlansData.sort((a, b) => a.name.localeCompare(b.name)))
-            const guardiansData = props.guardiansManager.getGuardianArray()
+            const guardiansData = props.guardiansManager.getGuardiansArray()
             setGuardians(guardiansData.sort((a, b) => a.name.localeCompare(b.name)))
         });
         return unsubscribe;

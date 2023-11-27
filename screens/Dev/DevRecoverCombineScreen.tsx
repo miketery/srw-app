@@ -9,6 +9,7 @@ import Vault from '../../models/Vault'
 import Contact from '../../models/Contact'
 import RecoveryPlansManager from '../../managers/RecoveryPlansManager'
 import getVaultsAndManagers from '../../testdata/genData'
+import RecoverVaultUtil from '../../managers/RecoverVaultUtil'
 
 import RecoveryPlan, { RecoveryPlanState } from '../../models/RecoveryPlan'
 import RecoverCombine, { CombineParty } from '../../models/RecoverCombine'
@@ -25,7 +26,7 @@ import { GoBackButton } from '../../components'
  */ 
 
 const deleteAllRecoveryRelated = () => {
-    const types = [StoredType.recoveryPlan, StoredType.guardian, StoredType.recoverVault]
+    const types = [StoredType.recoveryPlan, StoredType.guardian, StoredType.recoverCombine]
     for(let type of types)
         SS.deleteAllByType(type)
 }
@@ -113,7 +114,7 @@ async function recoverCombineFlow(
     console.log(guardiansManagers[0].getGuardiansArray())
     const manifest = guardiansManagers[0].getGuardiansArray()[0].manifest
     console.log('MANIFEST', manifest)
-    const recoverCombine = await RecoverCombine.create(manifest)
+    const { vault, recoverCombine } = await RecoverVaultUtil.init()
     const gerReqeustAndAccept = async (vault: Vault, guardiansManager: GuardiansManager, recoverCombine: RecoverCombine) => {
         const combineParty: CombineParty = recoverCombine.combinePartys.filter((cp) => cp.did === vault.did)[0]
         const request = combineParty.recoverCombineRequestMsg() as InboundMessageDict
@@ -154,7 +155,7 @@ async function recoverCombineFsmFlow(
     console.log(guardiansManagers[0].getGuardiansArray())
     const manifest = guardiansManagers[0].getGuardiansArray()[0].manifest
     console.log('MANIFEST', manifest)
-    const recoverCombine = await RecoverCombine.create(manifest)
+    const { vault, recoverCombine } = await RecoverVaultUtil.init()
     recoverCombine.fsm.send('LOAD_MANIFEST')
     await new Promise(r => setTimeout(r, 50))
     recoverCombine.fsm.send('SEND_REQUESTS')

@@ -7,7 +7,7 @@ export enum StoredType {
     secret = 'secret',
     recoveryPlan = 'recoveryPlan', // party (or external gaurdian) stored as child of recoveryPlan
     guardian = 'guardian', // I am a guardian for someone else (i.e. they have me as a party in their recoveryPlan)
-    recoverVault = 'recoverVault', // recoverying a vault
+    recoverCombine = 'recoverCombine', // recoverying a vault
     message = 'message',
 }
 export const StoredTypePrefix: { [k in StoredType]: string } = {
@@ -18,7 +18,7 @@ export const StoredTypePrefix: { [k in StoredType]: string } = {
     [StoredType.secret]: 's__',
     [StoredType.recoveryPlan]: 'rp_',
     [StoredType.guardian]: 'g__',
-    [StoredType.recoverVault]: 'rv_',
+    [StoredType.recoverCombine]: 'rc_',
     [StoredType.message]: 'm__',
 }
 // map prefix to StoredType
