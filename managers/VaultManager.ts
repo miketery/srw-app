@@ -11,6 +11,8 @@ import DigitalAgentService from '../services/DigitalAgentService';
 import NotificationsManager from './NotificationsManager';
 import InboundMessageManager from './MessagesManager';
 import { MOCK } from '../config';
+import RecoverCombine from '../models/RecoverCombine';
+import RecoverVaultUtil from './RecoverVaultUtil';
 
 interface SessionDict {
     vaultPk: string;
@@ -28,6 +30,8 @@ class VaultManager {
     private _notificationsManager: NotificationsManager | null;
     private _messagesManager: InboundMessageManager | null;
     private _session: SessionDict;
+
+    private _recoverCombine: RecoverCombine | null;
 
     constructor(vaults: {string?: Vault} = {}) {
         this._vaults = vaults;
@@ -116,6 +120,12 @@ class VaultManager {
         console.log('[VaultManager.initManagers]')
         if (!this._currentVault)
             throw new Error('Current vault not set');
+        const recoverVaultLoad = async () => {
+            if(this._currentVault.recovery)
+                this._recoverCombine = await RecoverVaultUtil.loadRecoverCombine(this._currentVault);
+            return
+        }
+        await recoverVaultLoad(); // had this in the promise ALl, but needs to be loaded before messages
         this._secretsManager = new SecretsManager(this._currentVault);
         this._contactsManager = new ContactsManager(this._currentVault);
         this._recoveryPlansManager = new RecoveryPlansManager(
@@ -128,6 +138,7 @@ class VaultManager {
         this._messagesManager = new InboundMessageManager(
             this._currentVault, this);
         await Promise.all([
+            // recoverVaultLoad(),
             this._secretsManager.loadSecrets(),
             this._contactsManager.loadContacts(),
             this._recoveryPlansManager.loadRecoveryPlans(),
@@ -227,6 +238,12 @@ class VaultManager {
         if (!this._messagesManager)
             throw new Error('Messages Manager not set');
         return this._messagesManager;
+    }
+    // recoverVault
+    get recoverCombine(): RecoverCombine {
+        if (!this._recoverCombine)
+            throw new Error('Recover Combine not set');
+        return this._recoverCombine;
     }
 }
 

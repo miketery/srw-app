@@ -15,7 +15,7 @@ import { MessageTypes } from '../managers/MessagesManager';
 import { base64toBytes, hexToBytes, open_sealed_box } from '../lib/utils';
 import { SenderFunction } from '../services/DigitalAgentService';
 
-enum RecoverCombineState {
+export enum RecoverCombineState {
     START = 'START',
     MANIFEST_LOADED = 'MANIFEST_LOADED',
     SENDING_REQUESTS = 'SENDING_REQUESTS',
@@ -53,6 +53,7 @@ type CombinePartyDict = {
 
 type RecoverCombineDict = {
     pk: string,
+    vaultPk: string,
     state: RecoverCombineState,
     manifest: ManifestDict,
     combinePartys: CombinePartyDict[],
@@ -157,6 +158,7 @@ class RecoverCombine {
      * 3 - FSM manages the recovery process from Start to Recovered
      */
     pk: string;
+    vaultPk: string;
     vault: Vault;
     manifest: ManifestDict | null;
     combinePartys: CombineParty[];
@@ -165,10 +167,11 @@ class RecoverCombine {
 
     fsm: any;
 
-    constructor(pk: string, vault: Vault,
+    constructor(pk: string, vaultPk: string, vault: Vault,
             manifest: ManifestDict | null, combinePartys: CombinePartyDict[], data: {},
             state: RecoverCombineState) {
         this.pk = pk;
+        this.vaultPk = vaultPk;
         this.vault = vault;
         this.manifest = manifest;
         this.combinePartys = combinePartys.map((cp) => CombineParty.fromDict(cp, this));
@@ -201,7 +204,7 @@ class RecoverCombine {
         const combinePartys = manifest === null ? [] : manifest.recoveryPartys.map((g) => {
             return {...g, state: CombinePartyState.START, shares: []}
         })
-        const recoveryVault = new RecoverCombine(pk, vault, manifest,
+        const recoveryVault = new RecoverCombine(pk, vault.pk, vault, manifest,
             combinePartys, {}, RecoverCombineState.START);
         return recoveryVault;
     }
@@ -211,6 +214,7 @@ class RecoverCombine {
             return {...g, state: CombinePartyState.START, shares: []}
         })
         this.combinePartys = combinePartys.map((cp) => CombineParty.fromDict(cp, this));
+        this.fsm.send('LOAD_MANIFEST')
     }
     toString(): string {
         return `RecoverCombine<${this.pk} ${this.manifest?.name} ${this.state}>`;
@@ -218,6 +222,7 @@ class RecoverCombine {
     toDict(): RecoverCombineDict {
         return {
             pk: this.pk,
+            vaultPk: this.vaultPk,
             manifest: this.manifest,
             state: this.state,
             combinePartys: this.combinePartys.map((cp) => cp.toDict()),
@@ -225,7 +230,7 @@ class RecoverCombine {
         }
     }
     static fromDict(data: RecoverCombineDict, vault: Vault): RecoverCombine {
-        return new RecoverCombine(data.pk, vault, data.manifest,
+        return new RecoverCombine(data.pk, data.vaultPk, vault, data.manifest,
             data.combinePartys, data.data, data.state);
     }
     async save(): Promise<void> {
@@ -248,7 +253,7 @@ class RecoverCombine {
         const secret = hexToBytes(secrets.combine(shares));
         const decrypted = open_sealed_box(base64toBytes(this.manifest.encryptedPayload), secret);
         this.data = JSON.parse(new TextDecoder().decode(decrypted));
-        console.log(this.data)
+        console.log(this.data) // todo remove
     }
     allRequestsSent(): boolean {
         return this.combinePartys.every((cp) => cp.state !== CombinePartyState.START);
@@ -257,19 +262,21 @@ class RecoverCombine {
         // TODO: should be when enough shares received
         return this.combinePartys.every((cp) => cp.state === CombinePartyState.ACCEPTED);
     }
-    processRecoverCombineResponse(message: Message): void {
+    processRecoverCombineResponse(message: Message): {recoverCombine: RecoverCombine, name: string, accepted: boolean} {
         console.log('[RecoverCombine.processRecoverCombineResponse]', message)
         message.decrypt(this.vault.private_key);
         const data = message.getData() as RecoverCombineResponse;
         const combineParty = this.combinePartys.filter((cp) => cp.did === message.sender.did)[0]
+        const accepted = data.response === 'accept';
         if (!combineParty)
             throw new Error(`Could not find combineParty for ${message.sender.did}`);
-        if (data.response === 'accept') {
+        if (accepted) {
             combineParty.shares = data.shares;
             combineParty.fsm.send('ACCEPT')
         } else {
             combineParty.fsm.send('DECLINE')
         }
+        return {recoverCombine: this, name: combineParty.name, accepted: accepted}
     }
 }
 

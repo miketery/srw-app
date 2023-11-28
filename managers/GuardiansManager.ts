@@ -1,12 +1,14 @@
+import base58 from 'bs58'
+
 import SS, { StoredType } from '../services/StorageService'
 
 import Vault from '../models/Vault'
 import Guardian from '../models/Guardian'
+import Contact from '../models/Contact'
+import ContactsManager from './ContactsManager'
 import { Message } from '../models/Message'
 import { MessageTypes } from './MessagesManager'
-import ContactsManager from './ContactsManager'
 import { RecoveryPlanInvite, RecoverCombineRequest } from '../models/MessagePayload'
-import Contact from '../models/Contact'
 import { ManifestDict } from '../models/RecoveryPlan'
 
 class GuardiansManager {
@@ -99,6 +101,17 @@ class GuardiansManager {
         const guardian = this.getGuardiansArray().filter((g) => g.manifest.recoveryPlanPk === data.recoveryPlanPk)[0]
         const metadata = {verify_key: data.verify_key, public_key: data.public_key}
         return {guardian, metadata}
+    }
+    //
+    async respondRecoverCombine(response: 'accept' | 'decline', metadata: {guardianPk: string, verify_key: string, public_key: string}, callback: () => void): Promise<void> {
+        console.log('[GuardiansManager.acceptRecoverCombine]')
+        const guardian = this.getGuardian(metadata.guardianPk)
+        const msg = guardian.recoverCombineResponseMsg(response, {
+            did: `did:arx:${metadata.verify_key}`,
+            verify_key: base58.decode(metadata.verify_key),
+            public_key: base58.decode(metadata.public_key)})
+        await this._vault.sender(msg)
+        callback()
     }
 }
 

@@ -15,6 +15,7 @@ import SS, { StoredType } from "../services/StorageService";
 import Vault from "../models/Vault";
 import { NotificationData, NotificationTypes } from "../models/Notification";
 import VaultManager from "./VaultManager";
+import RecoverVaultUtil from "./RecoverVaultUtil";
 
 type processMapType = {
     [key: string]: (message: Message, vault: Vault, m: VaultManager) => Promise<boolean>
@@ -121,38 +122,54 @@ const processMap: processMapType = {
             })
         return Promise.resolve(true)
     },
+    [MessageTypes.recoverCombine.manifest]: async (message: Message, vault: Vault, m: VaultManager) => {
+        RecoverVaultUtil.processManifest(vault, m.recoverCombine, message)
+        const notification = m.notificationsManager.createNotification(
+            NotificationTypes.recoverCombine.manifest, {
+                title: 'Manifest Received',
+                short_text: message.sender.name + ' shared manifest',
+                detailed_text: message.sender.name + ' shared manifest for' + m.recoverCombine.manifest.name,
+                metadata: {
+                    timestamp: message.created,
+                    // pk: guardian.manifest.recoveryPlanPk,
+                    // contactPk: guardian.contactPk
+                }
+            })
+        return Promise.resolve(true)
+    },
     /*
      * Recover Combine
      */
-    // [MessageTypes.recoverCombine.request]: async (message: Message, vault: Vault, m: VaultManager) => {
-    //     const {guardian} = await m.guardiansManager.processRecoverCombineRequest(message)
-    //     const notification = m.notificationsManager.createNotification(
-    //         NotificationTypes.recoverCombine.request, {
-    //             title: 'Recovery Plan Request',
-    //             short_text: guardian.name + ' wants to recover',
-    //             detailed_text: guardian.name + ' wants to recover',
-    //             metadata: {
-    //                 timestamp: message.created,
-    //                 pk: guardian.manifest.recoveryPlanPk,
-    //                 contactPk: guardian.contactPk
-    //             }
-    //         })
-    //     return Promise.resolve(true)
-    // },
-    // [MessageTypes.recoverCombine.response]: async (message: Message, vault: Vault, m: VaultManager) => {
-    //     const {recoveryPlan, contact, accepted} = await m.recoverCombineManager.processRecoveryPlanResponse(message)
-    //     const notification = m.notificationsManager.createNotification(
-    //         accepted ? NotificationTypes.recoverCombine.accept
-    //         : NotificationTypes.recoverCombine.decline , {
-    //             title: 'Recovery Plan Response',
-    //             short_text: contact.name + (accepted ? ' accepted' : ' declined') + ' your request',
-    //             detailed_text: contact.name + (accepted ? ' accepted' : ' declined') + ' your request',
-    //             metadata: {
-    //                 timestamp: message.created,
-    //             }
-    //         })
-    //     return Promise.resolve(true)
-    // },
+    [MessageTypes.recoverCombine.request]: async (message: Message, vault: Vault, m: VaultManager) => {
+        const {guardian, metadata} = await m.guardiansManager.processRecoverCombineRequest(message)
+        const notification = m.notificationsManager.createNotification(
+            NotificationTypes.recoverCombine.request, {
+                title: 'Recovery Plan Request',
+                short_text: guardian.name + ' wants to recover',
+                detailed_text: guardian.name + ' wants to recover',
+                metadata: {
+                    timestamp: message.created,
+                    guardianPk: guardian.pk,
+                    verify_key: metadata.verify_key,
+                    public_key: metadata.public_key,
+                }
+            })
+        return Promise.resolve(true)
+    },
+    [MessageTypes.recoverCombine.response]: async (message: Message, vault: Vault, m: VaultManager) => {
+        const {recoverCombine, name, accepted} = await m.recoverCombine.processRecoverCombineResponse(message)
+        const notification = m.notificationsManager.createNotification(
+            accepted ? NotificationTypes.recoverCombine.accept
+            : NotificationTypes.recoverCombine.decline , {
+                title: 'Recovery Plan Response',
+                short_text: name + (accepted ? ' accepted' : ' declined') + ' your request',
+                detailed_text: name + (accepted ? ' accepted' : ' declined') + ' your request',
+                metadata: {
+                    timestamp: message.created,
+                }
+            })
+        return Promise.resolve(true)
+    },
 }
 
 

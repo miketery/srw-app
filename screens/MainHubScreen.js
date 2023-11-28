@@ -28,7 +28,7 @@ async function TestMessage(vault) {
 }
 
 function MainHubScreen(props) {
-    const {vault} = useSessionContext()
+    const {vault, manager} = useSessionContext()
 
     return <View style={ds.mainContainerPtGradient}>
         <ScrollView style={ds.scrollViewGradient}>
@@ -56,7 +56,7 @@ function MainHubScreen(props) {
                     <Text style={ds.buttonText}>App.Test Self Message</Text>
                 </Pressable>
             </View> : null}
-            { vault.recovery && <RecoverVaultHub vault={vault} />}
+            { vault.recovery && <RecoverVaultHub vault={vault} manager={manager} />}
         </ScrollView>
         <TopGradient />
         {/* <BottomGradient /> */}

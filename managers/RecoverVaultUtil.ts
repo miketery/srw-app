@@ -10,14 +10,16 @@ class RecoverVaultUtil {
     // vault: Vault
     // recoverCombine: RecoverCombine
 
-    // constructor(vault: Vault) {
+    // constructor(vault: Vault) {  
     //     this.vault = vault;
     //     this.loadRecoverCombine(vault);
     // }
+
     static async init(): Promise<{vault: Vault, recoverCombine: RecoverCombine}> {
         const vault = await Vault.create(`Recovery for Test`, 'recovery@arxsky.com', 'Test',
         '', '', true);
         const recoverCombine = RecoverCombine.create(vault, null);
+        await recoverCombine.save()
         return { vault, recoverCombine };
     }
     static async loadRecoverCombine(vault: Vault): Promise<RecoverCombine|null> {
@@ -28,13 +30,12 @@ class RecoverVaultUtil {
         return RecoverCombine.fromDict(data[0], vault);
     }
     static processManifest(vault: Vault, recoverCombine: RecoverCombine,
-        message: Message): void {
+            message: Message): void {
         if(message.type_name !== MessageTypes.recoverCombine.manifest)
-            throw new Error(`33 Invalid message type: ${message.type_name} should be ${MessageTypes.recoverCombine.manifest}`)
+            throw new Error(`35 Invalid message type: ${message.type_name} should be ${MessageTypes.recoverCombine.manifest}`)
         message.decrypt(vault.private_key);
         const data = message.getData() as RecoverCombine;
         recoverCombine.setManifest(data.manifest);
-        return
     }
     static recoverVault() {
         

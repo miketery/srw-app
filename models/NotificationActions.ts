@@ -41,6 +41,24 @@ const declineRecoveryPlanInviteAction: NotificationAction = {
     }
 }
 
+const acceptRecoverCombineRequestAction: NotificationAction = {
+    title: 'Accept',
+    action: (notification, manager) => {
+        manager.guardiansManager.respondRecoverCombine('accept', notification.data.metadata, () => {
+            manager.notificationsManager.deleteNotification(notification);
+        })
+    }
+}
+
+const declineRecoverCombineRequestAction: NotificationAction = {
+    title: 'Decline',
+    action: (notification, manager) => {
+        manager.guardiansManager.respondRecoverCombine('decline', notification.data.metadata, () => {
+            manager.notificationsManager.deleteNotification(notification);
+        })
+    }
+}
+
 const notificationActionsMap: {[key: string]: NotificationAction[]} = {
     [NotificationTypes.app.alert]: [dismissAction],
     [NotificationTypes.contact.request]: [
@@ -62,15 +80,19 @@ const notificationActionsMap: {[key: string]: NotificationAction[]} = {
         dismissAction
     ],
     // recoverCombine
-    // [NotificationTypes.recoverCombine.request]: [
-
-    // ],
-    // [NotificationTypes.recoverCombine.accept]: [
-
-    // ],
-    // [NotificationTypes.recoverCombine.decline]: [
-
-    // ],
+    [NotificationTypes.recoverCombine.manifest]: [
+        dismissAction
+    ],
+    [NotificationTypes.recoverCombine.request]: [
+        acceptRecoverCombineRequestAction,
+        declineRecoverCombineRequestAction,
+    ],
+    [NotificationTypes.recoverCombine.accept]: [
+        dismissAction
+    ],
+    [NotificationTypes.recoverCombine.decline]: [
+        dismissAction
+    ],
 }
 
 export default notificationActionsMap;
