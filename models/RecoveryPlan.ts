@@ -31,7 +31,7 @@ export enum RecoveryPartyState {
     PENDING = 'PENDING',
     ACCEPTED = 'ACCEPTED',
     DECLINED = 'DECLINED',
-    FINALIZED = 'FINALIZED',
+    FINAL = 'FINAL',
 }
 
 export type ManifestDict = {

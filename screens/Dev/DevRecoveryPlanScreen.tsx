@@ -50,7 +50,7 @@ async function RecoverPlanCreate(
     recoveryPlan.addRecoveryParty(alice.contacts['charlie'], 1, false)
     recoveryPlan.addRecoveryParty(alice.contacts['dan'], 2, true)
 
-    const byteSecret = new TextEncoder().encode('MY SECRET')
+    const byteSecret = new TextEncoder().encode(JSON.stringify({secret: 'MY SECRET'}))
     recoveryPlan.setPayload(byteSecret)
     recoveryPlan.setThreshold(3)
     console.assert(recoveryPlan.checkValidPreSubmit())
@@ -96,7 +96,7 @@ async function RecoverPlanFullFlow(
     recoveryPlan.addRecoveryParty(alice.contacts['dan'], 2, true)
     console.log('Parties added:', recoveryPlan.toDict())
 
-    const byteSecret = new TextEncoder().encode('MY SECRET')
+    const byteSecret = new TextEncoder().encode(JSON.stringify({secret: 'MY SECRET'}))
     recoveryPlan.setPayload(byteSecret)
     recoveryPlan.setThreshold(3)
     console.assert(recoveryPlan.checkValidPreSubmit())

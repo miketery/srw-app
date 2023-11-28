@@ -44,7 +44,7 @@ class RecoverVaultUtil {
         // fetch back up
         const vault = await Vault.create(data.name, data.email, data.display_name, 
         '', data.words, false);
-        vault.save()
+        await vault.save()
         const storedCheck = await SS.get(vault.pk)
         if(storedCheck === null)
             throw new Error(`49 Recovered vault not saved`)

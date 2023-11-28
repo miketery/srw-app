@@ -9,7 +9,6 @@ const RecoverCombineMachine = createMachine({
     tsTypes: {} as import("./RecoverCombineMachine.typegen").Typegen0,
     context: {} as {
         recoverCombine: RecoverCombine,
-        // sender: SenderFunction,
     },
     schema: {
         services: {} as {

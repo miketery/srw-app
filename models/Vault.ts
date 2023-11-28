@@ -157,10 +157,10 @@ export default class Vault {
     sign(data: any): SignedMessage {
         return signMsg(data, this.signing_key);
     }
-    async save() {
+    async save(): Promise<void> {
         return SS.save(this.pk, this.toDict());
     }
-    async delete() {
+    async delete(): Promise<void> {
         return SS.delete(this.pk);
     }
 }

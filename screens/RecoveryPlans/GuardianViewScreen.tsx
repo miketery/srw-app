@@ -20,7 +20,6 @@ const GuardianInfo = ({guardian}: {guardian: Guardian}) => {
             <Text style={ds.text}>{guardian.contact.name}</Text>
             <Text style={ds.text}>{guardian.state}</Text>
         </View>
-        
     </View>
 }
 
@@ -37,9 +36,10 @@ const ShareManifestForm = ({guardian, vault}: {guardian: Guardian, vault: Vault}
     }, [])
 
     const sendManifest = async () => {
-        // get use info using short code
+        // get user info using short code
         // send message
         setLoading(true)
+        setNotFound(false)
         try {
             const res = await DigitalAgentService.contactLookUp(vault, shortCode)
             if(res.error) {
@@ -67,7 +67,6 @@ const ShareManifestForm = ({guardian, vault}: {guardian: Guardian, vault: Vault}
         } catch (e) {
             console.log('[ContactAddScreen.handleLookup] error', e)
             setError('Unexpected error: ' + e.message)
-            setNotFound(true)
         }
         setLoading(false)    
     }

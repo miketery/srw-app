@@ -32,16 +32,6 @@ enum CombinePartyState {
     DECLINED = 'DECLINED',
 }
 
-// type Manifest = {
-//     name: string,
-//     description: string,
-//     digital_agent: string,
-//     guardians: {
-//         name: string,
-//         state: CombinePartyState,
-//         shares: string[],
-//     }[],
-// }
 type CombinePartyDict = {
     name: string,
     did: string,
@@ -60,10 +50,6 @@ type RecoverCombineDict = {
     data: {},
 }
 
-// const vaultForRecovery = async (manifest: ManifestDict): Promise<Vault> => {
-//     return await Vault.create(`Recovery for ${manifest.name}`, '', manifest.name,
-//         '', '', true);
-// }
 
 export class CombineParty {
     name: string;
@@ -184,7 +170,6 @@ class RecoverCombine {
     initFSM() {
         this.fsm = interpret(RecoverCombineMachine.withContext({
             recoverCombine: this,
-            // sender: this.sender,
         }))
         this.fsm.onTransition((state: {context: {recoverCombine: RecoverCombine}}) => {
             console.log('[RecoverCombine.fsm.onTransition]', state.context.recoverCombine.toString())

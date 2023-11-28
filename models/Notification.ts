@@ -19,8 +19,8 @@ export const NotificationTypes = {
         'decline': 'recoverSplit.decline', // Bob declines Alice's invitation
     },
     recoverCombine: {
-        'manifest': 'recoverCombine.manifest', // Bob sends alive the manifest (this way she knows who to request shares from)
-        'request': 'recoverCombine.request', // Alice requests Bob for recovery keyshare
+        'manifest': 'recoverCombine.manifest', // Bob sends Alice the manifest (this way she knows who to request shares from)
+        'request': 'recoverCombine.request', // Alice requests Bob for recovery share(s)
         'accept': 'recoverCombine.accept', // Bob accepts Alice's request
         'decline': 'recoverCombine.decline', // Bob declines Alice's request
         // 'initiated': 'recoverVault.initiated', // Alice is informed of recovery initiation (in case of hacker)
