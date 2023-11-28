@@ -13,6 +13,10 @@ const icon_style = [tw`px-2 mr-2`, text_style]
 const icon_size = 24
 
 const map = {
+    Success: {
+        icon: 'checkmark-circle-outline',
+        container: tw`border-green-200 bg-slate-700`,
+    },
     Info: {
         icon: 'information-circle-outline',
         container: tw`border-blue-200 bg-slate-700`,
@@ -64,6 +68,8 @@ export function DialogueScreen(props) {
     </View>
 }
 
+export const Success = (props) => <Dialogue type='Success' {...props} />
+export const SuccessScreen = (props) => <DialogueScreen type='Success' {...props} />
 export const Info = (props) => <Dialogue type='Info' {...props} />
 export const InfoScreen = (props) => <DialogueScreen type='Info' {...props} />
 export const Loading = (props) => <Dialogue type='Loading' {...props} />

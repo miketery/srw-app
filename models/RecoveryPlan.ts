@@ -1,6 +1,6 @@
-import { base64toBytes, bytesToBase64, bytesToHex, getRandom, hexToBytes } from "../lib/utils";
+import { base64toBytes, bytesToBase64, bytesToHex, getRandom, hexToBytes, secret_box } from "../lib/utils";
 import { v4 as uuidv4 } from 'uuid';
-import secrets from 'secrets.js-grempe';
+import secrets from '../lib/secretsGrempe';
 import { interpret } from 'xstate';
 
 import SS, { StoredTypePrefix } from '../services/StorageService';
@@ -12,16 +12,61 @@ import Vault from "./Vault";
 import { Message , OutboundMessageDict } from "./Message";
 import { MessageTypes } from "../managers/MessagesManager";
 import { RecoveryPlanInvite } from "./MessagePayload";
+import nacl from "tweetnacl-sealed-box";
+
+export enum RecoveryPlanState {
+    START = 'START',
+    SPLITTING_KEY = 'SPLITTING_KEY',
+    READY_TO_SEND_INVITES = 'READY_TO_SEND_INVITES',
+    SENDING_INVITES = 'SENDING_INVITES',
+    WAITING_ON_PARTICIPANTS = 'WAITING_ON_PARTICIPANTS',
+    READY = 'READY',
+    FINAL = 'FINAL',
+    ARCHIVED = 'ARCHIVED'
+}
 
 export enum RecoveryPartyState {
-    INIT = 'INIT',
-    INVITED = 'INVITED',
-    CAN_RESEND_INVITE = 'CAN_RESEND_INVITE',
+    START = 'START',
+    SENDING_INVITE = 'SENDING_INVITE',
+    PENDING = 'PENDING',
     ACCEPTED = 'ACCEPTED',
     DECLINED = 'DECLINED',
-    FINALIZED = 'FINALIZED',
+    FINAL = 'FINAL',
 }
-interface RecoveryPartyDict {
+
+export type ManifestDict = {
+    recoveryPlanPk: string,
+    name: string,
+    payloadHash: string,
+    encryptedPayload: string, // base64
+    recoveryPartys: {
+        name: string,
+        did: string,
+        verify_key: string,
+        public_key: string,
+    }[]
+}
+interface RecoveryPlanDict {
+    pk: string,
+    vaultPk: string,
+
+    name: string,
+    description: string,
+
+    payload: string, // base 64
+    encryptedPayload: string, // base 64
+
+    key: string, //hex
+    
+    recoveryPartys: RecoveryPartyDict[],
+    threshold: number,
+    // no need for totalShares since derived from recoveryParty.numShares
+
+    state: RecoveryPlanState,
+    created: number, // unix timestamp
+}
+
+type RecoveryPartyDict = {
     pk: string,
     contactPk: string,
     name: string,
@@ -56,7 +101,7 @@ export class RecoveryParty {
         this.recoveryPlan = recoveryPlan
         console.log('[RecoveryParty.constructor]', this.toString(), this.recoveryPlan.name)
         //
-        if(!['ACCEPTED', 'DECLINED'].includes(this.state))
+        if(!['ACCEPTED', 'FINAL'].includes(this.state))
             this.initFSM()
     }
     get state(): RecoveryPartyState {
@@ -94,7 +139,7 @@ export class RecoveryParty {
             sender: this.recoveryPlan.sender,
         }))
         this.fsm.onTransition((state: {context: {recoveryParty: RecoveryParty}}) => {
-            console.log('[RecoveryParty.fsm.onTransition]', state.context.recoveryParty.toString(), event)
+            console.log('[RecoveryParty.fsm.onTransition]', state.context.recoveryParty.toString())
         })
         this.fsm.start(this._state)
         this.fsm.send('REDO')
@@ -109,49 +154,16 @@ export class RecoveryParty {
     inviteMessage(): OutboundMessageDict {
         const contact = this.recoveryPlan.getContact(this.contactPk)
         const payload: RecoveryPlanInvite = {
-            recoveryPlanPk: this.recoveryPlan.pk,
             name: this.recoveryPlan.name,
             description: this.recoveryPlan.description,
             shares: this.shares,
+            manifest: this.recoveryPlan.getManifest(),
         }
         const message = Message.forContact(contact, payload,
-            MessageTypes.recovery.invite, '0.1')
+            MessageTypes.recoverSplit.invite, '0.1')
         message.encryptBox(contact.private_key)
         return message.outboundFinal()
     }
-}
-export enum RecoveryPlanState {
-    DRAFT = 'DRAFT',
-    SPLITTING_KEY = 'SPLITTING_KEY',
-    READY_TO_SEND_INVITES = 'READY_TO_SEND_INVITES',
-    SENDING_INVITES = 'SENDING_INVITES',
-    WAITING_ON_PARTICIPANTS = 'WAITING_ON_PARTICIPANTS',
-    READY = 'READY',
-    FINAL = 'FINAL',
-    ARCHIVED = 'ARCHIVED'
-}
-export enum PayloadType {
-    OBJECT = 'OBJECT',
-    STRING = 'STRING',
-}
-interface RecoveryPlanDict {
-    pk: string,
-    vaultPk: string,
-
-    name: string,
-    description: string,
-
-    payload: string, // base 64?
-    payloadType: PayloadType,
-
-    key: string, //hex
-    
-    recoveryPartys: RecoveryPartyDict[],
-    threshold: number,
-    // no need for totalShares since derived from recoveryParty.numShares
-
-    state: RecoveryPlanState,
-    created: number, // unix timestamp
 }
 
 class RecoveryPlan {
@@ -162,7 +174,7 @@ class RecoveryPlan {
     description: string;
     
     payload: Uint8Array;
-    payloadType: PayloadType;
+    encryptedPayload: Uint8Array;
     
     key: Uint8Array;
     recoveryPartys: RecoveryParty[];
@@ -175,9 +187,11 @@ class RecoveryPlan {
     fsm: any;
     getContact: (pk: string) => Contact;
 
+    _cachedManifest: ManifestDict | null = null
+
     constructor(pk: string, vaultPk: string,
             name: string, description: string,
-            payload: Uint8Array, payloadType: PayloadType,
+            payload: Uint8Array, encryptedPayload: Uint8Array,
             key: Uint8Array,
             recoveryPartys: RecoveryPartyDict[], threshold: number,
             state: RecoveryPlanState, created: number,
@@ -190,8 +204,8 @@ class RecoveryPlan {
         this.description = description;
 
         this.payload = payload
-        this.payloadType = payloadType
-        
+        this.encryptedPayload = this.encryptedPayload
+
         this.key = key
         this.threshold = threshold
         
@@ -202,10 +216,15 @@ class RecoveryPlan {
 
         this.recoveryPartys = recoveryPartys.map(
             p => RecoveryParty.fromDict(p, this))
+        
+        if(!['FINAL', 'ARCHIVED'].includes(this._state))
+            this.initFSM()
+    }
+    initFSM() {
         const machine = RecoveryPlanMachine.withContext({recoveryPlan: this})
         this.fsm = interpret(machine)
         this.fsm.onTransition((state: {context: {recoveryPlan: RecoveryPlan}}) => {
-            console.log('[RecoveryPlan.onTransition]',
+            console.log('[RecoveryPlan.fsm.onTransition]',
                 state.context.recoveryPlan.toString())
         })
         this.fsm.start(this._state)
@@ -229,19 +248,21 @@ class RecoveryPlan {
         const pk = StoredTypePrefix.recoveryPlan + uuidv4()
         return new RecoveryPlan(
             pk, vault.pk, name, description,
-            Uint8Array.from([]), PayloadType.OBJECT,
+            Uint8Array.from([]),
+            Uint8Array.from([]),
             Uint8Array.from([]),
             [], 0,
-            RecoveryPlanState.DRAFT, Math.floor(Date.now() / 1000),
+            RecoveryPlanState.START, Math.floor(Date.now() / 1000),
             vault, getContact)
     }
     static fromDict(data: RecoveryPlanDict,
             vault: Vault, getContact: (pk: string) => Contact): RecoveryPlan {
         const key = hexToBytes(data.key)
         const payload = base64toBytes(data.payload)
+        const encryptedPayload = base64toBytes(data.encryptedPayload)
         return new RecoveryPlan(data.pk, data.vaultPk,
             data.name, data.description, 
-            payload, data.payloadType,
+            payload, encryptedPayload,
             key, data.recoveryPartys, data.threshold,
             data.state, data.created, vault, getContact)
     }
@@ -254,7 +275,7 @@ class RecoveryPlan {
             description: this.description,
 
             payload: bytesToBase64(this.payload),
-            payloadType: this.payloadType,
+            encryptedPayload: bytesToBase64(this.encryptedPayload),
 
             key: bytesToHex(this.key),
 
@@ -275,15 +296,21 @@ class RecoveryPlan {
     addRecoveryParty(contact: Contact, numShares: number, receiveManifest: boolean) {
         const recoveryParty = new RecoveryParty(
             uuidv4(), contact.pk, contact.name, numShares,
-            [], receiveManifest, RecoveryPartyState.INIT, this)
+            [], receiveManifest, RecoveryPartyState.START, this)
         this.recoveryPartys.push(recoveryParty)
-    }
-    setPayload(payload: Uint8Array, payloadType: PayloadType): void {
-        this.payload = payload
-        this.payloadType = payloadType
     }
     async generateKey(): Promise<void> {
         this.key = await getRandom(32)
+    }
+    setPayload(payload: Uint8Array): void {
+        this.payload = payload
+    }
+    encryptPayload(): void {
+        this.encryptedPayload = secret_box(this.payload, this.key)
+    }
+    clearPayloadAndKey(): void {
+        this.payload = Uint8Array.from([])
+        this.key = Uint8Array.from([])
     }
     setThreshold(threshold: number): void {
         this.threshold = threshold
@@ -300,6 +327,7 @@ class RecoveryPlan {
                 valid: false,
                 error: 'Threshold can not exceed total possible shares ('+maxShares+')'
             }
+        // TODO: check payload and ecnrytped is set
         return {
             valid: true,
         }
@@ -315,11 +343,31 @@ class RecoveryPlan {
         }
         return Promise.resolve(true)
     }
+    getManifest(): ManifestDict {
+        if(this._cachedManifest)
+            return this._cachedManifest
+        this._cachedManifest = {
+            recoveryPlanPk: this.pk,
+            name: this.name,
+            encryptedPayload: bytesToBase64(this.encryptedPayload),
+            payloadHash: bytesToHex(nacl.hash(this.payload)),
+            recoveryPartys: this.recoveryPartys.map(p => {
+                const contact = this.getContact(p.contactPk)
+                return {
+                    did: contact.did,
+                    verify_key: contact.b58_their_verify_key,
+                    public_key: contact.b58_their_public_key,
+                    name: p.name,
+                }
+            })
+        }
+        return this._cachedManifest
+    }
     allPartysAccepted(): boolean {
         return this.recoveryPartys.every(p => p.state === RecoveryPartyState.ACCEPTED)
     }
-    allPartysSent(): boolean {
-        return this.recoveryPartys.every(p => p.state !== RecoveryPartyState.INIT)
+    allInvitesSent(): boolean {
+        return this.recoveryPartys.every(p => p.state !== RecoveryPartyState.START)
     }
 }
 

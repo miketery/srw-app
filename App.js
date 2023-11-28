@@ -13,7 +13,7 @@ import { SessionContextProvider } from './contexts/SessionContext';
 import SplashScreen from './screens/SplashScreen';
 import LandingScreen from './screens/LandingScreen';
 import VaultCreateScreen from './screens/VaultCreateScreen';
-import RecoverInitScreen from './screens/RecoverInitScreen';
+import RecoverInitScreen from './screens/RecoverVault/RecoverInitScreen';
 
 import HomeNav from './screens/HomeNav';
 import { DevNoVaultNav } from './screens/Dev';
@@ -50,14 +50,15 @@ export default function App() {
                     <Stack.Screen name={ROUTES.VaultCreateRoute}>
                         {props => <VaultCreateScreen {...props} />}
                     </Stack.Screen>
-                    {/* recover init screen */}
                     <Stack.Screen name={ROUTES.RecoverInitRoute}>
                         {props => <RecoverInitScreen {...props} />}
                     </Stack.Screen>
                     <Stack.Screen name={ROUTES.HomeNavRoute}>
                         {props => <HomeNav {...props} />}
                     </Stack.Screen>
-                    
+                    <Stack.Screen name={ROUTES.RecoverVaultRoute}>
+                        {props => <RecoverInitScreen {...props} />}
+                    </Stack.Screen>
                 </Stack.Navigator>
             </NavigationContainer>
             <StatusBar style="auto" />

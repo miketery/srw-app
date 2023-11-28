@@ -7,8 +7,8 @@ type NotificationAction = {
     action: (notification: Notification, manager: VaultManager) => void
 }
 
-const consoleLogAction: NotificationAction = {
-    title: 'Console Log',
+export const consoleLogAction: NotificationAction = {
+    title: 'console.log',
     action: (notification) => console.log(notification)    
 }
 const dismissAction: NotificationAction = {
@@ -41,28 +41,56 @@ const declineRecoveryPlanInviteAction: NotificationAction = {
     }
 }
 
+const acceptRecoverCombineRequestAction: NotificationAction = {
+    title: 'Accept',
+    action: (notification, manager) => {
+        manager.guardiansManager.respondRecoverCombine('accept', notification.data.metadata, () => {
+            manager.notificationsManager.deleteNotification(notification);
+        })
+    }
+}
+
+const declineRecoverCombineRequestAction: NotificationAction = {
+    title: 'Decline',
+    action: (notification, manager) => {
+        manager.guardiansManager.respondRecoverCombine('decline', notification.data.metadata, () => {
+            manager.notificationsManager.deleteNotification(notification);
+        })
+    }
+}
+
 const notificationActionsMap: {[key: string]: NotificationAction[]} = {
-    [NotificationTypes.app.alert]: [consoleLogAction, dismissAction],
+    [NotificationTypes.app.alert]: [dismissAction],
     [NotificationTypes.contact.request]: [
-        consoleLogAction,
         acceptContactRequestAction,
         dismissAction
     ],
     [NotificationTypes.contact.accept]: [
-        consoleLogAction,
         dismissAction
     ],
-    [NotificationTypes.recoverySetup.invite]: [
-        consoleLogAction,
+    // recoverSplit
+    [NotificationTypes.recoverSplit.invite]: [
         acceptRecoveryPlanInviteAction,
         declineRecoveryPlanInviteAction,
     ],
-    [NotificationTypes.recoverySetup.accept]: [
-        consoleLogAction,
+    [NotificationTypes.recoverSplit.accept]: [
         dismissAction
     ],
-    [NotificationTypes.recoverySetup.decline]: [
-        consoleLogAction,
+    [NotificationTypes.recoverSplit.decline]: [
+        dismissAction
+    ],
+    // recoverCombine
+    [NotificationTypes.recoverCombine.manifest]: [
+        dismissAction
+    ],
+    [NotificationTypes.recoverCombine.request]: [
+        acceptRecoverCombineRequestAction,
+        declineRecoverCombineRequestAction,
+    ],
+    [NotificationTypes.recoverCombine.accept]: [
+        dismissAction
+    ],
+    [NotificationTypes.recoverCombine.decline]: [
         dismissAction
     ],
 }

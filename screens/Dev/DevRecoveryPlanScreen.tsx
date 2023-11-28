@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Text, View, ScrollView, Pressable } from 'react-native'
 
-// import secrets from 'secrets.js-grempe'
+import secrets from '../../lib/secretsGrempe';
 
 import ds from '../../assets/styles'
 import tw from '../../lib/tailwind'
@@ -12,12 +12,11 @@ import RecoveryPlansManager from '../../managers/RecoveryPlansManager'
 import getVaultsAndManagers from '../../testdata/genData'
 
 import { useSessionContext } from '../../contexts/SessionContext'
-import RecoveryPlan, { PayloadType, RecoveryPlanState } from '../../models/RecoveryPlan'
-import { bytesToHex, hexToBytes } from '../../lib/utils'
+import RecoveryPlan, { RecoveryPlanState } from '../../models/RecoveryPlan'
+import { bytesToHex } from '../../lib/utils'
 
 import SS, { StoredType } from '../../services/StorageService'
 
-import DigitalAgentService, { GetMessagesFunction, SenderFunction } from '../../services/DigitalAgentService'
 import ContactsManager from '../../managers/ContactsManager'
 import GuardiansManager from '../../managers/GuardiansManager'
 import { InboundMessageDict, Message } from '../../models/Message'
@@ -51,8 +50,8 @@ async function RecoverPlanCreate(
     recoveryPlan.addRecoveryParty(alice.contacts['charlie'], 1, false)
     recoveryPlan.addRecoveryParty(alice.contacts['dan'], 2, true)
 
-    const byteSecret = new TextEncoder().encode('MY SECRET')
-    recoveryPlan.setPayload(byteSecret, PayloadType.OBJECT)
+    const byteSecret = new TextEncoder().encode(JSON.stringify({secret: 'MY SECRET'}))
+    recoveryPlan.setPayload(byteSecret)
     recoveryPlan.setThreshold(3)
     console.assert(recoveryPlan.checkValidPreSubmit())
     
@@ -71,12 +70,12 @@ async function RecoverPlanCreate(
         }
     }
     // only 2 shares
-    // const testNoWork = secrets.combine(allShares.slice(0, 2))
-    // console.assert(testNoWork !== keyHex)
-    // // 3 shares
-    // const willWork = secrets.combine(allShares.slice(0, 3))
-    // console.assert(willWork === keyHex)
-    // console.log('combine test complete')
+    const testNoWork = secrets.combine(allShares.slice(0, 2))
+    console.assert(testNoWork !== keyHex)
+    // 3 shares
+    const willWork = secrets.combine(allShares.slice(0, 3))
+    console.assert(willWork === keyHex)
+    console.log('combine test complete')
     //TODO
 }
 async function RecoverPlanFullFlow(
@@ -97,8 +96,8 @@ async function RecoverPlanFullFlow(
     recoveryPlan.addRecoveryParty(alice.contacts['dan'], 2, true)
     console.log('Parties added:', recoveryPlan.toDict())
 
-    const byteSecret = new TextEncoder().encode('MY SECRET')
-    recoveryPlan.setPayload(byteSecret, PayloadType.OBJECT)
+    const byteSecret = new TextEncoder().encode(JSON.stringify({secret: 'MY SECRET'}))
+    recoveryPlan.setPayload(byteSecret)
     recoveryPlan.setThreshold(3)
     console.assert(recoveryPlan.checkValidPreSubmit())
     recoveryPlan.fsm.send('SPLIT_KEY')
@@ -108,7 +107,7 @@ async function RecoverPlanFullFlow(
     recoveryPlan.fsm.send('SEND_INVITES') 
     // ^^^ will be in SENDING_INVITES state until all sent, then in WAITING_ON_PARTICIPANTS
     await new Promise(r => setTimeout(r, 300))
-    console.log('STATE', recoveryPlan.state, recoveryPlan.allPartysSent())
+    console.log('STATE', recoveryPlan.state, recoveryPlan.allInvitesSent())
     console.log('BEFORE ACCEPTS', recoveryPlan.toDict())
     // user fetch request and send accept
     const getRequestAndAccept = async (user, accept, originUser, originRecoveryPlanManager: RecoveryPlansManager) => {
@@ -141,10 +140,15 @@ const testShamir = () => {
     const secretBytes = new TextEncoder().encode(secret)
     const secretHex = bytesToHex(secretBytes)
     console.log(secretHex)
-    // const shares1 = secrets.share(secretHex, 3, 2)
-    // const shares2 = secrets.share(secretHex, 3, 2)
-    // shares1.forEach( (s) => console.log('A', s))
-    // shares2.forEach( (s) => console.log('B', s))
+    const shares1 = secrets.share(secretHex, 3, 2)
+    const shares2 = secrets.share(secretHex, 3, 2)
+    shares1.forEach( (s) => console.log('A', s))
+    shares2.forEach( (s) => console.log('B', s))
+
+    const a = secrets.combine([shares1[0], shares1[1]])
+    console.log(a)
+    const b = secrets.combine([shares2[0], shares2[1]])
+    console.log(b)
 }
 
 type DevRecoveryPlanScreenProps = {

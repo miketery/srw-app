@@ -18,9 +18,9 @@
           services: never;
         };
         eventsCausingActions: {
-          "recoveryPlanTrigger": "ACCEPT" | "DECLINE" | "done.invoke.sendInviteId";
-"save": "ACCEPT" | "DECLINE" | "done.invoke.sendInviteId";
+          "save": "ACCEPT" | "DECLINE" | "done.invoke.sendInviteId";
 "sendInviteError": "error.platform.sendInviteId";
+"triggerParent": "ACCEPT" | "DECLINE" | "done.invoke.sendInviteId";
         };
         eventsCausingDelays: {
           
@@ -31,7 +31,7 @@
         eventsCausingServices: {
           "sendInvite": "REDO" | "RESEND_INVITE" | "SEND_INVITE";
         };
-        matchesStates: "ACCEPTED" | "DECLINED" | "FINAL" | "INIT" | "PENDING" | "SENDING_INVITE";
+        matchesStates: "ACCEPTED" | "DECLINED" | "FINAL" | "PENDING" | "SENDING_INVITE" | "START";
         tags: never;
       }
   

@@ -5,9 +5,20 @@ import { ROUTES } from "../config";
 // Test    -- ROUTES.DevNoVaultRoute
 const no_vault_test_route = {
   routes: [
-    {
-      name: ROUTES.LandingRoute,
-    },
+    {name: ROUTES.LandingRoute},
+    // {name: ROUTES.RecoverInitRoute},
+
+    // {name: ROUTES.LandingRoute},
+    // {
+    //   name: ROUTES.DevNoVaultRoute,
+    //   state: {
+    //     routes: [
+    //       {name: ROUTES.DevNoVaultRoute},
+    //       {name: ROUTES.DevRecoverCombineRoute},
+    //     ]
+    //   }
+    // },
+
     // {
     //   name: ROUTES.DevNoVaultRoute,
     //   state: {
