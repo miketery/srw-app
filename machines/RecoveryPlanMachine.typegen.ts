@@ -26,13 +26,13 @@
           
         };
         eventsCausingGuards: {
-          "allRecoveryPartysAccepted": "";
-"allRecoveryPartysSent": "";
+          "allInvitesSent": "";
+"allRecoveryPartysAccepted": "";
         };
         eventsCausingServices: {
           "splitKey": "SPLIT_KEY";
         };
-        matchesStates: "ARCHIVED" | "DRAFT" | "FINAL" | "READY" | "READY_TO_SEND_INVITES" | "SENDING_INVITES" | "SPLITTING_KEY" | "WAITING_ON_PARTICIPANTS";
+        matchesStates: "ARCHIVED" | "FINAL" | "READY" | "READY_TO_SEND_INVITES" | "SENDING_INVITES" | "SPLITTING_KEY" | "START" | "WAITING_ON_PARTICIPANTS";
         tags: never;
       }
   

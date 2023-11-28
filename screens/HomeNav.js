@@ -17,7 +17,7 @@ import { DevHasVaultNav } from './Dev'
 const Tab = createBottomTabNavigator();
 
 export default function HomeNavTest({props}) {
-    const {manager} = useSessionContext()
+    const {manager, vault} = useSessionContext()
 
     const possible_offline = false
     const [ notifications, setNotifications] = useState([])
@@ -73,15 +73,17 @@ export default function HomeNavTest({props}) {
                     setupNotifications()
                 }}/>}
             </Tab.Screen>
-            <Tab.Screen name={ROUTES.ContactsRoute} >
-                {(props) => <ContactsNav {...props} />}
-            </Tab.Screen>
-            <Tab.Screen name={ROUTES.SecretsRoute} >
-                {(props) => <SecretsNav {...props} />}
-            </Tab.Screen>
-            <Tab.Screen name={ROUTES.RecoveryPlanRoute}>
-                {(props) => <RecoveryPlansNav {...props} />}
-            </Tab.Screen>
+            {!vault?.recovery && <>
+                <Tab.Screen name={ROUTES.ContactsRoute} >
+                    {(props) => <ContactsNav {...props} />}
+                </Tab.Screen>
+                <Tab.Screen name={ROUTES.SecretsRoute} >
+                    {(props) => <SecretsNav {...props} />}
+                </Tab.Screen>
+                <Tab.Screen name={ROUTES.RecoveryPlanRoute}>
+                    {(props) => <RecoveryPlansNav {...props} />}
+                </Tab.Screen>
+            </>}
             <Tab.Screen name={ROUTES.NotificationsRoute} 
                     options={{ tabBarBadge: notifications.length }}>
                 {(props) => <NotificationsScreen {...props} notifications={notifications} />}

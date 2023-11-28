@@ -11,7 +11,10 @@ export const test_vaults = [
         "signing_key": "4MW9HfNeyEDggPhPaWHtSzn5FaX8jSF1wvvVUi8AxRbYSuvBNxTZA5oVDJ8tmUKA4dtxJ2FDkQaVSQVTqFFBJpxQ",
         "verify_key": "9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS",
         "private_key": "BXZFfBGhytYSoQbuS14Q7iAoiGE4JhHA5jA61k6y4SwH",
-        "public_key": "BVVHk6i8MNDjo78YM7uUFedtGPYgeXnXiNNxmFkP9i6T"
+        "public_key": "BVVHk6i8MNDjo78YM7uUFedtGPYgeXnXiNNxmFkP9i6T",
+        "registered": false,
+        "short_code": "",
+        "recovery": false,
     },
     {
         "pk": "v__EtCnZqvnQ4qNq1wV5yjK2hMTrg1i3iPFESrD6w7mGP3E",
@@ -24,7 +27,10 @@ export const test_vaults = [
         "signing_key": "4U74prLHNzmHsJoqjeCtZxE6PnPQ4BFNhtUNL7UfGXR8fCsMYBAtQThhZ3WbnPvtyrfZh7NixjtEhoexdTRV1ByS",
         "verify_key": "EtCnZqvnQ4qNq1wV5yjK2hMTrg1i3iPFESrD6w7mGP3E",
         "private_key": "HmyXGfLEfvnDxfjaHWF4C7SB37yZ5Bady57SEgbkG6U1",
-        "public_key": "D2AgAghipD9jgZcg7DZgZNAy2EfE9a8MjeXkZAaezW6S"
+        "public_key": "D2AgAghipD9jgZcg7DZgZNAy2EfE9a8MjeXkZAaezW6S",
+        "registered": false,
+        "short_code": "",
+        "recovery": false,
     },
     {
         "pk": "v__D5EBA8cZDo7kQGCqepKGGkkWGy9b1c5oXnQE5N9T1xnK",
@@ -37,7 +43,10 @@ export const test_vaults = [
         "signing_key": "5wVUYFv2eGixHk7DVRKmN689gijFynY94a1jsAAgrXCAt4725iL5fZYCDnCPELX8J7f6nHBk4kGX3KomAykBX76w",
         "verify_key": "D5EBA8cZDo7kQGCqepKGGkkWGy9b1c5oXnQE5N9T1xnK",
         "private_key": "4J9ojp1TvJe1B7yRGbuBtoW1LSMy3xZgu3sRGsCNTvi7",
-        "public_key": "DXkGB7X2UbeS4Kk7uvXAEkdQ6bNAa3jBpo9GgwuYkXEm"
+        "public_key": "DXkGB7X2UbeS4Kk7uvXAEkdQ6bNAa3jBpo9GgwuYkXEm",
+        "registered": false,
+        "short_code": "",
+        "recovery": false,
     },
     {
         "pk": "v__9hBRoYiHKeGj1y49BSutEuFANaafBG3s1aVnrX5bwYFq",
@@ -52,6 +61,7 @@ export const test_vaults = [
         "private_key": "AiPiDob52BPyAwLm76JbyCabDKuVCCcQceQuwpFbXnpf",
         "public_key": "2pVqFxzcckQXp8CxwzLc6KZySxAJURUApLeTRQufcXDf",
         "registered": false,
-        "short_code": ""
+        "short_code": "",
+        "recovery": false,
     }
 ]

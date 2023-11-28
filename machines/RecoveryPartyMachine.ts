@@ -6,7 +6,7 @@ import { SenderFunction } from '../services/DigitalAgentService';
 const RecoveryPartyMachine = createMachine({
     /** @xstate-layout N4IgpgJg5mDOIC5QCcwGMD2A3MyCeACgIbIAueAdAJIByVAKgMQDKAojQCID6tAag6wDaABgC6iUAAcMsAJalZGAHYSQAD0QBGAGyaKAZgBMAdkMBWfQBYAnPuuXt2gDQg8W62YrDNw68f3alpY+lmYAHAC+ES6omDj4xGSUbJy0AOI8NPz0rCzs9CLiSCDScgrKqhoINsYUmpbG4Wb11sLeLm4Imh5ePn4BQSHhUTHo2LiEJOQUBOwc6YwAggDCy6wEBWKqpfKKKsVVpsJehvrChoHGlhdmzq6Iht4U12ZmDWdhwpZhmoYjILFxgkppRZqkaGlGAAlVgAKVYy02RSkMl2FQOiCOJzOFwa120tw6iB+Bja+n0xjCjWsjm6-0B8UmSQoKzWG1YHEYADFaIsADJUABaQi2xR25X2oCqvyMFGM1jC2hMxk05N8YSJXXsdWMxgJ2hp5LMwjClnpY0ZiWmMPhiI5S1W6yR21REsqiD8lme-k9hm+j30mpJZ2E5Mp1Np1ii0RASgwEDgqgZEytnRRZT27oQAFo7p1c+a4imQdQ6PQXRn0VLENdNd0vWFrH6wmY-CqqaFC0CmdMUvMIZlsqwK2jJepEPpuhRXo8wvowo3bIZDHXtY2-UqTZZ9K9FV3LSWwf20iO3RiEK2wnKLDZro2F3ZVw2mw5Z9vd9p98XmaynRzT5m559LUFg6E21geMIuiaE+Xitt0Fi6FYvhfsCzI2giOQcABVbjggpr6F4nxXGYy6aDKxhBnomg-FSSo+rcRioT2lA8jQ-I4WO0oBMcthBHqernAhq6GBQPyqroYSGJoZiUpE0ZAA */
     id: 'recoveryPartyFsm',
-    initial: 'INIT',
+    initial: 'START',
     tsTypes: {} as import("./RecoveryPartyMachine.typegen").Typegen0,
     context: {} as {
         recoveryParty: RecoveryParty,
@@ -18,7 +18,7 @@ const RecoveryPartyMachine = createMachine({
         }
     },
     states: {
-        INIT: {
+        START: {
             on: {
                 SEND_INVITE: 'SENDING_INVITE',
             },
@@ -31,7 +31,7 @@ const RecoveryPartyMachine = createMachine({
                     target: 'PENDING',
                 },
                 onError: {
-                    target: 'INIT',
+                    target: 'START',
                     actions: ['sendInviteError']
                 },
             },
@@ -40,7 +40,7 @@ const RecoveryPartyMachine = createMachine({
             },
         },
         PENDING: {
-            entry: ['save', 'recoveryPlanTrigger'],
+            entry: ['save', 'triggerParent'],
             on: {
                 ACCEPT: 'ACCEPTED',
                 DECLINE: 'DECLINED',
@@ -48,13 +48,13 @@ const RecoveryPartyMachine = createMachine({
             },
         },
         ACCEPTED: {
-            entry: ['save', 'recoveryPlanTrigger'],
+            entry: ['save', 'triggerParent'],
             on: {
                 FINALIZE: 'FINAL',
             },
         },
         DECLINED: {
-            entry: ['save', 'recoveryPlanTrigger'],
+            entry: ['save', 'triggerParent'],
             on: {
                 ACCEPT: 'ACCEPTED',
                 RESEND_INVITE: 'SENDING_INVITE',
@@ -74,8 +74,8 @@ const RecoveryPartyMachine = createMachine({
             console.log('[RecoveryPartyMachine.save]', event)
             context.recoveryParty.recoveryPlan.save()
         },
-        recoveryPlanTrigger: (context, event): void => {
-            console.log('[RecoveryPartyMachine.recoveryPlanTrigger]', event)
+        triggerParent: (context, event): void => {
+            console.log('[RecoveryPartyMachine.triggerParent]', event)
             context.recoveryParty.recoveryPlan.fsm.send('')
         },
     },

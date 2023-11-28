@@ -1,3 +1,5 @@
+import { ManifestDict } from "./RecoveryPlan"
+
 export interface ContactInvite {
     did: string,
     name: string,
@@ -13,13 +15,27 @@ export interface ContactAccept {
 }
 // ContactReject
 
-export interface RecoveryPlanInvite {
-    recoveryPlanPk: string,
+export type RecoveryPlanInvite = {
     name: string,
     description: string,
     shares: string[],
+    manifest:  ManifestDict,
 }
-export interface RecoveryPlanResponse {
+export type RecoveryPlanResponse = {
     recoveryPlanPk: string,
     response: 'accept' | 'decline',
+}
+
+export type RecoverCombineManifest = {
+    manifest: ManifestDict,
+}
+export type RecoverCombineRequest = {
+    recoveryPlanPk: string,
+    verify_key: string, // base58
+    public_key: string, // base58
+}
+export type RecoverCombineResponse = {
+    recoveryPlanPk: string,
+    response: 'accept' | 'decline',
+    shares?: string[],
 }
