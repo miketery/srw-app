@@ -6,9 +6,10 @@ import { useSessionContext } from '../../contexts/SessionContext'
 
 import RecoveryPlansListScreen from './RecoveryPlansListScreen'
 import RecoveryPlanCreateScreen from './RecoveryPlanCreateScreen'
-// import RecoveryPlanViewScreen from './RecoveryPlanViewScreen'
+import RecoveryPlanViewScreen from './RecoveryPlanViewScreen'
 // import RecoveryPlanEditScreen from './RecoveryPlantEditScreen'
 // import RecoveryPlanDeleteScreen from './RecoveryPlanDeleteScreen'
+import GuardianViewScreen from './GuardianViewScreen'
 
 import DevRecoveryPlan from '../Dev/DevRecoveryPlanScreen'
 
@@ -16,20 +17,30 @@ const Stack = createNativeStackNavigator();
 
 const routeConfigs = [
     {
-      name: ROUTES.RecoveryPlansListRoute,
-      title: 'List Recovery Plans',
-      component: RecoveryPlansListScreen
+        name: ROUTES.RecoveryPlansListRoute,
+        title: 'List Recovery Plans',
+        component: RecoveryPlansListScreen
     },
     {
-      name: ROUTES.RecoveryPlanCreateRoute,
-      title: 'Create Recovery Plan',
-      component: RecoveryPlanCreateScreen
+        name: ROUTES.RecoveryPlanCreateRoute,
+        title: 'Create Recovery Plan',
+        component: RecoveryPlanCreateScreen
     },
     {
-      name: ROUTES.DevReocveryPlanRoute,
-      title: 'Dev Recovery Plan',
-      component: DevRecoveryPlan
-    }
+        name: ROUTES.RecoveryPlanViewRoute,
+        title: 'View Recovery Plan',
+        component: RecoveryPlanViewScreen
+    },
+    {
+        name: ROUTES.GuardianViewRoute,
+        title: 'View Guardian',
+        component: GuardianViewScreen
+    },
+    {
+        name: ROUTES.DevReocveryPlanRoute,
+        title: 'Dev Recovery Plan',
+        component: DevRecoveryPlan
+    },
   ]
 
 export default function RecoveryPlanNavigator({navigation}) {
@@ -44,7 +55,9 @@ export default function RecoveryPlanNavigator({navigation}) {
                 options={{ title: route.title }}>
                 {props => <route.component {...props}
                     vault={vault}
-                    recoveryPlansManager={manager.recoveryPlansManager} />}
+                    recoveryPlansManager={manager.recoveryPlansManager}
+                    guardiansManager={manager.guardiansManager}
+                />}
             </Stack.Screen>
         ))}
     </Stack.Navigator>

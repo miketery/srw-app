@@ -1,5 +1,4 @@
 import { View, Text, Pressable, ScrollView } from 'react-native'
-import { useEffect, useState } from 'react'
 
 import { Message, Sender, Receiver } from '../models/Message'
 import { useSessionContext } from '../contexts/SessionContext'
@@ -10,10 +9,11 @@ import tw from '../lib/tailwind'
 import { DEV, ROUTES } from '../config'
 import { TopGradient } from '../components'
 
+import RecoverVaultHub from './RecoverVault/RecoverVaultHub'
 
 async function TestMessage(vault) {
     const random_date = new Date(Math.floor(Math.random() * Date.now()));
-    const msg = new Message(null, null, 'outbound', 
+    const msg = new Message(null, null, null, 'outbound', 
         Sender.fromVault(vault),
         Receiver.fromVault(vault),
         MessageTypes.app.test, '1.0',
@@ -28,12 +28,14 @@ async function TestMessage(vault) {
 }
 
 function MainHubScreen(props) {
-    const {vault} = useSessionContext()
+    const {vault, manager} = useSessionContext()
 
     return <View style={ds.mainContainerPtGradient}>
         <ScrollView style={ds.scrollViewGradient}>
             <View style={ds.headerRow}>
-                <Text style={ds.header}>{vault.name} — Main Hub</Text>
+                {vault.recovery ? 
+                <Text style={ds.header}>⚠️ Recovering Vault ⚠️</Text> :
+                <Text style={ds.header}>{vault.name} — Main Hub</Text>}
             </View>
             <View style={tw`mb-10`}>
                 <Text style={ds.textLg}>{vault.short_code}</Text>
@@ -54,6 +56,11 @@ function MainHubScreen(props) {
                     <Text style={ds.buttonText}>App.Test Self Message</Text>
                 </Pressable>
             </View> : null}
+            { vault.recovery && 
+            <RecoverVaultHub 
+                vault={vault}
+                manager={manager}
+                navigation={props.navigation} />}
         </ScrollView>
         <TopGradient />
         {/* <BottomGradient /> */}

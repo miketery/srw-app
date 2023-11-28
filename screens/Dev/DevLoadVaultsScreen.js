@@ -35,10 +35,10 @@ const loadFull = async (key, navigation) => {
     navigation.navigate(ROUTES.SplashRoute)
 }
 
-function vault_buttons(navaigation, loadFunc) {
+function vault_buttons(navaigation, loadFunc, name) {
     return test_vaults.map((v, i) => <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full items-start pl-2`]} 
             onPress={() => loadFunc(i, navaigation)} key={i}>
-        <Text style={ds.buttonText}>{loadFunc.name} - {v.name}</Text>
+        <Text style={ds.buttonText}>{name} - {v.name}</Text>
     </Pressable>)
 }
 
@@ -46,10 +46,10 @@ function DevLoadVaultsScreen({navigation}) {
     return <View style={ds.landingContainer}>
         <Text style={ds.header}>Dev - Load Vaults</Text>
         <View style={tw`flex-grow-1`}>
-            {vault_buttons(navigation, loadVault)}
+            {vault_buttons(navigation, loadVault, 'Basic')}
         </View>
         <View style={tw`flex-grow-1`}>
-            {vault_buttons(navigation, loadFull)}
+            {vault_buttons(navigation, loadFull, 'Full')}
         </View>
         <View>
             <GoBackButton onPressOut={() => navigation.goBack()} />

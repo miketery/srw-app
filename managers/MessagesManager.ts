@@ -15,6 +15,7 @@ import SS, { StoredType } from "../services/StorageService";
 import Vault from "../models/Vault";
 import { NotificationData, NotificationTypes } from "../models/Notification";
 import VaultManager from "./VaultManager";
+import RecoverVaultUtil from "./RecoverVaultUtil";
 
 type processMapType = {
     [key: string]: (message: Message, vault: Vault, m: VaultManager) => Promise<boolean>
@@ -31,9 +32,14 @@ export const MessageTypes = {
         'alert': 'msg.app.alert',
         'warning': 'msg.app.warning',
     },
-    'recovery': {
-        'invite': 'msg.recovery.invite',
-        'response': 'msg.recovery.response',
+    'recoverSplit': {
+        'invite': 'msg.recoverSplit.invite',
+        'response': 'msg.recoverSplit.response',
+    },
+    'recoverCombine': {
+        'manifest': 'msg.recoverCombine.manifest',
+        'request': 'msg.recoverCombine.request',
+        'response': 'msg.recoverCombine.response',
     },
 }
 
@@ -53,6 +59,9 @@ const processMap: processMapType = {
             } as NotificationData)
         return Promise.resolve(true)
     },
+    /*
+     * Contacts
+     */
     [MessageTypes.contact.invite]: async (message: Message, vault: Vault, m: VaultManager) => {
         const contact = await m.contactsManager.processContactRequest(message)
         const notification = m.notificationsManager.createNotification(
@@ -80,11 +89,14 @@ const processMap: processMapType = {
             })
         return Promise.resolve(true)
     },
-    [MessageTypes.recovery.invite]: async (message: Message, vault: Vault, m: VaultManager) => {
+    /*
+     * Recover Split
+     */
+    [MessageTypes.recoverSplit.invite]: async (message: Message, vault: Vault, m: VaultManager) => {
         console.log('[processMap] ', message.type_name, message)
         const {guardian, contact} = await m.guardiansManager.processGuardianRequest(message)
         const notification = m.notificationsManager.createNotification(
-            NotificationTypes.recoverySetup.invite, {
+            NotificationTypes.recoverSplit.invite, {
                 title: 'Recovery Plan Invite',
                 short_text: contact.name + ' wants you to be a guardian',
                 detailed_text: contact.name + ' wants you to be a part of their recovery plan.',
@@ -96,14 +108,62 @@ const processMap: processMapType = {
             })
         return Promise.resolve(true)
     },
-    [MessageTypes.recovery.response]: async (message: Message, vault: Vault, m: VaultManager) => {
+    [MessageTypes.recoverSplit.response]: async (message: Message, vault: Vault, m: VaultManager) => {
         const {recoveryPlan, contact, accepted} = await m.recoveryPlansManager.processRecoveryPlanResponse(message)
         const notification = m.notificationsManager.createNotification(
-            accepted ? NotificationTypes.recoverySetup.accept
-            : NotificationTypes.recoverySetup.decline , {
+            accepted ? NotificationTypes.recoverSplit.accept
+            : NotificationTypes.recoverSplit.decline , {
                 title: 'Recovery Plan Response',
                 short_text: contact.name + (accepted ? ' accepted' : ' declined') + ' your invite',
                 detailed_text: contact.name + (accepted ? ' accepted' : ' declined') + ' your invite',
+                metadata: {
+                    timestamp: message.created,
+                }
+            })
+        return Promise.resolve(true)
+    },
+    [MessageTypes.recoverCombine.manifest]: async (message: Message, vault: Vault, m: VaultManager) => {
+        RecoverVaultUtil.processManifest(vault, m.recoverCombine, message)
+        const notification = m.notificationsManager.createNotification(
+            NotificationTypes.recoverCombine.manifest, {
+                title: 'Manifest Received',
+                short_text: message.sender.name + ' shared manifest',
+                detailed_text: message.sender.name + ' shared manifest for' + m.recoverCombine.manifest.name,
+                metadata: {
+                    timestamp: message.created,
+                    // pk: guardian.manifest.recoveryPlanPk,
+                    // contactPk: guardian.contactPk
+                }
+            })
+        return Promise.resolve(true)
+    },
+    /*
+     * Recover Combine
+     */
+    [MessageTypes.recoverCombine.request]: async (message: Message, vault: Vault, m: VaultManager) => {
+        const {guardian, metadata} = await m.guardiansManager.processRecoverCombineRequest(message)
+        const notification = m.notificationsManager.createNotification(
+            NotificationTypes.recoverCombine.request, {
+                title: 'Recovery Plan Request',
+                short_text: guardian.name + ' wants to recover',
+                detailed_text: guardian.name + ' wants to recover',
+                metadata: {
+                    timestamp: message.created,
+                    guardianPk: guardian.pk,
+                    verify_key: metadata.verify_key,
+                    public_key: metadata.public_key,
+                }
+            })
+        return Promise.resolve(true)
+    },
+    [MessageTypes.recoverCombine.response]: async (message: Message, vault: Vault, m: VaultManager) => {
+        const {recoverCombine, name, accepted} = await m.recoverCombine.processRecoverCombineResponse(message)
+        const notification = m.notificationsManager.createNotification(
+            accepted ? NotificationTypes.recoverCombine.accept
+            : NotificationTypes.recoverCombine.decline , {
+                title: 'Recovery Plan Response',
+                short_text: name + (accepted ? ' accepted' : ' declined') + ' your request',
+                detailed_text: name + (accepted ? ' accepted' : ' declined') + ' your request',
                 metadata: {
                     timestamp: message.created,
                 }
@@ -192,9 +252,9 @@ class InboundMessageManager {
         console.log('[InboundMessageManager.processMessage]', message)
         if(!Object.keys(processMap).includes(message.type_name)) {
             // TODO append to errors
-            throw new Error('Message type not supported') // do we discard / delete?
+            throw new Error('Message type not supported:' +  message.type_name) // do we discard / delete?
         }
-        console.log('[processMessage] calling processMap for:', message.type_name, message)
+        console.log('[processMessage] calling processMap for: ', message.type_name, message)
         const res = await processMap[message.type_name](message, this._vault, this._manager)
         if(res)
             await this.deleteMessage(message)
