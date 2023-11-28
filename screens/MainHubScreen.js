@@ -56,7 +56,11 @@ function MainHubScreen(props) {
                     <Text style={ds.buttonText}>App.Test Self Message</Text>
                 </Pressable>
             </View> : null}
-            { vault.recovery && <RecoverVaultHub vault={vault} manager={manager} />}
+            { vault.recovery && 
+            <RecoverVaultHub 
+                vault={vault}
+                manager={manager}
+                navigation={props.navigation} />}
         </ScrollView>
         <TopGradient />
         {/* <BottomGradient /> */}

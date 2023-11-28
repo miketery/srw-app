@@ -37,8 +37,27 @@ class RecoverVaultUtil {
         const data = message.getData() as RecoverCombine;
         recoverCombine.setManifest(data.manifest);
     }
-    static recoverVault() {
-        
+    static async recoverVault(recoverCombine: RecoverCombine): Promise<boolean> {
+        const data = recoverCombine.data as {words: string, name: string, email: string, display_name: string};
+        if(!Object.keys(data).includes('words'))
+            throw new Error(`42 RecoverCombine is missing words`)
+        // fetch back up
+        const vault = await Vault.create(data.name, data.email, data.display_name, 
+        '', data.words, false);
+        vault.save()
+        const storedCheck = await SS.get(vault.pk)
+        if(storedCheck === null)
+            throw new Error(`49 Recovered vault not saved`)
+        const vaultCheck = Vault.fromDict(storedCheck);
+        if(vaultCheck.words !== data.words)
+            throw new Error(`53 Recovered vault does not match`)
+        // delete all related to recovery
+        await Promise.all([
+            recoverCombine.vault.delete(),
+            recoverCombine.delete(),
+            // TODO delete notifications for old vault
+        ]);
+        return Promise.resolve(true);
     }
 }
 

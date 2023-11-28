@@ -160,4 +160,7 @@ export default class Vault {
     async save() {
         return SS.save(this.pk, this.toDict());
     }
+    async delete() {
+        return SS.delete(this.pk);
+    }
 }

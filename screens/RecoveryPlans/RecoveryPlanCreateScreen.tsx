@@ -155,7 +155,12 @@ const RecoveryPlanCreateScreen: React.FC<RecoveryPlanCreateScreenProps> = (props
             console.log('Added contact', contact.toString())
             recoveryPlan.addRecoveryParty(contact, 1, true)
         }
-        const byteSecret = new TextEncoder().encode(JSON.stringify({wods: props.vault.words}))
+        const byteSecret = new TextEncoder().encode(JSON.stringify({
+            words: props.vault.words,
+            name: props.vault.name,
+            email: props.vault.email,
+            display_name: props.vault.display_name,
+        }))
         recoveryPlan.setPayload(byteSecret)
         recoveryPlan.setThreshold(threshold)
         if(!recoveryPlan.checkValidPreSubmit()) {
