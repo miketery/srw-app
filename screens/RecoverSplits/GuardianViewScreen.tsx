@@ -146,7 +146,7 @@ const GuardianViewScreen: React.FC<GuardianViewProps> =
             <GoBackButton onPressOut={() => navigation.goBack()} />
             <View style={tw`flex-grow`}></View>
             {/* <Pressable style={[ds.button, ds.blueButton]}
-                    onPress={() => navigation.navigate('Delete...ROUTE', {recoveryPlanPk: recoveryPlan.pk})}>
+                    onPress={() => navigation.navigate('Delete...ROUTE', {recoverSplitPk: recoverSplit.pk})}>
                 <Text style={ds.buttonText}>Delete?</Text>
             </Pressable> */}
         </View>

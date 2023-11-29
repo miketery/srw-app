@@ -7,18 +7,18 @@ import { TopGradient } from '../../components';
 
 import Vault from '../../models/Vault'
 
-import RecoveryPlan from '../../models/RecoveryPlan'
-import RecoveryPlansManager from '../../managers/RecoveryPlansManager'
+import RecoverSplit from '../../models/RecoverSplit'
+import RecoverSplitsManager from '../../managers/RecoverSplitsManager'
 import { DEV, ROUTES } from '../../config';
 import Guardian from '../../models/Guardian';
 import GuardiansManager from '../../managers/GuardiansManager';
 
-const RecoveryPlanRow = ({recoveryPlan}: {recoveryPlan: RecoveryPlan}) => {
+const RecoverSplitRow = ({recoverSplit}: {recoverSplit: RecoverSplit}) => {
     return <View style={[ds.row, tw`flex-col`]}>
-        <Text style={ds.text}>{recoveryPlan.name}</Text>
-        <Text style={ds.text}>{recoveryPlan.state}</Text>
+        <Text style={ds.text}>{recoverSplit.name}</Text>
+        <Text style={ds.text}>{recoverSplit.state}</Text>
         <View style={tw`flex-col`}>
-            {recoveryPlan.recoveryPartys.map((party, index) => {
+            {recoverSplit.recoverSplitPartys.map((party, index) => {
                 return <Text key={index} style={ds.text}>{party.name} {party.state}</Text>
             })}
         </View>
@@ -31,21 +31,21 @@ const GuardianRow = ({guardian}: {guardian: Guardian}) => {
     </View>
 }
 
-type RecoveryPlanListProps = {
+type RecoverSplitListProps = {
     navigation: any,
-    recoveryPlansManager: RecoveryPlansManager,
+    recoverSplitsManager: RecoverSplitsManager,
     guardiansManager: GuardiansManager,
 }
 
-const RecoveryPlanList: React.FC<RecoveryPlanListProps> = (props) => {
-    const [recoveryPlans, setRecoveryPlans] = useState<RecoveryPlan[]>([])
+const RecoverSplitList: React.FC<RecoverSplitListProps> = (props) => {
+    const [recoverSplits, setRecoverSplits] = useState<RecoverSplit[]>([])
     const [guardians, setGuardians] = useState<Guardian[]>([])
 
     useEffect(() => {
         const unsubscribe = props.navigation.addListener('focus', async() => {
             console.log('[RecoverPlansListScreen] focus()')
-            const recoveryPlansData = props.recoveryPlansManager.getRecoveryPlansArray()
-            setRecoveryPlans(recoveryPlansData.sort((a, b) => a.name.localeCompare(b.name)))
+            const recoverSplitsData = props.recoverSplitsManager.getRecoverSplitsArray()
+            setRecoverSplits(recoverSplitsData.sort((a, b) => a.name.localeCompare(b.name)))
             const guardiansData = props.guardiansManager.getGuardiansArray()
             setGuardians(guardiansData.sort((a, b) => a.name.localeCompare(b.name)))
         });
@@ -58,12 +58,12 @@ const RecoveryPlanList: React.FC<RecoveryPlanListProps> = (props) => {
                 <Text style={ds.header}>Recovery Plans</Text>
             </View>
             <View>
-                {recoveryPlans.map((recoveryPlan, index) => {
+                {recoverSplits.map((recoverSplit, index) => {
                     return <Pressable key={index} onPress={() => 
                             props.navigation.navigate(
-                                ROUTES.RecoveryPlanViewRoute,
-                                {recoveryPlanPk: recoveryPlan.pk})}>
-                        <RecoveryPlanRow recoveryPlan={recoveryPlan} />
+                                ROUTES.RecoverSplitViewRoute,
+                                {recoverSplitPk: recoverSplit.pk})}>
+                        <RecoverSplitRow recoverSplit={recoverSplit} />
                     </Pressable>
                 })}
             </View>
@@ -90,11 +90,11 @@ const RecoveryPlanList: React.FC<RecoveryPlanListProps> = (props) => {
             </Pressable>}
             <View style={tw`flex-grow-1`} />
             <Pressable style={[ds.button, ds.greenButton, tw`rounded-full`]}
-                onPressOut={() => props.navigation.navigate(ROUTES.RecoveryPlanCreateRoute)}>
+                onPressOut={() => props.navigation.navigate(ROUTES.RecoverSplitCreateRoute)}>
                 <Text style={ds.buttonText}>Create Recovery</Text>
             </Pressable>
         </View>
     </View>
 }
 
-export default RecoveryPlanList
+export default RecoverSplitList

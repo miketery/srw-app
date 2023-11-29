@@ -2,7 +2,6 @@ import { createMachine } from 'xstate';
 
 import { CombineParty } from '../models/RecoverCombine';
 import { SenderFunction } from '../services/DigitalAgentService';
-import { combine } from 'secrets.js-grempe';
 
 const CombinePartyMachine = createMachine({
     id: 'combinePartyFsm',
@@ -68,14 +67,14 @@ const CombinePartyMachine = createMachine({
 }, {
     actions: {
         sendRequestError: (context, event): void => {
-            console.log('[RecoveryPartyMachine.sendInviteError]', event)
+            console.log('[RecoverCombinePartyMachine.sendInviteError]', event)
             console.log(event.data.stack)
         },
         save: (context) => {
             context.combineParty.save();
         },
         triggerParent: (context, event): void => {
-            console.log('[RecoveryPartyMachine.triggerParent]', event)
+            console.log('[RecoverCombinePartyMachine.triggerParent]', event)
             context.combineParty.recoverCombine.fsm.send('')
         },
     },
@@ -83,7 +82,7 @@ const CombinePartyMachine = createMachine({
     },
     services: {
         sendRequest: async (context, event): Promise<boolean> => {
-            console.log('[RecoveryPartyMachine.sendInvite]', event)
+            console.log('[RecoverCombinePartyMachine.sendInvite]', event)
             const msg = context.combineParty.recoverCombineRequestMsg()
             const res = await context.sender(msg)
             if(res) {

@@ -5,8 +5,8 @@ export enum StoredType {
     contact = 'contact',
     notification = 'notification',
     secret = 'secret',
-    recoveryPlan = 'recoveryPlan', // party (or external gaurdian) stored as child of recoveryPlan
-    guardian = 'guardian', // I am a guardian for someone else (i.e. they have me as a party in their recoveryPlan)
+    recoverSplit = 'recoverSplit', // party (or external gaurdian) stored as child of recoverSplit
+    guardian = 'guardian', // I am a guardian for someone else (i.e. they have me as a party in their recoverSplit)
     recoverCombine = 'recoverCombine', // recoverying a vault
     message = 'message',
 }
@@ -16,7 +16,7 @@ export const StoredTypePrefix: { [k in StoredType]: string } = {
     [StoredType.contact]: 'c__',
     [StoredType.notification]: 'n__',
     [StoredType.secret]: 's__',
-    [StoredType.recoveryPlan]: 'rp_',
+    [StoredType.recoverSplit]: 'rs_',
     [StoredType.guardian]: 'g__',
     [StoredType.recoverCombine]: 'rc_',
     [StoredType.message]: 'm__',

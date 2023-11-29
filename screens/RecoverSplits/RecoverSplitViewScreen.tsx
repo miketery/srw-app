@@ -5,11 +5,11 @@ import ds from '../../assets/styles'
 import tw from '../../lib/tailwind'
 import { GoBackButton, TopGradient } from '../../components';
 
-import RecoveryPlan, { RecoveryParty } from '../../models/RecoveryPlan'
-import RecoveryPlansManager from '../../managers/RecoveryPlansManager'
+import RecoverSplit, { RecoverSplitParty } from '../../models/RecoverSplit'
+import RecoverSplitsManager from '../../managers/RecoverSplitsManager'
 
 
-const PartyRow: React.FC<{party: RecoveryParty}> = ({party}) => {
+const PartyRow: React.FC<{party: RecoverSplitParty}> = ({party}) => {
     return <View style={[ds.row, tw`flex-col`]}>
         <Text style={ds.text}>{party.name}</Text>
         <Text style={ds.text}>{party.state}</Text>
@@ -18,12 +18,12 @@ const PartyRow: React.FC<{party: RecoveryParty}> = ({party}) => {
 }
 
 
-const RecoveryPlanDetails: React.FC<{recoveryPlan: RecoveryPlan}> = ({recoveryPlan}) => {
+const RecoverSplitDetails: React.FC<{recoverSplit: RecoverSplit}> = ({recoverSplit}) => {
     return <View style={tw`flex-col`}>
-        <Text style={ds.text}>{recoveryPlan.name}</Text>
-        <Text style={ds.text}>{recoveryPlan.state}</Text>
+        <Text style={ds.text}>{recoverSplit.name}</Text>
+        <Text style={ds.text}>{recoverSplit.state}</Text>
         <View style={tw`flex-col`}>
-            {recoveryPlan.recoveryPartys.map((party, index) => {
+            {recoverSplit.recoverSplitPartys.map((party, index) => {
                 return <PartyRow key={index} party={party} />
             })}
         </View>
@@ -31,21 +31,21 @@ const RecoveryPlanDetails: React.FC<{recoveryPlan: RecoveryPlan}> = ({recoveryPl
 }
 
 
-type RecoveryPlanViewProps = {
+type RecoverSplitViewScreenProps = {
     navigation: any,
-    route: {params: {recoveryPlanPk: string}},
-    recoveryPlansManager: RecoveryPlansManager,
+    route: {params: {recoverSplitPk: string}},
+    recoverSplitsManager: RecoverSplitsManager,
 }
 
-const RecoveryPlanView: React.FC<RecoveryPlanViewProps> = (props) => {
-    const [recoveryPlan, setRecoveryPlan] = useState<RecoveryPlan>(null)
+const RecoverSplitViewScreen: React.FC<RecoverSplitViewScreenProps> = (props) => {
+    const [recoverSplit, setRecoverSplit] = useState<RecoverSplit>(null)
 
     useEffect(() => {
         const unsubscribe = props.navigation.addListener('focus', async() => {
-            const recoveryPlanPk = props.route.params['recoveryPlanPk']
-            console.log('[RecoveryPlanViewScreen] focus()', recoveryPlanPk)
-            const recoveryPlan = props.recoveryPlansManager.getRecoveryPlan(recoveryPlanPk)
-            setRecoveryPlan(recoveryPlan)
+            const recoverSplitPk = props.route.params['recoverSplitPk']
+            console.log('[RecoverSplitViewScreen] focus()', recoverSplitPk)
+            const recoverSplit = props.recoverSplitsManager.getRecoverSplit(recoverSplitPk)
+            setRecoverSplit(recoverSplit)
         });
         return unsubscribe;
     }, [])
@@ -56,18 +56,18 @@ const RecoveryPlanView: React.FC<RecoveryPlanViewProps> = (props) => {
                 <Text style={ds.header}>Recovery Plan</Text>
             </View>
             <View>
-                {recoveryPlan && <RecoveryPlanDetails recoveryPlan={recoveryPlan} />}
+                {recoverSplit && <RecoverSplitDetails recoverSplit={recoverSplit} />}
             </View>
         </ScrollView>
         <View style={ds.buttonRowB}>
             <GoBackButton onPressOut={() => props.navigation.goBack()} />
             <View style={tw`flex-grow`}></View>
             <Pressable style={[ds.button, ds.blueButton]}
-                    onPress={() => props.navigation.navigate('RecoveryPlanEdit', {recoveryPlanPk: recoveryPlan.pk})}>
+                    onPress={() => props.navigation.navigate('RecoverSplitEdit', {recoverSplitPk: recoverSplit.pk})}>
                 <Text style={ds.buttonText}>Edit</Text>
             </Pressable>
         </View>
     </View>
 }
 
-export default RecoveryPlanView
+export default RecoverSplitViewScreen

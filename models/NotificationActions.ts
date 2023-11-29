@@ -24,7 +24,7 @@ const acceptContactRequestAction: NotificationAction = {
     }
 }
 
-const acceptRecoveryPlanInviteAction: NotificationAction = {
+const acceptRecoverSplitInviteAction: NotificationAction = {
     title: 'Accept',
     action: (notification, manager) => {
         manager.guardiansManager.acceptGuardian(notification.data.metadata.pk, () => {
@@ -32,7 +32,7 @@ const acceptRecoveryPlanInviteAction: NotificationAction = {
         })
     }
 }
-const declineRecoveryPlanInviteAction: NotificationAction = {
+const declineRecoverSplitInviteAction: NotificationAction = {
     title: 'Decline',
     action: (notification, manager) => {
         manager.guardiansManager.declineGuardian(notification.data.metadata.pk, () => {
@@ -70,8 +70,8 @@ const notificationActionsMap: {[key: string]: NotificationAction[]} = {
     ],
     // recoverSplit
     [NotificationTypes.recoverSplit.invite]: [
-        acceptRecoveryPlanInviteAction,
-        declineRecoveryPlanInviteAction,
+        acceptRecoverSplitInviteAction,
+        declineRecoverSplitInviteAction,
     ],
     [NotificationTypes.recoverSplit.accept]: [
         dismissAction

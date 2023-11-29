@@ -3,7 +3,7 @@ import SS, { StoredType } from '../services/StorageService';
 
 import ContactsManager from './ContactsManager';
 import SecretsManager from './SecretsManager';
-import RecoveryPlansManager from './RecoveryPlansManager';
+import RecoverSplitsManager from './RecoverSplitsManager';
 import GuardiansManager from './GuardiansManager';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,7 +24,7 @@ class VaultManager {
     private _currentVault: Vault | null;
     private _secretsManager: SecretsManager | null;
     private _contactsManager: ContactsManager | null;
-    private _recoveryPlansManager: RecoveryPlansManager | null;
+    private _recoverSplitsManager: RecoverSplitsManager | null;
     private _guardiansManager: GuardiansManager | null;
 
     private _notificationsManager: NotificationsManager | null;
@@ -128,7 +128,7 @@ class VaultManager {
         await recoverVaultLoad(); // had this in the promise ALl, but needs to be loaded before messages
         this._secretsManager = new SecretsManager(this._currentVault);
         this._contactsManager = new ContactsManager(this._currentVault);
-        this._recoveryPlansManager = new RecoveryPlansManager(
+        this._recoverSplitsManager = new RecoverSplitsManager(
             this._currentVault, {}, this._contactsManager);
         this._guardiansManager = new GuardiansManager(
             this._currentVault, {}, this._contactsManager);
@@ -141,7 +141,7 @@ class VaultManager {
             // recoverVaultLoad(),
             this._secretsManager.loadSecrets(),
             this._contactsManager.loadContacts(),
-            this._recoveryPlansManager.loadRecoveryPlans(),
+            this._recoverSplitsManager.loadRecoverSplits(),
             this._guardiansManager.loadGuardians(),
             this._notificationsManager.loadNotifications(),
             this._messagesManager.loadMessages(),
@@ -219,10 +219,10 @@ class VaultManager {
             throw new Error('Contacts Manager not set');
         return this._contactsManager;
     }
-    get recoveryPlansManager(): RecoveryPlansManager {
-        if (!this._recoveryPlansManager)
+    get recoverSplitsManager(): RecoverSplitsManager {
+        if (!this._recoverSplitsManager)
             throw new Error('Contacts Manager not set');
-        return this._recoveryPlansManager;
+        return this._recoverSplitsManager;
     }
     get guardiansManager(): GuardiansManager {
         if (!this._guardiansManager)

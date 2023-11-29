@@ -1,11 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
 import { interpret } from 'xstate';
 
-import Vault, { VaultDict } from "./Vault";
+import Vault from "./Vault";
 import SS, { StoredTypePrefix } from '../services/StorageService';
 import RecoverCombineMachine from '../machines/RecoverCombineMachine';
 import CombinePartyMachine from '../machines/CombinePartyMachine';
-import { ManifestDict } from './RecoveryPlan';
+import { ManifestDict } from './RecoverSplit';
 import { Message, OutboundMessageDict } from './Message';
 import { RecoverCombineRequest, RecoverCombineResponse } from './MessagePayload';
 import secrets from '../lib/secretsGrempe';
@@ -124,7 +124,7 @@ export class CombineParty {
     }
     recoverCombineRequestMsg(): OutboundMessageDict { //TODO
         const data: RecoverCombineRequest = {
-            recoveryPlanPk: this.recoverCombine.manifest.recoveryPlanPk,
+            recoverSplitPk: this.recoverCombine.manifest.recoverSplitPk,
             verify_key: this.recoverCombine.vault.b58_verify_key,
             public_key: this.recoverCombine.vault.b58_public_key,
         }
@@ -186,7 +186,7 @@ class RecoverCombine {
     }
     static create(vault: Vault, manifest: ManifestDict | null): RecoverCombine {
         const pk = StoredTypePrefix.recoverCombine + uuidv4();
-        const combinePartys = manifest === null ? [] : manifest.recoveryPartys.map((g) => {
+        const combinePartys = manifest === null ? [] : manifest.recoverSplitPartys.map((g) => {
             return {...g, state: CombinePartyState.START, shares: []}
         })
         const recoveryVault = new RecoverCombine(pk, vault.pk, vault, manifest,
@@ -195,7 +195,7 @@ class RecoverCombine {
     }
     setManifest(manifest: ManifestDict): void {
         this.manifest = manifest;
-        const combinePartys = manifest.recoveryPartys.map((g) => {
+        const combinePartys = manifest.recoverSplitPartys.map((g) => {
             return {...g, state: CombinePartyState.START, shares: []}
         })
         this.combinePartys = combinePartys.map((cp) => CombineParty.fromDict(cp, this));
