@@ -27,7 +27,7 @@
         };
         eventsCausingGuards: {
           "allInvitesSent": "";
-"allRecoveryPartysAccepted": "";
+"allRecoverSplitPartysAccepted": "";
         };
         eventsCausingServices: {
           "splitKey": "SPLIT_KEY";

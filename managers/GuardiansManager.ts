@@ -8,8 +8,8 @@ import Contact from '../models/Contact'
 import ContactsManager from './ContactsManager'
 import { Message } from '../models/Message'
 import { MessageTypes } from './MessagesManager'
-import { RecoveryPlanInvite, RecoverCombineRequest } from '../models/MessagePayload'
-import { ManifestDict } from '../models/RecoveryPlan'
+import { RecoverSplitInvite, RecoverCombineRequest } from '../models/MessagePayload'
+import { ManifestDict } from '../models/RecoverSplit'
 
 class GuardiansManager {
     private _vault: Vault;
@@ -26,12 +26,12 @@ class GuardiansManager {
     clear() { this._guardians = {}; }
     createGuardian(name: string, description: string, manifest: ManifestDict,
             shares: string[], contactPk: string): Guardian {
-        const recoveryPlan = Guardian.create(name, description,
+        const recoverSplit = Guardian.create(name, description,
             this._vault.pk, manifest, shares, contactPk,
             this._contactsManager.getContact,
             this._vault.sender) // auto saves in FSM
-        this._guardians[recoveryPlan.pk] = recoveryPlan;
-        return recoveryPlan
+        this._guardians[recoverSplit.pk] = recoverSplit;
+        return recoverSplit
     }
     async saveGuardian(guardian: Guardian): Promise<void> {
         await guardian.save()
@@ -41,17 +41,17 @@ class GuardiansManager {
         const guardians: {string?: Guardian} = {};
         const guardiansData = await SS.getAll(
             StoredType.guardian, this._vault.pk);
-        for (let recoveryPlanData of Object.values(guardiansData)) {
-            const c = Guardian.fromDict(recoveryPlanData,
+        for (let recoverSplitData of Object.values(guardiansData)) {
+            const c = Guardian.fromDict(recoverSplitData,
                 this._contactsManager.getContact, this._vault.sender);
             guardians[c.pk] = c;
         }
         this._guardians = guardians;
         return guardians;
     }
-    async deleteGuardian(recoveryPlan: Guardian): Promise<void> {
-        await SS.delete(recoveryPlan.pk);
-        delete this._guardians[recoveryPlan.pk];
+    async deleteGuardian(recoverSplit: Guardian): Promise<void> {
+        await SS.delete(recoverSplit.pk);
+        delete this._guardians[recoverSplit.pk];
     }
     getGuardians(): {[pk: string]: Guardian} {
         return this._guardians;
@@ -72,7 +72,7 @@ class GuardiansManager {
         }
         const contact = this._contactsManager.getContactByDid(message.sender.did)
         message.decrypt(contact.private_key)
-        const data = message.getData() as RecoveryPlanInvite
+        const data = message.getData() as RecoverSplitInvite
         const guardian = this.createGuardian(
             data.name, data.description,
             data.manifest, data.shares, contact.pk)
@@ -98,7 +98,7 @@ class GuardiansManager {
         }
         message.decrypt(this._vault.private_key)
         const data = message.getData() as RecoverCombineRequest
-        const guardian = this.getGuardiansArray().filter((g) => g.manifest.recoveryPlanPk === data.recoveryPlanPk)[0]
+        const guardian = this.getGuardiansArray().filter((g) => g.manifest.recoverSplitPk === data.recoverSplitPk)[0]
         const metadata = {verify_key: data.verify_key, public_key: data.public_key}
         return {guardian, metadata}
     }

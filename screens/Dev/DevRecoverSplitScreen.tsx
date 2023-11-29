@@ -8,11 +8,11 @@ import tw from '../../lib/tailwind'
 
 import Vault from '../../models/Vault'
 import Contact from '../../models/Contact'
-import RecoveryPlansManager from '../../managers/RecoveryPlansManager'
+import RecoverSplitsManager from '../../managers/RecoverSplitsManager'
 import getVaultsAndManagers from '../../testdata/genData'
 
 import { useSessionContext } from '../../contexts/SessionContext'
-import RecoveryPlan, { RecoveryPlanState } from '../../models/RecoveryPlan'
+import RecoverSplit, { RecoverSplitState } from '../../models/RecoverSplit'
 import { bytesToHex } from '../../lib/utils'
 
 import SS, { StoredType } from '../../services/StorageService'
@@ -23,11 +23,11 @@ import { InboundMessageDict, Message } from '../../models/Message'
 import { GoBackButton } from '../../components'
 
 /**
- * Test Recovery Plan Flow Messages
+ * Test Recover Split Flow
  */ 
 
 const deleteAllRecoveryRelated = () => {
-    const types = [StoredType.recoveryPlan, StoredType.guardian]
+    const types = [StoredType.recoverSplit, StoredType.guardian]
     for(let type of types)
         SS.deleteAllByType(type)
 }
@@ -40,33 +40,33 @@ async function RecoverPlanCreate(
                 contacts: {[nameOrPk: string]: Contact}
             }
         }) {
-    console.log('[DevRecoveryPlanScreen.RecoverPlanCreate] TEST')
+    console.log('[DevRecoverSplitScreen.RecoverPlanCreate] TEST')
     // alice creates recovery w/ Bob and Charlie and Dan
     const { alice } = vaultsAndManagers
-    const recoveryPlanManager = new RecoveryPlansManager(alice.vault, {}, alice.contactsManager)
-    const recoveryPlan = recoveryPlanManager.createRecoveryPlan(
+    const recoverSplitManager = new RecoverSplitsManager(alice.vault, {}, alice.contactsManager)
+    const recoverSplit = recoverSplitManager.createRecoverSplit(
         'RP_01 - test', 'testing')
-    recoveryPlan.addRecoveryParty(alice.contacts['bob'], 1, true)
-    recoveryPlan.addRecoveryParty(alice.contacts['charlie'], 1, false)
-    recoveryPlan.addRecoveryParty(alice.contacts['dan'], 2, true)
+    recoverSplit.addRecoverSplitParty(alice.contacts['bob'], 1, true)
+    recoverSplit.addRecoverSplitParty(alice.contacts['charlie'], 1, false)
+    recoverSplit.addRecoverSplitParty(alice.contacts['dan'], 2, true)
 
     const byteSecret = new TextEncoder().encode(JSON.stringify({secret: 'MY SECRET'}))
-    recoveryPlan.setPayload(byteSecret)
-    recoveryPlan.setThreshold(3)
-    console.assert(recoveryPlan.checkValidPreSubmit())
+    recoverSplit.setPayload(byteSecret)
+    recoverSplit.setThreshold(3)
+    console.assert(recoverSplit.checkValidPreSubmit())
     
-    await recoveryPlan.generateKey()
-    await recoveryPlan.splitKey()
+    await recoverSplit.generateKey()
+    await recoverSplit.splitKey()
  
-    console.log(recoveryPlan.toDict())
-    console.log(recoveryPlan.recoveryPartys[0].toDict())
-    const keyHex = bytesToHex(recoveryPlan.key)
+    console.log(recoverSplit.toDict())
+    console.log(recoverSplit.recoverSplitPartys[0].toDict())
+    const keyHex = bytesToHex(recoverSplit.key)
     console.log(keyHex)
 
     const allShares = []
-    for(let i = 0; i < recoveryPlan.recoveryPartys.length; i++) {
-        for(let j = 0; j < recoveryPlan.recoveryPartys[i].shares.length; j++) {
-            allShares.push(recoveryPlan.recoveryPartys[i].shares[j])
+    for(let i = 0; i < recoverSplit.recoverSplitPartys.length; i++) {
+        for(let j = 0; j < recoverSplit.recoverSplitPartys[i].shares.length; j++) {
+            allShares.push(recoverSplit.recoverSplitPartys[i].shares[j])
         }
     }
     // only 2 shares
@@ -88,29 +88,29 @@ async function RecoverPlanFullFlow(
         }): Promise<void> {
     deleteAllRecoveryRelated()
     const { alice, bob, charlie, dan } = vaultsAndManagers
-    const recoveryPlanManager = new RecoveryPlansManager(alice.vault, {}, alice.contactsManager)
-    const recoveryPlan: RecoveryPlan = recoveryPlanManager.createRecoveryPlan(
+    const recoverSplitManager = new RecoverSplitsManager(alice.vault, {}, alice.contactsManager)
+    const recoverSplit: RecoverSplit = recoverSplitManager.createRecoverSplit(
         'RP_01 - test', 'RP Dev Test')
-    recoveryPlan.addRecoveryParty(alice.contacts['bob'], 1, true)
-    recoveryPlan.addRecoveryParty(alice.contacts['charlie'], 1, false)
-    recoveryPlan.addRecoveryParty(alice.contacts['dan'], 2, true)
-    console.log('Parties added:', recoveryPlan.toDict())
+    recoverSplit.addRecoverSplitParty(alice.contacts['bob'], 1, true)
+    recoverSplit.addRecoverSplitParty(alice.contacts['charlie'], 1, false)
+    recoverSplit.addRecoverSplitParty(alice.contacts['dan'], 2, true)
+    console.log('Parties added:', recoverSplit.toDict())
 
     const byteSecret = new TextEncoder().encode(JSON.stringify({secret: 'MY SECRET'}))
-    recoveryPlan.setPayload(byteSecret)
-    recoveryPlan.setThreshold(3)
-    console.assert(recoveryPlan.checkValidPreSubmit())
-    recoveryPlan.fsm.send('SPLIT_KEY')
+    recoverSplit.setPayload(byteSecret)
+    recoverSplit.setThreshold(3)
+    console.assert(recoverSplit.checkValidPreSubmit())
+    recoverSplit.fsm.send('SPLIT_KEY')
     await new Promise(r => setTimeout(r, 300))
-    console.log(recoveryPlan.toDict())
-    console.assert(RecoveryPlanState.READY_TO_SEND_INVITES === recoveryPlan.state)
-    recoveryPlan.fsm.send('SEND_INVITES') 
+    console.log(recoverSplit.toDict())
+    console.assert(RecoverSplitState.READY_TO_SEND_INVITES === recoverSplit.state)
+    recoverSplit.fsm.send('SEND_INVITES') 
     // ^^^ will be in SENDING_INVITES state until all sent, then in WAITING_ON_PARTICIPANTS
     await new Promise(r => setTimeout(r, 300))
-    console.log('STATE', recoveryPlan.state, recoveryPlan.allInvitesSent())
-    console.log('BEFORE ACCEPTS', recoveryPlan.toDict())
+    console.log('STATE', recoverSplit.state, recoverSplit.allInvitesSent())
+    console.log('BEFORE ACCEPTS', recoverSplit.toDict())
     // user fetch request and send accept
-    const getRequestAndAccept = async (user, accept, originUser, originRecoveryPlanManager: RecoveryPlansManager) => {
+    const getRequestAndAccept = async (user, accept, originUser, originRecoverSplitManager: RecoverSplitsManager) => {
         const name = user.vault.name
         const request = (await user.vault.getMessages())[0] as InboundMessageDict
         const guardianManager = new GuardiansManager(user.vault, {}, user.contactsManager)
@@ -120,18 +120,18 @@ async function RecoverPlanFullFlow(
         const guardian = Object.values(guardianManager.getGuardians())[0]
         const response = accept ? 'accepted' : 'declined'
         guardianManager.acceptGuardian(guardian.pk, () => console.log(name, response, guardian.toDict()))
-        const msgForRecoveryPlan = (await originUser.vault.getMessages())[0] as InboundMessageDict
-        originRecoveryPlanManager.processRecoveryPlanResponse(Message.inbound(msgForRecoveryPlan, originUser.vault))
+        const msgForRecoverSplit = (await originUser.vault.getMessages())[0] as InboundMessageDict
+        originRecoverSplitManager.processRecoverSplitResponse(Message.inbound(msgForRecoverSplit, originUser.vault))
     }
-    await getRequestAndAccept(bob, true, alice, recoveryPlanManager)
-    await getRequestAndAccept(charlie, true, alice, recoveryPlanManager)
-    await getRequestAndAccept(dan, true, alice, recoveryPlanManager) // change true to false to see decline
+    await getRequestAndAccept(bob, true, alice, recoverSplitManager)
+    await getRequestAndAccept(charlie, true, alice, recoverSplitManager)
+    await getRequestAndAccept(dan, true, alice, recoverSplitManager) // change true to false to see decline
     await new Promise(r => setTimeout(r, 500))
 
-    console.log('AFTER ACCEPTS', recoveryPlan.toDict())
-    recoveryPlan.recoveryPartys.forEach((rp) => console.log(rp.name, rp.state))
-    // recoveryPlan.finalize()
-    console.log(recoveryPlan.state)
+    console.log('AFTER ACCEPTS', recoverSplit.toDict())
+    recoverSplit.recoverSplitPartys.forEach((rp) => console.log(rp.name, rp.state))
+    // recoverSplit.finalize()
+    console.log(recoverSplit.state)
     return
 }
 
@@ -151,14 +151,14 @@ const testShamir = () => {
     console.log(b)
 }
 
-type DevRecoveryPlanScreenProps = {
+type DevRecoverSplitScreenProps = {
     route: {
         name: string
     },
     navigation: any
 }
 
-const DevRecoveryPlanScreen: React.FC<DevRecoveryPlanScreenProps> = (props) => {
+const DevRecoverSplitScreen: React.FC<DevRecoverSplitScreenProps> = (props) => {
     const {manager} = useSessionContext()
 
     const [loading, setLoading] = useState(true)
@@ -220,4 +220,4 @@ const DevRecoveryPlanScreen: React.FC<DevRecoveryPlanScreenProps> = (props) => {
         </View>
     </View>
 }
-export default DevRecoveryPlanScreen;
+export default DevRecoverSplitScreen;
