@@ -4,17 +4,17 @@ import secrets from '../lib/secretsGrempe';
 import { interpret } from 'xstate';
 
 import SS, { StoredTypePrefix } from '../services/StorageService';
-import RecoveryPlanMachine from '../machines/RecoveryPlanMachine';
-import RecoveryPartyMachine from '../machines/RecoveryPartyMachine';
+import RecoverSplitMachine from '../machines/RecoverSplitMachine';
+import RecoverSplitPartyMachine from '../machines/RecoverSplitPartyMachine';
 import Contact from "./Contact";
 import { SenderFunction } from "../services/DigitalAgentService";
 import Vault from "./Vault";
 import { Message , OutboundMessageDict } from "./Message";
 import { MessageTypes } from "../managers/MessagesManager";
-import { RecoveryPlanInvite } from "./MessagePayload";
+import { RecoverSplitInvite } from "./MessagePayload";
 import nacl from "tweetnacl-sealed-box";
 
-export enum RecoveryPlanState {
+export enum RecoverSplitState {
     START = 'START',
     SPLITTING_KEY = 'SPLITTING_KEY',
     READY_TO_SEND_INVITES = 'READY_TO_SEND_INVITES',
@@ -25,7 +25,7 @@ export enum RecoveryPlanState {
     ARCHIVED = 'ARCHIVED'
 }
 
-export enum RecoveryPartyState {
+export enum RecoverSplitPartyState {
     START = 'START',
     SENDING_INVITE = 'SENDING_INVITE',
     PENDING = 'PENDING',
@@ -35,18 +35,18 @@ export enum RecoveryPartyState {
 }
 
 export type ManifestDict = {
-    recoveryPlanPk: string,
+    recoverSplitPk: string,
     name: string,
     payloadHash: string,
     encryptedPayload: string, // base64
-    recoveryPartys: {
+    recoverSplitPartys: {
         name: string,
         did: string,
         verify_key: string,
         public_key: string,
     }[]
 }
-interface RecoveryPlanDict {
+interface RecoverSplitDict {
     pk: string,
     vaultPk: string,
 
@@ -58,24 +58,24 @@ interface RecoveryPlanDict {
 
     key: string, //hex
     
-    recoveryPartys: RecoveryPartyDict[],
+    recoverSplitPartys: RecoverSplitPartyDict[],
     threshold: number,
-    // no need for totalShares since derived from recoveryParty.numShares
+    // no need for totalShares since derived from recoverSplitParty.numShares
 
-    state: RecoveryPlanState,
+    state: RecoverSplitState,
     created: number, // unix timestamp
 }
 
-type RecoveryPartyDict = {
+type RecoverSplitPartyDict = {
     pk: string,
     contactPk: string,
     name: string,
     numShares: number,
     shares: string[], //TODO: add salt & hash
     receiveManifest: boolean,
-    state: RecoveryPartyState 
+    state: RecoverSplitPartyState 
 }
-export class RecoveryParty {
+export class RecoverSplitParty {
     pk: string
     contactPk: string
     name: string
@@ -83,14 +83,14 @@ export class RecoveryParty {
     numShares: number
     shares: string[] // hex
     receiveManifest: boolean
-    _state: RecoveryPartyState
+    _state: RecoverSplitPartyState
     fsm: any
-    recoveryPlan: RecoveryPlan
+    recoverSplit: RecoverSplit
 
     constructor(pk: string, contactPk: string, name: string,
             numShares: number, shares: string[], 
-            receiveManifest: boolean,  state: RecoveryPartyState,
-            recoveryPlan: RecoveryPlan) {
+            receiveManifest: boolean,  state: RecoverSplitPartyState,
+            recoverSplit: RecoverSplit) {
         this.pk = pk
         this.contactPk = contactPk
         this.name = name
@@ -98,23 +98,23 @@ export class RecoveryParty {
         this.shares = shares
         this.receiveManifest = receiveManifest
         this._state = state
-        this.recoveryPlan = recoveryPlan
-        console.log('[RecoveryParty.constructor]', this.toString(), this.recoveryPlan.name)
+        this.recoverSplit = recoverSplit
+        console.log('[RecoverSplitParty.constructor]', this.toString(), this.recoverSplit.name)
         //
         if(!['ACCEPTED', 'FINAL'].includes(this.state))
             this.initFSM()
     }
-    get state(): RecoveryPartyState {
+    get state(): RecoverSplitPartyState {
         if(this.fsm)
             return this.fsm.getSnapshot().value
         return this._state
     }
-    static fromDict(data: RecoveryPartyDict, recoveryPlan: RecoveryPlan): RecoveryParty {
-        return new RecoveryParty(data.pk, data.contactPk, data.name,
+    static fromDict(data: RecoverSplitPartyDict, recoverSplit: RecoverSplit): RecoverSplitParty {
+        return new RecoverSplitParty(data.pk, data.contactPk, data.name,
             data.numShares, data.shares, data.receiveManifest, data.state,
-            recoveryPlan)
+            recoverSplit)
     }
-    toDict(): RecoveryPartyDict {
+    toDict(): RecoverSplitPartyDict {
         return {
             pk: this.pk,
             contactPk: this.contactPk,
@@ -126,20 +126,20 @@ export class RecoveryParty {
         }
     }
     toString(): string {
-        return 'RecoveryParty<'+[this.pk, this.contactPk, this.name, this.state].join(', ')+'>'
+        return 'RecoverSplitParty<'+[this.pk, this.contactPk, this.name, this.state].join(', ')+'>'
     }
     initFSM(): any {
-        console.log('[RecoveryParty.initFSM]', this.toString())
+        console.log('[RecoverSplitParty.initFSM]', this.toString())
         if(this.fsm) {
-            console.log('[RecoveryParty.initFSM] fsm already exists')
+            console.log('[RecoverSplitParty.initFSM] fsm already exists')
             return this.fsm
         }
-        this.fsm = interpret(RecoveryPartyMachine.withContext({
-            recoveryParty: this,
-            sender: this.recoveryPlan.sender,
+        this.fsm = interpret(RecoverSplitPartyMachine.withContext({
+            recoverSplitParty: this,
+            sender: this.recoverSplit.sender,
         }))
-        this.fsm.onTransition((state: {context: {recoveryParty: RecoveryParty}}) => {
-            console.log('[RecoveryParty.fsm.onTransition]', state.context.recoveryParty.toString())
+        this.fsm.onTransition((state: {context: {recoverSplitParty: RecoverSplitParty}}) => {
+            console.log('[RecoverSplitParty.fsm.onTransition]', state.context.recoverSplitParty.toString())
         })
         this.fsm.start(this._state)
         this.fsm.send('REDO')
@@ -148,16 +148,16 @@ export class RecoveryParty {
         return this.fsm
     }
     assignShare(share: string): void {
-        console.log('[RecoveryParty.assignShare]', this.name)
+        console.log('[RecoverSplitParty.assignShare]', this.name)
         this.shares.push(share)
     }
     inviteMessage(): OutboundMessageDict {
-        const contact = this.recoveryPlan.getContact(this.contactPk)
-        const payload: RecoveryPlanInvite = {
-            name: this.recoveryPlan.name,
-            description: this.recoveryPlan.description,
+        const contact = this.recoverSplit.getContact(this.contactPk)
+        const payload: RecoverSplitInvite = {
+            name: this.recoverSplit.name,
+            description: this.recoverSplit.description,
             shares: this.shares,
-            manifest: this.recoveryPlan.getManifest(),
+            manifest: this.recoverSplit.getManifest(),
         }
         const message = Message.forContact(contact, payload,
             MessageTypes.recoverSplit.invite, '0.1')
@@ -166,7 +166,7 @@ export class RecoveryParty {
     }
 }
 
-class RecoveryPlan {
+class RecoverSplit {
     pk: string;
     vaultPk: string;
     
@@ -177,10 +177,10 @@ class RecoveryPlan {
     encryptedPayload: Uint8Array;
     
     key: Uint8Array;
-    recoveryPartys: RecoveryParty[];
+    recoverSplitPartys: RecoverSplitParty[];
     threshold: number;
     
-    _state: RecoveryPlanState;
+    _state: RecoverSplitState;
     created: number;
     
     vault: Vault;
@@ -193,10 +193,10 @@ class RecoveryPlan {
             name: string, description: string,
             payload: Uint8Array, encryptedPayload: Uint8Array,
             key: Uint8Array,
-            recoveryPartys: RecoveryPartyDict[], threshold: number,
-            state: RecoveryPlanState, created: number,
+            recoverSplitPartys: RecoverSplitPartyDict[], threshold: number,
+            state: RecoverSplitState, created: number,
             vault: Vault, getContact: (pk: string) => Contact) {
-        console.log('[RecoveryPlan.constructor]')
+        console.log('[RecoverSplit.constructor]')
         this.pk = pk
         this.vaultPk = vaultPk
         
@@ -214,59 +214,59 @@ class RecoveryPlan {
         this.created = created;
         this.vault = vault
 
-        this.recoveryPartys = recoveryPartys.map(
-            p => RecoveryParty.fromDict(p, this))
+        this.recoverSplitPartys = recoverSplitPartys.map(
+            p => RecoverSplitParty.fromDict(p, this))
         
         if(!['FINAL', 'ARCHIVED'].includes(this._state))
             this.initFSM()
     }
     initFSM() {
-        const machine = RecoveryPlanMachine.withContext({recoveryPlan: this})
+        const machine = RecoverSplitMachine.withContext({recoverSplit: this})
         this.fsm = interpret(machine)
-        this.fsm.onTransition((state: {context: {recoveryPlan: RecoveryPlan}}) => {
-            console.log('[RecoveryPlan.fsm.onTransition]',
-                state.context.recoveryPlan.toString())
+        this.fsm.onTransition((state: {context: {recoverSplit: RecoverSplit}}) => {
+            console.log('[RecoverSplit.fsm.onTransition]',
+                state.context.recoverSplit.toString())
         })
         this.fsm.start(this._state)
     }
     // getContact(pk: string): Contact {
-    //     console.log('[RecoveryPlan.getContact]', pk)
+    //     console.log('[RecoverSplit.getContact]', pk)
     //     return this._contactsManager.getContact(pk)
     // }
-    get state(): RecoveryPlanState {
+    get state(): RecoverSplitState {
         return this.fsm.getSnapshot().value
     }
     get sender(): SenderFunction {
         return this.vault.sender
     }
     save(): void {
-        console.log('[RecoveryPlan.save]', this.toString())        
+        console.log('[RecoverSplit.save]', this.toString())        
         SS.save(this.pk, this.toDict())
     }
     static create(name: string, description: string,
             vault: Vault, getContact: (pk: string) => Contact) {
-        const pk = StoredTypePrefix.recoveryPlan + uuidv4()
-        return new RecoveryPlan(
+        const pk = StoredTypePrefix.recoverSplit + uuidv4()
+        return new RecoverSplit(
             pk, vault.pk, name, description,
             Uint8Array.from([]),
             Uint8Array.from([]),
             Uint8Array.from([]),
             [], 0,
-            RecoveryPlanState.START, Math.floor(Date.now() / 1000),
+            RecoverSplitState.START, Math.floor(Date.now() / 1000),
             vault, getContact)
     }
-    static fromDict(data: RecoveryPlanDict,
-            vault: Vault, getContact: (pk: string) => Contact): RecoveryPlan {
+    static fromDict(data: RecoverSplitDict,
+            vault: Vault, getContact: (pk: string) => Contact): RecoverSplit {
         const key = hexToBytes(data.key)
         const payload = base64toBytes(data.payload)
         const encryptedPayload = base64toBytes(data.encryptedPayload)
-        return new RecoveryPlan(data.pk, data.vaultPk,
+        return new RecoverSplit(data.pk, data.vaultPk,
             data.name, data.description, 
             payload, encryptedPayload,
-            key, data.recoveryPartys, data.threshold,
+            key, data.recoverSplitPartys, data.threshold,
             data.state, data.created, vault, getContact)
     }
-    toDict(): RecoveryPlanDict {
+    toDict(): RecoverSplitDict {
         return {
             pk: this.pk,
             vaultPk: this.vaultPk,
@@ -279,8 +279,8 @@ class RecoveryPlan {
 
             key: bytesToHex(this.key),
 
-            recoveryPartys: this.recoveryPartys.map(
-                recoveryParty => recoveryParty.toDict()),
+            recoverSplitPartys: this.recoverSplitPartys.map(
+                recoverSplitParty => recoverSplitParty.toDict()),
             threshold: this.threshold,
 
             state: this.state,
@@ -288,16 +288,16 @@ class RecoveryPlan {
         }
     }
     toString(): string {
-        return 'RecoveryPlan<' + [this.pk, this.name, this.state].join(', ') + '>'
+        return 'RecoverSplit<' + [this.pk, this.name, this.state].join(', ') + '>'
     }
     get totalShares(): number {
-        return this.recoveryPartys.map(p => p.numShares).reduce((a, b) => a + b)
+        return this.recoverSplitPartys.map(p => p.numShares).reduce((a, b) => a + b)
     }
-    addRecoveryParty(contact: Contact, numShares: number, receiveManifest: boolean) {
-        const recoveryParty = new RecoveryParty(
+    addRecoverSplitParty(contact: Contact, numShares: number, receiveManifest: boolean) {
+        const recoverSplitParty = new RecoverSplitParty(
             uuidv4(), contact.pk, contact.name, numShares,
-            [], receiveManifest, RecoveryPartyState.START, this)
-        this.recoveryPartys.push(recoveryParty)
+            [], receiveManifest, RecoverSplitPartyState.START, this)
+        this.recoverSplitPartys.push(recoverSplitParty)
     }
     async generateKey(): Promise<void> {
         this.key = await getRandom(32)
@@ -333,13 +333,13 @@ class RecoveryPlan {
         }
     }
     async splitKey(): Promise<boolean> {
-        console.log('[RecoveryPlan.splitKey]', this.totalShares, this.threshold)
+        console.log('[RecoverSplit.splitKey]', this.totalShares, this.threshold)
         const keyHex = bytesToHex(this.key)
         const shares = secrets.share(keyHex, this.totalShares, this.threshold)
         shares.forEach(s => console.log(s))
-        for(let i = 0; i < this.recoveryPartys.length; i++) {
-            for(let j = 0; j < this.recoveryPartys[i].numShares; j++)
-                this.recoveryPartys[i].assignShare(shares.shift())
+        for(let i = 0; i < this.recoverSplitPartys.length; i++) {
+            for(let j = 0; j < this.recoverSplitPartys[i].numShares; j++)
+                this.recoverSplitPartys[i].assignShare(shares.shift())
         }
         return Promise.resolve(true)
     }
@@ -347,11 +347,11 @@ class RecoveryPlan {
         if(this._cachedManifest)
             return this._cachedManifest
         this._cachedManifest = {
-            recoveryPlanPk: this.pk,
+            recoverSplitPk: this.pk,
             name: this.name,
             encryptedPayload: bytesToBase64(this.encryptedPayload),
             payloadHash: bytesToHex(nacl.hash(this.payload)),
-            recoveryPartys: this.recoveryPartys.map(p => {
+            recoverSplitPartys: this.recoverSplitPartys.map(p => {
                 const contact = this.getContact(p.contactPk)
                 return {
                     did: contact.did,
@@ -364,11 +364,11 @@ class RecoveryPlan {
         return this._cachedManifest
     }
     allPartysAccepted(): boolean {
-        return this.recoveryPartys.every(p => p.state === RecoveryPartyState.ACCEPTED)
+        return this.recoverSplitPartys.every(p => p.state === RecoverSplitPartyState.ACCEPTED)
     }
     allInvitesSent(): boolean {
-        return this.recoveryPartys.every(p => p.state !== RecoveryPartyState.START)
+        return this.recoverSplitPartys.every(p => p.state !== RecoverSplitPartyState.START)
     }
 }
 
-export default RecoveryPlan;
+export default RecoverSplit;

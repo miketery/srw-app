@@ -81,7 +81,7 @@ const RecoverCombineMachine = createMachine({
             console.log('[FSM.RecoverCombineMachine.sendRequests]', context.recoverCombine.toString())
             for(let combineParty of context.recoverCombine.combinePartys) {
                 combineParty.fsm.send('REQUEST', {callback: () => {
-                    console.log('[FSM.RecoveryPlanMachine.sendRequests] callback', combineParty.name)
+                    console.log('[FSM.RecoverCombineMachine.sendRequests] callback', combineParty.name)
                 }})
             }        
         },

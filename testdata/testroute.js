@@ -32,12 +32,12 @@ const no_vault_test_route = {
 }
 // When HAS Vault && DEV pick route:
 // choose from Object.keys(switch_routes)
-const top_level = ROUTES.RecoveryPlanRoute; 
+const top_level = ROUTES.RecoverSplitRoute; 
 
 const switch_routes = {
-  [ROUTES.RecoveryPlanRoute]: [
-    {name: ROUTES.RecoveryPlansListRoute},
-    // {name: ROUTES.RecoveryPlanCreateRoute},
+  [ROUTES.RecoverSplitRoute]: [
+    {name: ROUTES.RecoverSplitsListRoute},
+    // {name: ROUTES.RecoverSplitCreateRoute},
     // {name: ROUTES.DevReocveryPlanRoute},
   ],
   [ROUTES.DevHasVaultRoute]: [

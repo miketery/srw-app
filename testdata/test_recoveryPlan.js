@@ -6,7 +6,7 @@ export const rp = {
     "payload": "TVkgU0VDUkVU",
     "payloadType": "OBJECT",
     "key": "c8d595d5972c9b094170bc228d861b3629dd8fa0754f53585eb7ef24b069d5e2",
-    "recoveryPartys": [ 
+    "recoverSplitPartys": [ 
         {
             "pk": "2da8d4e3-f0e1-46d4-9b14-0b1b5793929a",
             "contactPk": "c__bob",

@@ -4,32 +4,32 @@ import { ROUTES } from '../../config';
 
 import { useSessionContext } from '../../contexts/SessionContext'
 
-import RecoveryPlansListScreen from './RecoveryPlansListScreen'
-import RecoveryPlanCreateScreen from './RecoveryPlanCreateScreen'
-import RecoveryPlanViewScreen from './RecoveryPlanViewScreen'
-// import RecoveryPlanEditScreen from './RecoveryPlantEditScreen'
-// import RecoveryPlanDeleteScreen from './RecoveryPlanDeleteScreen'
+import RecoverSplitsListScreen from './RecoverSplitsListScreen'
+import RecoverSplitCreateScreen from './RecoverSplitCreateScreen'
+import RecoverSplitViewScreen from './RecoverSplitViewScreen'
+// import RecoverSplitEditScreen from './RecoverSplittEditScreen'
+// import RecoverSplitDeleteScreen from './RecoverSplitDeleteScreen'
 import GuardianViewScreen from './GuardianViewScreen'
 
-import DevRecoveryPlan from '../Dev/DevRecoveryPlanScreen'
+import DevRecoverSplit from '../Dev/DevRecoverSplitScreen'
 
 const Stack = createNativeStackNavigator();
 
 const routeConfigs = [
     {
-        name: ROUTES.RecoveryPlansListRoute,
+        name: ROUTES.RecoverSplitsListRoute,
         title: 'List Recovery Plans',
-        component: RecoveryPlansListScreen
+        component: RecoverSplitsListScreen
     },
     {
-        name: ROUTES.RecoveryPlanCreateRoute,
+        name: ROUTES.RecoverSplitCreateRoute,
         title: 'Create Recovery Plan',
-        component: RecoveryPlanCreateScreen
+        component: RecoverSplitCreateScreen
     },
     {
-        name: ROUTES.RecoveryPlanViewRoute,
+        name: ROUTES.RecoverSplitViewRoute,
         title: 'View Recovery Plan',
-        component: RecoveryPlanViewScreen
+        component: RecoverSplitViewScreen
     },
     {
         name: ROUTES.GuardianViewRoute,
@@ -39,11 +39,11 @@ const routeConfigs = [
     {
         name: ROUTES.DevReocveryPlanRoute,
         title: 'Dev Recovery Plan',
-        component: DevRecoveryPlan
+        component: DevRecoverSplit
     },
   ]
 
-export default function RecoveryPlanNavigator({navigation}) {
+export default function RecoverSplitNavigator({navigation}) {
     const {manager, vault} = useSessionContext()
 
     return <Stack.Navigator screenOptions={{headerShown: false}}
@@ -55,7 +55,7 @@ export default function RecoveryPlanNavigator({navigation}) {
                 options={{ title: route.title }}>
                 {props => <route.component {...props}
                     vault={vault}
-                    recoveryPlansManager={manager.recoveryPlansManager}
+                    recoverSplitsManager={manager.recoverSplitsManager}
                     guardiansManager={manager.guardiansManager}
                 />}
             </Stack.Screen>

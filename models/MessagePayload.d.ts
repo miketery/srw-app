@@ -1,4 +1,4 @@
-import { ManifestDict } from "./RecoveryPlan"
+import { ManifestDict } from "./RecoverSplit"
 
 export interface ContactInvite {
     did: string,
@@ -15,14 +15,14 @@ export interface ContactAccept {
 }
 // ContactReject
 
-export type RecoveryPlanInvite = {
+export type RecoverSplitInvite = {
     name: string,
     description: string,
     shares: string[],
     manifest:  ManifestDict,
 }
-export type RecoveryPlanResponse = {
-    recoveryPlanPk: string,
+export type RecoverSplitResponse = {
+    recoverSplitPk: string,
     response: 'accept' | 'decline',
 }
 
@@ -30,12 +30,12 @@ export type RecoverCombineManifest = {
     manifest: ManifestDict,
 }
 export type RecoverCombineRequest = {
-    recoveryPlanPk: string,
+    recoverSplitPk: string,
     verify_key: string, // base58
     public_key: string, // base58
 }
 export type RecoverCombineResponse = {
-    recoveryPlanPk: string,
+    recoverSplitPk: string,
     response: 'accept' | 'decline',
     shares?: string[],
 }
