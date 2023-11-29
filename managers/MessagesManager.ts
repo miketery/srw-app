@@ -109,7 +109,7 @@ const processMap: processMapType = {
         return Promise.resolve(true)
     },
     [MessageTypes.recoverSplit.response]: async (message: Message, vault: Vault, m: VaultManager) => {
-        const {recoveryPlan, contact, accepted} = await m.recoveryPlansManager.processRecoveryPlanResponse(message)
+        const {recoverSplit, contact, accepted} = await m.recoverSplitsManager.processRecoverSplitResponse(message)
         const notification = m.notificationsManager.createNotification(
             accepted ? NotificationTypes.recoverSplit.accept
             : NotificationTypes.recoverSplit.decline , {
@@ -131,7 +131,7 @@ const processMap: processMapType = {
                 detailed_text: message.sender.name + ' shared manifest for' + m.recoverCombine.manifest.name,
                 metadata: {
                     timestamp: message.created,
-                    // pk: guardian.manifest.recoveryPlanPk,
+                    // pk: guardian.manifest.recoverSplitPk,
                     // contactPk: guardian.contactPk
                 }
             })

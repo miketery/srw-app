@@ -85,10 +85,10 @@ export const ROUTES = {
     SecretCreateRoute: 'SecretCreateRoute',
 
     //
-    RecoveryPlanRoute: 'RecoveryPlanRoute',
-    RecoveryPlansListRoute: 'RecoveryPlansListRoute',
-    RecoveryPlanCreateRoute: 'RecoveryPlanCreateRoute',
-    RecoveryPlanViewRoute: 'RecoveryPlanViewRoute',
+    RecoverSplitRoute: 'RecoverSplitRoute',
+    RecoverSplitsListRoute: 'RecoverSplitsListRoute',
+    RecoverSplitCreateRoute: 'RecoverSplitCreateRoute',
+    RecoverSplitViewRoute: 'RecoverSplitViewRoute',
 
     //
     GuardianViewRoute: 'GuardianViewRoute',
@@ -135,7 +135,7 @@ export const TAB_BAR_ROUTES = {
         tabBarHide: false,
         icon: 'key',
     },
-    [ROUTES.RecoveryPlanRoute]: {
+    [ROUTES.RecoverSplitRoute]: {
         header: false,
         tabBarIconHide: false,
         tabBarHide: false,

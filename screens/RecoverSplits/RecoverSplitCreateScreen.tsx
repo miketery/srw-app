@@ -8,8 +8,8 @@ import { LoadingScreen, MyTextInput, TopGradient } from '../../components';
 
 import Vault from '../../models/Vault'
 
-import { RecoveryPlanState } from '../../models/RecoveryPlan'
-import RecoveryPlansManager from '../../managers/RecoveryPlansManager'
+import { RecoverSplitState } from '../../models/RecoverSplit'
+import RecoverSplitsManager from '../../managers/RecoverSplitsManager'
 import { ROUTES } from '../../config';
 import Contact from '../../models/Contact';
 
@@ -117,14 +117,14 @@ const ThresholdInput = ({step, selected, threshold, setThreshold}:
     </View>
 }
 
-type RecoveryPlanCreateScreenProps = {
+type RecoverSplitCreateScreenProps = {
     navigation: any,
     route: any,
     vault: Vault,
-    recoveryPlansManager: RecoveryPlansManager
+    recoverSplitsManager: RecoverSplitsManager
 }
 
-const RecoveryPlanCreateScreen: React.FC<RecoveryPlanCreateScreenProps> = (props) => {
+const RecoverSplitCreateScreen: React.FC<RecoverSplitCreateScreenProps> = (props) => {
     const [step, setStep] = useState<number>(0)
     const [name, setName] = useState<string>('')
     const [participants, setParticipants] = useState<ContactPk[]>([])
@@ -134,26 +134,26 @@ const RecoveryPlanCreateScreen: React.FC<RecoveryPlanCreateScreenProps> = (props
     const [error, setError] = useState<string>('')
 
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
-    const [recoveryPlanState, setRecoveryPlanState] = useState<string>('')
+    const [recoverSplitState, setRecoverSplitState] = useState<string>('')
     // useEffect(() => {
-    //     if (DEV) console.log('RecoveryPlanCreateScreen: useEffect: step:', step)
+    //     if (DEV) console.log('RecoverSplitCreateScreen: useEffect: step:', step)
     // }, [step])
 
     useEffect(() => {
-        const contacts = props.recoveryPlansManager.contactsManager.getContactsArray()
+        const contacts = props.recoverSplitsManager.contactsManager.getContactsArray()
         console.log(contacts)
         setContacts(contacts)
     }, [])
 
-    const createRecoveryPlan = async () => {
+    const createRecoverSplit = async () => {
         setIsSubmitting(true)
-        const recoveryPlan = props.recoveryPlansManager.createRecoveryPlan(
+        const recoverSplit = props.recoverSplitsManager.createRecoverSplit(
             'Base Recovery Plan', 'Description'
         )
         for (const pk of participants) {
             const contact = contacts.filter((c: Contact) => c.pk === pk)[0]
             console.log('Added contact', contact.toString())
-            recoveryPlan.addRecoveryParty(contact, 1, true)
+            recoverSplit.addRecoverSplitParty(contact, 1, true)
         }
         const byteSecret = new TextEncoder().encode(JSON.stringify({
             words: props.vault.words,
@@ -161,42 +161,42 @@ const RecoveryPlanCreateScreen: React.FC<RecoveryPlanCreateScreenProps> = (props
             email: props.vault.email,
             display_name: props.vault.display_name,
         }))
-        recoveryPlan.setPayload(byteSecret)
-        recoveryPlan.setThreshold(threshold)
-        if(!recoveryPlan.checkValidPreSubmit()) {
+        recoverSplit.setPayload(byteSecret)
+        recoverSplit.setThreshold(threshold)
+        if(!recoverSplit.checkValidPreSubmit()) {
             console.error('ERROR SUBMITTING')
             setIsSubmitting(false)
         }
         // SPLIT KEY
-        setRecoveryPlanState('Splitting Key')
+        setRecoverSplitState('Splitting Key')
         let time = new Date().getTime()
-        console.log('XSTATE: ', recoveryPlan.state)
-        recoveryPlan.fsm.send('SPLIT_KEY')
-        while(recoveryPlan.state !== RecoveryPlanState.READY_TO_SEND_INVITES) {
-            console.log('XSTATE: ', recoveryPlan.state)
+        console.log('XSTATE: ', recoverSplit.state)
+        recoverSplit.fsm.send('SPLIT_KEY')
+        while(recoverSplit.state !== RecoverSplitState.READY_TO_SEND_INVITES) {
+            console.log('XSTATE: ', recoverSplit.state)
             await new Promise(resolve => setTimeout(resolve, 100))
         }
         console.log('SPLIT_KEY_COMPLETE', (new Date().getTime() - time) / 1000)
 
         // SPLIT KEY
-        setRecoveryPlanState('Sending Invites')
+        setRecoverSplitState('Sending Invites')
         time = new Date().getTime()
-        console.log('XSTATE: ', recoveryPlan.state)
-        recoveryPlan.fsm.send('SEND_INVITES')
-        while(recoveryPlan.state !== RecoveryPlanState.WAITING_ON_PARTICIPANTS) {
+        console.log('XSTATE: ', recoverSplit.state)
+        recoverSplit.fsm.send('SEND_INVITES')
+        while(recoverSplit.state !== RecoverSplitState.WAITING_ON_PARTICIPANTS) {
             await new Promise(resolve => setTimeout(resolve, 100))
         }
         console.log('INVITES_SENT', (new Date().getTime() - time) / 1000)
 
         // DONE
-        setRecoveryPlanState('Done')
-        console.log('XSTATE: ', recoveryPlan.state)
+        setRecoverSplitState('Done')
+        console.log('XSTATE: ', recoverSplit.state)
         await new Promise(resolve => setTimeout(resolve, 1000))
-        console.log('XSTATE: ', recoveryPlan.state)
+        console.log('XSTATE: ', recoverSplit.state)
         //
-        setRecoveryPlanState('Redirect')
-        // props.navigation.navigate(ROUTES.RecoveryPlanViewRoute, {pk: recoveryPlan.pk})
-        props.navigation.navigate(ROUTES.RecoveryPlansListRoute)
+        setRecoverSplitState('Redirect')
+        // props.navigation.navigate(ROUTES.RecoverSplitViewRoute, {pk: recoverSplit.pk})
+        props.navigation.navigate(ROUTES.RecoverSplitsListRoute)
     }
 
     const nextStep = () => {
@@ -212,7 +212,7 @@ const RecoveryPlanCreateScreen: React.FC<RecoveryPlanCreateScreenProps> = (props
     }
 
     if (isSubmitting) {
-        return <LoadingScreen msg={'Building Recovery Plan: ' + recoveryPlanState} />
+        return <LoadingScreen msg={'Building Recovery Plan: ' + recoverSplitState} />
     }
 
     return <View style={ds.mainContainerPtGradient}>
@@ -241,7 +241,7 @@ const RecoveryPlanCreateScreen: React.FC<RecoveryPlanCreateScreenProps> = (props
             </View>}
             {step == maxStep ? <View>
                 <Pressable style={[ds.button, ds.blueButton, tw`mt-8 mb-8 w-full`]}
-                        onPress={() => createRecoveryPlan()}>
+                        onPress={() => createRecoverSplit()}>
                     <Text style={ds.buttonText}>Create Recovery Plan</Text>
                 </Pressable>
             </View> : null}
@@ -255,4 +255,4 @@ const RecoveryPlanCreateScreen: React.FC<RecoveryPlanCreateScreenProps> = (props
     </View>
 }
 
-export default RecoveryPlanCreateScreen;
+export default RecoverSplitCreateScreen;

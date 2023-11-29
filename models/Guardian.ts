@@ -6,9 +6,9 @@ import GuardianMachine from '../machines/GuardianMachine';
 import { Message, OutboundMessageDict } from "./Message";
 import Contact from "./Contact";
 import { MessageTypes } from "../managers/MessagesManager";
-import { RecoverCombineManifest, RecoverCombineResponse, RecoveryPlanResponse } from "./MessagePayload";
+import { RecoverCombineManifest, RecoverCombineResponse, RecoverSplitResponse } from "./MessagePayload";
 import { SenderFunction } from "../services/DigitalAgentService";
-import { ManifestDict } from "./RecoveryPlan";
+import { ManifestDict } from "./RecoverSplit";
 import { PublicKey, VerifyKey } from '../lib/nacl';
 
 export enum GuardianState {
@@ -70,7 +70,7 @@ export default class Guardian {
             sender: sender,
         }))
         this.fsm.onTransition((state: {context: {guardian: Guardian}}) => {
-            console.log('[RecoveryPlan.fsm.onTransition]', state.context.guardian.toString(), event)
+            console.log('[RecoverSplit.fsm.onTransition]', state.context.guardian.toString(), event)
         })
         console.log('[Guardian.initFSM]', this._state)
         this.fsm.start(this._state)
@@ -123,8 +123,8 @@ export default class Guardian {
     }
     // message flows for recoverSplit
     responseMsg(response: 'accept' | 'decline'): OutboundMessageDict {
-        const data: RecoveryPlanResponse = {
-            recoveryPlanPk: this.manifest.recoveryPlanPk,
+        const data: RecoverSplitResponse = {
+            recoverSplitPk: this.manifest.recoverSplitPk,
             response: response,
         }
         const contact = this.contact
@@ -154,7 +154,7 @@ export default class Guardian {
             receiver: {did: string, verify_key: VerifyKey, public_key: PublicKey})
             : OutboundMessageDict {
         const data: RecoverCombineResponse = {
-            recoveryPlanPk: this.manifest.recoveryPlanPk,
+            recoverSplitPk: this.manifest.recoverSplitPk,
             response: response,
         }
         if(response === 'accept')

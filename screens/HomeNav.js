@@ -9,7 +9,7 @@ import MainHub from './MainHubScreen'
 
 import ContactsNav from './Contacts'
 import SecretsNav from './Secrets'
-import RecoveryPlansNav from './RecoveryPlans'
+import RecoverSplitsNav from './RecoverSplits'
 
 import NotificationsScreen from './NotificationsScreen';
 import { DevHasVaultNav } from './Dev'
@@ -80,8 +80,8 @@ export default function HomeNavTest({props}) {
                 <Tab.Screen name={ROUTES.SecretsRoute} >
                     {(props) => <SecretsNav {...props} />}
                 </Tab.Screen>
-                <Tab.Screen name={ROUTES.RecoveryPlanRoute}>
-                    {(props) => <RecoveryPlansNav {...props} />}
+                <Tab.Screen name={ROUTES.RecoverSplitRoute}>
+                    {(props) => <RecoverSplitsNav {...props} />}
                 </Tab.Screen>
             </>}
             <Tab.Screen name={ROUTES.NotificationsRoute} 

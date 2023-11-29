@@ -21,22 +21,22 @@ module.exports = factory(require("crypto"))
 
 
 ```
-const resolvedState = RecoveryPlanMachine.resolveState({
-    ...RecoveryPlanMachine.initialState,
+const resolvedState = RecoverSplitMachine.resolveState({
+    ...RecoverSplitMachine.initialState,
     value: this._state,
     context: {
-        recoveryPlan: this,
+        recoverSplit: this,
         partyMachines: {},
         sender: this.vault.sender,
     }
 })
-this.fsm = interpret(RecoveryPlanMachine) 
+this.fsm = interpret(RecoverSplitMachine) 
 this.fsm.onTransition((context, event) => {})
 this.fsm.start(resolvedState)
 ```
 or
 ```
-this.fsm = interpret(RecoveryPlanMachine.withContext({...}}))
+this.fsm = interpret(RecoverSplitMachine.withContext({...}}))
 this.fsm.onTransition((context, event) => {})
 this.fsm.start(this._state)
 ````
