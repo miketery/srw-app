@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CommonActions } from '@react-navigation/native'
-import { StyleSheet, Text, View, Button, Pressable } from 'react-native'
+import { ImageBackground, Text, View, Pressable } from 'react-native'
 
 import ds from '../assets/styles'
 import tw from '../lib/tailwind'
@@ -11,7 +11,7 @@ import { vault_test_route, no_vault_test_route } from '../testdata/testroute'
 import { useSessionContext } from '../contexts/SessionContext'
 import SS from '../services/StorageService';
 import VaultManager from '../managers/VaultManager';
-import Cache from '../services/Cache';
+
 
 export default function SplashScreen({navigation}) {
     const {setVault, setManager} = useSessionContext();
@@ -86,17 +86,20 @@ export default function SplashScreen({navigation}) {
     }, [initialized, animationComplete]);
 
     return (
-        <View style={ds.landingContainer}>
-            <Text style={ds.header}>Splash Screen</Text>
-            <Text style={tw`text-white`}>{counter}%</Text>
-            <View style={tw`flex-grow-1`} />
-            {initialized &&
-            <Pressable
-                title="Go to Home"
-                onPress={() => navigation.navigate(ROUTES.LandingRoute)}>
-                <Text style={ds.buttonText}>Go to Landing</Text>
-            </Pressable>}
-            <View style={tw`flex-grow-1`} />
+        <View style={tw`flex-grow`}>
+            <ImageBackground source={require('../assets/pawel-czerwinski-splash.png')}
+                    style={ds.landingContainer}  imageStyle={{opacity:counter/100}}>
+                <Text style={ds.header}>Splash Screen</Text>
+                <Text style={tw`text-white`}>{counter}%</Text>
+                <View style={tw`flex-grow-1`} />
+                {initialized &&
+                <Pressable
+                    title="Go to Home"
+                    onPress={() => navigation.navigate(ROUTES.LandingRoute)}>
+                    <Text style={ds.buttonText}>Go to Landing</Text>
+                </Pressable>}
+                <View style={tw`flex-grow-1`} />
+            </ImageBackground>
         </View>
     );
 }

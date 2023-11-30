@@ -1,4 +1,4 @@
-import { Text, View, Pressable } from 'react-native'
+import { ImageBackground, Text, View, Pressable } from 'react-native'
 
 import ds from '../assets/styles'
 import { DEV, ROUTES } from '../config'
@@ -6,7 +6,8 @@ import tw from '../lib/tailwind'
 
 export default function LandingScreen(props) {
     return (
-        <View style={ds.landingContainer}>
+        <View style={tw`flex-grow`}>
+            <ImageBackground source={require('../assets/pawel-czerwinski-splash.png')} style={ds.landingContainer}>
             <Text style={ds.header}>ARX</Text>
             <View>
                 <Text style={ds.text}>Never Lose Your Keys Again</Text>
@@ -26,6 +27,6 @@ export default function LandingScreen(props) {
                     <Text style={ds.textSm}>Recover Vault</Text>
                 </Pressable>
             </View>
-        </View>
-    )
+            </ImageBackground>
+        </View>)
 }
