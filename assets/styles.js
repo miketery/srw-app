@@ -3,15 +3,13 @@ import { StyleSheet } from 'react-native'
 import tw from '../lib/tailwind'
 
 const ds = StyleSheet.create({
-    inputContainer: tw`mb-2`,
+    fullContainer: tw`bg-xdarkblue h-full p-3`,
+    landingContainer: tw`bg-xdarkblue h-full p-3 pt-14`,
+    mainContainerPt: tw`bg-xdarkblue h-full p-3 pb-20 pt-14`,
 
-    fullContainer: tw`bg-midnight h-full p-3`,
-    landingContainer: tw`bg-midnight h-full p-3 pt-14`,
-    mainContainerPt: tw`bg-midnight h-full p-3 pb-20 pt-14`,
-
-    mainContainerPtNoNav: tw`bg-midnight h-full p-3 pb-7 pt-14`,
-    mainContainerPtGradient: tw`bg-midnight h-full p-3 pb-15`,
-    mainContainer: tw`bg-midnight h-full p-3 pb-24`,
+    mainContainerPtNoNav: tw`bg-xdarkblue h-full p-3 pb-7 pt-14`,
+    mainContainerPtGradient: tw`bg-xdarkblue h-full p-3 pb-15`,
+    mainContainer: tw`bg-xdarkblue h-full p-3 pb-24`,
     scrollViewGradient: tw`pb-26 pt-11`,
 
     header: tw`text-slate-200 text-3xl pb-3`,
@@ -24,7 +22,12 @@ const ds = StyleSheet.create({
     text3xl: tw`text-slate-200 text-3xl`,
     label: tw`text-slate-300 text-lg mb-1`,
     labelB: tw`text-slate-300 text-xl mb-1`,
+
     input: tw`grow-1 bg-slate-800 p-3 mb-2 text-xl text-slate-200 border border-slate-500 select:border`,
+    inputContainer: tw`mb-2`,
+    xlabel: tw`text-neutral-400 text-base ml-4`,
+    xinput: tw`w-full p-4 pt-5 pb-3 bg-neutral-800 bg-opacity-80 rounded-lg border border-neutral-200 text-neutral-200 text-base`,
+
 
     ctaButton: tw`py-2 rounded-full bg-sky-600 w-full content-center justify-center items-center`,
     createButton: tw`py-2 rounded-full bg-midpurple w-full content-center justify-center items-center`,

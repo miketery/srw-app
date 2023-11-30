@@ -7,6 +7,7 @@ module.exports = {
       extend: {
         colors: {
           'midnight': '#0d1020',
+          'xdarkblue': '#282D46',
 
           'darkpurple': '#1c1036',
           'midpurple': '#391c63',

@@ -12,6 +12,7 @@ const Stack = createNativeStackNavigator();
 import ds from '../../assets/styles'
 import tw from '../../lib/tailwind';
 import { GoBackButton } from '../../components';
+import { AnimatedLabelInput, XTextInput } from '../../components/Input';
 
 export function DevNoVaultNav({navigation}) {
     return <Stack.Navigator screenOptions={{headerShown: false}} navigation={navigation} initialRouteName={ROUTES.DefaultRoute}>
@@ -34,6 +35,10 @@ export function DevNoVaultNav({navigation}) {
                             navigation.navigate(ROUTES.DevRecoverCombineRoute)} >
                         <Text style={ds.buttonText}>Recover Combine</Text>
                     </Pressable>
+                    <View>
+                        <XTextInput label="Test" placeholder="Test" />
+                        <AnimatedLabelInput label="Test" placeholder="Test" />
+                    </View>
                 </View>
                 <GoBackButton onPressOut={() => navigation.goBack()} />
             </View>}
