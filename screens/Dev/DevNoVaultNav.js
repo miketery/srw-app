@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Text, View, Pressable } from 'react-native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
@@ -13,10 +14,13 @@ import ds from '../../assets/styles'
 import tw from '../../lib/tailwind';
 import { GoBackButton } from '../../components';
 import { AnimatedLabelInput, XTextInput } from '../../components/Input';
-import { LinearGradient } from 'expo-linear-gradient';
 import StartContainer from '../Start/StartContainer';
+import CtaButton from '../../components/CtaButton';
 
 export function DevNoVaultNav({navigation}) {
+
+    const [name, setName] = useState('');
+
     return <Stack.Navigator screenOptions={{headerShown: false}} navigation={navigation} initialRouteName={ROUTES.DefaultRoute}>
         <Stack.Screen name={ROUTES.DefaultRoute} options={{title:'Dev Test'}}>
             {props => <StartContainer header="Dev Test" imageStyle={{opacity: 0.33}}>
@@ -38,17 +42,9 @@ export function DevNoVaultNav({navigation}) {
                     </Pressable>
                     <View>
                         <XTextInput label="Test" placeholder="Test" />
-                        <AnimatedLabelInput label="Test" placeholder="Test" />
-                        <Pressable style={tw`w-full`}
-                                onPressOut={() => props.navigation.navigate(ROUTES.VaultCreateRoute)}>
-                            <LinearGradient style={ds.xcta}
-                                    locations={[0.2,1]}
-                                    start={{x: 0.2, y:1}}
-                                    end={{x:1,y:0}}
-                                    colors={['#3A50F7', '#35F9F9']}>
-                                <Text style={ds.buttonTextSm}>Create Vault</Text>
-                            </LinearGradient>
-                        </Pressable>
+                        <AnimatedLabelInput label="Test" value={name} onChangeText={setName} />
+                        <CtaButton onPressOut={() => props.navigation.navigate(ROUTES.VaultCreateRoute)}
+                            label="CTA" />
                     </View>
                 </View>
                 <GoBackButton onPressOut={() => navigation.goBack()} />

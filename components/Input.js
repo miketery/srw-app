@@ -34,7 +34,7 @@ export const XTextInput = (props) => {
     </View>
 }
 
-export const AnimatedLabelInput = ({ label, value, onChange }) => {
+export const AnimatedLabelInput = ({ label, value, onChangeText }) => {
     const [isFocused, setIsFocused] = useState(false);
     const labelPosition = useRef(new Animated.Value(0)).current;
   
@@ -51,7 +51,7 @@ export const AnimatedLabelInput = ({ label, value, onChange }) => {
       left: 0,
       top: labelPosition.interpolate({
         inputRange: [0, 1],
-        outputRange: [14, 0],
+        outputRange: [18, 1],
       }),
       fontSize: labelPosition.interpolate({
         inputRange: [0, 1],
@@ -69,10 +69,10 @@ export const AnimatedLabelInput = ({ label, value, onChange }) => {
                 {label}
             </Animated.Text>
             <TextInput
-                style={[ds.xinput, isFocused ? tw`border-2 border-cyan-400`:null]}
+                style={[ds.xinput, isFocused ? tw`border-2 border-cyan-400`: {marginVertical: '1px'}]}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
-                onChangeText={onChange}
+                onChangeText={onChangeText}
                 value={value}
             />
         </View>

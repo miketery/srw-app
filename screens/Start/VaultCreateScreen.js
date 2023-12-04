@@ -3,7 +3,7 @@ import { Text, View, Pressable, ScrollView } from 'react-native'
 import { CommonActions } from '@react-navigation/native'
 
 import ds from '../../assets/styles'
-import { MOCKDATA, primary_route } from '../../config'
+import { primary_route } from '../../config'
 import tw from '../../lib/tailwind'
 
 import { useSessionContext } from '../../contexts/SessionContext'
@@ -17,9 +17,9 @@ import { AnimatedLabelInput } from '../../components/Input'
 export default function VaultCreateScreen(props) {
     const {setVault, setManager} = useSessionContext();
 
-    const [name, setName] = useState(MOCKDATA ? 'Alice Allison' : '');
-    const [displayName, setDisplayName] = useState(MOCKDATA ? 'Ali' : '');
-    const [email, setEmail] = useState(MOCKDATA ? 'alice@arxsky.com' : '');
+    const [name, setName] = useState('');
+    const [displayName, setDisplayName] = useState('');
+    const [email, setEmail] = useState('');
     const [createLoading, setCreateLoading] = useState(false);
     const [errors, setErrors] = useState({});
 
@@ -50,10 +50,8 @@ export default function VaultCreateScreen(props) {
         setTimeout(async () => {
             try {
                 const vaultManager = new VaultManager()
-                const words = MOCKDATA ? 
-                    'alley maze evoke auto pull skull run credit margin ignore dune brisk' : ''
                 const vault = await vaultManager.createVault(
-                    name, email, displayName, '', words, false)
+                    name, email, displayName, '', '', false)
                 await vaultManager.initManagers()
                 setVault(vaultManager.currentVault)
                 setManager(vaultManager)

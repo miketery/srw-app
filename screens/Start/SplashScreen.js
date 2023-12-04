@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CommonActions } from '@react-navigation/native'
-import { Text, View, Pressable } from 'react-native'
+import { Text, View } from 'react-native'
 
-import ds from '../../assets/styles'
 import tw from '../../lib/tailwind'
 
 import { ROUTES, SPLASH_ANIMATE_TIME, DEV, primary_route } from '../../config'
@@ -13,6 +12,7 @@ import SS from '../../services/StorageService';
 import VaultManager from '../../managers/VaultManager';
 
 import StartContainer from './StartContainer'
+// import CtaButton from '../../components/CtaButton';
 
 export default function SplashScreen({navigation}) {
     const {setVault, setManager} = useSessionContext();
@@ -90,13 +90,10 @@ export default function SplashScreen({navigation}) {
         <StartContainer header={'Splash Screen'} imageStyle={{opacity: counter/100}}>
             <Text style={tw`text-white`}>{counter}%</Text>
             <View style={tw`flex-grow-1`} />
-            {initialized &&
-            <Pressable
-            title="Go to Home"
-            onPress={() => navigation.navigate(ROUTES.LandingRoute)}>
-                <Text style={ds.buttonText}>Go to Landing</Text>
-            </Pressable>}
-            <View style={tw`flex-grow-1`} />
+            {/* {initialized &&
+            <CtaButton label="Go to Landing"
+            onPressOut={() => navigation.navigate(ROUTES.LandingRoute)} />}
+            <View style={tw`flex-grow-1`} /> */}
         </StartContainer>
     );
 }
