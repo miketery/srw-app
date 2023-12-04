@@ -51,7 +51,7 @@ export default function SplashScreen({navigation}) {
                     return prevCounter;
                 }
             });
-        }, SPLASH_ANIMATE_TIME / 100 + 10);
+        }, SPLASH_ANIMATE_TIME / 100);
     }
 
     useEffect(() => {

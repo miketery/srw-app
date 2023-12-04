@@ -6,6 +6,7 @@ import { ROUTES } from "../config";
 const no_vault_test_route = {
   routes: [
     {name: ROUTES.LandingRoute},
+    // {name: ROUTES.VaultCreateRoute},
     // {name: ROUTES.DevNoVaultRoute},
     // {name: ROUTES.RecoverInitRoute},
 

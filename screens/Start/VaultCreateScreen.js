@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Text, View, Pressable, ScrollView } from 'react-native'
+import { Text, View, Image } from 'react-native'
 import { CommonActions } from '@react-navigation/native'
 
 import ds from '../../assets/styles'
@@ -13,6 +13,9 @@ import { trimAndLower, validateEmail } from '../../lib/utils'
 import { FieldError, GoBackButton } from '../../components'
 import StartContainer from './StartContainer'
 import { AnimatedLabelInput } from '../../components/Input'
+import CtaButton from '../../components/CtaButton'
+
+const inputContainer = tw`mb-6`
 
 export default function VaultCreateScreen(props) {
     const {setVault, setManager} = useSessionContext();
@@ -66,53 +69,53 @@ export default function VaultCreateScreen(props) {
 
     return (
         <StartContainer>
-            <ScrollView>
-                <Text style={ds.header}>Create Vault</Text>
-                <View style={tw`mb-4`}>
-                    {/* <Text style={ds.label}>Name</Text> */}
-                    <AnimatedLabelInput
-                        style={ds.input}
-                        label="Name"
-                        // placeholder="Alice Allison"
-                        placeholderTextColor="#888"
-                        value={name}
-                        onChangeText={setName}
-                    />
-                    <FieldError name="displayName" errors={errors} />
-                </View>
-                <View style={tw`mb-4`}>
-                    {/* <Text style={ds.label}>Display Name</Text> */}
-                    <AnimatedLabelInput
-                        style={ds.input}
-                        label="Display Name"
-                        // placeholder="Ali"
-                        placeholderTextColor="#888"
-                        value={displayName}
-                        onChangeText={setDisplayName}
-                    />
-                    <FieldError name="displayName" errors={errors} />
-                </View>
-                <View style={tw`mb-4`}>
-                    {/* <Text style={ds.label}>Email</Text> */}
-                    <AnimatedLabelInput
-                        style={ds.input}
-                        label="Email"
-                        // placeholder="alice@arxsky.com"
-                        placeholderTextColor="#888"
-                        value={email}
-                        onChangeText={setEmail}
-                    />
-                    <FieldError name="email" errors={errors} />
-                </View>
-            </ScrollView>
             <View style={tw`flex-grow-1`} />
-            <Pressable style={ds.createButton}
-                onPress={() => !createLoading && handleSubmit()}>
-                <Text style={ds.textXl}>{createLoading ? 'Working...' : 'Create & Save'}</Text>
-            </Pressable>
-            <View style={tw`flex-grow-1`} />
+            {/* <Text style={ds.header}>Create Vault</Text> */}
+            <View style={tw`flex-row justify-center mb-10`}>
+                <Image source={require('../../assets/logo-hor-short.png')} style={{width: 250, height: 80}} />
+            </View>
+            <Text style={tw`text-2xl text-white text-center mb-10 font-bold`}>CREATE AN ACCOUNT</Text>
+            <View style={inputContainer}>
+                {/* <Text style={ds.label}>Name</Text> */}
+                <AnimatedLabelInput
+                    style={ds.input}
+                    label="Name"
+                    // placeholder="Alice Allison"
+                    placeholderTextColor="#888"
+                    value={name}
+                    onChangeText={setName}
+                />
+                <FieldError name="displayName" errors={errors} />
+            </View>
+            <View style={inputContainer}>
+                {/* <Text style={ds.label}>Display Name</Text> */}
+                <AnimatedLabelInput
+                    style={ds.input}
+                    label="Display Name"
+                    // placeholder="Ali"
+                    placeholderTextColor="#888"
+                    value={displayName}
+                    onChangeText={setDisplayName}
+                />
+                <FieldError name="displayName" errors={errors} />
+            </View>
+            <View style={inputContainer}>
+                {/* <Text style={ds.label}>Email</Text> */}
+                <AnimatedLabelInput
+                    style={ds.input}
+                    label="Email"
+                    // placeholder="alice@arxsky.com"
+                    placeholderTextColor="#888"
+                    value={email}
+                    onChangeText={setEmail}
+                />
+                <FieldError name="email" errors={errors} />
+            </View>
+            <CtaButton onPressOut={() => !createLoading && handleSubmit()} label={createLoading ? 'Working...' : 'Create & Save'}/>
+            <View style={tw`flex-grow-2`} />
             <View style={tw`flex-row justify-start`}>
-                <GoBackButton onPressOut={() => navigation.goBack()} />
+                {!createLoading && 
+                <GoBackButton onPressOut={() => navigation.goBack()} />}
             </View>
         </StartContainer>
     )

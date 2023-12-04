@@ -29,6 +29,7 @@ const ds = StyleSheet.create({
     xinput: tw`w-full p-4 pt-5 pb-3 bg-neutral-800 bg-opacity-80 rounded-lg border border-neutral-200 text-neutral-200 text-base`,
 
     xcta: tw`p-3 rounded-full w-full content-center justify-center items-center`,
+    xctaText: tw`text-neutral-200 text-center text-base font-bold`,
 
     ctaButton: tw`py-2 rounded-full bg-sky-600 w-full content-center justify-center items-center`,
     createButton: tw`py-2 rounded-full bg-midpurple w-full content-center justify-center items-center`,

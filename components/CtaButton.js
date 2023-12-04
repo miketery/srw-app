@@ -13,7 +13,7 @@ const CtaButton = ({label, onPressOut}) => {
                 start={{x: 0.2, y:1}}
                 end={{x:1,y:0}}
                 colors={['#3A50F7', '#35F9F9']}>
-            <Text style={ds.buttonTextSm}>{label}</Text>
+            <Text style={ds.xctaText}>{label}</Text>
         </LinearGradient>
     </Pressable>
 }

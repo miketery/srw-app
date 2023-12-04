@@ -48,7 +48,7 @@ export const AnimatedLabelInput = ({ label, value, onChangeText }) => {
   
     const labelStyle = {
       position: 'absolute',
-      left: 0,
+      left: 2,
       top: labelPosition.interpolate({
         inputRange: [0, 1],
         outputRange: [18, 1],
@@ -69,7 +69,7 @@ export const AnimatedLabelInput = ({ label, value, onChangeText }) => {
                 {label}
             </Animated.Text>
             <TextInput
-                style={[ds.xinput, isFocused ? tw`border-2 border-cyan-400`: {marginVertical: '1px'}]}
+                style={[ds.xinput, isFocused ? tw`border-2 border-cyan-400`: {marginVertical: '1px', marginHorizontal: '1px'}]}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 onChangeText={onChangeText}
