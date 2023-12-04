@@ -13,12 +13,13 @@ import ds from '../../assets/styles'
 import tw from '../../lib/tailwind';
 import { GoBackButton } from '../../components';
 import { AnimatedLabelInput, XTextInput } from '../../components/Input';
+import { LinearGradient } from 'expo-linear-gradient';
+import StartContainer from '../Start/StartContainer';
 
 export function DevNoVaultNav({navigation}) {
     return <Stack.Navigator screenOptions={{headerShown: false}} navigation={navigation} initialRouteName={ROUTES.DefaultRoute}>
         <Stack.Screen name={ROUTES.DefaultRoute} options={{title:'Dev Test'}}>
-            {props => <View style={ds.landingContainer}>
-                <Text style={ds.header}>Dev Test</Text>
+            {props => <StartContainer header="Dev Test" imageStyle={{opacity: 0.33}}>
                 <View style={[ds.col, tw`flex-grow-1`]}>
                     <Pressable style={[ds.button, ds.blueButton, tw`mt-4`]} onPress={() => console.log('Pressed')}>
                         <Text style={ds.buttonText}>Test</Text>
@@ -38,10 +39,20 @@ export function DevNoVaultNav({navigation}) {
                     <View>
                         <XTextInput label="Test" placeholder="Test" />
                         <AnimatedLabelInput label="Test" placeholder="Test" />
+                        <Pressable style={tw`w-full`}
+                                onPressOut={() => props.navigation.navigate(ROUTES.VaultCreateRoute)}>
+                            <LinearGradient style={ds.xcta}
+                                    locations={[0.2,1]}
+                                    start={{x: 0.2, y:1}}
+                                    end={{x:1,y:0}}
+                                    colors={['#3A50F7', '#35F9F9']}>
+                                <Text style={ds.buttonTextSm}>Create Vault</Text>
+                            </LinearGradient>
+                        </Pressable>
                     </View>
                 </View>
                 <GoBackButton onPressOut={() => navigation.goBack()} />
-            </View>}
+            </StartContainer>}
         </Stack.Screen>
         <Stack.Screen name={ROUTES.DevLoadVaultsRoute} options={{title:'Dev Load Vaults'}}>
             {props => 

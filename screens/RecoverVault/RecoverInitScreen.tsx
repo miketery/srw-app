@@ -8,6 +8,7 @@ import tw from '../../lib/tailwind'
 import { GoBackButton } from '../../components'
 import RecoverVaultUtil from '../../managers/RecoverVaultUtil'
 import VaultManager from '../../managers/VaultManager'
+import StartContainer from '../Start/StartContainer'
 
 export default function RecoverInitScreen({navigation}) {
     const [loading, setLoading] = useState(false)
@@ -30,8 +31,7 @@ export default function RecoverInitScreen({navigation}) {
     }
 
     return (
-        <View style={ds.landingContainer}>
-            <Text style={ds.header}>Recover Your Vault</Text>
+        <StartContainer header={'Recover Your Vault'} imageStyle={null}>
             <View style={tw`flex-grow-1 justify-center items-center`}>
                 <Text style={ds.textXl}>Do you want to proceed?</Text>
                 <Pressable style={[ds.button, ds.greenButton, tw`mt-4 w-full`]}
@@ -42,6 +42,6 @@ export default function RecoverInitScreen({navigation}) {
                 </Pressable>
             </View>
             <GoBackButton onPressOut={() => navigation.goBack()} />
-        </View>
+        </StartContainer>
     )
 }

@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { CommonActions } from '@react-navigation/native'
-import { ImageBackground, Text, View, Pressable } from 'react-native'
+import { Text, View, Pressable } from 'react-native'
 
-import ds from '../assets/styles'
-import tw from '../lib/tailwind'
+import ds from '../../assets/styles'
+import tw from '../../lib/tailwind'
 
-import { ROUTES, SPLASH_ANIMATE_TIME, DEV, primary_route } from '../config'
-import { vault_test_route, no_vault_test_route } from '../testdata/testroute'
+import { ROUTES, SPLASH_ANIMATE_TIME, DEV, primary_route } from '../../config'
+import { vault_test_route, no_vault_test_route } from '../../testdata/testroute'
 
-import { useSessionContext } from '../contexts/SessionContext'
-import SS from '../services/StorageService';
-import VaultManager from '../managers/VaultManager';
+import { useSessionContext } from '../../contexts/SessionContext'
+import SS from '../../services/StorageService';
+import VaultManager from '../../managers/VaultManager';
 
+import StartContainer from './StartContainer'
 
 export default function SplashScreen({navigation}) {
     const {setVault, setManager} = useSessionContext();
@@ -50,7 +51,7 @@ export default function SplashScreen({navigation}) {
                     return prevCounter;
                 }
             });
-        }, SPLASH_ANIMATE_TIME / 100);
+        }, SPLASH_ANIMATE_TIME / 100 + 10);
     }
 
     useEffect(() => {
@@ -86,20 +87,16 @@ export default function SplashScreen({navigation}) {
     }, [initialized, animationComplete]);
 
     return (
-        <View style={tw`flex-grow`}>
-            <ImageBackground source={require('../assets/pawel-czerwinski-splash.png')}
-                    style={ds.landingContainer}  imageStyle={{opacity:counter/100}}>
-                <Text style={ds.header}>Splash Screen</Text>
-                <Text style={tw`text-white`}>{counter}%</Text>
-                <View style={tw`flex-grow-1`} />
-                {initialized &&
-                <Pressable
-                    title="Go to Home"
-                    onPress={() => navigation.navigate(ROUTES.LandingRoute)}>
-                    <Text style={ds.buttonText}>Go to Landing</Text>
-                </Pressable>}
-                <View style={tw`flex-grow-1`} />
-            </ImageBackground>
-        </View>
+        <StartContainer header={'Splash Screen'} imageStyle={{opacity: counter/100}}>
+            <Text style={tw`text-white`}>{counter}%</Text>
+            <View style={tw`flex-grow-1`} />
+            {initialized &&
+            <Pressable
+            title="Go to Home"
+            onPress={() => navigation.navigate(ROUTES.LandingRoute)}>
+                <Text style={ds.buttonText}>Go to Landing</Text>
+            </Pressable>}
+            <View style={tw`flex-grow-1`} />
+        </StartContainer>
     );
 }

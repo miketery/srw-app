@@ -1,16 +1,18 @@
 import { useState } from 'react'
-import { Text, View, Pressable, ScrollView, TextInput } from 'react-native'
+import { Text, View, Pressable, ScrollView } from 'react-native'
 import { CommonActions } from '@react-navigation/native'
 
-import ds from '../assets/styles'
-import { MOCKDATA, primary_route } from '../config'
-import tw from '../lib/tailwind'
+import ds from '../../assets/styles'
+import { MOCKDATA, primary_route } from '../../config'
+import tw from '../../lib/tailwind'
 
-import { useSessionContext } from '../contexts/SessionContext'
-import VaultManager from '../managers/VaultManager'
+import { useSessionContext } from '../../contexts/SessionContext'
+import VaultManager from '../../managers/VaultManager'
 
-import { trimAndLower, validateEmail } from '../lib/utils'
-import { FieldError, GoBackButton } from '../components/'
+import { trimAndLower, validateEmail } from '../../lib/utils'
+import { FieldError, GoBackButton } from '../../components'
+import StartContainer from './StartContainer'
+import { AnimatedLabelInput } from '../../components/Input'
 
 export default function VaultCreateScreen(props) {
     const {setVault, setManager} = useSessionContext();
@@ -65,36 +67,39 @@ export default function VaultCreateScreen(props) {
     }
 
     return (
-        <View style={[ds.mainContainerPtNoNav]}>
+        <StartContainer>
             <ScrollView>
                 <Text style={ds.header}>Create Vault</Text>
-                <View style={ds.inputContainer}>
-                    <Text style={ds.label}>Name</Text>
-                    <TextInput
+                <View style={tw`mb-4`}>
+                    {/* <Text style={ds.label}>Name</Text> */}
+                    <AnimatedLabelInput
                         style={ds.input}
-                        placeholder="Alice Allison"
+                        label="Name"
+                        // placeholder="Alice Allison"
                         placeholderTextColor="#888"
                         value={name}
                         onChangeText={setName}
                     />
                     <FieldError name="displayName" errors={errors} />
                 </View>
-                <View style={ds.inputContainer}>
-                    <Text style={ds.label}>Display Name</Text>
-                    <TextInput
+                <View style={tw`mb-4`}>
+                    {/* <Text style={ds.label}>Display Name</Text> */}
+                    <AnimatedLabelInput
                         style={ds.input}
-                        placeholder="Ali"
+                        label="Display Name"
+                        // placeholder="Ali"
                         placeholderTextColor="#888"
                         value={displayName}
                         onChangeText={setDisplayName}
                     />
                     <FieldError name="displayName" errors={errors} />
                 </View>
-                <View style={ds.inputContainer}>
-                    <Text style={ds.label}>Email</Text>
-                    <TextInput
+                <View style={tw`mb-4`}>
+                    {/* <Text style={ds.label}>Email</Text> */}
+                    <AnimatedLabelInput
                         style={ds.input}
-                        placeholder="alice@arxsky.com"
+                        label="Email"
+                        // placeholder="alice@arxsky.com"
                         placeholderTextColor="#888"
                         value={email}
                         onChangeText={setEmail}
@@ -111,6 +116,6 @@ export default function VaultCreateScreen(props) {
             <View style={tw`flex-row justify-start`}>
                 <GoBackButton onPressOut={() => navigation.goBack()} />
             </View>
-        </View>
+        </StartContainer>
     )
 }

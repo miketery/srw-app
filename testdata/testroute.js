@@ -32,7 +32,7 @@ const no_vault_test_route = {
 }
 // When HAS Vault && DEV pick route:
 // choose from Object.keys(switch_routes)
-const top_level = ROUTES.RecoverSplitRoute; 
+const top_level = ROUTES.HomeNavRoute; 
 
 const switch_routes = {
   [ROUTES.RecoverSplitRoute]: [
