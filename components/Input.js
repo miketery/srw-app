@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Text, TextInput, View, Animated } from 'react-native';
+import { Text, TextInput, View, Animated, Pressable } from 'react-native';
 
 import ds from '../assets/styles';
 import tw from '../lib/tailwind';
@@ -37,7 +37,8 @@ export const XTextInput = (props) => {
 export const AnimatedLabelInput = ({ label, value, onChangeText }) => {
     const [isFocused, setIsFocused] = useState(false);
     const labelPosition = useRef(new Animated.Value(0)).current;
-  
+    const inputRef = useRef(null);
+
     useEffect(() => {
       Animated.timing(labelPosition, {
         toValue: isFocused || value ? 1 : 0,
@@ -65,16 +66,19 @@ export const AnimatedLabelInput = ({ label, value, onChangeText }) => {
   
     return (
         <View style={tw`relative`}>
-            <Animated.Text style={[ds.xlabel, labelStyle]}>
-                {label}
-            </Animated.Text>
             <TextInput
+                ref={inputRef}
                 style={[ds.xinput, isFocused ? tw`border-2 border-cyan-400`: {marginVertical: '1px', marginHorizontal: '1px'}]}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 onChangeText={onChangeText}
                 value={value}
             />
+            <Animated.Text style={[ds.xlabel, labelStyle]}>
+                <Pressable onPress={() => inputRef.current.focus()}>
+                    {label}
+                </Pressable>
+            </Animated.Text>
         </View>
     );
 };
