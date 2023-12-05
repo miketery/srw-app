@@ -34,6 +34,9 @@ export default function VaultCreateScreen(props) {
     }
     const checkForm = () => {
         const errors = {}
+        if (!name || trimAndLower(name) === '') {
+            errors.name = 'Name is required'
+        }
         if (!displayName || trimAndLower(displayName) === '') {
             errors.displayName = 'Display name is required'
         }
@@ -71,10 +74,10 @@ export default function VaultCreateScreen(props) {
         <StartContainer>
             <View style={tw`flex-grow-1`} />
             {/* <Text style={ds.header}>Create Vault</Text> */}
-            <View style={tw`flex-row justify-center mb-10`}>
-                <Image source={require('../../assets/logo-hor-short.png')} style={{width: 250, height: 80}} />
+            <View style={tw`flex-row justify-center mb-8`}>
+                <Image source={require('../../assets/logo-hor-short.png')} style={{width: 250, height: 85}} />
             </View>
-            <Text style={tw`text-2xl text-white text-center mb-10 font-bold`}>CREATE AN ACCOUNT</Text>
+            <Text style={tw`text-2xl text-white text-center mb-12 font-bold`}>CREATE AN ACCOUNT</Text>
             <View style={inputContainer}>
                 {/* <Text style={ds.label}>Name</Text> */}
                 <AnimatedLabelInput
@@ -84,8 +87,9 @@ export default function VaultCreateScreen(props) {
                     placeholderTextColor="#888"
                     value={name}
                     onChangeText={setName}
+                    error={'name' in errors}
                 />
-                <FieldError name="displayName" errors={errors} />
+                {/* <FieldError name="name" errors={errors} /> */}
             </View>
             <View style={inputContainer}>
                 {/* <Text style={ds.label}>Display Name</Text> */}
@@ -96,8 +100,9 @@ export default function VaultCreateScreen(props) {
                     placeholderTextColor="#888"
                     value={displayName}
                     onChangeText={setDisplayName}
+                    error={'displayName' in errors}
                 />
-                <FieldError name="displayName" errors={errors} />
+                {/* <FieldError name="displayName" errors={errors} /> */}
             </View>
             <View style={inputContainer}>
                 {/* <Text style={ds.label}>Email</Text> */}
@@ -108,9 +113,11 @@ export default function VaultCreateScreen(props) {
                     placeholderTextColor="#888"
                     value={email}
                     onChangeText={setEmail}
+                    error={'email' in errors}
                 />
-                <FieldError name="email" errors={errors} />
+                {/* <FieldError name="email" errors={errors} /> */}
             </View>
+            <View style={tw`h-1`} />
             <CtaButton onPressOut={() => !createLoading && handleSubmit()} label={createLoading ? 'Working...' : 'Create & Save'}/>
             <View style={tw`flex-grow-2`} />
             <View style={tw`flex-row justify-start`}>

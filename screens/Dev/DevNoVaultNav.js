@@ -43,8 +43,9 @@ export function DevNoVaultNav({navigation}) {
                     <View>
                         <XTextInput label="Test" placeholder="Test" />
                         <AnimatedLabelInput label="Test" value={name} onChangeText={setName} />
+                        <View style={tw`h-6`} />
                         <CtaButton onPressOut={() => props.navigation.navigate(ROUTES.VaultCreateRoute)}
-                            label="CTA" />
+                            label="TEST CTA" />
                     </View>
                 </View>
                 <GoBackButton onPressOut={() => navigation.goBack()} />

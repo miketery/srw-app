@@ -34,7 +34,7 @@ export const XTextInput = (props) => {
     </View>
 }
 
-export const AnimatedLabelInput = ({ label, value, onChangeText }) => {
+export const AnimatedLabelInput = ({ label, value, onChangeText, error }) => {
     const [isFocused, setIsFocused] = useState(false);
     const labelPosition = useRef(new Animated.Value(0)).current;
     const inputRef = useRef(null);
@@ -63,20 +63,27 @@ export const AnimatedLabelInput = ({ label, value, onChangeText }) => {
     //     outputRange: ['#999', '#000'],
     //   }),
     };
+    const style = [
+        ds.xinput,
+        isFocused ? tw`border-2 border-cyan-400`: null,
+        error ? tw`border-2 border-red-600`: null,
+        // when not border-2, we need to add margin to compensate
+        isFocused || error ? null : {marginVertical: '1px', marginHorizontal: '1px'},
+    ]
   
     return (
         <View style={tw`relative`}>
             <TextInput
                 ref={inputRef}
-                style={[ds.xinput, isFocused ? tw`border-2 border-cyan-400`: {marginVertical: '1px', marginHorizontal: '1px'}]}
+                style={style}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 onChangeText={onChangeText}
                 value={value}
             />
-            <Animated.Text style={[ds.xlabel, labelStyle]}>
+            <Animated.Text style={[ds.xlabel, labelStyle, error ? tw`text-red-600` : null]}>
                 <Pressable onPress={() => inputRef.current.focus()}>
-                    {label}
+                    <Text>{label}</Text>
                 </Pressable>
             </Animated.Text>
         </View>
