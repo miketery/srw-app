@@ -67,11 +67,7 @@ export default function HomeNavTest({props}) {
                 return { headerShown: route.name in TAB_BAR_ROUTES ? TAB_BAR_ROUTES[route.name].header : false}
         }}>
             <Tab.Screen name={ROUTES.MainHubRoute} >
-                {(props) => <MainHub {...props} fetching={messagesFetchInterval} clear={clear} start={() => {
-                    clear()
-                    startMessagesFetchInterval()
-                    setupNotifications()
-                }}/>}
+                {(props) => <MainHub {...props} />}
             </Tab.Screen>
             {!vault?.recovery && <>
                 <Tab.Screen name={ROUTES.ContactsRoute} >
@@ -95,7 +91,15 @@ export default function HomeNavTest({props}) {
                 {(props) => <SettingsScreen {...props} />}
             </Tab.Screen> */}
             {DEV && <Tab.Screen name={ROUTES.DevHasVaultRoute} >
-                {(props) => <DevHasVaultNav {...props} clear={clear} />}
+                {(props) => <DevHasVaultNav {...props}
+                    fetching={messagesFetchInterval} 
+                    clear={clear}
+                    start={() => {
+                        clear()
+                        startMessagesFetchInterval()
+                        setupNotifications()
+                    }} 
+                />}
             </Tab.Screen>}
         </Tab.Navigator>
     )

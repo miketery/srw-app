@@ -1,13 +1,32 @@
 import { View, Text, Pressable } from 'react-native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
+import { useSessionContext } from '../../contexts/SessionContext'
+import { Message, Sender, Receiver } from '../../models/Message'
+import { MessageTypes } from '../../managers/MessagesManager'
+
 import { ROUTES } from '../../config';
 import DevDigitalAgentScreen from './DevDigitalAgentScreen';
 import ds from '../../assets/styles';
 import tw from '../../lib/tailwind';
 import { GoBackButton } from '../../components';
 
-const Stack = createNativeStackNavigator();
+
+async function TestMessage(vault) {
+    const random_date = new Date(Math.floor(Math.random() * Date.now()));
+    const msg = new Message(null, null, null, 'outbound', 
+        Sender.fromVault(vault),
+        Receiver.fromVault(vault),
+        MessageTypes.app.test, '1.0',
+        'X25519Box', true
+    )
+    msg.setData({
+        'message': 'some data' + random_date.toISOString()
+    })
+    msg.encryptBox(vault.private_key)
+    const outbound = msg.outboundFinal()
+    vault.sender(outbound)
+}
 
 function deleteAllLocalStorage(navigation, clear) {
     console.log('DeleteAllLocalStorage')
@@ -17,14 +36,33 @@ function deleteAllLocalStorage(navigation, clear) {
     navigation.navigate(ROUTES.SplashRoute)
 }
 
-export function DevHasVaultNav({navigation, clear}) {
+const Stack = createNativeStackNavigator();
+
+export function DevHasVaultNav({navigation, fetching, start, clear}) {
+    const {vault} = useSessionContext()
+
     return <Stack.Navigator screenOptions={{headerShown: false}} navigation={navigation} initialRouteName={ROUTES.DevGeneralRoute}>
         <Stack.Screen name={ROUTES.DefaultRoute} options={{title:'Dev Test'}}>
             {props => 
                 <View style={ds.mainContainerPt}>
                     <Text style={ds.header}>Dev Has Vault</Text>
+                    <View style={tw`justify-around mb-10 flex-col items-center w-full`}>
+                        {fetching ? 
+                            <Pressable style={[ds.button, ds.redButton, tw`w-full mb-4`]}
+                                onPress={() => clear()}>
+                                <Text style={ds.buttonText}>Stop Fetch Message {props.fetching}</Text>
+                            </Pressable> :
+                            <Pressable style={[ds.button, ds.greenButton, tw`w-full mb-4`]}
+                                onPress={() => start()}>
+                                <Text style={ds.buttonText}>Start Fetch Message {props.fetching}</Text>
+                            </Pressable>}
+                        <Pressable style={[ds.button, ds.blueButton, tw`w-full mb-4`]}
+                            onPress={() => TestMessage(vault)}>
+                            <Text style={ds.buttonText}>App.Test Self Message</Text>
+                        </Pressable>
+                    </View>
                     <Pressable style={[ds.button, ds.greenButton, tw`mt-4`]}
-                        onPress={() => props.navigation.navigate(ROUTES.DevDigitalAgentRoute)}>
+                        onPress={() => navigation.navigate(ROUTES.DevDigitalAgentRoute)}>
                         <Text style={ds.buttonText}>Digital Agent</Text>
                     </Pressable>
                     <Pressable style={[ds.button, ds.redButton, tw`mt-4`]}
@@ -32,7 +70,7 @@ export function DevHasVaultNav({navigation, clear}) {
                         <Text style={ds.buttonText}>Delete All</Text>
                     </Pressable>
                     <View style={tw`flex-grow-1`} />
-                    <GoBackButton onPressOut={() => props.navigation.goBack()} />
+                    <GoBackButton onPressOut={() => navigation.goBack()} />
                 </View>}
         </Stack.Screen>
         <Stack.Screen name={ROUTES.DevDigitalAgentRoute} options={{title:'Digital Agent'}}>

@@ -8,7 +8,7 @@ import CtaButton from '../../components/CtaButton'
 
 export default function LandingScreen(props) {
     return <StartContainer header={null}>
-        <View style={tw`flex-row justify-start my-16`}>
+        <View style={tw`flex-row justify-start mb-16`}>
             <Image source={require('../../assets/logo-hor-short.png')} style={{width: 250, height: 85}} />
         </View>
         <View>
@@ -26,7 +26,7 @@ export default function LandingScreen(props) {
         <View style={tw`justify-around mb-10 flex-col items-center`}>
             <CtaButton label="Create Vault"
                     onPressOut={() => props.navigation.navigate(ROUTES.VaultCreateRoute)} />
-            <Pressable style={tw`mt-10`}
+            <Pressable style={tw`mt-6`}
                     onPressOut={() => props.navigation.navigate(ROUTES.RecoverInitRoute)}>
                 <Text style={ds.textSm}>Recover Vault</Text>
             </Pressable>
