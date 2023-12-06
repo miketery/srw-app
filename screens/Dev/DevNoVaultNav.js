@@ -14,7 +14,7 @@ import ds from '../../assets/styles'
 import tw from '../../lib/tailwind';
 import { GoBackButton } from '../../components';
 import { AnimatedLabelInput, XTextInput } from '../../components/Input';
-import StartContainer from '../Start/StartContainer';
+import StartContainer from '../../components/StartContainer';
 import CtaButton from '../../components/CtaButton';
 
 export function DevNoVaultNav({navigation}) {

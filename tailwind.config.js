@@ -9,6 +9,13 @@ module.exports = {
           'midnight': '#0d1020',
           'xdarkblue': '#282D46',
 
+          // secondary
+          'xmidblue': '#3A50F7',  //indigo-600
+          'xmidpurple': '#860BCE', //purple-700 
+
+          'xgreen': '#5BD300', //lime-500
+          'xred': '#E91616',  //red-600
+
           'darkpurple': '#1c1036',
           'midpurple': '#391c63',
           'lightpurple': '#b350d1',

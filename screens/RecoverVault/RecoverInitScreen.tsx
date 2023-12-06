@@ -9,7 +9,7 @@ import { GoBackButton } from '../../components'
 import CtaButton from '../../components/CtaButton'
 import RecoverVaultUtil from '../../managers/RecoverVaultUtil'
 import VaultManager from '../../managers/VaultManager'
-import StartContainer from '../Start/StartContainer'
+import StartContainer from '../../components/StartContainer'
 
 export default function RecoverInitScreen({navigation}) {
     const [loading, setLoading] = useState(false)

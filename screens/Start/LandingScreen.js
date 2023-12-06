@@ -3,7 +3,7 @@ import { Image, Pressable, Text, View } from 'react-native'
 import ds from '../../assets/styles'
 import { DEV, ROUTES } from '../../config'
 import tw from '../../lib/tailwind'
-import StartContainer from './StartContainer'
+import StartContainer from '../../components/StartContainer'
 import CtaButton from '../../components/CtaButton'
 
 export default function LandingScreen(props) {

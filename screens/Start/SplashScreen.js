@@ -11,7 +11,7 @@ import { useSessionContext } from '../../contexts/SessionContext'
 import SS from '../../services/StorageService';
 import VaultManager from '../../managers/VaultManager';
 
-import StartContainer from './StartContainer'
+import StartContainer from '../../components/StartContainer'
 // import CtaButton from '../../components/CtaButton';
 
 export default function SplashScreen({navigation}) {
