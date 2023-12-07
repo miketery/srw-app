@@ -38,8 +38,7 @@ export default function DevSecrets(props) {
 
     const current_route = props.route.name
     return (
-        <View style={ds.landingContainer}>
-
+        <View style={ds.mainContainerPt}>
             <Text style={ds.header}>Dev Secrets</Text>
             <View>
                 <Text style={ds.text}>Route: {current_route}</Text>

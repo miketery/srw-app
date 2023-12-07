@@ -12,7 +12,7 @@ export const BottomGradient = (props) => (
 // 13,16,32
 
 export const TopGradient = (props) => (
-    <View style={[tw`h-14 w-full absolute top-2 -mt-3 -ml-3`]}>
+    <View style={[tw`h-14 w-full absolute top-2 -mt-3`]}>
         <View style={[tw`h-3 w-full`, {background: 'rgba(13,16,32,1)'}]}></View>
         <View style={[tw`h-11 w-full `,
             {background: 'linear-gradient(180deg, rgba(13,16,32,1) 0%, rgba(255,255,255,0) 100%)'}]} />

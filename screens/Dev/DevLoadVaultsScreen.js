@@ -12,7 +12,7 @@ import { getTestContacts } from '../../testdata/genData'
 import Vault from '../../models/Vault'
 import VaultManager from '../../managers/VaultManager'
 import ContactsManager from '../../managers/ContactsManager'
-
+import StartContainer from '../../components/StartContainer'
 import { GoBackButton } from '../../components'
 
 const loadVault = (key, navigation) => {
@@ -43,8 +43,7 @@ function vault_buttons(navaigation, loadFunc, name) {
 }
 
 function DevLoadVaultsScreen({navigation}) {
-    return <View style={ds.landingContainer}>
-        <Text style={ds.header}>Dev - Load Vaults</Text>
+    return <StartContainer header={'Dev - Load Vaults'}>
         <View style={tw`flex-grow-1`}>
             {vault_buttons(navigation, loadVault, 'Basic')}
         </View>
@@ -54,6 +53,6 @@ function DevLoadVaultsScreen({navigation}) {
         <View>
             <GoBackButton onPressOut={() => navigation.goBack()} />
         </View>
-    </View>
+    </StartContainer>
 }
 export default DevLoadVaultsScreen;

@@ -3,16 +3,18 @@ import { StyleSheet } from 'react-native'
 import tw from '../lib/tailwind'
 
 const ds = StyleSheet.create({
-    fullContainer: tw`bg-xdarkblue h-full p-3`,
-    landingContainer: tw`bg-xdarkblue h-full p-3 pt-14`,
+    startContainer: tw`bg-xdarkblue h-full p-3 pt-14`,
+
     mainContainerPt: tw`bg-xdarkblue h-full p-3 pb-20 pt-14`,
-
     mainContainerPtNoNav: tw`bg-xdarkblue h-full p-3 pb-7 pt-14`,
-    mainContainerPtGradient: tw`bg-xdarkblue h-full p-3 pb-15`,
-    mainContainer: tw`bg-xdarkblue h-full p-3 pb-24`,
-    scrollViewGradient: tw`pb-26 pt-11`,
+    mainContainerPtGradient: tw`bg-xdarkblue h-full pb-15`,
 
+    scrollViewGradient: tw`pb-26 pt-11 h-100`,
+    mainBody: tw`bg-xdarkblue p-3 h-100`,
+
+    headerRow: tw`flex-row justify-between items-center mb-2 px-3`,
     header: tw`text-slate-200 text-3xl pb-3`,
+    
     text: tw`text-slate-200`,
     textSm: tw`text-slate-200 text-sm`,
     textXs: tw`text-slate-200 text-xs`,
@@ -63,7 +65,6 @@ const ds = StyleSheet.create({
     rowEvenly: tw`flex-row justify-evenly`,
     rowAround: tw`flex-row justify-around`,
 
-    headerRow: tw`flex-row justify-between items-center mb-2`,
 
     neoDarkPurpleButton: tw`bg-darkpurple border border-lightpurple p-2 w-40 items-center justify-center content-center`,
     neoDarkGreenButton: tw`bg-darkgreen border border-[#0C0] p-2 w-40 items-center justify-center content-center`,

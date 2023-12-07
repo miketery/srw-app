@@ -10,7 +10,7 @@ const StartContainer = ({imageStyle, children, header }) => {
     return <View style={tw`flex-grow bg-xmidnight`}>
         <ImageBackground source={require('../assets/pawel-czerwinski-splash.png')}
                 style={tw`h-full`} imageStyle={imageStyle}>
-                    <View style={[ds.landingContainer, purpleGardient]}>
+                    <View style={[ds.startContainer, purpleGardient]}>
             {header && <Text style={ds.header}>{header}</Text>}
             {children}
                     </View>

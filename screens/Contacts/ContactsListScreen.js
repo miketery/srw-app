@@ -1,10 +1,10 @@
-import { Pressable, Text, ScrollView, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useEffect, useState } from 'react';
 
 import ds from '../../assets/styles';
 import tw from '../../lib/tailwind';
 import { DEV, ROUTES } from '../../config';
-import { TopGradient } from '../../components';
+import MainContainer from '../../components/MainContainer';
 
 
 function ContactIcon(props) {
@@ -18,7 +18,6 @@ function ContactRow(props) {
             <ContactIcon />
         </View>
         <View style={tw`flex flex-col`}>
-
             <Text style={ds.text}>{name}</Text>
             <Text style={ds.text}>{did}</Text>
             <Text style={ds.text}>{state}</Text>
@@ -39,29 +38,22 @@ export default function ContactsListScreen(props) {
         return unsubscribe;
     }, [])
 
-    return <View style={ds.mainContainerPtGradient}>
-        <ScrollView style={ds.scrollViewGradient}>
-            <View style={ds.headerRow}>
-                <Text style={ds.header}>Contacts</Text>
-            </View>
-            <View>
-                {contacts.map((contact) => {
-                    return <ContactRow contact={contact} key={contact.pk} />
-                })}
-            </View>
-        </ScrollView>
-        <TopGradient />
-        {/* <BottomGradient /> */}
-        <View style={ds.buttonRowB}>
-            {DEV && <Pressable style={[ds.button, tw`rounded-full`]}
-                onPress={() => props.navigation.navigate(ROUTES.DevContactsRoute)}>
-                <Text style={ds.buttonText}>Dev</Text>
-            </Pressable>}
-            <View style={tw`flex-grow-1`} />
-            <Pressable style={[ds.button, ds.greenButton, tw`rounded-full`]}
-                onPress={() => props.navigation.navigate(ROUTES.ContactAddRoute)}>
-                <Text style={ds.buttonText}>Add Contact</Text>
-            </Pressable>
-        </View>
-    </View>
+    const header = 'Contacts'
+    const buttonRow = <>
+        {DEV && <Pressable style={[ds.button, tw`rounded-full`]}
+            onPress={() => props.navigation.navigate(ROUTES.DevContactsRoute)}>
+            <Text style={ds.buttonText}>Dev</Text>
+        </Pressable>}
+        <View style={tw`flex-grow-1`} />
+        <Pressable style={[ds.button, ds.greenButton, tw`rounded-full`]}
+            onPress={() => props.navigation.navigate(ROUTES.ContactAddRoute)}>
+            <Text style={ds.buttonText}>Add Contact</Text>
+        </Pressable>
+    </>
+
+    return <MainContainer color='blue' header={header} buttonRow={buttonRow}>
+        {contacts.map((contact) => {
+            return <ContactRow contact={contact} key={contact.pk} />
+        })}
+    </MainContainer>
 }

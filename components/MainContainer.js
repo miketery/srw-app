@@ -17,7 +17,7 @@ const MainContainer = ({ children, buttonRow, header, color }) => {
             {header && <View style={ds.headerRow}>
                 <Text style={ds.header}>{header}</Text>
             </View>}
-            <View>
+            <View style={ds.mainBody}>
                 {children}
             </View>
         </ScrollView>
