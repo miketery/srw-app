@@ -11,21 +11,21 @@ const colorGradient = {
 }
 
 const MainContainer = ({ children, buttonRow, header, color }) => {
-    const gradient = colorGradient[color] || {}
+    const gradient = colorGradient[color] || colorGradient.blue
     return<View style={[ds.mainContainerPtGradient, gradient]}>
-        <ScrollView style={[ds.scrollViewGradient]}>
-            {header && <View style={ds.headerRow}>
-                <Text style={ds.header}>{header}</Text>
-            </View>}
-            <View style={ds.mainBody}>
+        <View style={[tw`h-full`]}>
+            <ScrollView style={[ds.mainBody, tw`pt-14`]}>
+                {header && <View style={ds.headerRow}>
+                    <Text style={ds.header}>{header}</Text>
+                </View>}
                 {children}
+            </ScrollView>
+            <View style={ds.buttonRowB}>
+                {buttonRow}
             </View>
-        </ScrollView>
-        <TopGradient />
-        {/* <BottomGradient /> */}
-        <View style={ds.buttonRowB}>
-            {buttonRow}
+            <TopGradient />
         </View>
+        {/* <BottomGradient /> */}
     </View>
 }
 
