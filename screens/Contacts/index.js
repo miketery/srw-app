@@ -6,7 +6,7 @@ import { useSessionContext } from '../../contexts/SessionContext'
 
 import ContactsListScreen from './ContactsListScreen'
 import ContactAddScreen from './ContactAddScreen'
-// import ContactViewScreen from './ContactViewScreen'
+import ContactViewScreen from './ContactViewScreen'
 // import ContactEditScreen from './ContactEditScreen'
 // import ContactDeleteScreen from './ContactDeleteScreen'
 
@@ -31,11 +31,11 @@ export default function ContactsNavigator({navigation}) {
             {props => <ContactAddScreen {...props} 
                 contactsManager={manager.contactsManager} vault={vault} />}
         </Stack.Screen>
-        {/* <Stack.Screen name='ContactViewRoute' options={{title: 'View Contact'}}>
-            {props => 
-                <ContactViewScreen {...props} vault={vault} />}
+        <Stack.Screen name={ROUTES.ContactViewRoute} options={{title: 'View Contact'}}>
+            {props => <ContactViewScreen {...props} 
+                contactsManager={manager.contactsManager} vault={vault} />}
         </Stack.Screen>
-        <Stack.Screen name='ContactEditRoute' options={{title: 'Edit Contact'}}>
+        {/* <Stack.Screen name='ContactEditRoute' options={{title: 'Edit Contact'}}>
             {props => 
                 <ContactEditScreen {...props} vault={vault} />}
         </Stack.Screen>

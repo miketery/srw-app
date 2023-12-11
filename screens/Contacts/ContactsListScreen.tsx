@@ -1,39 +1,43 @@
 import { Pressable, Text, View } from 'react-native';
 import { useEffect, useState } from 'react';
 
+
 import ds from '../../assets/styles';
 import tw from '../../lib/tailwind';
 import { DEV, ROUTES } from '../../config';
 import MainContainer from '../../components/MainContainer';
+import Contact from '../../models/Contact';
 
+import { ContactIcon, ContactStateText } from './ContactViewScreen';
 
-function ContactIcon(props) {
-    return <View style={tw`bg-gray-400 rounded-full h-16 w-16`} />
-}
-
-function ContactRow(props) {
-    const { name, did, state } = props.contact
-    return <View style={tw`flex flex-row items-center py-1 mb-1 bg-slate-600`}>
-        <View style={tw`mr-1`}>
+function ContactRow({contact, navigation}: {contact: Contact, navigation: any}) {
+    const { name, did, state } = contact
+    return <Pressable style={tw`flex flex-row items-center py-1 mb-1`}
+            onPressOut={() => navigation.navigate(ROUTES.ContactViewRoute, {contactPk: contact.pk})}>
+        <View style={tw`mr-2`}>
             <ContactIcon />
         </View>
-        <View style={tw`flex flex-col`}>
-            <Text style={ds.text}>{name}</Text>
-            <Text style={ds.text}>{did}</Text>
-            <Text style={ds.text}>{state}</Text>
+        <View style={tw`flex flex-row items-center`}>
+            {ContactStateText(state)}
+            <Text style={ds.textLg}>{name}</Text>
+            {/* <Text style={ds.text}>{did.slice(0, 25)}...</Text> */}
         </View>
-    </View>
+    </Pressable>
+}
+type ContactsListScreenProps = {
+    navigation: any,
+    contactsManager: any,
 }
 
 
-export default function ContactsListScreen(props) {
-    const [contacts, setContacts] = useState([])
+export default function ContactsListScreen(props: ContactsListScreenProps) {
+    const [contacts, setContacts] = useState<Contact[]>([])
 
     useEffect(() => {
         const unsubscribe = props.navigation.addListener('focus', async() => {
             console.log('[ContactsListScreen.js] focus()')
             const contacts = props.contactsManager.getContactsArray()
-            setContacts(contacts.sort((a, b) => a.name.localeCompare(b.name)))
+            setContacts(contacts.sort((a: Contact, b: Contact) => a.name.localeCompare(b.name)))
         });
         return unsubscribe;
     }, [])
@@ -53,7 +57,7 @@ export default function ContactsListScreen(props) {
 
     return <MainContainer color='blue' header={header} buttonRow={buttonRow}>
         {contacts.map((contact) => {
-            return <ContactRow contact={contact} key={contact.pk} />
+            return <ContactRow contact={contact} key={contact.pk} navigation={props.navigation}/>
         })}
     </MainContainer>
 }

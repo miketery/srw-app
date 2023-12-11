@@ -12,7 +12,7 @@ const ds = StyleSheet.create({
     scrollViewGradient: tw`pb-26 pt-11 h-100`,
     mainBody: tw`bg-xdarkblue p-3 h-100`,
 
-    headerRow: tw`flex-row justify-between items-center mb-2 px-3`,
+    headerRow: tw`flex-row justify-between items-center mb-2`,
     header: tw`text-slate-200 text-3xl pb-3`,
     
     text: tw`text-slate-200`,

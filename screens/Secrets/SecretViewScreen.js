@@ -8,7 +8,7 @@ function SecretViewScreen(props) {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        const secret_pk = props.route.params.secret_pk
+        const secretPk = props.route.params.secretPk
 
         // get secret from secret_pk
         // setSecret(secret)
