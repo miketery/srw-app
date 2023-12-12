@@ -21,9 +21,9 @@ async function AddTestSecrets(secretsManager) {
     return secretsManager.saveSecret(secret)
 }
 async function AddManyTestSecrets(secretsManager) {
-    return test_secrets.forEach(async (s) => {
+    return test_secrets.forEach(async (s, i) => {
         const secret = await Secret.create(
-            SecretType.Text,
+            s.secretType,
             s.name,
             s.description,
             s.data,

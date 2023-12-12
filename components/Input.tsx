@@ -19,22 +19,55 @@ export const MyTextInput = (props) => {
     </View>
 }
 
-export const XTextInput = (props) => {
-    const {label, value, onChangeText, placeholder} = props
+type XTextInputProps = {
+    label: string,
+    value: string,
+    onChangeText: (text: string) => void,
+    error?: boolean,
+    placeholder?: string,
+    multiline?: boolean,
+}
+
+export const XTextInput = (props: XTextInputProps) => {
+    const {label, value, onChangeText, error, placeholder, multiline} = props
+
+    const [isFocused, setIsFocused] = useState(false);
+
+    const style = [
+        ds.xinput,
+        isFocused ? tw`border-2 border-cyan-400`: null,
+        error ? tw`border-2 border-red-600`: null,
+        // when not border-2, we need to add margin to compensate
+        isFocused || error ? null : {marginVertical: '1px', marginHorizontal: '1px'},
+        multiline ? tw`h-36` : null,
+    ]
+    
     return <View style={ds.inputContainer}>
         <Text style={ds.xlabel}>{label}</Text>
         <TextInput
-            style={ds.xinput}
+            style={style}
             placeholder={placeholder}
             placeholderTextColor={tw.color('neutral-400')}
-            placeholderStyle={tw`italic`}
+            // placeholderStyle={tw`italic`}
             value={value}
             onChangeText={onChangeText}
+            multiline={multiline}
         />
     </View>
 }
 
-export const AnimatedLabelInput = ({ label, value, onChangeText, error }) => {
+type AnimatedLabelInputProps = {
+    label: string,
+    value: string,
+    onChangeText: (text: string) => void,
+    error: boolean,
+    multiline?: boolean,
+}
+
+
+export const AnimatedLabelInput = (props: AnimatedLabelInputProps) => {
+    const { label, value, onChangeText, error, multiline } = props
+
     const [isFocused, setIsFocused] = useState(false);
     const labelPosition = useRef(new Animated.Value(0)).current;
     const inputRef = useRef(null);
@@ -80,8 +113,9 @@ export const AnimatedLabelInput = ({ label, value, onChangeText, error }) => {
                 onBlur={() => setIsFocused(false)}
                 onChangeText={onChangeText}
                 value={value}
+                multiline={multiline}
             />
-            <Animated.Text style={[ds.xlabel, labelStyle, error ? tw`text-red-600` : null]}>
+            <Animated.Text style={[ds.animatedLabel, labelStyle, error ? tw`text-red-600` : null]}>
                 <Pressable onPress={() => inputRef.current.focus()}>
                     <Text>{label}</Text>
                 </Pressable>

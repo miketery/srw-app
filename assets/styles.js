@@ -27,7 +27,9 @@ const ds = StyleSheet.create({
 
     input: tw`grow-1 bg-slate-800 p-3 mb-2 text-xl text-slate-200 border border-slate-500 select:border`,
     inputContainer: tw`mb-2`,
-    xlabel: tw`text-neutral-400 text-base ml-4`,
+    xlabel: tw`text-neutral-400 text-base`,
+    animatedLabel: tw`text-neutral-400 text-base ml-4`,
+    
     xinput: tw`w-full p-4 pt-5 pb-3 bg-neutral-800 bg-opacity-80 rounded-lg border border-neutral-200 text-neutral-200 text-base`,
 
     xcta: tw`p-3 rounded-full w-full content-center justify-center items-center`,
@@ -56,7 +58,7 @@ const ds = StyleSheet.create({
     card: tw`bg-slate-700 rounded-lg p-3 mb-2`,
     row: tw`flex flex-row rounded-lg p-3 mb-2 bg-slate-700`,
     buttonRow: tw`w-full flex-row justify-between items-center my-2`,
-    buttonRowB: tw`-mt-16 items-end pb-4 flex-row`,
+    buttonRowB: tw`-mt-16 items-end pb-4 flex-row px-3`,
     
     rowEnd: tw`flex-row justify-end`,
     rowStart: tw`flex-row justify-start`,

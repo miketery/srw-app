@@ -45,22 +45,34 @@ export const ContactStateText = (state: string) => {
 
 const ContactCard = ({contact}: {contact: Contact}) => {
     const { name, did, state } = contact
-    return <View style={tw`flex flex-row items-center py-1 mb-1 rounded-lg bg-slate-600`}>
-        <View style={tw`mr-2`}>
-            <ContactIcon />
+    return <View>
+        <View style={tw`flex flex-row items-center py-1 mb-1`}>
+            <View style={tw`mr-2`}>
+                <ContactIcon />
+            </View>
+            <View>
+                <View style={tw`flex flex-row items-center`}>
+                    {ContactStateText(state)}
+                    <Text style={ds.textLg}>{name}</Text>
+                </View>
+                <Text style={ds.text}>{did.slice(0, 25)}...</Text>
+            </View>
         </View>
-        <View style={tw`flex flex-row items-center`}>
-            {ContactStateText(state)}
-            <Text style={ds.textLg}>{name}</Text>
-            {/* <Text style={ds.text}>{did.slice(0, 25)}...</Text> */}
+        <View style={tw`flex flex-row items-center py-1 mb-1`}>
+            <View style={tw`mr-2`}>
+                <Icon name='mail-outline' size={32} color='white' style={tw`text-center`} />
+            </View>
+            <View>
+                <Text style={ds.textLg}>{contact.b58_their_verify_key}</Text>
+            </View>
         </View>
     </View>
 }
 
 const ContactViewScreen = (props: ContactViewScreenProps) => {
-    // props get secret_pk from nav
+    // props get contactPk from nav
     const [contact, setContact] = useState<Contact>(null)
-    const [error, setError] = useState(null)
+    // const [error, setError] = useState(null)
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -73,7 +85,7 @@ const ContactViewScreen = (props: ContactViewScreenProps) => {
 
     return <MainContainer header={header} buttonRow={null} color={'blue'}>
         {loading && <Text>Loading...</Text>}
-        {error && <Text>{error}</Text>}
+        {/* {error && <Text>{error}</Text>} */}
         {contact && <ContactCard contact={contact} />}
     </MainContainer>
     
