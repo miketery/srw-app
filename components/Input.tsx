@@ -97,7 +97,7 @@ export const AnimatedLabelInput = (props: AnimatedLabelInputProps) => {
     //   }),
     };
     const style = [
-        ds.xinput,
+        ds.animatedInput,
         isFocused ? tw`border-2 border-cyan-400`: null,
         error ? tw`border-2 border-red-600`: null,
         // when not border-2, we need to add margin to compensate

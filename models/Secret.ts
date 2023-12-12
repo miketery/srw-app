@@ -6,7 +6,6 @@ export enum SecretType {
     Key = 'key',
     Password = 'password',
     Login = 'login',
-    Secret = 'secret',
     Note = 'note',
     // TODO: add more types later
 }

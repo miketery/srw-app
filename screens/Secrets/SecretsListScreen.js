@@ -6,37 +6,7 @@ import ds from '../../assets/styles';
 import tw from '../../lib/tailwind';
 import { DEV, ROUTES } from '../../config';
 import MainContainer from '../../components/MainContainer';
-
-const secretTypeStyleMap = {
-    'password': {
-        icon: 'key-outline',
-        background: tw`bg-green-700`,
-    },
-    'key': {
-        icon: 'key-outline',
-        background: tw`bg-yellow-500`,
-    },
-    'note': {
-        icon: 'document-text-outline',
-        background: tw`bg-purple-600`,
-    },
-    'login': {
-        icon: 'medical-outline',
-        background: tw`bg-blue-500`,
-    },
-}
-
-function SecretIcon({secretType}) {
-    const icon = secretTypeStyleMap[secretType].icon
-    const style = [
-        tw`rounded-full h-11 w-11 items-center justify-center`,
-        secretTypeStyleMap[secretType].background,
-        secretType === 'note' && tw`pl-1`, // misalignment adjust for note icon
-    ]
-    return <View style={style}>
-        <Icon name={icon} size={22} color='white' style={tw`text-center`} />
-    </View>
-}
+import { SecretIcon } from './SecretViewScreen'
 
 function SecretRow({secret, navigation}) {
     const { name, description, data } = secret
@@ -53,7 +23,6 @@ function SecretRow({secret, navigation}) {
     </Pressable>
 }
 
-
 function SecretsListScreen(props) {
     const [secrets, setSecrets] = useState([])
 
@@ -69,7 +38,7 @@ function SecretsListScreen(props) {
     const header='Secrets'
     const buttonRow = <>
         {DEV && <Pressable style={[ds.button, tw`rounded-full`]}
-            onPress={() => props.navigation.navigate(ROUTES.DevSecretsRoute)}>
+            onPressOut={() => props.navigation.navigate(ROUTES.DevSecretsRoute)}>
             <Text style={ds.buttonText}>Dev</Text>
         </Pressable>}
         <View style={tw`flex-grow-1`} />

@@ -27,10 +27,12 @@ const ds = StyleSheet.create({
 
     input: tw`grow-1 bg-slate-800 p-3 mb-2 text-xl text-slate-200 border border-slate-500 select:border`,
     inputContainer: tw`mb-2`,
+    
     xlabel: tw`text-neutral-400 text-base`,
     animatedLabel: tw`text-neutral-400 text-base ml-4`,
     
-    xinput: tw`w-full p-4 pt-5 pb-3 bg-neutral-800 bg-opacity-80 rounded-lg border border-neutral-200 text-neutral-200 text-base`,
+    xinput: tw`w-full p-4 pb-3 bg-neutral-800 bg-opacity-80 rounded-lg border border-neutral-200 text-neutral-200 text-base`,
+    animatedInput: tw`w-full p-4 pt-5 pb-3 bg-neutral-800 bg-opacity-80 rounded-lg border border-neutral-200 text-neutral-200 text-base`,
 
     xcta: tw`p-3 rounded-full w-full content-center justify-center items-center`,
     xctaText: tw`text-neutral-200 text-center text-base font-bold`,

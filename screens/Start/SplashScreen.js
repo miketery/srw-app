@@ -4,7 +4,7 @@ import { Text, View } from 'react-native'
 
 import tw from '../../lib/tailwind'
 
-import { ROUTES, SPLASH_ANIMATE_TIME, DEV, primary_route } from '../../config'
+import { ROUTES, SPLASH_ANIMATE_TIME, primary_route, LOCAL } from '../../config'
 import { vault_test_route, no_vault_test_route } from '../../testdata/testroute'
 
 import { useSessionContext } from '../../contexts/SessionContext'
@@ -73,12 +73,12 @@ export default function SplashScreen({navigation}) {
         if (initialized && animationComplete) {
             // if DEV then follow test routes
             if(hasVault) {
-                const routes = primary_route(DEV ? vault_test_route : []);
-                DEV && console.log('DEV vault_test_route', routes)
+                const routes = primary_route(LOCAL ? vault_test_route : []);
+                LOCAL && console.log('LOCAL vault_test_route', routes)
                 navigation.dispatch(CommonActions.reset(routes));    
             } else {
-                if(DEV) {
-                    DEV && console.log('DEV no_vault_test_coute', no_vault_test_route)
+                if(LOCAL) {
+                    console.log('LOCAL no_vault_test_coute', no_vault_test_route)
                     navigation.dispatch(CommonActions.reset(no_vault_test_route));
                 } else
                     navigation.navigate(ROUTES.LandingRoute); 

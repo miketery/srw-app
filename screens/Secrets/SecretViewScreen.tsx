@@ -8,10 +8,44 @@ import ds from '../../assets/styles';
 import tw from '../../lib/tailwind';
 
 import SecretsManager from '../../managers/SecretsManager'
-import Secret from '../../models/Secret';
+import Secret, { SecretType } from '../../models/Secret';
 
 import MainContainer from "../../components/MainContainer";
 
+
+export const secretTypeStyleMap: { [k in SecretType]: {
+    icon: string,
+    background: any,
+}} = {
+    [SecretType.Password]: {
+        icon: 'key-outline',
+        background: tw`bg-xgreen`,
+    },
+    [SecretType.Key]: {
+        icon: 'key-outline',
+        background: tw`bg-xyellow`,
+    },
+    [SecretType.Note]: {
+        icon: 'document-text-outline',
+        background: tw`bg-xmidpurple`,
+    },
+    [SecretType.Login]: {
+        icon: 'medical-outline',
+        background: tw`bg-xmidblue`,
+    },
+}
+
+export function SecretIcon({secretType}) {
+    const icon = secretTypeStyleMap[secretType].icon
+    const style = [
+        tw`rounded-full h-11 w-11 items-center justify-center`,
+        secretTypeStyleMap[secretType].background,
+        secretType === 'note' && tw`pl-1`, // misalignment adjust for note icon
+    ]
+    return <View style={style}>
+        <Icon name={icon} size={22} color='white' style={tw`text-center`} />
+    </View>
+}
 
 const SecretCard = ({ secret }: { secret: Secret }) => {
     const { name, description, data } = secret

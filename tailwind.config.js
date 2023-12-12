@@ -15,6 +15,8 @@ module.exports = {
 
           'xgreen': '#5BD300', //lime-500
           'xred': '#E91616',  //red-600
+          'xyellow': '#FFB800', //yellow-500
+          'xcyan': '#35F9F9', //cyan-400
 
           'darkpurple': '#1c1036',
           'midpurple': '#391c63',
