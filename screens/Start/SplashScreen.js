@@ -78,7 +78,7 @@ export default function SplashScreen({navigation}) {
                 navigation.dispatch(CommonActions.reset(routes));    
             } else {
                 if(LOCAL) {
-                    console.log('LOCAL no_vault_test_coute', no_vault_test_route)
+                    console.log('LOCAL no_vault_test_route', no_vault_test_route)
                     navigation.dispatch(CommonActions.reset(no_vault_test_route));
                 } else
                     navigation.navigate(ROUTES.LandingRoute); 

@@ -17,24 +17,15 @@ const no_vault_test_route = {
     //     routes: [
     //       {name: ROUTES.DevNoVaultRoute},
     //       {name: ROUTES.DevRecoverCombineRoute},
+    //       {name: ROUTES.DevLoadVaultsRoute},
     //     ]
     //   }
     // },
-
-    // {
-    //   name: ROUTES.DevNoVaultRoute,
-    //   state: {
-    //     routes: [
-    //       {name: ROUTES.DevNoVaultRoute},
-    //       {name: ROUTES.DevMessagesRoute}
-    //     ]
-    //   }
-    // }
   ]
 }
 // When HAS Vault && DEV pick route:
 // choose from Object.keys(switch_routes)
-const top_level = ROUTES.HomeNavRoute; 
+const top_level = ROUTES.SecretsRoute; 
 
 const switch_routes = {
   [ROUTES.RecoverSplitRoute]: [
@@ -51,7 +42,7 @@ const switch_routes = {
   ],
   [ROUTES.ContactsRoute]: [
     {name: ROUTES.ContactsListRoute},
-    {name: ROUTES.ContactAddRoute},
+    // {name: ROUTES.ContactAddRoute},
     // {name: ROUTES.DevContactsRoute}
     // {name: ROUTES.ContactViewRoute, params: {
     //   contact_uuid: 'a0b1c2d3-e4f5-6a7b-8c9d-0e1f2a3b4c5d'
@@ -72,7 +63,7 @@ const switch_routes = {
   ],
   [ROUTES.SecretsRoute]: [
     {name: ROUTES.SecretsListRoute},
-    {name: ROUTES.SecretCreateRoute},
+    // {name: ROUTES.SecretCreateRoute},
     // {name: ROUTES.DevSecretsRoute},
     // {name: ROUTES.SecretViewRoute, params: {
     //   secret_pk: '2b02dc2c-4d75-43c7-b953-ec303fa4d369',

@@ -1,5 +1,5 @@
 import { Text, View, Pressable } from 'react-native'
-
+import { CommonActions } from '@react-navigation/native'
 
 import { ROUTES } from '../../config'
 
@@ -22,17 +22,17 @@ const loadVault = (key, navigation) => {
     const vaultManager = new VaultManager({[vault.pk]: vault})
     vaultManager.saveVault(vault)
     console.log('vault', vault.toDict())
-    navigation.navigate(ROUTES.SplashRoute)
+    navigation.dispatch(CommonActions.reset({routes: [{name: ROUTES.SplashRoute}]}));
 }
 const loadFull = async (key, navigation) => {
     console.log('loadVaultAndConacts', key, test_vaults[key].name)
     const vault = Vault.fromDict(test_vaults[key])
     const vaultManager = new VaultManager({[vault.pk]: vault})
-    vaultManager.saveVault(vault)
+    await vaultManager.saveVault(vault)
     const contacts = await getTestContacts(vault.name)
     const contactsManager = new ContactsManager(vault, contacts)
     await contactsManager.saveAll()
-    navigation.navigate(ROUTES.SplashRoute)
+    navigation.dispatch(CommonActions.reset({routes: [{name: ROUTES.SplashRoute}]}));
 }
 
 function vault_buttons(navaigation, loadFunc, name) {
