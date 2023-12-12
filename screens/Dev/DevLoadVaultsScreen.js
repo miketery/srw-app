@@ -14,6 +14,8 @@ import VaultManager from '../../managers/VaultManager'
 import ContactsManager from '../../managers/ContactsManager'
 import StartContainer from '../../components/StartContainer'
 import { GoBackButton } from '../../components'
+import SecretsManager from '../../managers/SecretsManager'
+import { AddManyTestSecrets } from '../Secrets/DevSecrets'
 
 const loadVault = (key, navigation) => {
     console.log('loadVault', key, test_vaults[key].name)
@@ -32,6 +34,8 @@ const loadFull = async (key, navigation) => {
     const contacts = await getTestContacts(vault.name)
     const contactsManager = new ContactsManager(vault, contacts)
     await contactsManager.saveAll()
+    const secretsManager = new SecretsManager(vault)
+    await AddManyTestSecrets(secretsManager)
     navigation.dispatch(CommonActions.reset({routes: [{name: ROUTES.SplashRoute}]}));
 }
 

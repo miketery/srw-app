@@ -20,7 +20,7 @@ async function AddTestSecrets(secretsManager) {
         secretsManager.vault.pk)
     return secretsManager.saveSecret(secret)
 }
-async function AddManyTestSecrets(secretsManager) {
+export async function AddManyTestSecrets(secretsManager) {
     return test_secrets.forEach(async (s, i) => {
         const secret = await Secret.create(
             s.secretType,
