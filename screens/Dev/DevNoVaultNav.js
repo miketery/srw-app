@@ -18,7 +18,6 @@ import StartContainer from '../../components/StartContainer';
 import CtaButton from '../../components/CtaButton';
 
 export function DevNoVaultNav({navigation}) {
-
     const [name, setName] = useState('');
 
     return <Stack.Navigator screenOptions={{headerShown: false}} navigation={navigation} initialRouteName={ROUTES.DefaultRoute}>

@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react'
 import tw from '../../lib/tailwind'
 import ds from '../../assets/styles'
 
-import { GoBackButton } from '../../components'
+import { GoBackButton, LoadingScreen } from '../../components'
 import { getTestVaultsAndContacts } from '../../testdata/genData'
 import { Message } from '../../models/Message'
 import ContactsManager from '../../managers/ContactsManager'
 import base58 from 'bs58'
+import MainContainer from '../../components/MainContainer'
 
 async function sendTestMessages(vaults, contacts) {
     const alice = vaults.alice
@@ -50,20 +51,19 @@ export default function DevMessagesScreen(props) {
         loadVaultsAndContacts()
     }, [])
 
-    return <View style={ds.mainContainerPt}>
-        <Text style={ds.header}>Dev Messages</Text>
-        <Text style={ds.textLg}>
-            {loading ? 'Loading...' : 'Loaded'}
-        </Text>
+    const header = 'Dev Messages'
+    const buttonRow = <>
+        <GoBackButton onPressOut={() => props.navigation.goBack()} />
+    </>
+
+    if(loading || true)
+        return <LoadingScreen />
+    return <MainContainer header={header} buttonRow={buttonRow} color={'blue'}>
         <View>
             <Pressable style={[ds.button, ds.blueButton, tw`mt-4`]}
             onPress={() => sendTestMessages(vaults, contacts)}>
                 <Text style={ds.buttonText}>Send Test Messages</Text>
             </Pressable>
         </View>
-        <View style={tw`flex-grow-1`} />
-        <View>
-            <GoBackButton onPressOut={() => props.navigation.goBack()} />
-        </View>
-    </View>
+    </MainContainer>
 }

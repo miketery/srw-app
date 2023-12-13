@@ -10,6 +10,7 @@ import DevDigitalAgentScreen from './DevDigitalAgentScreen';
 import ds from '../../assets/styles';
 import tw from '../../lib/tailwind';
 import { GoBackButton } from '../../components';
+import MainContainer from '../../components/MainContainer'
 
 
 async function TestMessage(vault) {
@@ -41,11 +42,15 @@ const Stack = createNativeStackNavigator();
 export function DevHasVaultNav({navigation, fetching, start, clear}) {
     const {vault} = useSessionContext()
 
+    const header = 'Dev Has Vault'
+    const buttonRow = <>
+        <GoBackButton onPressOut={() => navigation.goBack()} />
+    </>
+
     return <Stack.Navigator screenOptions={{headerShown: false}} navigation={navigation} initialRouteName={ROUTES.DevGeneralRoute}>
         <Stack.Screen name={ROUTES.DefaultRoute} options={{title:'Dev Test'}}>
             {props => 
-                <View style={ds.mainContainerPt}>
-                    <Text style={ds.header}>Dev Has Vault</Text>
+                <MainContainer header={header} buttonRow={buttonRow} color={'blue'}>
                     <View style={tw`justify-around mb-10 flex-col items-center w-full`}>
                         {fetching ? 
                             <Pressable style={[ds.button, ds.redButton, tw`w-full mb-4`]}
@@ -69,9 +74,7 @@ export function DevHasVaultNav({navigation, fetching, start, clear}) {
                         onPress={() => deleteAllLocalStorage(navigation, clear)}>
                         <Text style={ds.buttonText}>Delete All</Text>
                     </Pressable>
-                    <View style={tw`flex-grow-1`} />
-                    <GoBackButton onPressOut={() => navigation.goBack()} />
-                </View>}
+                </MainContainer>}
         </Stack.Screen>
         <Stack.Screen name={ROUTES.DevDigitalAgentRoute} options={{title:'Digital Agent'}}>
             {props => 

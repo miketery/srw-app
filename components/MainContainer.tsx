@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, View, ScrollView } from 'react-native';
-import { TopGradient } from '../components'
+import { TopGradient } from '.'
 
 import tw from '../lib/tailwind';
 import ds from '../assets/styles';
@@ -10,11 +10,18 @@ const colorGradient = {
     blue: { background: 'linear-gradient(141deg, #19194B 14.58%, #3A50F7 69.26%)'},
 }
 
-const MainContainer = ({ children, buttonRow, header, color }) => {
+type MainContainerProps = {
+    children: React.ReactNode,
+    buttonRow?: React.ReactNode,
+    header?: string,
+    color?: string,
+}
+
+const MainContainer = ({ children, buttonRow, header, color }: MainContainerProps) => {
     const gradient = colorGradient[color] || colorGradient.blue
     return<View style={[ds.mainContainerPtGradient, gradient]}>
         <View style={[tw`h-full`]}>
-            <ScrollView style={[ds.mainBody, tw`pt-14`]}>
+            <ScrollView style={[ds.mainBody, tw`pt-14 pb-20`]}>
                 {header && <View style={ds.headerRow}>
                     <Text style={ds.header}>{header}</Text>
                 </View>}

@@ -6,8 +6,7 @@ const ds = StyleSheet.create({
     startContainer: tw`bg-xdarkblue h-full p-3 pt-14`,
 
     mainContainerPt: tw`bg-xdarkblue h-full p-3 pb-20 pt-14`,
-    mainContainerPtNoNav: tw`bg-xdarkblue h-full p-3 pb-7 pt-14`,
-    mainContainerPtGradient: tw`bg-xdarkblue h-full pb-15`,
+    mainContainerPtGradient: tw`bg-xdarkblue h-full pb-15`, // scroll view inside has pt-14
 
     scrollViewGradient: tw`pb-26 pt-11 h-100`,
     mainBody: tw`bg-xdarkblue p-3 h-100`,
@@ -31,8 +30,8 @@ const ds = StyleSheet.create({
     xlabel: tw`text-neutral-400 text-base`,
     animatedLabel: tw`text-neutral-400 text-base ml-4`,
     
-    xinput: tw`w-full p-4 pb-3 bg-neutral-800 bg-opacity-80 rounded-lg border border-neutral-200 text-neutral-200 text-base`,
-    animatedInput: tw`w-full p-4 pt-5 pb-3 bg-neutral-800 bg-opacity-80 rounded-lg border border-neutral-200 text-neutral-200 text-base`,
+    xinput: tw`w-full p-4 bg-neutral-800 bg-opacity-80 rounded-lg border border-neutral-200 text-neutral-200 text-base`,
+    animatedInput: tw`w-full px-4 pt-5 pb-3 bg-neutral-800 bg-opacity-80 rounded-lg border border-neutral-200 text-neutral-200 text-base`,
 
     xcta: tw`p-3 rounded-full w-full content-center justify-center items-center`,
     xctaText: tw`text-neutral-200 text-center text-base font-bold`,

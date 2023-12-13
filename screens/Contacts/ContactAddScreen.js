@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
-import { Pressable, ScrollView, Text, TextInput, View } from 'react-native'
+import { useState } from 'react'
+import { Pressable, Text } from 'react-native'
 
 import ds from '../../assets/styles';
 import tw from '../../lib/tailwind';
 import { Card, Info, MyTextInput, TopGradient, Warning } from '../../components';
 import { GoBackButton } from '../../components';
+import MainContainer from '../../components/MainContainer';
 
 import DigitalAgentService from '../../services/DigitalAgentService'
 import { MOCKDATA } from '../../config';
@@ -52,12 +53,12 @@ const ContactAddScreen = (props) => {
         props.contactsManager.sendContactRequest(contact, () => setInviteSuccess(true))
     }
 
+    const header = 'Add Contact'
+    const buttonRow = <>
+        <GoBackButton onPressOut={() => props.navigation.goBack()} />
+    </>
     return (
-        <View style={ds.mainContainerPtGradient}>
-            <ScrollView style={ds.scrollViewGradient}>
-                <View style={ds.headerRow}>
-                    <Text style={ds.header}>Add Contact</Text>
-                </View>
+        <MainContainer header={header} buttonRow={buttonRow}>
                 <MyTextInput
                     label="Short Code or DID"
                     placeholder="A2C3D4 or did:arx:base58..."
@@ -80,13 +81,7 @@ const ContactAddScreen = (props) => {
                     </Card>
                 )}
                 {notFound && <Info header={'Contact not found'} msg={'Make sure the short code or DID is correct'} />}
-            </ScrollView>
-            <TopGradient />
-            {/* <BottomGradient /> */}
-            <View style={ds.buttonRowB}>
-                <GoBackButton onPressOut={() => props.navigation.goBack()} />
-            </View>
-        </View>
+    </MainContainer>
     )
 }
 

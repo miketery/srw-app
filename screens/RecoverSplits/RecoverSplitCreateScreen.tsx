@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Pressable, ScrollView, Text, View } from 'react-native'
+import { Pressable, Text, View } from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons'
 
 import ds from '../../assets/styles'
@@ -12,6 +12,7 @@ import { RecoverSplitState } from '../../models/RecoverSplit'
 import RecoverSplitsManager from '../../managers/RecoverSplitsManager'
 import { ROUTES } from '../../config';
 import Contact from '../../models/Contact';
+import MainContainer from '../../components/MainContainer'
 
 type ContactPk = string
 
@@ -215,44 +216,39 @@ const RecoverSplitCreateScreen: React.FC<RecoverSplitCreateScreenProps> = (props
         return <LoadingScreen msg={'Building Recovery Plan: ' + recoverSplitState} />
     }
 
-    return <View style={ds.mainContainerPtGradient}>
-        <ScrollView style={ds.scrollViewGradient}>
-            <View style={ds.headerRow}>
-                <Text style={ds.header}>Create Recovry</Text>
-            </View>
-            <MyTextInput
-                label="Recover Plan Name"
-                placeholder={'Alice\'s Recovery Plan'}
-                value={name}
-                onChangeText={setName}
-            />
-            <ContactSelectList step={step} contacts={contacts} selected={participants} onPress={(pk: ContactPk) => {
-                if (participants.includes(pk)) {
-                    setParticipants(participants.filter((p: ContactPk) => p !== pk))
-                } else {
-                    setParticipants([...participants, pk])
-                }
-            }} />
-            <ThresholdInput step={step} selected={participants} threshold={threshold} setThreshold={setThreshold} />
-            {error != '' && <View style={tw`my-1`}>
-                <Text style={tw`text-yellow-300 text-base`}>
-                    {error}
-                </Text>
-            </View>}
-            {step == maxStep ? <View>
-                <Pressable style={[ds.button, ds.blueButton, tw`mt-8 mb-8 w-full`]}
-                        onPress={() => createRecoverSplit()}>
-                    <Text style={ds.buttonText}>Create Recovery Plan</Text>
-                </Pressable>
-            </View> : null}
-        </ScrollView>
-        <TopGradient />
-        {/* <BottomGradient /> */}
-        <View style={[ds.buttonRowB, tw`w-full`]}>
-            {/* <GoBackButton onPressOut={() => props.navigation.goBack()} /> */}
-            <StepControls step={step} nextStep={nextStep} prevStep={prevStep} />
-        </View>
-    </View>
+    const header = 'Create Recovery Plan'
+    const buttonRow = <>
+        {/* <GoBackButton onPressOut={() => props.navigation.goBack()} /> */}
+        <StepControls step={step} nextStep={nextStep} prevStep={prevStep} />
+    </>
+
+    return <MainContainer header={header} buttonRow={buttonRow}>
+        <MyTextInput
+            label="Recover Plan Name"
+            placeholder={'Alice\'s Recovery Plan'}
+            value={name}
+            onChangeText={setName}
+        />
+        <ContactSelectList step={step} contacts={contacts} selected={participants} onPress={(pk: ContactPk) => {
+            if (participants.includes(pk)) {
+                setParticipants(participants.filter((p: ContactPk) => p !== pk))
+            } else {
+                setParticipants([...participants, pk])
+            }
+        }} />
+        <ThresholdInput step={step} selected={participants} threshold={threshold} setThreshold={setThreshold} />
+        {error != '' && <View style={tw`my-1`}>
+            <Text style={tw`text-yellow-300 text-base`}>
+                {error}
+            </Text>
+        </View>}
+        {step == maxStep ? <View>
+            <Pressable style={[ds.button, ds.blueButton, tw`mt-8 mb-8 w-full`]}
+                    onPress={() => createRecoverSplit()}>
+                <Text style={ds.buttonText}>Create Recovery Plan</Text>
+            </Pressable>
+        </View> : null}
+    </MainContainer>
 }
 
 export default RecoverSplitCreateScreen;

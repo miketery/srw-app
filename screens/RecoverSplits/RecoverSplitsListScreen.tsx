@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import { Pressable, ScrollView, Text, View } from 'react-native'
+import { Pressable, Text, View } from 'react-native'
 
 import ds from '../../assets/styles'
 import tw from '../../lib/tailwind'
-import { TopGradient } from '../../components';
-
-import Vault from '../../models/Vault'
 
 import RecoverSplit from '../../models/RecoverSplit'
 import RecoverSplitsManager from '../../managers/RecoverSplitsManager'
 import { DEV, ROUTES } from '../../config';
 import Guardian from '../../models/Guardian';
 import GuardiansManager from '../../managers/GuardiansManager';
+import MainContainer from '../../components/MainContainer';
 
 const RecoverSplitRow = ({recoverSplit}: {recoverSplit: RecoverSplit}) => {
     return <View style={[ds.row, tw`flex-col`]}>
@@ -52,49 +50,44 @@ const RecoverSplitList: React.FC<RecoverSplitListProps> = (props) => {
         return unsubscribe;
     }, [])
 
-    return <View style={ds.mainContainerPtGradient}>
-        <ScrollView style={ds.scrollViewGradient}>
-            <View style={ds.headerRow}>
-                <Text style={ds.header}>Recovery Plans</Text>
-            </View>
-            <View>
-                {recoverSplits.map((recoverSplit, index) => {
-                    return <Pressable key={index} onPress={() => 
-                            props.navigation.navigate(
-                                ROUTES.RecoverSplitViewRoute,
-                                {recoverSplitPk: recoverSplit.pk})}>
-                        <RecoverSplitRow recoverSplit={recoverSplit} />
-                    </Pressable>
-                })}
-            </View>
-            <View style={ds.headerRow}>
-                <Text style={ds.header}>Your a Guardian for</Text>
-            </View>
-            <View>
-                {guardians.map((guardian, index) => {
-                    return <Pressable key={index} onPress={() =>
+    const header = 'Recovery Plans'
+    const buttonRow = <>
+        {DEV && <Pressable style={[ds.button, tw`rounded-full`]}
+            onPressOut={() => props.navigation.navigate(ROUTES.DevReocveryPlanRoute)}>
+            <Text style={ds.buttonText}>Dev</Text>
+        </Pressable>}
+        <View style={tw`flex-grow-1`} />
+        <Pressable style={[ds.button, ds.greenButton, tw`rounded-full`]}
+            onPressOut={() => props.navigation.navigate(ROUTES.RecoverSplitCreateRoute)}>
+            <Text style={ds.buttonText}>Create Recovery</Text>
+        </Pressable>
+    </>
+
+    return <MainContainer header={header} buttonRow={buttonRow}>
+        <View>
+            {recoverSplits.map((recoverSplit, index) => {
+                return <Pressable key={index} onPress={() => 
                         props.navigation.navigate(
-                                ROUTES.GuardianViewRoute,
-                                {guardianPk: guardian.pk})}>
-                    <GuardianRow guardian={guardian} />
+                            ROUTES.RecoverSplitViewRoute,
+                            {recoverSplitPk: recoverSplit.pk})}>
+                    <RecoverSplitRow recoverSplit={recoverSplit} />
                 </Pressable>
-                })}
-            </View>
-        </ScrollView>
-        <TopGradient />
-        
-        <View style={ds.buttonRowB}>
-            {DEV && <Pressable style={[ds.button, tw`rounded-full`]}
-                onPressOut={() => props.navigation.navigate(ROUTES.DevReocveryPlanRoute)}>
-                <Text style={ds.buttonText}>Dev</Text>
-            </Pressable>}
-            <View style={tw`flex-grow-1`} />
-            <Pressable style={[ds.button, ds.greenButton, tw`rounded-full`]}
-                onPressOut={() => props.navigation.navigate(ROUTES.RecoverSplitCreateRoute)}>
-                <Text style={ds.buttonText}>Create Recovery</Text>
-            </Pressable>
+            })}
         </View>
-    </View>
+        <View style={ds.headerRow}>
+            <Text style={ds.header}>Your a Guardian for</Text>
+        </View>
+        <View>
+            {guardians.map((guardian, index) => {
+                return <Pressable key={index} onPress={() =>
+                    props.navigation.navigate(
+                            ROUTES.GuardianViewRoute,
+                            {guardianPk: guardian.pk})}>
+                <GuardianRow guardian={guardian} />
+            </Pressable>
+            })}
+        </View>
+    </MainContainer>
 }
 
 export default RecoverSplitList
