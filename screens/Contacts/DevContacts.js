@@ -1,19 +1,17 @@
-import { Text, View, ScrollView, Pressable } from 'react-native'
+import { Text, View, Pressable } from 'react-native'
 
 import ds from '../../assets/styles'
 import tw from '../../lib/tailwind'
-
-import DAS from '../../services/DigitalAgentService'
 
 import Vault from '../../models/Vault'
 import { ContactState } from '../../models/Contact'
 import { Message } from '../../models/Message'
 import ContactsManager from '../../managers/ContactsManager'
-import InboundMessageManager from '../../managers/MessagesManager'
 
 import { useSessionContext } from '../../contexts/SessionContext'
 
 import { test_vaults } from '../../testdata/testVaults'
+import MainContainer from '../../components/MainContainer'
 
 /**
  * Test Contact Flow Messages
@@ -102,36 +100,29 @@ export default function DevContacts(props) {
     const {manager} = useSessionContext()
 
     const current_route = props.route.name
-    return <View style={ds.mainContainerPtGradient}>
-        <ScrollView style={ds.scrollViewGradient}>
-            <View style={ds.headerRow}>
-                <Text style={ds.header}>Dev Contacts</Text>
-            </View>
-            <View>
-                <Text style={ds.text}>Route: {current_route}</Text>
-            </View>
-            <View>
-                <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-100`]}
-                        onPress={() => ContactRequestFlowBasic()}>
-                    <Text style={ds.buttonText}>Contact Request Flow Basic</Text>
-                </Pressable>
-            </View>
-            <View>
-                <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-100`]}
-                        onPress={() => ContactFullFlow(manager)}>
-                    <Text style={ds.buttonText}>Alice to Bob Full Flow</Text>
-                </Pressable>
-            </View>
-            <View>
-                <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-100`]}
-                        onPress={() => AliceToBobRequest(manager)}>
-                    <Text style={ds.buttonText}>Alice to Bob Request only</Text>
-                </Pressable>
-            </View>
-        </ScrollView>
-        {/* <View style={tw`justify-around mb-10 flex-col items-center`}>
-            <Button text='Add Contact' onPress={
-                () => props.navigation.navigate('ContactCreateRoute')} />
-        </View> */}
-    </View>
+    const header = 'Dev Contacts'
+    const buttonRow = <></>
+    return <MainContainer header={header} buttonRow={buttonRow} color={'blue'}>
+        <View>
+            <Text style={ds.text}>Route: {current_route}</Text>
+        </View>
+        <View>
+            <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
+                    onPress={() => ContactRequestFlowBasic()}>
+                <Text style={ds.buttonText}>Contact Request Flow Basic</Text>
+            </Pressable>
+        </View>
+        <View>
+            <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
+                    onPress={() => ContactFullFlow(manager)}>
+                <Text style={ds.buttonText}>Alice to Bob Full Flow</Text>
+            </Pressable>
+        </View>
+        <View>
+            <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
+                    onPress={() => AliceToBobRequest(manager)}>
+                <Text style={ds.buttonText}>Alice to Bob Request only</Text>
+            </Pressable>
+        </View>
+    </MainContainer>
 }

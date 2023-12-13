@@ -1,5 +1,5 @@
 import { Text, View, Pressable } from 'react-native'
-
+import { CommonActions } from '@react-navigation/native'
 
 import { ROUTES } from '../../config'
 
@@ -12,8 +12,10 @@ import { getTestContacts } from '../../testdata/genData'
 import Vault from '../../models/Vault'
 import VaultManager from '../../managers/VaultManager'
 import ContactsManager from '../../managers/ContactsManager'
-
+import StartContainer from '../../components/StartContainer'
 import { GoBackButton } from '../../components'
+import SecretsManager from '../../managers/SecretsManager'
+import { AddManyTestSecrets } from '../Secrets/DevSecrets'
 
 const loadVault = (key, navigation) => {
     console.log('loadVault', key, test_vaults[key].name)
@@ -22,17 +24,19 @@ const loadVault = (key, navigation) => {
     const vaultManager = new VaultManager({[vault.pk]: vault})
     vaultManager.saveVault(vault)
     console.log('vault', vault.toDict())
-    navigation.navigate(ROUTES.SplashRoute)
+    navigation.dispatch(CommonActions.reset({routes: [{name: ROUTES.SplashRoute}]}));
 }
 const loadFull = async (key, navigation) => {
     console.log('loadVaultAndConacts', key, test_vaults[key].name)
     const vault = Vault.fromDict(test_vaults[key])
     const vaultManager = new VaultManager({[vault.pk]: vault})
-    vaultManager.saveVault(vault)
+    await vaultManager.saveVault(vault)
     const contacts = await getTestContacts(vault.name)
     const contactsManager = new ContactsManager(vault, contacts)
     await contactsManager.saveAll()
-    navigation.navigate(ROUTES.SplashRoute)
+    const secretsManager = new SecretsManager(vault)
+    await AddManyTestSecrets(secretsManager)
+    navigation.dispatch(CommonActions.reset({routes: [{name: ROUTES.SplashRoute}]}));
 }
 
 function vault_buttons(navaigation, loadFunc, name) {
@@ -43,8 +47,7 @@ function vault_buttons(navaigation, loadFunc, name) {
 }
 
 function DevLoadVaultsScreen({navigation}) {
-    return <View style={ds.landingContainer}>
-        <Text style={ds.header}>Dev - Load Vaults</Text>
+    return <StartContainer header={'Dev - Load Vaults'}>
         <View style={tw`flex-grow-1`}>
             {vault_buttons(navigation, loadVault, 'Basic')}
         </View>
@@ -54,6 +57,6 @@ function DevLoadVaultsScreen({navigation}) {
         <View>
             <GoBackButton onPressOut={() => navigation.goBack()} />
         </View>
-    </View>
+    </StartContainer>
 }
 export default DevLoadVaultsScreen;

@@ -1,17 +1,18 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CommonActions } from '@react-navigation/native'
-import { StyleSheet, Text, View, Button, Pressable } from 'react-native'
+import { Text, View } from 'react-native'
 
-import ds from '../assets/styles'
-import tw from '../lib/tailwind'
+import tw from '../../lib/tailwind'
 
-import { ROUTES, SPLASH_ANIMATE_TIME, DEV, primary_route } from '../config'
-import { vault_test_route, no_vault_test_route } from '../testdata/testroute'
+import { ROUTES, SPLASH_ANIMATE_TIME, primary_route, LOCAL } from '../../config'
+import { vault_test_route, no_vault_test_route } from '../../testdata/testroute'
 
-import { useSessionContext } from '../contexts/SessionContext'
-import SS from '../services/StorageService';
-import VaultManager from '../managers/VaultManager';
-import Cache from '../services/Cache';
+import { useSessionContext } from '../../contexts/SessionContext'
+import SS from '../../services/StorageService';
+import VaultManager from '../../managers/VaultManager';
+
+import StartContainer from '../../components/StartContainer'
+// import CtaButton from '../../components/CtaButton';
 
 export default function SplashScreen({navigation}) {
     const {setVault, setManager} = useSessionContext();
@@ -72,12 +73,12 @@ export default function SplashScreen({navigation}) {
         if (initialized && animationComplete) {
             // if DEV then follow test routes
             if(hasVault) {
-                const routes = primary_route(DEV ? vault_test_route : []);
-                DEV && console.log('DEV vault_test_route', routes)
+                const routes = primary_route(LOCAL ? vault_test_route : []);
+                LOCAL && console.log('LOCAL vault_test_route', routes)
                 navigation.dispatch(CommonActions.reset(routes));    
             } else {
-                if(DEV) {
-                    DEV && console.log('DEV no_vault_test_coute', no_vault_test_route)
+                if(LOCAL) {
+                    console.log('LOCAL no_vault_test_route', no_vault_test_route)
                     navigation.dispatch(CommonActions.reset(no_vault_test_route));
                 } else
                     navigation.navigate(ROUTES.LandingRoute); 
@@ -86,17 +87,13 @@ export default function SplashScreen({navigation}) {
     }, [initialized, animationComplete]);
 
     return (
-        <View style={ds.landingContainer}>
-            <Text style={ds.header}>Splash Screen</Text>
+        <StartContainer header={'Splash Screen'} imageStyle={{opacity: counter/100}}>
             <Text style={tw`text-white`}>{counter}%</Text>
             <View style={tw`flex-grow-1`} />
-            {initialized &&
-            <Pressable
-                title="Go to Home"
-                onPress={() => navigation.navigate(ROUTES.LandingRoute)}>
-                <Text style={ds.buttonText}>Go to Landing</Text>
-            </Pressable>}
-            <View style={tw`flex-grow-1`} />
-        </View>
+            {/* {initialized &&
+            <CtaButton label="Go to Landing"
+            onPressOut={() => navigation.navigate(ROUTES.LandingRoute)} />}
+            <View style={tw`flex-grow-1`} /> */}
+        </StartContainer>
     );
 }

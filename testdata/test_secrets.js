@@ -4,6 +4,7 @@ export const test_secrets = [
         "name": "Alpha Text Secret",
         "description": "This is a test secret",
         "data": "Secret Data",
+        "secretType": "note",
         "updated": 1692612012,
         "created": 1692602012,
         "vaultPk": "v__9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS"
@@ -13,6 +14,7 @@ export const test_secrets = [
         "name": "America Text Secret",
         "description": "This is a test secret",
         "data": "Secret Data",
+        "secretType": "key",
         "updated": 1692622012,
         "created": 1692612012,
         "vaultPk": "v__9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS"
@@ -22,6 +24,7 @@ export const test_secrets = [
         "name": "Bravo Text Secret",
         "description": "This is a test secret",
         "data": "Secret Data",
+        "secretType": "key",
         "updated": 1692632013,
         "created": 1692622013,
         "vaultPk": "v__9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS"
@@ -31,6 +34,7 @@ export const test_secrets = [
         "name": "Battleship Text Secret",
         "description": "This is a test secret",
         "data": "Secret Data",
+        "secretType": "note",
         "updated": 1692632013,
         "created": 1692632013,
         "vaultPk": "v__9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS"
@@ -40,6 +44,7 @@ export const test_secrets = [
         "name": "Charlie Text Secret",
         "description": "This is a test secret",
         "data": "Secret Data",
+        "secretType": "password",
         "updated": 1692631771,
         "created": 1692631771,
         "vaultPk": "v__9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS"
@@ -49,6 +54,7 @@ export const test_secrets = [
         "name": "Delta Text Secret",
         "description": "This is a test secret",
         "data": "Secret Data",
+        "secretType": "login",
         "updated": 1692631790,
         "created": 1692631790,
         "vaultPk": "v__9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS"

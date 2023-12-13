@@ -5,7 +5,7 @@ import { useSessionContext } from '../../contexts/SessionContext'
 import { ROUTES } from '../../config';
 import SecretsListScreen from './SecretsListScreen'
 import SecretCreateScreen from './SecretCreateScreen'
-// import SecretViewScreen from './SecretViewScreen'
+import SecretViewScreen from './SecretViewScreen'
 // import SecretEditScreen from './SecretEditScreen'
 // import SecretDeleteScreen from './SecretDeleteScreen'
 import DevSecrets from './DevSecrets'
@@ -25,11 +25,11 @@ export default function SecretsNavigator({navigation}) {
             {props => 
                 <SecretCreateScreen {...props} secretsManager={manager.secretsManager} />}
         </Stack.Screen>
-        {/* <Stack.Screen name={ROUTES.SecretViewRoute} options={{title:'List Objects'}}>
+        <Stack.Screen name={ROUTES.SecretViewRoute} options={{title:'List Objects'}}>
             {props => 
-                <SecretsViewScreen {...props} />}
+                <SecretViewScreen {...props} secretsManager={manager.secretsManager} />}
         </Stack.Screen>
-        <Stack.Screen name={ROUTES.SecretListRoute} options={{title:'List Objects'}}>
+        {/* <Stack.Screen name={ROUTES.SecretListRoute} options={{title:'List Objects'}}>
             {props => 
                 <SecretsEditScreen {...props} />}
         </Stack.Screen>

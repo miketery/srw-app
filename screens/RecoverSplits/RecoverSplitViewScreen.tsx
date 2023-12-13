@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import { Pressable, ScrollView, Text, View } from 'react-native'
+import { Pressable , Text, View } from 'react-native'
 
 import ds from '../../assets/styles'
 import tw from '../../lib/tailwind'
-import { GoBackButton, TopGradient } from '../../components';
+import { GoBackButton } from '../../components';
 
 import RecoverSplit, { RecoverSplitParty } from '../../models/RecoverSplit'
 import RecoverSplitsManager from '../../managers/RecoverSplitsManager'
+import MainContainer from '../../components/MainContainer';
 
 
 const PartyRow: React.FC<{party: RecoverSplitParty}> = ({party}) => {
@@ -50,24 +51,20 @@ const RecoverSplitViewScreen: React.FC<RecoverSplitViewScreenProps> = (props) =>
         return unsubscribe;
     }, [])
 
-    return <View style={ds.mainContainerPtGradient}>
-        <ScrollView style={ds.scrollViewGradient}>
-            <View style={ds.headerRow}>
-                <Text style={ds.header}>Recovery Plan</Text>
-            </View>
-            <View>
-                {recoverSplit && <RecoverSplitDetails recoverSplit={recoverSplit} />}
-            </View>
-        </ScrollView>
-        <View style={ds.buttonRowB}>
-            <GoBackButton onPressOut={() => props.navigation.goBack()} />
-            <View style={tw`flex-grow`}></View>
-            <Pressable style={[ds.button, ds.blueButton]}
-                    onPress={() => props.navigation.navigate('RecoverSplitEdit', {recoverSplitPk: recoverSplit.pk})}>
-                <Text style={ds.buttonText}>Edit</Text>
-            </Pressable>
+    const header = 'Recovery Plan'
+    const buttonRow = <>
+        <GoBackButton onPressOut={() => props.navigation.goBack()} />
+        <View style={tw`flex-grow`}></View>
+        <Pressable style={[ds.button, ds.blueButton]}
+                onPress={() => props.navigation.navigate('RecoverSplitEdit', {recoverSplitPk: recoverSplit.pk})}>
+            <Text style={ds.buttonText}>Edit</Text>
+        </Pressable>
+    </>
+    return <MainContainer header={header} buttonRow={buttonRow} >
+        <View>
+            {recoverSplit && <RecoverSplitDetails recoverSplit={recoverSplit} />}
         </View>
-    </View>
+    </MainContainer>
 }
 
 export default RecoverSplitViewScreen

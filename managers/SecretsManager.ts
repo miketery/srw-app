@@ -31,9 +31,9 @@ class SecretsManager {
         this._secrets = secrets;
         return this._secrets;
     }
-    async createSecret(secret_type: SecretType, name: string, description: string,
+    async createSecret(secretType: SecretType, name: string, description: string,
             data: any): Promise<Secret> {
-        const new_secret = await Secret.create(secret_type, name, description, data, this._vault.pk);
+        const new_secret = await Secret.create(secretType, name, description, data, this._vault.pk);
         this._secrets[new_secret.pk] = new_secret;
         await this.saveSecret(new_secret);
         return new_secret;
