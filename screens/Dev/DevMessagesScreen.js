@@ -56,7 +56,7 @@ export default function DevMessagesScreen(props) {
         <GoBackButton onPressOut={() => props.navigation.goBack()} />
     </>
 
-    if(loading || true)
+    if(loading)
         return <LoadingScreen />
     return <MainContainer header={header} buttonRow={buttonRow} color={'blue'}>
         <View>
