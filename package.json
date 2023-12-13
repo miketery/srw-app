@@ -29,8 +29,7 @@
     "secrets.js-grempe": "^2.0.0",
     "tweetnacl-sealed-box": "^1.0.5",
     "twrnc": "^3.6.3",
-    "xstate": "^4.38.2",
-    "expo-linear-gradient": "~12.3.0"
+    "xstate": "^4.38.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
