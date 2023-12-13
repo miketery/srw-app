@@ -1,10 +1,9 @@
-import { Pressable, Text, ScrollView, View } from 'react-native';
-import { useEffect, useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
 
 import ds from '../assets/styles';
 import tw from '../lib/tailwind';
-import { TopGradient } from '../components';
 
+import MainContainer from '../components/MainContainer';
 import { useSessionContext } from '../contexts/SessionContext';
 import actionMap, { consoleLogAction } from '../models/NotificationActions';
 import { DEV } from '../config';
@@ -44,26 +43,23 @@ function NotificationRow(props) {
 function NotificationsScreen({notifications}) {
     const {manager} = useSessionContext()
 
-    return <View style={ds.mainContainerPtGradient}>
-        <ScrollView style={ds.scrollViewGradient}>
-            <View style={ds.headerRow}>
-                <Text style={ds.header}>Notifications / ABC##</Text>
-            </View>
-            <View>
-                <Text style={ds.text}>These are auto generated every few seconds at random</Text>
-            </View>
-            <View>
-                {notifications.map((notification) => {
-                    return <NotificationRow 
-                        key={notification.pk}
-                        notification={notification}
-                        manager={manager} 
-                    />
-                })}
-            </View>
-        </ScrollView>
-        <TopGradient />
-    </View>
+    const header = 'Notifications'
+    const buttonRow = <></>
+
+    return <MainContainer header={header} buttonRow={buttonRow} color={'blue'}>
+        <View>
+            <Text style={ds.text}>These are auto generated every few seconds at random</Text>
+        </View>
+        <View>
+            {notifications.map((notification) => {
+                return <NotificationRow 
+                    key={notification.pk}
+                    notification={notification}
+                    manager={manager} 
+                />
+            })}
+        </View>
+    </MainContainer>
 }
 
 export default NotificationsScreen

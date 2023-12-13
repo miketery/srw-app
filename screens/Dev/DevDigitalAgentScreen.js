@@ -9,6 +9,7 @@ import { useSessionContext } from '../../contexts/SessionContext'
 
 import { GoBackButton } from '../../components'
 import getTestVaultsAndContacts from '../../testdata/genData'
+import MainContainer from '../../components/MainContainer'
 
 function registerVault(vault) {
     console.log('registerVault')
@@ -46,32 +47,28 @@ export default function DevDigitalAgentScreen(props) {
             console.log('[DevDigitalAgentScreen] cleanup')
         }
     }, [])
-
-    return <View style={ds.mainContainerPt}>
-        <Text style={ds.header}>Dev Digital Agent Test</Text>
+    const header = 'Dev Digital Agent Test'
+    const buttonRow = <>
+        <GoBackButton onPressOut={() => props.navigation.goBack()} />
+    </>
+    return <MainContainer header={header} buttonRow={buttonRow} color={'blue'}>
+        <Pressable style={[ds.button, ds.blueButton, tw`mt-4`]}
+        onPress={() => registerVault(vault)}>
+            <Text style={ds.buttonText}>Register Vault</Text>
+        </Pressable>
+        <Pressable style={[ds.button, ds.blueButton, tw`mt-4`]}
+        onPress={() => amIRegistered(vault, setRegistration)}>
+            <Text style={ds.buttonText}>Am I Registered</Text>
+        </Pressable>
         <View>
-            <Pressable style={[ds.button, ds.blueButton, tw`mt-4`]}
-            onPress={() => registerVault(vault)}>
-                <Text style={ds.buttonText}>Register Vault</Text>
-            </Pressable>
-            <Pressable style={[ds.button, ds.blueButton, tw`mt-4`]}
-            onPress={() => amIRegistered(vault, setRegistration)}>
-                <Text style={ds.buttonText}>Am I Registered</Text>
-            </Pressable>
-            <View>
-                <Text style={ds.textXl}>Registeration:</Text>
-                {registration.registered === null ? <Text style={ds.textXl}>Not Checked</Text> : <View>
-                    <Text style={ds.textXl}>{registration.name}</Text>
-                    <Text style={ds.textXl}>{registration.short_code}</Text>
-                    <Text style={ds.textXl}>{registration.email}</Text>
-                    <Text style={ds.textXs}>{registration.did}</Text>
-                </View>}
-                {/* <Text style={ds.textXl}>{registration.did}</Text> */}
-            </View>
+            <Text style={ds.textXl}>Registeration:</Text>
+            {registration.registered === null ? <Text style={ds.textXl}>Not Checked</Text> : <View>
+                <Text style={ds.textXl}>{registration.name}</Text>
+                <Text style={ds.textXl}>{registration.short_code}</Text>
+                <Text style={ds.textXl}>{registration.email}</Text>
+                <Text style={ds.textXs}>{registration.did}</Text>
+            </View>}
+            {/* <Text style={ds.textXl}>{registration.did}</Text> */}
         </View>
-        <View style={tw`flex-grow-1`} />
-        <View>
-            <GoBackButton onPressOut={() => props.navigation.goBack()} />
-        </View>
-    </View>
+    </MainContainer>
 }

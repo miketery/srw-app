@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Text, View, ScrollView, Pressable } from 'react-native'
+import { Text, View, Pressable } from 'react-native'
 
 import secrets from '../../lib/secretsGrempe';
 
@@ -20,7 +20,8 @@ import SS, { StoredType } from '../../services/StorageService'
 import ContactsManager from '../../managers/ContactsManager'
 import GuardiansManager from '../../managers/GuardiansManager'
 import { InboundMessageDict, Message } from '../../models/Message'
-import { GoBackButton } from '../../components'
+import { GoBackButton, LoadingScreen } from '../../components'
+import MainContainer from '../../components/MainContainer';
 
 /**
  * Test Recover Split Flow
@@ -178,46 +179,37 @@ const DevRecoverSplitScreen: React.FC<DevRecoverSplitScreenProps> = (props) => {
         }
         loadVaultsAndContacts()
     }, [])
-
     const current_route = props.route.name
-    return loading ? <View style={ds.mainContainerPtGradient}>
-            <Text>Loading...</Text>
-        </View>: <View style={ds.mainContainerPtGradient}>
-        <ScrollView style={ds.scrollViewGradient}>
-            <View style={ds.headerRow}>
-                <Text style={ds.header}>Dev Recovery Plans</Text>
-            </View>
-            <View>
-                <Text style={ds.text}>Route: {current_route}</Text>
-            </View>
-            <View>
-                <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
-                        onPress={() => RecoverPlanCreate(vaultsAndManagers)}>
-                    <Text style={ds.buttonText}>Recovery Plan Basic</Text>
-                </Pressable>
-            </View>
-            <View>
-                <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
-                        onPress={() => RecoverPlanFullFlow(vaultsAndManagers)}>
-                    <Text style={ds.buttonText}>Recovery Full Flow</Text>
-                </Pressable>
-            </View>
-            <View>
-                <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
-                        onPress={() => testShamir()}>
-                    <Text style={ds.buttonText}>test</Text>
-                </Pressable>
-            </View>
-            <View>
-                <Pressable style={[ds.button, ds.redButton, tw`mt-4 w-full`]}
-                        onPress={() => deleteAllRecoveryRelated()}>
-                    <Text style={ds.buttonText}>Delete</Text>
-                </Pressable>
-            </View>
-        </ScrollView>
-        <View style={ds.buttonRowB}>
-            <GoBackButton onPressOut={() => props.navigation.goBack()} />
+    const header = 'Dev Recovery Plans'
+    const buttonRow = <GoBackButton onPressOut={() => props.navigation.goBack()} />
+    return loading ? <LoadingScreen />: <MainContainer header={header} buttonRow={buttonRow}>
+        <View>
+            <Text style={ds.text}>Route: {current_route}</Text>
         </View>
-    </View>
+        <View>
+            <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
+                    onPress={() => RecoverPlanCreate(vaultsAndManagers)}>
+                <Text style={ds.buttonText}>Recovery Plan Basic</Text>
+            </Pressable>
+        </View>
+        <View>
+            <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
+                    onPress={() => RecoverPlanFullFlow(vaultsAndManagers)}>
+                <Text style={ds.buttonText}>Recovery Full Flow</Text>
+            </Pressable>
+        </View>
+        <View>
+            <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
+                    onPress={() => testShamir()}>
+                <Text style={ds.buttonText}>test</Text>
+            </Pressable>
+        </View>
+        <View>
+            <Pressable style={[ds.button, ds.redButton, tw`mt-4 w-full`]}
+                    onPress={() => deleteAllRecoveryRelated()}>
+                <Text style={ds.buttonText}>Delete</Text>
+            </Pressable>
+        </View>
+    </MainContainer>
 }
 export default DevRecoverSplitScreen;

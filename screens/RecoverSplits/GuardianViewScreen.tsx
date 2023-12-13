@@ -1,16 +1,16 @@
-import { Text, View, Pressable, ScrollView } from 'react-native'
+import { Text, View, Pressable } from 'react-native'
 import React, { useState, useEffect } from 'react'
 
 import ds from '../../assets/styles'
 import tw from '../../lib/tailwind'
 import GuardiansManager from '../../managers/GuardiansManager'
-import { ROUTES } from '../../config'
 import { GoBackButton, Info, MyTextInput, Warning } from '../../components'
 import Guardian from '../../models/Guardian'
 import DigitalAgentService from '../../services/DigitalAgentService'
 import Vault from '../../models/Vault'
 import base58 from 'bs58'
-import { Success } from '../../components/Dialogue'
+import { LoadingScreen, Success } from '../../components/Dialogue'
+import MainContainer from '../../components/MainContainer'
 
 
 const GuardianInfo = ({guardian}: {guardian: Guardian}) => {
@@ -122,35 +122,26 @@ const GuardianViewScreen: React.FC<GuardianViewProps> =
         fetchGuardian()
     }, [])
 
-
-
+    const header = 'Guardian'
+    const buttonRow = <>
+        <GoBackButton onPressOut={() => navigation.goBack()} />
+        <View style={tw`flex-grow`}></View>
+        {/* <Pressable style={[ds.button, ds.blueButton]}
+                onPress={() => navigation.navigate('Delete...ROUTE', {recoverSplitPk: recoverSplit.pk})}>
+            <Text style={ds.buttonText}>Delete?</Text>
+        </Pressable> */}
+    </>
     if(loading)
-        return <View>
-            <Text style={ds.textLg}>Loading...</Text>
-        </View>
-
-    return <View style={ds.mainContainerPtGradient}>
-        <ScrollView style={ds.scrollViewGradient}>
-            <View style={ds.headerRow}>
-                <Text style={ds.header}>Guardian</Text>
+        return <LoadingScreen />
+    return <MainContainer header={header} buttonRow={buttonRow}>
+        {guardian === null ?
+            <Text style={ds.text}>No guardian found...?</Text> :
+            <View>
+                <GuardianInfo guardian={guardian} />
+                <ShareManifestForm guardian={guardian} vault={vault} />
             </View>
-            {guardian === null ?
-                <Text style={ds.text}>No guardian found...?</Text> :
-                <View>
-                    <GuardianInfo guardian={guardian} />
-                    <ShareManifestForm guardian={guardian} vault={vault} />
-                </View>
-            }
-        </ScrollView>
-        <View style={ds.buttonRowB}>
-            <GoBackButton onPressOut={() => navigation.goBack()} />
-            <View style={tw`flex-grow`}></View>
-            {/* <Pressable style={[ds.button, ds.blueButton]}
-                    onPress={() => navigation.navigate('Delete...ROUTE', {recoverSplitPk: recoverSplit.pk})}>
-                <Text style={ds.buttonText}>Delete?</Text>
-            </Pressable> */}
-        </View>
-    </View>
+        }
+    </MainContainer>
 }
 
 export default GuardianViewScreen;
