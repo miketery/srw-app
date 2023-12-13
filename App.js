@@ -10,9 +10,9 @@ import { ROUTES, DEV } from './config';
 
 import { SessionContextProvider } from './contexts/SessionContext';
 
-import SplashScreen from './screens/SplashScreen';
-import LandingScreen from './screens/LandingScreen';
-import VaultCreateScreen from './screens/VaultCreateScreen';
+import SplashScreen from './screens/Start/SplashScreen';
+import LandingScreen from './screens/Start/LandingScreen';
+import VaultCreateScreen from './screens/Start/VaultCreateScreen';
 import RecoverInitScreen from './screens/RecoverVault/RecoverInitScreen';
 
 import HomeNav from './screens/HomeNav';
