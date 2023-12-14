@@ -3,10 +3,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { StoredType, StoredTypePrefix } from "../services/StorageService"
 
 export enum SecretType {
-    Key = 'key',
-    Password = 'password',
-    Login = 'login',
-    Note = 'note',
+    key = 'key',
+    login = 'login',
+    note = 'note',
+    document = 'document',
     // TODO: add more types later
 }
 interface SecretDict {

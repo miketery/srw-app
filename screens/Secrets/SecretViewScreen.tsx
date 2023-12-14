@@ -17,33 +17,35 @@ export const secretTypeStyleMap: { [k in SecretType]: {
     icon: string,
     background: any,
 }} = {
-    [SecretType.Password]: {
-        icon: 'key-outline',
-        background: tw`bg-xgreen`,
-    },
-    [SecretType.Key]: {
+    [SecretType.key]: {
         icon: 'key-outline',
         background: tw`bg-xyellow`,
     },
-    [SecretType.Note]: {
+    [SecretType.note]: {
         icon: 'document-text-outline',
         background: tw`bg-xmidpurple`,
     },
-    [SecretType.Login]: {
+    [SecretType.login]: {
         icon: 'medical-outline',
         background: tw`bg-xmidblue`,
     },
+    [SecretType.document]: {
+        icon: 'document-attach-outline',
+        background: tw`bg-green-700`,
+    },
 }
 
-export function SecretIcon({secretType}) {
+export function SecretIcon({secretType, big}: {secretType: SecretType, big?: boolean}) {
     const icon = secretTypeStyleMap[secretType].icon
     const style = [
-        tw`rounded-full h-11 w-11 items-center justify-center`,
+        tw`rounded-full items-center justify-center`,
+        big ? tw`h-20 w-20` : tw`h-11 w-11`,
         secretTypeStyleMap[secretType].background,
         secretType === 'note' && tw`pl-1`, // misalignment adjust for note icon
     ]
+    const size = big ? 42 : 22
     return <View style={style}>
-        <Icon name={icon} size={22} color='white' style={tw`text-center`} />
+        <Icon name={icon} size={size} color='white' style={tw`text-center`} />
     </View>
 }
 

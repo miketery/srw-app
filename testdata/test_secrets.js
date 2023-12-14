@@ -44,7 +44,7 @@ export const test_secrets = [
         "name": "Charlie Text Secret",
         "description": "This is a test secret",
         "data": "Secret Data",
-        "secretType": "password",
+        "secretType": "document",
         "updated": 1692631771,
         "created": 1692631771,
         "vaultPk": "v__9gFY2aQrB5VK1YnxUHSn64Ppmuno8XZXgABfgTB5zgbS"

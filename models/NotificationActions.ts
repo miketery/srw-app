@@ -8,7 +8,7 @@ type NotificationAction = {
 }
 
 export const consoleLogAction: NotificationAction = {
-    title: 'console.log',
+    title: 'DEV',
     action: (notification) => console.log(notification)    
 }
 const dismissAction: NotificationAction = {
