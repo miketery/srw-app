@@ -2,7 +2,6 @@ import React from 'react'
 import { Pressable, Text, View } from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons'
 
-
 import tw from '../lib/tailwind'
 import ds from '../assets/styles'
 
@@ -35,9 +34,19 @@ const map = {
     },
 }
 
-export function Dialogue(props) {
+type DialogueProps = {
+    type: keyof typeof map,
+    header?: string,
+    msg?: string,
+    error?: string,
+    warning?: string,
+    details?: string,
+    toggle?: () => void,
+}
+
+export function Dialogue(props: DialogueProps) {
     const [toggle, setToggle] = React.useState(false)
-    const msg = props.error || props.warning || props.t || props.msg
+    const msg = props.error || props.warning || props.msg
     return <View style={[container_style, map[props.type].container]}>
         <View>
             <Text style={icon_style}>
@@ -62,31 +71,41 @@ export function Dialogue(props) {
         </View>
     </View>
 }
-export function DialogueScreen(props) {
+
+export function DialogueScreen(props: DialogueProps) {
     return <View style={[ds.mainContainerPt, tw`justify-center`]}>
         <Dialogue {...props} />
     </View>
 }
 
-export const Success = (props) => <Dialogue type='Success' {...props} />
-export const SuccessScreen = (props) => <DialogueScreen type='Success' {...props} />
-export const Info = (props) => <Dialogue type='Info' {...props} />
-export const InfoScreen = (props) => <DialogueScreen type='Info' {...props} />
-export const Loading = (props) => <Dialogue type='Loading' {...props} />
-export const LoadingScreen = (props) => <DialogueScreen type='Loading' {...props} />
-export const Warning = (props) => <Dialogue type='Warning' {...props} />
-export const WarningScreen = (props) => <DialogueScreen type='Warning' {...props} />
-export const Error = (props) => <Dialogue type='Error' {...props} />
-export const ErrorScreen = (props) => <DialogueScreen type='Error' {...props} />
-
-export function FieldError(props) {
-    if(!props.errors) return null
-    if(Object.keys(props.errors).includes(props.name) &&
-        props.errors[props.name] != '')
-        return <View style={tw`my-1`}>
-            <Text style={tw`text-yellow-300 text-base`}>
-                {props.errors[props.name]}
-            </Text>
-        </View>
-    return null
+type DialogueTypeProps = {
+    header?: string,
+    msg?: string,
+    error?: string,
+    warning?: string,
+    details?: string,
+    toggle?: () => void,
 }
+
+export const Success = (props: DialogueTypeProps) => <Dialogue type='Success' {...props} />
+export const SuccessScreen = (props: DialogueTypeProps) => <DialogueScreen type='Success' {...props} />
+export const Info = (props: DialogueTypeProps) => <Dialogue type='Info' {...props} />
+export const InfoScreen = (props: DialogueTypeProps) => <DialogueScreen type='Info' {...props} />
+export const Loading = (props: DialogueTypeProps) => <Dialogue type='Loading' {...props} />
+export const LoadingScreen = (props: DialogueTypeProps) => <DialogueScreen type='Loading' {...props} />
+export const Warning = (props: DialogueTypeProps) => <Dialogue type='Warning' {...props} />
+export const WarningScreen = (props: DialogueTypeProps) => <DialogueScreen type='Warning' {...props} />
+export const Error = (props: DialogueTypeProps) => <Dialogue type='Error' {...props} />
+export const ErrorScreen = (props: DialogueTypeProps) => <DialogueScreen type='Error' {...props} />
+
+// export function FieldError(props) {
+//     if(!props.errors) return null
+//     if(Object.keys(props.errors).includes(props.name) &&
+//         props.errors[props.name] != '')
+//         return <View style={tw`my-1`}>
+//             <Text style={tw`text-yellow-300 text-base`}>
+//                 {props.errors[props.name]}
+//             </Text>
+//         </View>
+//     return null
+// }

@@ -1,7 +1,15 @@
 import { Text, Pressable } from 'react-native'
 import ds from '../assets/styles'
 
-export const Button = (props) => {
+type ButtonProps = {
+    text: string,
+    onPress: () => void,
+    style?: object,
+    color?: object,
+    textStyle?: object
+}
+
+export const Button = (props: ButtonProps) => {
     const style = props.style || ds.button
     const color = props.color || ds.blueButton
     const textStyle = props.textStyle || ds.buttonText
