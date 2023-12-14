@@ -11,7 +11,7 @@ import ContactsNav from './Contacts'
 import SecretsNav from './Secrets'
 import RecoverSplitsNav from './RecoverSplits'
 
-import NotificationsScreen from './NotificationsScreen';
+import NotificationsListScreen from './NotificationsListScreen';
 import { DevHasVaultNav } from './Dev'
 
 const Tab = createBottomTabNavigator();

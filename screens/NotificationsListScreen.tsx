@@ -40,7 +40,7 @@ function NotificationRow(props) {
     </View>
 }
 
-function NotificationsScreen({notifications}) {
+const NotificationsListScreen = ({notifications}) => {
     const {manager} = useSessionContext()
 
     const header = 'Notifications'
@@ -62,4 +62,4 @@ function NotificationsScreen({notifications}) {
     </MainContainer>
 }
 
-export default NotificationsScreen
+export default NotificationsListScreen
