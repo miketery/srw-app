@@ -6,12 +6,14 @@ export interface ContactInvite {
     verify_key: string, // base58
     public_key: string, // base58
     contact_public_key: string, // base58
+    email: string,
 }
 export interface ContactAccept {
     did: string,
     verify_key: string, // base58
     public_key: string, // base58
     contact_public_key: string, // base58
+    email: string,
 }
 // ContactReject
 
