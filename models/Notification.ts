@@ -36,7 +36,7 @@ export interface NotificationData {
     // color?: string;
 }
 
-interface NotificationDict {
+export interface NotificationDict {
     pk: string;
     vaultPk: string;
     type: string;

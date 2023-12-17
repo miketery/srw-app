@@ -1,7 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 import { useEffect, useState } from 'react';
 
-
 import ds from '../../assets/styles';
 import tw from '../../lib/tailwind';
 import { DEV, ROUTES } from '../../config';

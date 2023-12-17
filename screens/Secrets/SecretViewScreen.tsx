@@ -38,8 +38,7 @@ export const secretTypeStyleMap: { [k in SecretType]: {
 export function SecretIcon({secretType, big}: {secretType: SecretType, big?: boolean}) {
     const icon = secretTypeStyleMap[secretType].icon
     const style = [
-        tw`rounded-full items-center justify-center`,
-        big ? tw`h-20 w-20` : tw`h-11 w-11`,
+        big ? ds.largeCircle : ds.mediumCircle,
         secretTypeStyleMap[secretType].background,
         secretType === 'note' && tw`pl-1`, // misalignment adjust for note icon
     ]
