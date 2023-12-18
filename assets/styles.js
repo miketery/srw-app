@@ -40,7 +40,8 @@ const ds = StyleSheet.create({
     createButton: tw`py-2 rounded-full bg-midpurple w-full content-center justify-center items-center`,
 
     largeCircle: tw`h-20 w-20 rounded-full items-center justify-center`,
-    mediumCircle: tw`h-11 w-11 rounded-full items-center justify-center`,
+    mediumCircle: tw`h-16 w-16 rounded-full items-center justify-center`,
+    smallCircle: tw`h-11 w-11 rounded-full items-center justify-center`,
 
     button: tw`py-2 rounded-sm bg-slate-600 w-40 content-center justify-center items-center`,
     buttonSm: tw`py-2 rounded-sm bg-slate-600 w-30 content-center justify-center items-center`,

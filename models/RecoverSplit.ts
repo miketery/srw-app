@@ -39,6 +39,7 @@ export type ManifestDict = {
     name: string,
     payloadHash: string,
     encryptedPayload: string, // base64
+    threshold: number,
     recoverSplitPartys: {
         name: string,
         did: string,
@@ -351,6 +352,7 @@ class RecoverSplit {
             name: this.name,
             encryptedPayload: bytesToBase64(this.encryptedPayload),
             payloadHash: bytesToHex(nacl.hash(this.payload)),
+            threshold: this.threshold,
             recoverSplitPartys: this.recoverSplitPartys.map(p => {
                 const contact = this.getContact(p.contactPk)
                 return {

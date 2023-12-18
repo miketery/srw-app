@@ -8,6 +8,7 @@ import tw from '../../lib/tailwind';
 import ContactsManager from '../../managers/ContactsManager'
 import Contact, { ContactState } from '../../models/Contact';
 import MainContainer from "../../components/MainContainer";
+import { GoBackButton } from "../../components";
 
 type ContactViewScreenProps = {
     navigation: any,
@@ -36,7 +37,7 @@ export const ContactStateText = (state: string) => {
             return <Text style={[style, tw`text-yellow-400`]}>Invite Sent</Text>
         case ContactState.BLOCKED:
             return <Text style={[style, tw`text-red-400`]}>Blocked</Text>
-            case ContactState.ARCHIVED:
+        case ContactState.ARCHIVED:
             return <Text style={[style, tw`text-green-400`]}>Archived</Text>
         default:
             return null
@@ -55,7 +56,6 @@ const ContactCard = ({contact}: {contact: Contact}) => {
                     {ContactStateText(state)}
                     <Text style={ds.textLg}>{name}</Text>
                 </View>
-                <Text style={ds.text}>{did.slice(0, 25)}...</Text>
             </View>
         </View>
         <View style={tw`flex flex-row items-center py-1 mb-1`}>
@@ -63,7 +63,7 @@ const ContactCard = ({contact}: {contact: Contact}) => {
                 <Icon name='mail-outline' size={32} color='white' style={tw`text-center`} />
             </View>
             <View>
-                <Text style={ds.textLg}>{contact.b58_their_verify_key}</Text>
+                <Text style={ds.textLg}>{contact.email}</Text>
             </View>
         </View>
     </View>
@@ -82,8 +82,10 @@ const ContactViewScreen = (props: ContactViewScreenProps) => {
         setLoading(false)
     }, [])
     const header = 'Contact Details'
-
-    return <MainContainer header={header} buttonRow={null} color={'blue'}>
+    const buttonRow = <>
+        <GoBackButton onPressOut={props.navigation.goBack} />
+    </>
+    return <MainContainer header={header} buttonRow={buttonRow} color={'blue'}>
         {loading && <Text>Loading...</Text>}
         {/* {error && <Text>{error}</Text>} */}
         {contact && <ContactCard contact={contact} />}

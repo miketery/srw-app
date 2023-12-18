@@ -90,6 +90,9 @@ const declineRecoverCombineRequestAction: NotificationAction = {
 
 const notificationActionsMap: {[key: string]: NotificationAction[]} = {
     [NotificationTypes.app.alert]: [dismissAction],
+    [NotificationTypes.app.info]: [dismissAction],
+    [NotificationTypes.app.test]: [dismissAction],
+    [NotificationTypes.app.warning]: [dismissAction],
     [NotificationTypes.contact.request]: [
         acceptContactRequestAction,
         dismissAction // TODO: declineContactRequestAction

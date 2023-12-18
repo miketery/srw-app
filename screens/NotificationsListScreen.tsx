@@ -20,7 +20,7 @@ const notificationTypeStyleMap: { [k in string]: {
         icon: 'person-add-outline',
     },
     'contact.accept': {
-        background: tw`bg-xgreen`,
+        background: tw`bg-green-800`,
         icon: 'person-add-outline',
     },
     'app.test': {
@@ -44,7 +44,7 @@ const notificationTypeStyleMap: { [k in string]: {
         icon: 'shield-outline',
     },
     'recoverSplit.accept': {
-        background: tw`bg-xgreen`,
+        background: tw`bg-green-800`,
         icon: 'shield-outline',
     },
     'recoverSplit.decline': {
@@ -60,7 +60,7 @@ const notificationTypeStyleMap: { [k in string]: {
         icon: 'shield-outline',
     },
     'recoverCombine.accept': {
-        background: tw`bg-xgreen`,
+        background: tw`bg-green-800`,
         icon: 'shield-outline',
     },
     'recoverCombine.decline': {
@@ -96,7 +96,7 @@ function NotificationRow(props: { notification: Notification, manager: VaultMana
     const { title, short_text, detailed_text } = notification.data
     const iconStyle = [
         notificationTypeStyleMap[notification.type].background,
-        ds.mediumCircle
+        ds.smallCircle
     ]
     const icon = notificationTypeStyleMap[notification.type].icon
     let actions = []
@@ -104,11 +104,11 @@ function NotificationRow(props: { notification: Notification, manager: VaultMana
         actions = actionMap[notification.type]
     if(DEV)
         actions = [consoleLogAction, ...actions]
-    return <View style={tw`flex flex-row items-center mb-1 pt-2 pb-4 border-b border-slate-400 w-full`}>
+    return <View style={tw`flex flex-row items-start mb-1 pt-2 pb-4 border-b border-slate-400 w-full`}>
         <View style={iconStyle}>
             <Icon name={icon} size={22} color='white' style={tw`text-center`} />
         </View>
-        <View style={tw`flex flex-col ml-2 grow-1`}>
+        <View style={tw`flex flex-col ml-2 grow-1 -mt-1`}>
             <View style={tw`mr-1`}>
                 <Text style={ds.textLg}>{title}</Text>
             </View>
