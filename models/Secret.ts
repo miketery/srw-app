@@ -9,7 +9,11 @@ export enum SecretType {
     document = 'document',
     // TODO: add more types later
 }
-interface SecretDict {
+export type HistoricSecretData = {
+    data: any,
+    ts: number,
+}
+type SecretDict = {
     pk: string,
     secretType: SecretType,
     name: string,
@@ -18,6 +22,7 @@ interface SecretDict {
     updated: number,
     created: number,
     vaultPk: string
+    history: HistoricSecretData[]
 }
 
 class Secret {
@@ -30,6 +35,8 @@ class Secret {
     created: number // unix timestamp
     vaultPk: string
 
+    history: HistoricSecretData[]
+
     constructor(
             pk: string,
             secretType: SecretType,
@@ -38,7 +45,7 @@ class Secret {
             data: any,
             updated: number|null,
             created: number|null,
-            vaultPk: string) {
+            vaultPk: string, history: HistoricSecretData[]) {
         this.pk = pk
         this.secretType = secretType
         this.name = name
@@ -47,6 +54,7 @@ class Secret {
         this.updated = updated || Math.floor(Date.now() / 1000)
         this.created = created || Math.floor(Date.now() / 1000)
         this.vaultPk = vaultPk
+        this.history = history || []
     }
     toString(): string {
         return `Secret<${this.pk}, ${this.secretType}, ${this.name}, ${this.updated}, ${this.created}>`
@@ -54,7 +62,17 @@ class Secret {
     static async create(secretType: SecretType, name: string, 
             description: string, data: any, vaultPk: string) {
         let pk = StoredTypePrefix[StoredType.secret] + uuidv4()
-        return new Secret(pk, secretType, name, description, data, null, null, vaultPk)
+        return new Secret(pk, secretType, name, description, data, null, null, vaultPk, [])
+    }
+    async update(name: string, description: string, data: any) {
+        this.name = name
+        this.description = description
+        this.history.push({
+            data: this.data,
+            ts: this.updated,
+        })
+        this.data = data
+        this.updated = Math.floor(Date.now() / 1000)
     }
     toDict(): SecretDict {
         return {
@@ -65,13 +83,14 @@ class Secret {
             data: this.data,
             updated: this.updated,
             created: this.created,
-            vaultPk: this.vaultPk
+            vaultPk: this.vaultPk,
+            history: this.history,
         }
     }
     static fromDict(data: SecretDict): Secret {
         return new Secret(
             data.pk, data.secretType, data.name, data.description, data.data,
-            data.updated, data.created, data.vaultPk
+            data.updated, data.created, data.vaultPk, data.history
         )
     }
     // SAVE and DELETE done SecretManager

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Pressable, Text, ScrollView, View } from 'react-native';
+import React, { useEffect, useState } from "react";
+import { Pressable, Text, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons'
 import { GoBackButton } from '../../components';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -9,10 +9,11 @@ import ds from '../../assets/styles';
 import tw from '../../lib/tailwind';
 
 import SecretsManager from '../../managers/SecretsManager'
-import Secret, { SecretType } from '../../models/Secret';
+import Secret, { HistoricSecretData, SecretType } from '../../models/Secret';
 
 import MainContainer from "../../components/MainContainer";
 import { ROUTES } from "../../config";
+import { formatDate } from "../../lib/utils";
 
 
 export const secretTypeStyleMap: { [k in SecretType]: {
@@ -37,14 +38,14 @@ export const secretTypeStyleMap: { [k in SecretType]: {
     },
 }
 
-export function SecretIcon({secretType, big}: {secretType: SecretType, big?: boolean}) {
+export function SecretIcon({secretType}: {secretType: SecretType, big?: boolean}) {
     const icon = secretTypeStyleMap[secretType].icon
     const style = [
-        big ? ds.largeCircle : ds.mediumCircle,
+        ds.mediumCircle,
         secretTypeStyleMap[secretType].background,
         secretType === 'note' && tw`pl-1`, // misalignment adjust for note icon
     ]
-    const size = big ? 42 : 22
+    const size = 22
     return <View style={style}>
         <Icon name={icon} size={size} color='white' style={tw`text-center`} />
     </View>
@@ -63,9 +64,40 @@ export const SecretRow = ({secret}) => {
         </View>
     </View>
 }
+type SecretHistoryProps = {
+    secretType: SecretType,
+    history: HistoricSecretData[],
+}
+const SecretHistory: React.FC<SecretHistoryProps> = (props) => {
+    const [showHistory, setShowHistory] = useState(false)
+    const toggleShowHistory = () => setShowHistory(!showHistory)
+    if(props.history.length === 0) return null
+
+    return <View style={ds.col}>
+        <Pressable style={tw``}
+            onPressOut={toggleShowHistory}>
+            <Text style={tw`text-cyan-400 text-base`}>{showHistory ? 'Hide' : 'Show'} History</Text>
+        </Pressable>
+        {showHistory && props.history.map((historicSecretData, index) => {
+            const { ts, data } = historicSecretData
+            return <View key={index} style={tw`flex flex-row items-center py-1 mb-1`}>
+                <View style={tw`mr-2`}>
+                    <Text style={ds.text}>{formatDate(ts)}</Text>
+                </View>
+                <View style={tw`flex flex-col`}>
+                    {props.secretType === SecretType.login ? <>
+                        <Text style={ds.text}>{data.username}</Text>
+                        <Text style={ds.text}>{data.password}</Text>
+                    </> : <Text style={ds.text}>{data.secret}</Text>}
+                </View>
+            </View>
+        })}
+    </View>
+
+}
 
 const SecretCard = ({ secret }: { secret: Secret }) => {
-    const { description, data, secretType } = secret
+    const { description, data, secretType, history } = secret
     return <View>
         <SecretRow secret={secret} />
         <View style={tw`mb-4 pb-4 border-b border-slate-400`}>
@@ -108,7 +140,7 @@ const SecretCard = ({ secret }: { secret: Secret }) => {
                 </Text>
                 <Pressable style={[ds.xinput, tw`flex-row items-center justify-between border-slate-600 w-full`]}
                     onPress={() => Clipboard.setString(data.secret)}>
-                    <Text style={[ds.textLg, tw`w-75 break-word`]}>
+                    <Text style={[ds.textLg, tw`w-full pr-10 -mr-10`, {wordBreak: 'all'}]}>
                         {data.secret}
                     </Text>
                     <Text style={[ds.text, tw`self-center pl-4`]}>
@@ -117,9 +149,9 @@ const SecretCard = ({ secret }: { secret: Secret }) => {
                 </Pressable>
             </View>}
         </View>
+        <SecretHistory history={history} secretType={secretType} />
     </View>
 }
-
 
 type SecretViewScreenProps = {
     navigation: any,
@@ -131,7 +163,7 @@ type SecretViewScreenProps = {
     }
 }
 
-function SecretViewScreen(props: SecretViewScreenProps) {
+const SecretViewScreen = (props: SecretViewScreenProps) => {
     // props get secretPk from nav
     const [secret, setSecret] = useState<Secret>(null)
     // const [error, setError] = useState(null)
