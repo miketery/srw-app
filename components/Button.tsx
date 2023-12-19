@@ -1,5 +1,7 @@
 import { Text, Pressable } from 'react-native'
 import ds from '../assets/styles'
+import { DEV } from '../config'
+import tw from '../lib/tailwind'
 
 type ButtonProps = {
     text: string,
@@ -18,3 +20,10 @@ export const Button = (props: ButtonProps) => {
         <Text style={textStyle}>{props.text}</Text>
     </Pressable>
 }
+
+export const DevButton = DEV ? ({onPressOut}: {onPressOut: () => void}) => {
+    return <Pressable style={[ds.button, tw`w-25`]}
+                onPressOut={onPressOut}>
+            <Text style={ds.buttonText}>Dev</Text>
+        </Pressable>
+    } : null

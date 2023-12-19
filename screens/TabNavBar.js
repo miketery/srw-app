@@ -13,7 +13,7 @@ const iconOptions = (route, isFocused, options) => {
 
     return <Icon name={iconName} color={color} size={22}>
         {options.tabBarBadge ? 
-        <View style={tw`absolute left-2 top-1 -mt-3 rounded-full bg-red-800 p-2 h-5 flex items-center justify-center flex-row`}>
+        <View style={tw`absolute left-2 top-1 -mt-3 rounded-full bg-red-700 p-2 h-5 flex items-center justify-center flex-row`}>
             <Text style={tw`text-sm text-slate-200 font-bold font-sans`}>{options.tabBarBadge}</Text>
         </View> : null}
     </Icon>;

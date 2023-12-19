@@ -56,7 +56,7 @@ export const ROUTES = {
     DevHasVaultRoute: 'DevHasVaultRoute',
     DevContactsRoute: 'DevContactsRoute',
     DevSecretsRoute: 'DevSecretsRoute',
-    DevReocveryPlanRoute: 'DevReocveryPlanRoute',
+    DevRecoverSplitsRoute: 'DevRecoverSplitsRoute',
     DevDigitalAgentRoute: 'DevDigitalAgentRoute',
     DevRecoverCombineRoute: 'DevRecoverCombineRoute',
 

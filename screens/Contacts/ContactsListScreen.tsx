@@ -3,11 +3,12 @@ import { useEffect, useState } from 'react';
 
 import ds from '../../assets/styles';
 import tw from '../../lib/tailwind';
-import { DEV, ROUTES } from '../../config';
+import { ROUTES } from '../../config';
 import MainContainer from '../../components/MainContainer';
 import Contact from '../../models/Contact';
 
 import { ContactIcon, ContactStateText } from './ContactViewScreen';
+import { DevButton } from '../../components/Button';
 
 function ContactRow({contact, navigation}: {contact: Contact, navigation: any}) {
     const { name, did, state } = contact
@@ -43,12 +44,9 @@ export default function ContactsListScreen(props: ContactsListScreenProps) {
 
     const header = 'Contacts'
     const buttonRow = <>
-        {DEV && <Pressable style={[ds.button, tw`rounded-full`]}
-            onPress={() => props.navigation.navigate(ROUTES.DevContactsRoute)}>
-            <Text style={ds.buttonText}>Dev</Text>
-        </Pressable>}
+        <DevButton onPressOut={() => props.navigation.navigate(ROUTES.DevContactsRoute)} />
         <View style={tw`flex-grow-1`} />
-        <Pressable style={[ds.button, ds.greenButton, tw`rounded-full`]}
+        <Pressable style={[ds.button, ds.greenButton]}
             onPress={() => props.navigation.navigate(ROUTES.ContactAddRoute)}>
             <Text style={ds.buttonText}>Add Contact</Text>
         </Pressable>

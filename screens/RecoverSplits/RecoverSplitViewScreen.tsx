@@ -71,7 +71,7 @@ const RecoverSplitStateText = (state: RecoverSplitState) => {
     </View>
 }
 const RecoverSplitBox = (threshold: number, shares: number) => {
-    const style = tw`bg-slate-600 rounded-lg w-16 flex flex-col items-center justify-center px-1 py-1`
+    const style = tw`w-16 flex flex-col items-center justify-center px-1 py-1` //bg-slate-600 rounded-lg 
     const blockSize = shares < 5 ? tw`h-7 w-7` :
         shares < 10 ? tw`h-5 w-5` :
         shares < 17 ? tw`h-4 w-4` :
@@ -98,7 +98,7 @@ const RecoverSplitBox = (threshold: number, shares: number) => {
 
 export const RecoverSplitRow = ({recoverSplit}: {recoverSplit: RecoverSplit}) => {
     const totalShares = recoverSplit.totalShares
-    return <View style={tw`flex-row mb-2 pb-2 border-b border-slate-400`}>
+    return <View style={tw`flex-row mb-2 items-center pb-2 border-b border-slate-400`}>
         <View style={tw`mr-2`}>
             {RecoverSplitBox(recoverSplit.threshold, totalShares)}
         </View>
@@ -207,10 +207,10 @@ const RecoverSplitViewScreen: React.FC<RecoverSplitViewScreenProps> = (props) =>
     const buttonRow = <>
         <GoBackButton onPressOut={() => props.navigation.goBack()} />
         <View style={tw`flex-grow`}></View>
-        <Pressable style={[ds.button, ds.blueButton]}
+        {/* <Pressable style={[ds.button, ds.blueButton]}
                 onPress={() => props.navigation.navigate('RecoverSplitEdit', {recoverSplitPk: recoverSplit.pk})}>
             <Text style={ds.buttonText}>Edit</Text>
-        </Pressable>
+        </Pressable> */}
     </>
     return <MainContainer header={header} buttonRow={buttonRow} >
         <View>

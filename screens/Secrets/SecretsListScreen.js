@@ -1,12 +1,12 @@
-import { Pressable, Text, ScrollView, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useEffect, useState } from 'react';
-import Icon from 'react-native-vector-icons/Ionicons'
 
 import ds from '../../assets/styles';
 import tw from '../../lib/tailwind';
-import { DEV, ROUTES } from '../../config';
+import { ROUTES } from '../../config';
 import MainContainer from '../../components/MainContainer';
 import { SecretIcon } from './SecretViewScreen'
+import { DevButton } from '../../components/Button';
 
 function SecretRow({secret, navigation}) {
     const { name, description, data } = secret
@@ -37,12 +37,9 @@ function SecretsListScreen(props) {
 
     const header='Secrets'
     const buttonRow = <>
-        {DEV && <Pressable style={[ds.button, tw`rounded-full`]}
-            onPressOut={() => props.navigation.navigate(ROUTES.DevSecretsRoute)}>
-            <Text style={ds.buttonText}>Dev</Text>
-        </Pressable>}
+        <DevButton onPressOut={() => props.navigation.navigate(ROUTES.DevSecretsRoute)} />
         <View style={tw`flex-grow-1`} />
-        <Pressable style={[ds.button, ds.greenButton, tw`rounded-full`]}
+        <Pressable style={[ds.button, ds.greenButton]}
             onPress={() => props.navigation.navigate(ROUTES.SecretCreateRoute)}>
             <Text style={ds.buttonText}>Add Secret</Text>
         </Pressable>
