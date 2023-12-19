@@ -20,9 +20,13 @@ type ContactViewScreenProps = {
     }
 }
 
-export const ContactIcon = (props) => {
-    return <View style={tw`bg-purple-400 rounded-full h-16 w-16 items-center justify-center`}>
-        <Icon name='person-outline' size={32} color='white' style={tw`text-center`} />
+export const ContactIcon = (big=false) => {
+    const style = [
+        tw`bg-purple-400`,
+        big ? ds.largeCircle :ds.smallCircle,
+    ]
+    return <View style={style}>
+        <Icon name='person-outline' size={big ? 32 : 20} color='white' style={tw`text-center`} />
     </View>
 }
 
@@ -49,11 +53,16 @@ const ContactCard = ({contact}: {contact: Contact}) => {
     return <View>
         <View style={tw`flex flex-row items-center py-1 mb-1`}>
             <View style={tw`mr-2`}>
-                <ContactIcon />
+                {ContactIcon(true)}
             </View>
             <View>
                 <View style={tw`flex flex-row items-center`}>
                     {ContactStateText(state)}
+                    {/* {ContactStateText(ContactState.INIT)}
+                    {ContactStateText(ContactState.INBOUND)}
+                    {ContactStateText(ContactState.PENDING)}
+                    {ContactStateText(ContactState.BLOCKED)}
+                    {ContactStateText(ContactState.ARCHIVED)} */}
                     <Text style={ds.textLg}>{name}</Text>
                 </View>
             </View>

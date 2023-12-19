@@ -294,6 +294,9 @@ class RecoverSplit {
     get totalShares(): number {
         return this.recoverSplitPartys.map(p => p.numShares).reduce((a, b) => a + b)
     }
+    get totalParties(): number {
+        return this.recoverSplitPartys.length
+    }
     addRecoverSplitParty(contact: Contact, numShares: number, receiveManifest: boolean) {
         const recoverSplitParty = new RecoverSplitParty(
             uuidv4(), contact.pk, contact.name, numShares,
