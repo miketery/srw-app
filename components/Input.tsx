@@ -26,12 +26,14 @@ type XTextInputProps = {
     error?: boolean,
     placeholder?: string,
     multiline?: boolean,
+    password?: boolean,
 }
 
 export const XTextInput = (props: XTextInputProps) => {
-    const {label, value, onChangeText, error, placeholder, multiline} = props
+    const {label, value, onChangeText, error, placeholder, multiline, password} = props
 
     const [isFocused, setIsFocused] = useState(false);
+    const [secureTextEntry, setSecureTextEntry] = useState(password);
 
     const style = [
         ds.xinput,
@@ -39,7 +41,7 @@ export const XTextInput = (props: XTextInputProps) => {
         error ? tw`border-2 border-red-600`: null,
         // when not border-2, we need to add margin to compensate
         isFocused || error ? null : {marginVertical: '1px', marginHorizontal: '1px'},
-        multiline ? tw`h-36` : null,
+        multiline ? tw`h-30` : null,
     ]
     
     return <View style={ds.inputContainer}>
@@ -52,7 +54,13 @@ export const XTextInput = (props: XTextInputProps) => {
             value={value}
             onChangeText={onChangeText}
             multiline={multiline}
+            secureTextEntry={secureTextEntry} 
         />
+        {password && <View style={tw`absolute top-11 right-5`}>
+            <Pressable onPressOut={() => setSecureTextEntry(!secureTextEntry)}>
+                <Text style={tw`text-sm text-cyan-400`}>{secureTextEntry ? 'Show' : 'Hide'}</Text>
+            </Pressable>
+        </View>}
     </View>
 }
 

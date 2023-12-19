@@ -5,23 +5,8 @@ import ds from '../../assets/styles';
 import tw from '../../lib/tailwind';
 import { ROUTES } from '../../config';
 import MainContainer from '../../components/MainContainer';
-import { SecretIcon } from './SecretViewScreen'
+import { SecretRow } from './SecretViewScreen'
 import { DevButton } from '../../components/Button';
-
-function SecretRow({secret, navigation}) {
-    const { name, description, data } = secret
-    return <Pressable style={tw`flex flex-row items-center py-1 mb-1`}
-            onPressOut={() => navigation.navigate(ROUTES.SecretViewRoute, {secretPk: secret.pk})}>
-        <View style={tw`mr-2`}>
-            <SecretIcon secretType={secret.secretType}/>
-        </View>
-        <View style={tw`flex flex-col`}>
-            <Text style={ds.textLg}>{name}</Text>
-            <Text style={ds.text}>{description}</Text>
-            {/* <Text style={ds.text}>{data}</Text> */}
-        </View>
-    </Pressable>
-}
 
 function SecretsListScreen(props) {
     const [secrets, setSecrets] = useState([])
@@ -47,7 +32,10 @@ function SecretsListScreen(props) {
 
     return <MainContainer header={header} buttonRow={buttonRow}>
         {secrets.map((secret) => {
-            return <SecretRow key={secret.pk} secret={secret} navigation={props.navigation} />
+            return <Pressable key={secret.pk}
+                    onPressOut={() => props.navigation.navigate(ROUTES.SecretViewRoute, {secretPk: secret.pk})}>
+                <SecretRow key={secret.pk} secret={secret} />
+            </Pressable>
         })}
     </MainContainer>
 }

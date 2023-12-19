@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Pressable, Text, ScrollView, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons'
 import { GoBackButton } from '../../components';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 
 import ds from '../../assets/styles';
@@ -11,6 +12,7 @@ import SecretsManager from '../../managers/SecretsManager'
 import Secret, { SecretType } from '../../models/Secret';
 
 import MainContainer from "../../components/MainContainer";
+import { ROUTES } from "../../config";
 
 
 export const secretTypeStyleMap: { [k in SecretType]: {
@@ -48,15 +50,72 @@ export function SecretIcon({secretType, big}: {secretType: SecretType, big?: boo
     </View>
 }
 
-const SecretCard = ({ secret }: { secret: Secret }) => {
+export const SecretRow = ({secret}) => {
     const { name, description, data } = secret
+    return <View style={tw`flex flex-row items-center py-1 mb-1`}>
+        <View style={tw`mr-2`}>
+            <SecretIcon secretType={secret.secretType}/>
+        </View>
+        <View style={tw`flex flex-col`}>
+            <Text style={ds.textLg}>{name}</Text>
+            {/* <Text style={ds.text}>{description}</Text> */}
+            {/* <Text style={ds.text}>{data}</Text> */}
+        </View>
+    </View>
+}
+
+const SecretCard = ({ secret }: { secret: Secret }) => {
+    const { description, data, secretType } = secret
     return <View>
-        <View style={tw`flex flex-row items-center py-1 mb-1`}>
-            <View>
-                <View style={tw`flex flex-row items-center`}>
-                    <Text style={ds.textLg}>{name}</Text>
+        <SecretRow secret={secret} />
+        <View style={tw`mb-4 pb-4 border-b border-slate-400`}>
+            <Text style={ds.text}>{description}</Text>
+        </View>
+        <View style={tw`flex flex-col items-start`}>
+            {secretType === SecretType.login ? <>
+                <View style={[ds.col, tw`w-full mb-4`]}>
+                    <Text style={[ds.text, tw`mb-1`]}>
+                        Username / Email
+                    </Text>
+                    <Pressable style={[ds.xinput, tw`flex-row items-center justify-between border-slate-600`]}
+                        onPress={() => Clipboard.setString(data.username)}>
+                        <Text style={ds.textXl}>
+                            {data.username}
+                        </Text>
+                        <Text style={[ds.text, tw`self-center pl-4`]}>
+                            <Icon name='copy-outline' size={24} />
+                        </Text>
+                    </Pressable> 
                 </View>
-            </View>
+                <View style={[ds.col, tw`w-full mb-4`]}>
+                    <Text style={[ds.text, tw`mb-1`]}>
+                        Password
+                    </Text>
+                    <Pressable style={[ds.xinput, tw`flex-row items-center justify-between border-slate-600`]}
+                        onPress={() => Clipboard.setString(data.password)}>
+                        <Text style={ds.textLg}>
+                            {data.password}
+                        </Text>
+                        <Text style={[ds.text, tw`self-center pl-4`]}>
+                            <Icon name='copy-outline' size={24} />
+                        </Text>
+                    </Pressable> 
+                </View>
+            </> : 
+            <View style={[ds.col, tw`w-full mb-4`]}>
+                <Text style={[ds.text, tw`mb-1`]}>
+                    Secret Data
+                </Text>
+                <Pressable style={[ds.xinput, tw`flex-row items-center justify-between border-slate-600 w-full`]}
+                    onPress={() => Clipboard.setString(data.secret)}>
+                    <Text style={[ds.textLg, tw`w-75 break-word`]}>
+                        {data.secret}
+                    </Text>
+                    <Text style={[ds.text, tw`self-center pl-4`]}>
+                        <Icon name='copy-outline' size={24} />
+                    </Text>
+                </Pressable>
+            </View>}
         </View>
     </View>
 }
@@ -88,6 +147,12 @@ function SecretViewScreen(props: SecretViewScreenProps) {
     const header = 'Secret Details'
     const buttonRow = <>
         <GoBackButton onPressOut={() => props.navigation.goBack()} />
+        <View style={tw`flex-grow-1`} />
+        <Pressable style={[ds.button, ds.greenButton]}
+            onPressOut={() => props.navigation.navigate(
+                ROUTES.SecretEditRoute, {secretPk: secret.pk})}>
+            <Text style={ds.buttonText}>Edit</Text>
+        </Pressable>
     </>
 
     return <MainContainer header={header} buttonRow={buttonRow} color={'blue'}>

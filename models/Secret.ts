@@ -14,7 +14,7 @@ interface SecretDict {
     secretType: SecretType,
     name: string,
     description: string,
-    data: any,
+    data: {},
     updated: number,
     created: number,
     vaultPk: string

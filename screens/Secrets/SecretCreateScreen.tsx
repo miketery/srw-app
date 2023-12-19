@@ -51,11 +51,15 @@ type CreateSecretScreenProps = {
 const CreateSecretScreen = ({navigation, secretsManager}: CreateSecretScreenProps) => {
     const [title, setTitle] = useState<string>('');
     const [description, setDescription] = useState<string>('');
-    const [secretData, setSecretData] = useState<string>('');
+    const [secretData, setSecretData] = useState<string>(''); // for key or not
+
+    const [username, setUsername] = useState<string>(''); // for login
+    const [password, setPassword] = useState<string>(''); // for login
+
     const [errors, setErrors] = useState({});
 
     const [secretType, setSecretType] = useState<SecretType>(null)
-    const [stage, setStage] = useState<0|1>(0)
+    const [step, setStep] = useState<0|1>(0)
 
     useEffect(() => {
         // This effect can be used to perform any side effects when the component is mounted.
@@ -67,9 +71,9 @@ const CreateSecretScreen = ({navigation, secretsManager}: CreateSecretScreenProp
         };
     }, []);
 
-    const setSecretTypeAndNextStage = (secretType) => {
+    const setSecretTypeAndNextStep = (secretType: SecretType) => {
         setSecretType(secretType)
-        setStage(1)
+        setStep(1)
     }
 
     const handleSubmit = async () => {
@@ -77,20 +81,26 @@ const CreateSecretScreen = ({navigation, secretsManager}: CreateSecretScreenProp
             title,
             description,
             secretData,
+            username,
+            password,
         });
         //TODO: implement types
+        const data = secretType === SecretType.login ? {
+            username,
+            password,
+        } : {secret: secretData}
         const secret = await secretsManager.createSecret(
-            secretType, title, description, secretData);
+            secretType, title, description, data);
         //TODO: alert
         navigation.goBack();
     };
-    const header = stage === 0 ? 'Create Secret' : labelMap[secretType]
+    const header = step === 0 ? 'Create Secret' : labelMap[secretType]
     const buttonRow = <>
         <GoBackButton onPressOut={() => {
-            stage === 0 ? navigation.goBack() : setStage(0)
+            step === 0 ? navigation.goBack() : setStep(0)
         }} />
         <View style={tw`flex-grow`} />
-        {stage === 1 && <Pressable onPress={handleSubmit}>
+        {step === 1 && <Pressable onPress={handleSubmit}>
             <View style={ds.button}>
                 <Text style={ds.buttonText}>Create Secret</Text>
             </View>
@@ -98,11 +108,11 @@ const CreateSecretScreen = ({navigation, secretsManager}: CreateSecretScreenProp
     </>
 
     return <MainContainer header={header} buttonRow={buttonRow} color={'blue'}>
-        {stage === 0 && <SecretTypePicker onClick={setSecretTypeAndNextStage} />}
-        {stage === 1 && <>
+        {step === 0 && <SecretTypePicker onClick={setSecretTypeAndNextStep} />}
+        {step === 1 && <>
             <View style={tw`flex-row items-center mb-4`}>
                 <SecretIcon secretType={secretType} big={true} />
-                <Pressable onPressOut={() => setStage(0)}>
+                <Pressable onPressOut={() => setStep(0)}>
                     <View style={tw`flex-row ml-4`}>
                         {/* <Text style={tw`text-xl capitalize font-bold text-slate-100`}>{labelMap[secretType]}</Text> */}
                         <View style={tw`px-4 py-2 rounded-full border border-slate-100`}><Text style={ds.text}>Change</Text></View>
@@ -118,13 +128,27 @@ const CreateSecretScreen = ({navigation, secretsManager}: CreateSecretScreenProp
                 label="Description"
                 value={description}
                 onChangeText={setDescription}
-            />
-            <XTextInput
-                label="Secret Data"
-                value={secretData}
-                onChangeText={setSecretData}
                 multiline={true}
             />
+            {[SecretType.note, SecretType.key].includes(secretType) && 
+                <XTextInput
+                    label="Secret Data"
+                    value={secretData}
+                    onChangeText={setSecretData}
+                    multiline={true}
+            />}
+            {secretType === SecretType.login &&
+            <>
+                <XTextInput
+                    label="Username / Email"
+                    value={username}
+                    onChangeText={setUsername} />
+                <XTextInput
+                    label="Password"
+                    value={password}
+                    onChangeText={setPassword}
+                    password={true} />
+            </>}
         </>}
     </MainContainer>
 };
