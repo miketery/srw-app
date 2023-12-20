@@ -58,11 +58,6 @@ const ContactCard = ({contact}: {contact: Contact}) => {
             <View>
                 <View style={tw`flex flex-row items-center`}>
                     {ContactStateText(state)}
-                    {/* {ContactStateText(ContactState.INIT)}
-                    {ContactStateText(ContactState.INBOUND)}
-                    {ContactStateText(ContactState.PENDING)}
-                    {ContactStateText(ContactState.BLOCKED)}
-                    {ContactStateText(ContactState.ARCHIVED)} */}
                     <Text style={ds.textLg}>{name}</Text>
                 </View>
             </View>

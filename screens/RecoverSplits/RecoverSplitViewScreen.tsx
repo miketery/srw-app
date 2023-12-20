@@ -57,7 +57,7 @@ const RecoverSplitStateStyle = {
     }
 }
 
-const RecoverSplitStateText = (state: RecoverSplitState) => {
+export const RecoverSplitStateText = (state: RecoverSplitState) => {
     const viewStyle = [
         tw`px-2 rounded-full`,
         RecoverSplitStateStyle[state].bg
@@ -129,14 +129,6 @@ export const RecoverSplitRow = ({recoverSplit}: {recoverSplit: RecoverSplit}) =>
                     <FaIcon name='ticket' size={16} color='white' style={tw`text-center`} />
                 </View>
             </View>
-            {/* {RecoverSplitStateText(RecoverSplitState.START)}
-            {RecoverSplitStateText(RecoverSplitState.SPLITTING_KEY)}
-            {RecoverSplitStateText(RecoverSplitState.READY_TO_SEND_INVITES)}
-            {RecoverSplitStateText(RecoverSplitState.SENDING_INVITES)}
-            {RecoverSplitStateText(RecoverSplitState.WAITING_ON_PARTICIPANTS)}
-            {RecoverSplitStateText(RecoverSplitState.READY)}
-            {RecoverSplitStateText(RecoverSplitState.FINAL)}
-            {RecoverSplitStateText(RecoverSplitState.ARCHIVED)} */}
         </View>
         {/* <View style={tw`flex-col`}>
             {recoverSplit.recoverSplitPartys.map((party, index) => {

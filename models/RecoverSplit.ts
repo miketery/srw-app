@@ -229,6 +229,7 @@ class RecoverSplit {
                 state.context.recoverSplit.toString())
         })
         this.fsm.start(this._state)
+        this.fsm.send('') // force check of guards
     }
     // getContact(pk: string): Contact {
     //     console.log('[RecoverSplit.getContact]', pk)

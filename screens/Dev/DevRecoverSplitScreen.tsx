@@ -22,6 +22,7 @@ import GuardiansManager from '../../managers/GuardiansManager'
 import { InboundMessageDict, Message } from '../../models/Message'
 import { GoBackButton, LoadingScreen } from '../../components'
 import MainContainer from '../../components/MainContainer';
+import { RecoverSplitStateText } from '../RecoverSplits/RecoverSplitViewScreen';
 
 /**
  * Test Recover Split Flow
@@ -209,6 +210,32 @@ const DevRecoverSplitScreen: React.FC<DevRecoverSplitScreenProps> = (props) => {
                     onPress={() => deleteAllRecoveryRelated()}>
                 <Text style={ds.buttonText}>Delete</Text>
             </Pressable>
+        </View>
+        <View style={tw`flex flex-col items-start`}>
+            
+            <Text style={ds.text}>{RecoverSplitState.START}</Text>
+            {RecoverSplitStateText(RecoverSplitState.START)}
+            
+            <Text style={ds.text}>{RecoverSplitState.SPLITTING_KEY}</Text>
+            {RecoverSplitStateText(RecoverSplitState.SPLITTING_KEY)}
+
+            <Text style={ds.text}>{RecoverSplitState.READY_TO_SEND_INVITES}</Text>
+            {RecoverSplitStateText(RecoverSplitState.READY_TO_SEND_INVITES)}
+
+            <Text style={ds.text}>{RecoverSplitState.SENDING_INVITES}</Text>
+            {RecoverSplitStateText(RecoverSplitState.SENDING_INVITES)}
+
+            <Text style={ds.text}>{RecoverSplitState.WAITING_ON_PARTICIPANTS}</Text>
+            {RecoverSplitStateText(RecoverSplitState.WAITING_ON_PARTICIPANTS)}
+
+            <Text style={ds.text}>{RecoverSplitState.READY}</Text>
+            {RecoverSplitStateText(RecoverSplitState.READY)}
+
+            <Text style={ds.text}>{RecoverSplitState.FINAL}</Text>
+            {RecoverSplitStateText(RecoverSplitState.FINAL)}
+
+            <Text style={ds.text}>{RecoverSplitState.ARCHIVED}</Text>
+            {RecoverSplitStateText(RecoverSplitState.ARCHIVED)}
         </View>
     </MainContainer>
 }

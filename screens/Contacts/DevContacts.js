@@ -12,6 +12,7 @@ import { useSessionContext } from '../../contexts/SessionContext'
 
 import { test_vaults } from '../../testdata/testVaults'
 import MainContainer from '../../components/MainContainer'
+import { ContactStateText } from './ContactViewScreen'
 
 /**
  * Test Contact Flow Messages
@@ -123,6 +124,13 @@ export default function DevContacts(props) {
                     onPress={() => AliceToBobRequest(manager)}>
                 <Text style={ds.buttonText}>Alice to Bob Request only</Text>
             </Pressable>
+        </View>
+        <View style={tw`flex flex-col items-start`}>
+            {ContactStateText(ContactState.INIT)}
+            {ContactStateText(ContactState.INBOUND)}
+            {ContactStateText(ContactState.PENDING)}
+            {ContactStateText(ContactState.BLOCKED)}
+            {ContactStateText(ContactState.ARCHIVED)}
         </View>
     </MainContainer>
 }
