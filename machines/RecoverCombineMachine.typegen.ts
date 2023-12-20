@@ -27,8 +27,8 @@
           
         };
         eventsCausingGuards: {
-          "allRequestsAccepted": "";
-"allRequestsSent": "";
+          "allRequestsSent": "";
+"recievedThreshold": "";
         };
         eventsCausingServices: {
           "combineSharesAndDecrypt": "" | "RECOVER";

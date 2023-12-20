@@ -8,7 +8,6 @@ import { VerifyKey, PrivateKey, PublicKey } from '../lib/nacl';
 import SS, { StoredTypePrefix } from '../services/StorageService';
 import ContactMachine from '../machines/ContactMachine';
 import { Message, OutboundMessageDict } from './Message';
-import DigitalAgentService from '../services/DigitalAgentService';
 import { MessageTypes } from '../managers/MessagesManager';
 import Vault from './Vault';
 import { ContactAccept, ContactInvite } from './MessagePayload';
@@ -29,6 +28,7 @@ interface ContactDict {
     vaultPk: string,
     did: string,
     name: string,
+    email: string,
     private_key: string,
     public_key: string,
     their_public_key: string,
@@ -45,6 +45,7 @@ class Contact {
     vaultPk: string
     did: string // TODO: change to DID
     name: string
+    email: string
     private_key: PrivateKey
     public_key: PublicKey
     their_public_key: PublicKey
@@ -60,6 +61,7 @@ class Contact {
             vaultPk: string,
             did: string,
             name: string,
+            email: string,
             private_key: PrivateKey,
             public_key: PublicKey,
             their_public_key: PublicKey,
@@ -72,6 +74,7 @@ class Contact {
         this.vaultPk = vaultPk
         this.did = did
         this.name = name
+        this.email = email
         this.private_key = private_key
         this.public_key = public_key
         this.their_public_key = their_public_key
@@ -116,13 +119,16 @@ class Contact {
     get b58_their_contact_public_key(): string {
         return base58.encode(this.their_contact_public_key)
     }
-    static async create(vaultPk: string, did: string, name: string, 
-            their_public_key: PublicKey, their_verify_key: VerifyKey, their_contact_public_key: PublicKey,
+    static async create(vaultPk: string, did: string,
+            name: string,email: string,
+            their_public_key: PublicKey,
+            their_verify_key: VerifyKey,
+            their_contact_public_key: PublicKey,
             digital_agent: string,
             state: ContactState, vault: Vault) {
         let pk = StoredTypePrefix.contact + uuidv4()
         let enc_key_pair = await encryptionKey()
-        return new Contact(pk, vaultPk, did, name, 
+        return new Contact(pk, vaultPk, did, name, email,
             enc_key_pair.secretKey, enc_key_pair.publicKey,
             their_public_key, their_verify_key, their_contact_public_key,
             digital_agent, state, vault)
@@ -139,6 +145,7 @@ class Contact {
             vaultPk: this.vaultPk,
             did: this.did,
             name: this.name,
+            email: this.email,
             private_key: base58.encode(this.private_key),
             public_key: base58.encode(this.public_key),
             their_public_key: this.their_public_key ? base58.encode(this.their_public_key) : '',
@@ -155,7 +162,7 @@ class Contact {
         const their_verify_key = data.their_verify_key != '' ? base58.decode(data.their_verify_key) : Uint8Array.from([])
         const their_contact_public_key = data.their_contact_public_key != '' ? base58.decode(data.their_contact_public_key) : Uint8Array.from([])
         return new Contact(
-            data.pk, data.vaultPk, data.did, data.name,
+            data.pk, data.vaultPk, data.did, data.name, data.email,
             private_key, public_key,
             their_public_key, their_verify_key, their_contact_public_key,
             data.digital_agent,
@@ -170,6 +177,7 @@ class Contact {
         const data: ContactInvite = {
             did: this.vault.did,
             name: this.vault.name,
+            email: this.vault.email,
             verify_key: this.vault.b58_verify_key,
             public_key: this.vault.b58_public_key,
             contact_public_key: this.b58_public_key,
@@ -187,6 +195,7 @@ class Contact {
     acceptInviteMsg(): OutboundMessageDict {
         const data: ContactAccept = {
             did: this.vault.did,
+            email: this.vault.email,
             verify_key: this.vault.b58_verify_key,
             public_key: this.vault.b58_public_key,
             contact_public_key: this.b58_public_key,

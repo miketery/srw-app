@@ -11,7 +11,7 @@ import ContactsNav from './Contacts'
 import SecretsNav from './Secrets'
 import RecoverSplitsNav from './RecoverSplits'
 
-import NotificationsScreen from './NotificationsScreen';
+import NotificationsListScreen from './NotificationsListScreen';
 import { DevHasVaultNav } from './Dev'
 
 const Tab = createBottomTabNavigator();
@@ -82,7 +82,7 @@ export default function HomeNavTest({props}) {
             </>}
             <Tab.Screen name={ROUTES.NotificationsRoute} 
                     options={{ tabBarBadge: notifications.length }}>
-                {(props) => <NotificationsScreen {...props} notifications={notifications} />}
+                {(props) => <NotificationsListScreen {...props} notifications={notifications} />}
             </Tab.Screen>
             {/* <Tab.Screen name='ProfileRoute' >
                 {(props) => <ProfileScreen {...props} />}

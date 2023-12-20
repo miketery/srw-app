@@ -40,7 +40,8 @@ const RecoverCombineMachine = createMachine({
         WAITING_ON_PARTICIPANTS: {
             entry: ['save'],
             always: [
-                {target: 'RECOVERING', cond: 'allRequestsAccepted'}
+                {target: 'RECOVERING', cond: 'recievedThreshold'}
+                
             ]
         },
         RECOVERING: {
@@ -94,9 +95,12 @@ const RecoverCombineMachine = createMachine({
         allRequestsSent: (context, event): boolean => {
             return context.recoverCombine.allRequestsSent()
         },
-        allRequestsAccepted: (context, event): boolean => {
-            return context.recoverCombine.allRequestsAccepted()
-        },
+        // allRequestsAccepted: (context, event): boolean => {
+        //     return context.recoverCombine.allRequestsAccepted()
+        // },
+        recievedThreshold: (context, event): boolean => {
+            return context.recoverCombine.recievedThreshold()
+        }
     },
     services: {
         combineSharesAndDecrypt: async (context, event): Promise<boolean> => {

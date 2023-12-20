@@ -29,6 +29,14 @@ async function TestMessage(vault) {
     vault.sender(outbound)
 }
 
+function loadTestNotifications(manager) {
+    const testNotifications = require('../../testdata/testNotifications').testNotifications
+    const notificationsManager = manager.notificationsManager
+    testNotifications.forEach(n => {
+        notificationsManager.createNotification(n.type, n.data)
+    })
+}
+
 function deleteAllLocalStorage(navigation, clear) {
     console.log('DeleteAllLocalStorage')
     clear()
@@ -40,7 +48,7 @@ function deleteAllLocalStorage(navigation, clear) {
 const Stack = createNativeStackNavigator();
 
 export function DevHasVaultNav({navigation, fetching, start, clear}) {
-    const {vault} = useSessionContext()
+    const {vault, manager} = useSessionContext()
 
     const header = 'Dev Has Vault'
     const buttonRow = <>
@@ -66,9 +74,13 @@ export function DevHasVaultNav({navigation, fetching, start, clear}) {
                             <Text style={ds.buttonText}>App.Test Self Message</Text>
                         </Pressable>
                     </View>
-                    <Pressable style={[ds.button, ds.greenButton, tw`mt-4`]}
+                    <Pressable style={[ds.button, ds.greenButton, tw`w-full mt-4`]}
                         onPress={() => navigation.navigate(ROUTES.DevDigitalAgentRoute)}>
                         <Text style={ds.buttonText}>Digital Agent</Text>
+                    </Pressable>
+                    <Pressable style={[ds.button, ds.purpleButton, tw`w-full mt-4`]}
+                        onPress={() => loadTestNotifications(manager)}>
+                        <Text style={ds.buttonText}>Load Notifications</Text>
                     </Pressable>
                     <Pressable style={[ds.button, ds.redButton, tw`mt-4`]}
                         onPress={() => deleteAllLocalStorage(navigation, clear)}>

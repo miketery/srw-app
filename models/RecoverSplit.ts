@@ -39,6 +39,7 @@ export type ManifestDict = {
     name: string,
     payloadHash: string,
     encryptedPayload: string, // base64
+    threshold: number,
     recoverSplitPartys: {
         name: string,
         did: string,
@@ -228,6 +229,7 @@ class RecoverSplit {
                 state.context.recoverSplit.toString())
         })
         this.fsm.start(this._state)
+        this.fsm.send('') // force check of guards
     }
     // getContact(pk: string): Contact {
     //     console.log('[RecoverSplit.getContact]', pk)
@@ -293,6 +295,9 @@ class RecoverSplit {
     get totalShares(): number {
         return this.recoverSplitPartys.map(p => p.numShares).reduce((a, b) => a + b)
     }
+    get totalParties(): number {
+        return this.recoverSplitPartys.length
+    }
     addRecoverSplitParty(contact: Contact, numShares: number, receiveManifest: boolean) {
         const recoverSplitParty = new RecoverSplitParty(
             uuidv4(), contact.pk, contact.name, numShares,
@@ -351,6 +356,7 @@ class RecoverSplit {
             name: this.name,
             encryptedPayload: bytesToBase64(this.encryptedPayload),
             payloadHash: bytesToHex(nacl.hash(this.payload)),
+            threshold: this.threshold,
             recoverSplitPartys: this.recoverSplitPartys.map(p => {
                 const contact = this.getContact(p.contactPk)
                 return {

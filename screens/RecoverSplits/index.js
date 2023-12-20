@@ -37,7 +37,7 @@ const routeConfigs = [
         component: GuardianViewScreen
     },
     {
-        name: ROUTES.DevReocveryPlanRoute,
+        name: ROUTES.DevRecoverSplitsRoute,
         title: 'Dev Recovery Plan',
         component: DevRecoverSplit
     },

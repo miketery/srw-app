@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons'
+import FaIcon from 'react-native-vector-icons/FontAwesome'
 
 import ds from '../../assets/styles'
 import tw from '../../lib/tailwind'
@@ -13,6 +14,7 @@ import RecoverSplitsManager from '../../managers/RecoverSplitsManager'
 import { ROUTES } from '../../config';
 import Contact from '../../models/Contact';
 import MainContainer from '../../components/MainContainer'
+import CtaButton from '../../components/CtaButton'
 
 type ContactPk = string
 
@@ -42,12 +44,13 @@ const stepChecks: {[k in Steps]: ({}: any) => boolean} = {
         }
         return true
     },
-    [Steps.CHOOSE_THRESHOLD]: ({threshold, participants, setError}) => {
+    [Steps.CHOOSE_THRESHOLD]: ({threshold, participants, shares, setError}) => {
+        const maxShares = participants.reduce((acc, pk) => acc + shares[pk], 0)
         if(threshold < 2) {
             setError('Threshold must be at least 2')
             return false
-        } else if (threshold > participants.length) {
-            setError(`Threshold must be at most ${participants.length} (total participants)`)
+        } else if (threshold > maxShares ) {
+            setError(`Threshold must be at most ${maxShares} (total participants)`)
             return false
         }
         return true
@@ -62,41 +65,76 @@ const StepControls = ({step, nextStep, prevStep}: {step: number, nextStep: () =>
     const canGoPrev = step > 0
     return <View style={tw`flex flex-row justify-between items-center flex-grow`}>
         <Pressable style={[ds.buttonArrow, canGoPrev ? null : ds.disabled]} onPress={() => canGoPrev && prevStep()}>
-            <Icon name='arrow-back' style={ds.text} size={20} />
+            <Text style={ds.buttonText}>
+                <Icon name='arrow-back' size={24} />
+            </Text>
         </Pressable>
         <Text style={ds.textLg}>{stepLabel(step)}</Text>
         <Pressable style={[ds.buttonArrow, canGoNext ? null : ds.disabled]} onPress={() => canGoNext && nextStep()}>
-            <Icon name='arrow-forward' style={ds.text} size={20} />
+            <Text style={ds.buttonText}>
+                <Icon name='arrow-forward' size={24} />
+            </Text>
         </Pressable>
     </View>
 }
 
+const shareIncrementStyle = tw`rounded-full w-6 h-6 bg-slate-200 flex flex-row items-center justify-center`
 
-const ContactSelectList = ({step, contacts, selected, onPress}: {step: Steps, contacts: Contact[], selected: ContactPk[], onPress: (pk: ContactPk) => void}) => {
+const ContactSelectList = ({step, contacts, shares, setShares, selected, onPress}: {
+        step: Steps, contacts: Contact[], shares: {[contactPk: string]: number},
+        setShares: ({}) => void,
+        selected: ContactPk[], onPress: (pk: ContactPk) => void}) => {
     const currentStep = step === Steps.CHOOSE_PARTICIPANTS
+    const thresholdStep = step === Steps.CHOOSE_THRESHOLD && false // disabled shares per participant
     return <View>
         <Text style={ds.textLg}>Selected {selected.length} guardians.</Text>
             {contacts
                 .filter(c => currentStep || selected.includes(c.pk)) // if not current step then only show selected
                 .map((contact: Contact, index: number) => {
                 const isSelected = selected.includes(contact.pk)
+                const shareCount = shares[contact.pk] || 1
                 return <Pressable key={index} 
-                        style={[tw`p-2 my-2 rounded-md flex flex-row items-center`, isSelected ? (currentStep ? tw`bg-green-700` : tw`bg-green-900`): tw`bg-gray-700 text-red-500`]}
+                        style={[tw`px-2 my-2 rounded-md flex flex-row items-center`, isSelected ? (currentStep ? tw`bg-green-700` : tw`bg-green-900`): tw`bg-gray-700 text-red-500`]}
                         onPress={() => currentStep && onPress(contact.pk)}>
-                    <View style={tw`mr-2`}>
+                    <View style={tw`mr-2 my-2`}>
                         <Icon name='person' style={isSelected ? tw`text-yellow-300` :  ds.text} size={20} />
                     </View>
                     <Text style={ds.textLg}>{contact.name}</Text>
+                    <View style={tw`flex-grow-1`} />
+                    {thresholdStep && <View style={tw`px-2 mr-2 flex-row items-center`}>
+                            <Pressable style={[shareIncrementStyle]}
+                                    onPress={() => setShares({
+                                        ...shares, 
+                                        [contact.pk]: shareCount > 1 ? shareCount - 1 : 1
+                                    })}>
+                                <Icon name='remove' size={24} color='black' style={tw`text-center`} />
+                            </Pressable>
+                            <View style={tw`mx-2 flex-row items-center`}>
+                                <Text style={tw`text-2xl text-white mr-1`}>
+                                    {shareCount}
+                                </Text>
+                                <FaIcon name='ticket' size={20} color='white' style={tw`text-center`} />
+                            </View>
+                            <Pressable style={[shareIncrementStyle]}
+                                    onPress={() => setShares({
+                                        ...shares,
+                                        [contact.pk]: shareCount + 1
+                                    })}>
+                                <Icon name='add' size={24} color='black' style={tw`text-center`} />
+                            </Pressable>
+                        </View>}
                 </Pressable>
             })}
     </View>
 }
 
-const ThresholdInput = ({step, selected, threshold, setThreshold}: 
-    {step: Steps, selected: ContactPk[], threshold: number, setThreshold: (threshold: number) => void}) => {
+const ThresholdInput = ({step, participants, shares, threshold, setThreshold}: 
+        {step: Steps, participants: ContactPk[], shares: {[contactPk: string]: number},
+        threshold: number, setThreshold: (threshold: number) => void}) => {
     if(step < Steps.CHOOSE_THRESHOLD) return null
     if(step > Steps.CHOOSE_THRESHOLD) return <Text style={ds.textLg}>Threshold: {threshold}</Text>
-    const canGoUp = threshold < selected.length
+    const maxShares = participants.reduce((acc, pk) => acc + shares[pk], 0)
+    const canGoUp = threshold < maxShares
     const canGoDown = threshold > 2
     return <View>
         <Text style={ds.textLg}>Threshold: {threshold}</Text>
@@ -113,7 +151,7 @@ const ThresholdInput = ({step, selected, threshold, setThreshold}:
             </Pressable>
         </View>
         <View>
-            <Text style={ds.text}>Select number of participanting guardians required to recover (minimum 2, maximum {selected.length})</Text>
+            <Text style={ds.text}>Select number of participants guardians required to recover (minimum 2, maximum {maxShares})</Text>
         </View>
     </View>
 }
@@ -128,9 +166,10 @@ type RecoverSplitCreateScreenProps = {
 const RecoverSplitCreateScreen: React.FC<RecoverSplitCreateScreenProps> = (props) => {
     const [step, setStep] = useState<number>(0)
     const [name, setName] = useState<string>('')
-    const [participants, setParticipants] = useState<ContactPk[]>([])
+    const [participants, setParticipants] = useState<ContactPk[]>([]) // ['c__bob', 'c__charlie', 'c__dan']
     const [contacts, setContacts] = useState<Contact[]>([])
     const [threshold, setThreshold] = useState<number>(2)
+    const [shares, setShares] = useState<{[contactPk: string]: number}>({})
 
     const [error, setError] = useState<string>('')
 
@@ -154,7 +193,7 @@ const RecoverSplitCreateScreen: React.FC<RecoverSplitCreateScreenProps> = (props
         for (const pk of participants) {
             const contact = contacts.filter((c: Contact) => c.pk === pk)[0]
             console.log('Added contact', contact.toString())
-            recoverSplit.addRecoverSplitParty(contact, 1, true)
+            recoverSplit.addRecoverSplitParty(contact, shares[pk], true)
         }
         const byteSecret = new TextEncoder().encode(JSON.stringify({
             words: props.vault.words,
@@ -201,7 +240,7 @@ const RecoverSplitCreateScreen: React.FC<RecoverSplitCreateScreenProps> = (props
     }
 
     const nextStep = () => {
-        if (stepChecks[step]({participants, threshold, setError})) {
+        if (stepChecks[step]({participants, threshold, setError, shares})) {
             setStep(step + 1)
             setError('')
         }
@@ -229,24 +268,31 @@ const RecoverSplitCreateScreen: React.FC<RecoverSplitCreateScreenProps> = (props
             value={name}
             onChangeText={setName}
         />
-        <ContactSelectList step={step} contacts={contacts} selected={participants} onPress={(pk: ContactPk) => {
+        <ContactSelectList step={step} contacts={contacts} shares={shares} 
+                setShares={setShares} selected={participants} onPress={(pk: ContactPk) => {
             if (participants.includes(pk)) {
                 setParticipants(participants.filter((p: ContactPk) => p !== pk))
+                // unset shares by pk and reset
+                const {[pk]: _, ...rest} = shares
+                setShares(rest)
             } else {
                 setParticipants([...participants, pk])
+                setShares({...shares, [pk]: 1})
             }
         }} />
-        <ThresholdInput step={step} selected={participants} threshold={threshold} setThreshold={setThreshold} />
+        <ThresholdInput step={step} participants={participants} shares={shares}
+            threshold={threshold} setThreshold={setThreshold} />
         {error != '' && <View style={tw`my-1`}>
             <Text style={tw`text-yellow-300 text-base`}>
                 {error}
             </Text>
         </View>}
-        {step == maxStep ? <View>
-            <Pressable style={[ds.button, ds.blueButton, tw`mt-8 mb-8 w-full`]}
+        {step == maxStep ? <View style={tw`mt-4 mb-20`}>
+            <CtaButton onPressOut={() => createRecoverSplit()} label='Create Recovery Plan' />
+            {/* <Pressable style={[ds.ctaButton, tw`mt-8 mb-8 w-full`]}
                     onPress={() => createRecoverSplit()}>
                 <Text style={ds.buttonText}>Create Recovery Plan</Text>
-            </Pressable>
+            </Pressable> */}
         </View> : null}
     </MainContainer>
 }

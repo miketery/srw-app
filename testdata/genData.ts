@@ -49,7 +49,7 @@ export async function getTestContacts(name: string, vaults?: {[name: string]: Va
         const theirContactKeyPair = encryptionKeyFromWords(their_words)
         const myContactKeyPair = encryptionKeyFromWords(my_words)
         const contact = await Contact.create(
-            vault.pk, their_vault.did, their_name,
+            vault.pk, their_vault.did, their_name, their_vault.email,
             their_vault.public_key, their_vault.verify_key,
             theirContactKeyPair.publicKey, '', ContactState.ESTABLISHED, vault)
         contact.pk = 'c__' + their_name // for testing...
