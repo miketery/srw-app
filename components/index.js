@@ -1,6 +1,6 @@
 export { 
     Loading, LoadingScreen, 
-    Error, ErrorScreen, FieldError,
+    Error, ErrorScreen,
     Info, InfoScreen, 
     Warning, WarningScreen
 } from './Dialogue'

@@ -20,11 +20,24 @@ export const bytesToBase64 = (b: Uint8Array) => btoa(String.fromCharCode.apply(n
 
 import { Buffer } from 'buffer';
 
-// format unix timestamp to date MM/DD/YYYY
-export const formatDate = (timestamp: number) => {
-    const date = new Date(timestamp*1000);
-    return date.toLocaleDateString();
+export const isEqualDeep = (obj1: object, obj2: object): boolean => {
+    if (obj1 === obj2) return true;
+
+    if (typeof obj1 !== 'object' || typeof obj2 !== 'object' || obj1 == null || obj2 == null)
+        return false;
+    const keys1 = Object.keys(obj1);
+    const keys2 = Object.keys(obj2);
+    if (keys1.length !== keys2.length) return false;
+
+    return keys1.every(key => {
+        if (!Object.prototype.hasOwnProperty.call(obj2, key)) return false;
+        if (typeof obj1[key] === 'object' && typeof obj2[key] === 'object') {
+            return isEqualDeep(obj1[key], obj2[key]);
+        }
+        return obj1[key] === obj2[key];
+    });
 }
+
 export const myGoBack = (navigation) => {
     // console.log(navigation.getState().routes)
     const state_routes = navigation.getState().routes;
@@ -144,15 +157,35 @@ export function handleChange(e) {
         [e.target.name]: e.target.value
     });
 }
-
-export const toHHMMSS = (m: Date): string => 
+export const formatDate = (timestamp: number) => {
+    const date = new Date(timestamp*1000);
+    return date.toLocaleDateString();
+}
+export const formatTime = (timestamp: number) => {
+    const date = new Date(timestamp*1000);
+    return date.toLocaleTimeString();
+}
+export const formatFullDate = (timestamp: number) => {
+    const date = new Date(timestamp*1000);
+    return date.toLocaleString();
+}
+export const toUTCHHMMSS = (m: Date): string => 
     ("0" + m.getUTCHours()).slice(-2) + ":" +
     ("0" + m.getUTCMinutes()).slice(-2) + ":" +
     ("0" + m.getUTCSeconds()).slice(-2)
-export const toYYYYMMDD = (m: Date): string =>
+export const toHHMMSS = (m: Date): string => 
+    ("0" + m.getHours()).slice(-2) + ":" +
+    ("0" + m.getMinutes()).slice(-2) + ":" +
+    ("0" + m.getSeconds()).slice(-2)
+export const toUTCYYYYMMDD = (m: Date): string =>
     m.getUTCFullYear() + "-" +
     ("0" + (m.getUTCMonth()+1)).slice(-2) + "-" +
     ("0" + m.getUTCDate()).slice(-2)
+export const toYYYYMMDD = (m: Date): string =>
+    m.getFullYear() + "-" +
+    ("0" + (m.getMonth()+1)).slice(-2) + "-" +
+    ("0" + m.getDate()).slice(-2)
+export const toUTCYYYYMMDD_HHMMSS = (m: Date): string => toUTCYYYYMMDD(m) + ' ' + toUTCHHMMSS(m)
 export const toYYYYMMDD_HHMMSS = (m: Date): string => toYYYYMMDD(m) + ' ' + toHHMMSS(m)
 
 export const trimAndLower = (s: string): string => s.trim().toLowerCase()

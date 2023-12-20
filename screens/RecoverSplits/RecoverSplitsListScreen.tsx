@@ -6,22 +6,14 @@ import tw from '../../lib/tailwind'
 
 import RecoverSplit from '../../models/RecoverSplit'
 import RecoverSplitsManager from '../../managers/RecoverSplitsManager'
-import { DEV, ROUTES } from '../../config';
+import { ROUTES } from '../../config';
 import Guardian from '../../models/Guardian';
 import GuardiansManager from '../../managers/GuardiansManager';
 import MainContainer from '../../components/MainContainer';
 
-const RecoverSplitRow = ({recoverSplit}: {recoverSplit: RecoverSplit}) => {
-    return <View style={[ds.row, tw`flex-col`]}>
-        <Text style={ds.text}>{recoverSplit.name}</Text>
-        <Text style={ds.text}>{recoverSplit.state}</Text>
-        <View style={tw`flex-col`}>
-            {recoverSplit.recoverSplitPartys.map((party, index) => {
-                return <Text key={index} style={ds.text}>{party.name} {party.state}</Text>
-            })}
-        </View>
-    </View>
-}
+import { RecoverSplitRow } from './RecoverSplitViewScreen'
+import { DevButton } from '../../components/Button'
+
 const GuardianRow = ({guardian}: {guardian: Guardian}) => {
     return <View style={[ds.row, tw`flex-col`]}>
         <Text style={ds.text}>{guardian.contact.name}</Text>
@@ -52,12 +44,9 @@ const RecoverSplitList: React.FC<RecoverSplitListProps> = (props) => {
 
     const header = 'Recovery Plans'
     const buttonRow = <>
-        {DEV && <Pressable style={[ds.button, tw`rounded-full`]}
-            onPressOut={() => props.navigation.navigate(ROUTES.DevReocveryPlanRoute)}>
-            <Text style={ds.buttonText}>Dev</Text>
-        </Pressable>}
+        <DevButton onPressOut={() => props.navigation.navigate(ROUTES.DevRecoverSplitsRoute)} />
         <View style={tw`flex-grow-1`} />
-        <Pressable style={[ds.button, ds.greenButton, tw`rounded-full`]}
+        <Pressable style={[ds.button, ds.greenButton, tw`flex-grow-1`]}
             onPressOut={() => props.navigation.navigate(ROUTES.RecoverSplitCreateRoute)}>
             <Text style={ds.buttonText}>Create Recovery</Text>
         </Pressable>
@@ -75,7 +64,7 @@ const RecoverSplitList: React.FC<RecoverSplitListProps> = (props) => {
             })}
         </View>
         <View style={ds.headerRow}>
-            <Text style={ds.header}>Your a Guardian for</Text>
+            <Text style={ds.header}>You are a Guardian for</Text>
         </View>
         <View>
             {guardians.map((guardian, index) => {

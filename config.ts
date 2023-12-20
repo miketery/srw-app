@@ -34,6 +34,11 @@ export const ENDPOINTS = {
 
     POST_MESSAGE: '/message/post/',
     GET_MESSAGES: '/message/get/',
+
+    GET_FILE_MANIFEST: '/manifest/',
+    UPLOAD_FILE: '/file/upload/',
+    GET_FILE: '/file/get/',
+    
 }
 
 DEBUG && console.log('DEBUG: ', {
@@ -51,7 +56,7 @@ export const ROUTES = {
     DevHasVaultRoute: 'DevHasVaultRoute',
     DevContactsRoute: 'DevContactsRoute',
     DevSecretsRoute: 'DevSecretsRoute',
-    DevReocveryPlanRoute: 'DevReocveryPlanRoute',
+    DevRecoverSplitsRoute: 'DevRecoverSplitsRoute',
     DevDigitalAgentRoute: 'DevDigitalAgentRoute',
     DevRecoverCombineRoute: 'DevRecoverCombineRoute',
 

@@ -14,7 +14,7 @@ const ds = StyleSheet.create({
     headerRow: tw`flex-row justify-between items-center mb-2`,
     header: tw`text-slate-200 text-3xl pb-3`,
     
-    text: tw`text-slate-200`,
+    text: tw`text-slate-200 text-base`,
     textSm: tw`text-slate-200 text-sm`,
     textXs: tw`text-slate-200 text-xs`,
     textLg: tw`text-slate-200 text-lg`,
@@ -39,12 +39,20 @@ const ds = StyleSheet.create({
     ctaButton: tw`py-2 rounded-full bg-sky-600 w-full content-center justify-center items-center`,
     createButton: tw`py-2 rounded-full bg-midpurple w-full content-center justify-center items-center`,
 
-    button: tw`py-2 rounded-sm bg-slate-600 w-40 content-center justify-center items-center`,
-    buttonSm: tw`py-2 rounded-sm bg-slate-600 w-30 content-center justify-center items-center`,
+    largeCircle: tw`h-20 w-20 rounded-full items-center justify-center`,
+    mediumCircle: tw`h-16 w-16 rounded-full items-center justify-center`,
+    smallCircle: tw`h-11 w-11 rounded-full items-center justify-center`,
+
+    buttonArrow: tw`items-center w-10 rounded-md p-2 bg-slate-600`,
+
+    button: tw`py-2 rounded-md bg-slate-600 w-40 content-center justify-center items-center`,
+    buttonSm: tw`py-2 rounded-md bg-slate-600 w-30 content-center justify-center items-center`,
     buttonXs: tw`py-1 rounded-sm bg-slate-600 w-24 content-center justify-center items-center`,
     buttonTiny: tw`px-1 ml-1 rounded-sm bg-slate-600 content-center justify-center items-center`,
+    
     buttonText: tw`text-slate-100 text-center text-xl font-normal`,
     buttonTextSm: tw`text-slate-200 text-center text-base font-normal`,
+    
     blueButton: tw`bg-blue-800`,
     lightblueButton: tw`bg-sky-600`,
     greenButton: tw`bg-green-700`,
@@ -52,14 +60,14 @@ const ds = StyleSheet.create({
     purpleButton: tw`bg-violet-900`,
     orangeButton: tw`bg-amber-500`,
 
-    buttonArrow: tw`items-center w-10 rounded-md border border-gray-700 p-2 bg-slate-600`,
     disabled: tw`bg-slate-600 opacity-30`,
 
     rows: tw`flex-col w-full`,
     card: tw`bg-slate-700 rounded-lg p-3 mb-2`,
     row: tw`flex flex-row rounded-lg p-3 mb-2 bg-slate-700`,
+    col: tw`flex flex-col items-stretch`,
     buttonRow: tw`w-full flex-row justify-between items-center my-2`,
-    buttonRowB: tw`-mt-16 items-end pb-4 flex-row px-3`,
+    buttonRowB: tw`-mt-16 items-end pb-4 flex-row px-3 h-11`,
     
     rowEnd: tw`flex-row justify-end`,
     rowStart: tw`flex-row justify-start`,

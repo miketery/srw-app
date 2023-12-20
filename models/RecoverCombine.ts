@@ -175,6 +175,7 @@ class RecoverCombine {
             console.log('[RecoverCombine.fsm.onTransition]', state.context.recoverCombine.toString())
         })
         this.fsm.start(this._state)
+        this.fsm.send('')
     }
     get state(): RecoverCombineState {
         if(this.fsm)
@@ -246,6 +247,9 @@ class RecoverCombine {
     allRequestsAccepted(): boolean {
         // TODO: should be when enough shares received
         return this.combinePartys.every((cp) => cp.state === CombinePartyState.ACCEPTED);
+    }
+    recievedThreshold(): boolean {
+        return this.combinePartys.filter((cp) => cp.state === CombinePartyState.ACCEPTED).length >= this.manifest.threshold;
     }
     processRecoverCombineResponse(message: Message): {recoverCombine: RecoverCombine, name: string, accepted: boolean} {
         console.log('[RecoverCombine.processRecoverCombineResponse]', message)

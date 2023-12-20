@@ -92,7 +92,7 @@ class ContactsManager {
         const check = this.getContactsArray().find(c => c.did === did);
         if (check)
             throw new Error('Contact already exists: ' + check.toString());
-        const contact = await Contact.create(this.vault.pk, did, name,
+        const contact = await Contact.create(this.vault.pk, did, name, '',
             their_public_key, their_verify_key, their_contact_public_key,
             digital_agent, ContactState.INIT, this.vault);
         if(save)
@@ -129,6 +129,7 @@ class ContactsManager {
         const contact = await Contact.create(this.vault.pk,
             requestee.did,
             requestee.name,
+            requestee.email,
             their_public_key,
             their_verify_key,
             their_contact_public_key,
@@ -178,9 +179,6 @@ class ContactsManager {
         contact.fsm.send('ACCEPTED'); // save happens in FSM
         return contact;
     }
-
-
-
 }
 
 export default ContactsManager;
