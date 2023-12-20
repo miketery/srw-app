@@ -1,13 +1,14 @@
-import { View, Text, Pressable } from 'react-native'
+import { View, Text } from 'react-native'
 
 import ds from '../assets/styles'
 import tw from '../lib/tailwind'
-import { DEV, ROUTES } from '../config'
+import { ROUTES } from '../config'
 
 import { useSessionContext } from '../contexts/SessionContext'
 
 import MainContainer from '../components/MainContainer'
 import RecoverVaultHub from './RecoverVault/RecoverVaultHub'
+import { DevButton } from '../components/Button'
 
 
 function MainHubScreen(props) {
@@ -18,10 +19,7 @@ function MainHubScreen(props) {
         `${vault.name} — Main Hub`
 
     const buttonRow = <>
-        {DEV && <Pressable style={[ds.button, tw`rounded-full`]}
-            onPress={() => props.navigation.navigate(ROUTES.DevHasVaultRoute)}>
-            <Text style={ds.buttonText}>Dev</Text>
-        </Pressable>}
+        <DevButton onPressOut={() => props.navigation.navigate(ROUTES.DevHasVaultRoute)} />
         <View style={tw`flex-grow-1`} />
     </>
 

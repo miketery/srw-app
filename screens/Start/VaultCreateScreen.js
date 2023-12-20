@@ -10,7 +10,7 @@ import { useSessionContext } from '../../contexts/SessionContext'
 import VaultManager from '../../managers/VaultManager'
 
 import { trimAndLower, validateEmail } from '../../lib/utils'
-import { FieldError, GoBackButton } from '../../components'
+import { GoBackButton } from '../../components'
 import StartContainer from '../../components/StartContainer'
 import { AnimatedLabelInput } from '../../components/Input'
 import CtaButton from '../../components/CtaButton'
