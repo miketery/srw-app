@@ -1,4 +1,0 @@
-- setup using Centos8
-- make sure remote server has your public key
-- uses "arx.dev" host from ~/.ssh/config
-- run ./deploy.sh
