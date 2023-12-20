@@ -94,20 +94,16 @@ const SecretForm = (props: SecretFormProps) => {
 
     const checkValid = () => {
         const errors = {} as {[k: string]: string}
-        if (title.length === 0 || trimAndLower(title) === '') {
+        if (title.length === 0 || trimAndLower(title) === '')
             errors.title = 'Title is required'
-        }
         if(secretType === SecretType.login) {
-            if(username.length === 0 || trimAndLower(username) === '') {
+            if(username.length === 0 || trimAndLower(username) === '')
                 errors.username = 'Username is required'
-            }
-            if(username.length === 0 || trimAndLower(username) === '') {
+            if(password.length === 0 || trimAndLower(password) === '')
                 errors.password = 'Password is required'
-            }
         } else {
-            if(secretData.length === 0 || trimAndLower(secretData) === '') {
+            if(secretData.length === 0 || trimAndLower(secretData) === '')
                 errors.secretData = 'Secret Data is required'
-            }
         }
         setErrors(errors)
         return Object.keys(errors).length === 0    }

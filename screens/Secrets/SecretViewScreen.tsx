@@ -13,7 +13,7 @@ import Secret, { HistoricSecretData, SecretType } from '../../models/Secret';
 
 import MainContainer from "../../components/MainContainer";
 import { ROUTES } from "../../config";
-import { formatDate } from "../../lib/utils";
+import { formatDate, formatTime } from "../../lib/utils";
 
 
 export const secretTypeStyleMap: { [k in SecretType]: {
@@ -52,15 +52,15 @@ export function SecretIcon({secretType}: {secretType: SecretType, big?: boolean}
 }
 
 export const SecretRow = ({secret}) => {
-    const { name, description, data } = secret
+    const { name, secretType, data, } = secret
     return <View style={tw`flex flex-row items-center py-1 mb-1`}>
         <View style={tw`mr-2`}>
             <SecretIcon secretType={secret.secretType}/>
         </View>
         <View style={tw`flex flex-col`}>
             <Text style={ds.textLg}>{name}</Text>
-            {/* <Text style={ds.text}>{description}</Text> */}
-            {/* <Text style={ds.text}>{data}</Text> */}
+            {secretType === SecretType.login &&
+                <Text style={ds.textSm}>{data.username}</Text>}
         </View>
     </View>
 }
@@ -80,9 +80,10 @@ const SecretHistory: React.FC<SecretHistoryProps> = (props) => {
         </Pressable>
         {showHistory && props.history.map((historicSecretData, index) => {
             const { ts, data } = historicSecretData
-            return <View key={index} style={tw`flex flex-row items-center py-1 mb-1`}>
+            return <View key={index} style={tw`flex flex-row items-center py-2 border-b border-slate-400 border-dashed`}>
                 <View style={tw`mr-2`}>
                     <Text style={ds.text}>{formatDate(ts)}</Text>
+                    <Text style={ds.text}>{formatTime(ts)}</Text>
                 </View>
                 <View style={tw`flex flex-col`}>
                     {props.secretType === SecretType.login ? <>
@@ -97,7 +98,7 @@ const SecretHistory: React.FC<SecretHistoryProps> = (props) => {
 }
 
 const SecretCard = ({ secret }: { secret: Secret }) => {
-    const { description, data, secretType, history } = secret
+    const { description, data, secretType, history, created, updated } = secret
     return <View>
         <SecretRow secret={secret} />
         <View style={tw`mb-4 pb-4 border-b border-slate-400`}>
@@ -150,6 +151,9 @@ const SecretCard = ({ secret }: { secret: Secret }) => {
             </View>}
         </View>
         <SecretHistory history={history} secretType={secretType} />
+        <View style={tw`self-end my-2`}>
+            <Text style={ds.textXs}>Date {updated === created ? 'created' : 'modified'} {formatDate(updated)}</Text>
+        </View>
     </View>
 }
 

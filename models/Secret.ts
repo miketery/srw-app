@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import { StoredType, StoredTypePrefix } from "../services/StorageService"
+import { isEqualDeep } from '../lib/utils';
 
 export enum SecretType {
     key = 'key',
@@ -67,10 +68,11 @@ class Secret {
     async update(name: string, description: string, data: any) {
         this.name = name
         this.description = description
-        this.history.push({
-            data: this.data,
-            ts: this.updated,
-        })
+        if(!isEqualDeep(this.data, data))
+            this.history.push({
+                data: this.data,
+                ts: this.updated,
+            })
         this.data = data
         this.updated = Math.floor(Date.now() / 1000)
     }

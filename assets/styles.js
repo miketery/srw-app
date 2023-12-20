@@ -14,7 +14,7 @@ const ds = StyleSheet.create({
     headerRow: tw`flex-row justify-between items-center mb-2`,
     header: tw`text-slate-200 text-3xl pb-3`,
     
-    text: tw`text-slate-200`,
+    text: tw`text-slate-200 text-base`,
     textSm: tw`text-slate-200 text-sm`,
     textXs: tw`text-slate-200 text-xs`,
     textLg: tw`text-slate-200 text-lg`,
