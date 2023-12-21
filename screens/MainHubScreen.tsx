@@ -134,15 +134,23 @@ const ProfileHeaderRow = ({vault, navigation}) => {
 const MainHubScreen: React.FC<MainHubScreenProps> = ({navigation}) => {
     const {vault, manager} = useSessionContext()
 
-    const header = vault.recovery ? 
-        '⚠️ Recovering Vault ⚠️' : null
+    const recoveryMode = vault.recovery
+
+    const recoveryHeader = '⚠️ Recovering Vault ⚠️'
 
     const buttonRow = <>
         <DevButton onPressOut={() => navigation.navigate(ROUTES.DevHasVaultRoute)} />
         <View style={tw`flex-grow-1`} />
     </>
 
-    return <MainContainer color='blue' header={header} buttonRow={buttonRow}>
+    if(recoveryMode) return <MainContainer color='blue' header={recoveryHeader} buttonRow={buttonRow}>
+        <RecoverVaultHub 
+            vault={vault}
+            manager={manager}
+            navigation={navigation}/>
+    </MainContainer>
+
+    return <MainContainer color='blue' header={null} buttonRow={buttonRow}>
         <ProfileHeaderRow vault={vault} navigation={navigation} />
         {tiles.map((tile, i) => 
             <WizardTile key={i} 
@@ -151,11 +159,6 @@ const MainHubScreen: React.FC<MainHubScreenProps> = ({navigation}) => {
                 tile={tile} 
             />)}
         <View style={tw`flex-grow-1`} />
-        { vault.recovery && 
-            <RecoverVaultHub 
-                vault={vault}
-                manager={manager}
-                navigation={navigation}/>}
     </MainContainer>
 }
 
