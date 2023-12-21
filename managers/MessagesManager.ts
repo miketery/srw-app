@@ -268,6 +268,9 @@ class InboundMessageManager {
         }
         return promises
     }
+    get length(): number {
+        return Object.keys(this._inbound_messages).length;
+    }
 }
 
 export default InboundMessageManager;

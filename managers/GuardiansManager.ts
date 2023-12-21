@@ -64,6 +64,9 @@ class GuardiansManager {
             return this._guardians[pk];
         throw new Error(`[GuardiansManager] not found: ${pk}`);
     }
+    get length(): number {
+        return Object.keys(this._guardians).length;
+    }
     async processGuardianRequest(message: Message, callback?: () => void)
             : Promise<{guardian: Guardian, contact: Contact}> {
         console.log('[GuardiansManager.processGuardianRequest]')

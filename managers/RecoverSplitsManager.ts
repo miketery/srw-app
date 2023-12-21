@@ -61,6 +61,9 @@ class RecoverSplitsManager {
             return this._recoverSplits[pk];
         throw new Error(`[RecoverSplitManager] not found: ${pk}`);
     }
+    get length(): number {
+        return Object.keys(this._recoverSplits).length;
+    }
     async submitRecoverSplit(recoverSplit: RecoverSplit, callback: () => void): Promise<void> {
         console.log('[RecoverSplitsManager.submitRecoverSplit]', recoverSplit.name)    
         recoverSplit.fsm.send('SUBMIT', {callback})
