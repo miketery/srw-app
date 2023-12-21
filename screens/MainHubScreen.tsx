@@ -101,13 +101,14 @@ const WizardTile: React.FC<WizardTileProps> = ({navigation, manager, tile}) => {
 
 const ProfileHeaderRow = ({vault, navigation}) => {
     const [copied, setCopied] = React.useState(false)
+    const shortCode = vault.short_code
+
     const copy = () => {
-        Clipboard.setString(vault.short_Code)
+        Clipboard.setString(shortCode)
         setCopied(true)
         setTimeout(() => setCopied(false), 1000)
     }
 
-    const shortCode = vault.short_code
     const headerRow = <>
         <Pressable onPressOut={() => navigation.navigate(ROUTES.ProfileRoute)}>
             <View style={tw`flex flex-row mb-4`}>
@@ -135,7 +136,6 @@ const MainHubScreen: React.FC<MainHubScreenProps> = ({navigation}) => {
     const {vault, manager} = useSessionContext()
 
     const recoveryMode = vault.recovery
-
     const recoveryHeader = '⚠️ Recovering Vault ⚠️'
 
     const buttonRow = <>
