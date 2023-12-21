@@ -107,7 +107,7 @@ const ProfileHeaderRow = ({vault, navigation}) => {
         setTimeout(() => setCopied(false), 1000)
     }
 
-    const shortCode = vault.short_Code
+    const shortCode = vault.short_code
     const headerRow = <>
         <Pressable onPressOut={() => navigation.navigate(ROUTES.ProfileRoute)}>
             <View style={tw`flex flex-row mb-4`}>
