@@ -35,10 +35,10 @@ export const ENDPOINTS = {
     POST_MESSAGE: '/message/post/',
     GET_MESSAGES: '/message/get/',
 
-    GET_FILE_MANIFEST: '/manifest/',
-    UPLOAD_FILE: '/file/upload/',
-    GET_FILE: '/file/get/',
-    
+    GET_BACKUP_MANIFEST: '/backup/manifest/',
+    UPLOAD_FILE: '/backup/upload/',
+    GET_FILES: '/backup/get/',
+    DELETE_FILES: '/backup/delete/',
 }
 
 DEBUG && console.log('DEBUG: ', {

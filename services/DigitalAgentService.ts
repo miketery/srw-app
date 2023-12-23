@@ -146,13 +146,13 @@ class DigitalAgentService {
             }
         }
     }
-    static async getFileManifest(vault: Vault): Promise<any> {
+    static async getBackupManifest(vault: Vault): Promise<any> {
         // TODO not tested or verified could be all wrong...
         const payload = {
             'sig_ts': Math.floor(Date.now() / 1000)
         }
         const signed_payload = vault.signPayload(payload);
-        const response = await axios.post(this.digital_agent_host + ENDPOINTS.GET_FILE_MANIFEST, signed_payload)
+        const response = await axios.post(this.digital_agent_host + ENDPOINTS.GET_BACKUP_MANIFEST, signed_payload)
         .catch((error) => {
             console.log('[DigitalAgentService.getFileManifest]', error)
             throw new Error(error);
