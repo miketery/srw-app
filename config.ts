@@ -36,7 +36,7 @@ export const ENDPOINTS = {
     GET_MESSAGES: '/message/get/',
 
     GET_BACKUP_MANIFEST: '/backup/manifest/',
-    UPLOAD_FILE: '/backup/upload/',
+    UPLOAD_FILES: '/backup/upload/',
     GET_FILES: '/backup/get/',
     DELETE_FILES: '/backup/delete/',
 }
@@ -59,6 +59,7 @@ export const ROUTES = {
     DevRecoverSplitsRoute: 'DevRecoverSplitsRoute',
     DevDigitalAgentRoute: 'DevDigitalAgentRoute',
     DevRecoverCombineRoute: 'DevRecoverCombineRoute',
+    DevBackupRoute: 'DevBackupRoute',
 
     SplashRoute: 'SplashRoute',
     LandingRoute: 'LandingRoute',

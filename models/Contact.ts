@@ -11,6 +11,7 @@ import { Message, OutboundMessageDict } from './Message';
 import { MessageTypes } from '../managers/MessagesManager';
 import Vault from './Vault';
 import { ContactAccept, ContactInvite } from './MessagePayload';
+import { ContactPk } from './types'
 
 export enum ContactState {
     INIT = 'INIT',
@@ -24,7 +25,7 @@ export enum ContactState {
 }
 
 interface ContactDict {
-    pk: string,
+    pk: ContactPk,
     vaultPk: string,
     did: string,
     name: string,
@@ -41,7 +42,7 @@ interface ContactDict {
 }
 
 class Contact {
-    pk: string
+    pk: ContactPk
     vaultPk: string
     did: string // TODO: change to DID
     name: string
@@ -57,7 +58,7 @@ class Contact {
     fsm: any
 
     constructor(
-            pk: string,
+            pk: ContactPk,
             vaultPk: string,
             did: string,
             name: string,

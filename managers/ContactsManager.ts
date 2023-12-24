@@ -8,12 +8,13 @@ import Contact, { ContactState } from '../models/Contact';
 import { Message } from '../models/Message';
 import { MessageTypes } from './MessagesManager';
 import { ContactAccept } from '../models/MessagePayload';
+import { ContactPk } from '../models/types';
 
 class ContactsManager {
-    private _contacts: {[pk: string]: Contact};
+    private _contacts: {[pk: ContactPk]: Contact};
     private _vault: Vault;
 
-    constructor(vault: Vault, contacts: {[pk: string]: Contact} = {}) { 
+    constructor(vault: Vault, contacts: {[pk: ContactPk]: Contact} = {}) { 
         console.log('[ContactsManager.constructor] ' + vault.pk)
         this._contacts = contacts; 
         this._vault = vault;
@@ -27,11 +28,8 @@ class ContactsManager {
         await SS.save(contact.pk, contact.toDict())
         this._contacts[contact.pk] = contact;
     }
-    async saveAll(): Promise<void[]> {
-        return await Promise.all(Object.values(this._contacts).map(c => this.saveContact(c)));
-    }
-    async loadContacts(): Promise<{string?: Contact}> {
-        const contacts: {string?: Contact} = {};
+    async loadContacts(): Promise<{[pk: ContactPk]: Contact}> {
+        const contacts: {[pk: ContactPk]: Contact} = {};
         const contactsData = await SS.getAll(StoredType.contact, this._vault.pk);
         for (let contactData of Object.values(contactsData)) {
             const c = Contact.fromDict(contactData, this._vault);
@@ -40,17 +38,18 @@ class ContactsManager {
         this._contacts = contacts;
         return contacts;
     }
-    getContacts(): {string?: Contact} {
+    getContacts(): {[pk: ContactPk]: Contact} {
         return this._contacts;
     }
     getContactsArray(): Contact[] {
         return Object.values(this._contacts);
     }
-    getContact = (pk: string): Contact => {
+    getContact = (pk: ContactPk): Contact => {
         if(pk in this._contacts)
             return this._contacts[pk];
         throw new Error(`Contact not found: ${pk}`);
     }
+    getObject = this.getContact
     getContactByDid(did: string): Contact {
         const contact = this.getContactsArray().find(contact => contact.did === did);
         if (!contact) {
@@ -71,7 +70,7 @@ class ContactsManager {
     get length(): number {
         return Object.keys(this._contacts).length;
     }
-    get index(): string[] {
+    get index(): ContactPk[] {
         return Object.keys(this._contacts);
     }
     printContacts(): void {

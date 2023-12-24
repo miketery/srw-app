@@ -2,9 +2,10 @@ import Secret, { SecretType } from '../models/Secret'
 import SS, { StoredType } from '../services/StorageService'
 
 import Vault from '../models/Vault';
+import { SecretPk } from '../models/types';
 
 class SecretsManager {
-    private _secrets: {string?: Secret};
+    private _secrets: {[pk: SecretPk]: Secret};
     private _vault: Vault;
 
     constructor(vault: Vault) { 
@@ -21,8 +22,8 @@ class SecretsManager {
         await SS.save(secret.pk, secret.toDict());
         this._secrets[secret.pk] = secret;
     }
-    async loadSecrets(): Promise<{string?: Secret}> {
-        let secrets: {string?: Secret} = {};
+    async loadSecrets(): Promise<{[pk: SecretPk]: Secret}> {
+        let secrets: {[pk: SecretPk]: Secret} = {};
         let secrets_data = await SS.getAll(StoredType.secret, this._vault.pk);
         for (let secret_data of Object.values(secrets_data)) {
             let s = Secret.fromDict(secret_data);
@@ -38,7 +39,7 @@ class SecretsManager {
         await this.saveSecret(new_secret);
         return new_secret;
     }
-    getSecrets(): {string?: Secret} {
+    getSecrets(): {[pk: SecretPk]: Secret} {
         return this._secrets;
     }
     getSecretsArray(): Secret[] {
@@ -51,6 +52,7 @@ class SecretsManager {
             throw new Error(`Secret not found: ${pk}`);
         return null;
     }
+    getObject = this.getSecret
     get vault(): Vault {
         return this._vault;
     }

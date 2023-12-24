@@ -5,6 +5,7 @@ import ContactsManager from './ContactsManager';
 import SecretsManager from './SecretsManager';
 import RecoverSplitsManager from './RecoverSplitsManager';
 import GuardiansManager from './GuardiansManager';
+import BackupManager from './BackupManager'
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DigitalAgentService from '../services/DigitalAgentService';
@@ -25,13 +26,16 @@ class VaultManager {
     private _secretsManager: SecretsManager | null;
     private _contactsManager: ContactsManager | null;
     private _recoverSplitsManager: RecoverSplitsManager | null;
+    // TODO recoverCombineManager
     private _guardiansManager: GuardiansManager | null;
-
+    
     private _notificationsManager: NotificationsManager | null;
     private _messagesManager: InboundMessageManager | null;
+    private _backupManager: BackupManager | null;
+    
     private _session: SessionDict;
-
-    private _recoverCombine: RecoverCombine | null;
+    
+    private _recoverCombine: RecoverCombine | null; // when recovering vault...
 
     constructor(vaults: {string?: Vault} = {}) {
         this._vaults = vaults;
@@ -137,6 +141,8 @@ class VaultManager {
             this._currentVault);
         this._messagesManager = new InboundMessageManager(
             this._currentVault, this);
+        this._backupManager = new BackupManager(
+            this._currentVault, this);
         await Promise.all([
             // recoverVaultLoad(),
             this._secretsManager.loadSecrets(),
@@ -238,6 +244,11 @@ class VaultManager {
         if (!this._messagesManager)
             throw new Error('Messages Manager not set');
         return this._messagesManager;
+    }
+    get backupManager(): BackupManager {
+        if (!this._backupManager)
+            throw new Error('Backup Manager not set');
+        return this._backupManager;
     }
     // recoverVault
     get recoverCombine(): RecoverCombine {

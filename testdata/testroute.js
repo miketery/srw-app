@@ -25,7 +25,7 @@ const no_vault_test_route = {
 }
 // When HAS Vault && DEV pick route:
 // choose from Object.keys(switch_routes)
-const top_level = ROUTES.SecretsRoute; 
+const top_level = ROUTES.DevHasVaultRoute; 
 
 const switch_routes = {
   [ROUTES.RecoverSplitRoute]: [
@@ -35,7 +35,9 @@ const switch_routes = {
   ],
   [ROUTES.DevHasVaultRoute]: [
     {name: ROUTES.DefaultRoute},
-    {name: ROUTES.DevDigitalAgentRoute},
+    {name: ROUTES.DevGeneralRoute},
+    // {name: ROUTES.DevDigitalAgentRoute},
+    {name: ROUTES.DevBackupRoute},
   ],
   [ROUTES.HomeNavRoute]: [
     {name: ROUTES.HomeNavRoute}
