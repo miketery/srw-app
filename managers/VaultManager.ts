@@ -164,6 +164,7 @@ class VaultManager {
         if (Object.keys(this._vaults).includes(new_vault.pk))
             throw new Error(`Vault with Verify Key ${new_vault.pk} already exists`);
         if (save) {
+            console.log('[VaultManager.createVault] saving vault')
             await this.saveVault(new_vault);
             // check that saved
             const vault_data = await SS.get(new_vault.pk);

@@ -28,6 +28,9 @@ class ContactsManager {
         await SS.save(contact.pk, contact.toDict())
         this._contacts[contact.pk] = contact;
     }
+    async saveAll(): Promise<void[]> {
+        return await Promise.all(Object.values(this._contacts).map(c => this.saveContact(c)));
+    }
     async loadContacts(): Promise<{[pk: ContactPk]: Contact}> {
         const contacts: {[pk: ContactPk]: Contact} = {};
         const contactsData = await SS.getAll(StoredType.contact, this._vault.pk);

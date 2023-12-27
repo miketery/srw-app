@@ -56,7 +56,7 @@ export default function VaultCreateScreen({navigation}: {navigation: any}): Reac
             try {
                 const vaultManager = new VaultManager()
                 const vault: Vault = await vaultManager.createVault(
-                    name, email, displayName, '', '', false)
+                    name, email, displayName, '', '', true)
                 await vaultManager.initManagers()
                 setVault(vaultManager.currentVault)
                 setManager(vaultManager)

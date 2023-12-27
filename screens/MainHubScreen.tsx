@@ -43,7 +43,7 @@ const tiles: Tile[] = [
         managerName: 'contactsManager',
         countFunctionName: 'length',
         zeroLength: ['No Contacts', 'Add a contact or share your short code so they can add you.'],
-        background: tw`bg-blue-700 border-2 border-blue-400`,
+        background: tw`bg-blue-900 border-blue-400`,
         infoBackground: tw`bg-blue-900`,
     },
     {
@@ -52,7 +52,7 @@ const tiles: Tile[] = [
         managerName: 'secretsManager',
         countFunctionName: 'length',
         zeroLength: ['No Secrets', 'Add a secret to get started.'],
-        background: tw`bg-purple-700 border-2 border-purple-400`,
+        background: tw`bg-purple-900 border-purple-400`,
         infoBackground: tw`bg-purple-900`,
     },
     {
@@ -61,8 +61,8 @@ const tiles: Tile[] = [
         managerName: 'recoverSplitsManager',
         countFunctionName: 'length',
         zeroLength: ['No Recoveries', 'Create a recovery with your contacts so you can recover your vault!'],
-        background: tw`bg-green-700 border-2 border-green-400`,
-        infoBackground: tw`bg-green-900`,
+        background: tw`bg-green-900 border-green-400`,
+        infoBackground: tw`bg-slate-800`,
     },
     {
         title: 'Guardians',
@@ -70,12 +70,12 @@ const tiles: Tile[] = [
         managerName: 'guardiansManager',
         countFunctionName: 'length',
         zeroLength: ['No Guardians', 'Have your contacts use your in their recoveries so you can be their guardian.'],
-        background: tw`bg-yellow-500 border-2 border-yellow-300`,
-        infoBackground: tw`bg-yellow-700`,
+        background: tw`bg-slate-700 border-slate-300`,
+        infoBackground: tw`bg-slate-800`,
     }
 ]
 
-const tileStyle = tw`flex w-full rounded-md px-4 py-4 mb-4`
+const tileStyle = tw`flex w-full px-4 pt-2 mb-4 border-b-4`
 const tileTextStyle = tw`text-white text-5xl font-bold italic `
 
 const WizardTile: React.FC<WizardTileProps> = ({navigation, manager, tile}) => {
@@ -89,7 +89,7 @@ const WizardTile: React.FC<WizardTileProps> = ({navigation, manager, tile}) => {
                 <View style={tw`flex-grow-1`} />
                 <Text style={tileTextStyle}>{tile.title}</Text>
             </View>
-            { count === 0 && <View style={tw`-mb-4`}>
+            { count === 0 && <View style={tw`-my-2`}>
                 <Info header={tile.zeroLength[0]} msg={tile.zeroLength[1]} containerStyle={tile.infoBackground} />
                 {/* <Text style={ds.textSm}>{tile.zeroLength[0]}</Text>
                 <Text style={ds.textSm}>{tile.zeroLength[1]}</Text> */}
