@@ -21,19 +21,19 @@ export const secretTypeStyleMap: { [k in SecretType]: {
     background: any,
 }} = {
     [SecretType.key]: {
-        icon: 'key-outline',
+        icon: 'key',
         background: tw`bg-xyellow`,
     },
     [SecretType.note]: {
-        icon: 'document-text-outline',
+        icon: 'document-text',
         background: tw`bg-xmidpurple`,
     },
     [SecretType.login]: {
-        icon: 'medical-outline',
+        icon: 'medical',
         background: tw`bg-xmidblue`,
     },
     [SecretType.document]: {
-        icon: 'document-attach-outline',
+        icon: 'document-attach',
         background: tw`bg-green-700`,
     },
 }
@@ -41,11 +41,11 @@ export const secretTypeStyleMap: { [k in SecretType]: {
 export function SecretIcon({secretType}: {secretType: SecretType, big?: boolean}) {
     const icon = secretTypeStyleMap[secretType].icon
     const style = [
-        ds.mediumCircle,
+        ds.mdCircle,
         secretTypeStyleMap[secretType].background,
         secretType === 'note' && tw`pl-1`, // misalignment adjust for note icon
     ]
-    const size = 22
+    const size = 32
     return <View style={style}>
         <Icon name={icon} size={size} color='white' style={tw`text-center`} />
     </View>
@@ -53,7 +53,7 @@ export function SecretIcon({secretType}: {secretType: SecretType, big?: boolean}
 
 export const SecretRow = ({secret}) => {
     const { name, secretType, data, } = secret
-    return <View style={tw`flex flex-row items-center py-1 mb-1`}>
+    return <View style={tw`flex flex-row items-center py-2`}>
         <View style={tw`mr-2`}>
             <SecretIcon secretType={secret.secretType}/>
         </View>

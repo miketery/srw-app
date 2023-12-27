@@ -24,7 +24,7 @@ type Tile = {
     onPress: (props: MainHubScreenProps) => void,
     managerName: string,
     countFunctionName: string,
-    zeroLength: string[],
+    zeroLength: string[]|null,
     background: any,
     infoBackground?: any,
 }
@@ -38,45 +38,46 @@ type WizardTileProps = {
 
 const tiles: Tile[] = [
     {
-        title: 'Contacts',
+        title: 'contacts',
         onPress: ({navigation}) => navigation.navigate(ROUTES.ContactsRoute),
         managerName: 'contactsManager',
         countFunctionName: 'length',
-        zeroLength: ['No Contacts', 'Add a contact or share your short code so they can add you.'],
+        zeroLength: ['No Contacts', 'Add a contact or share your short code with them so they can add you.'],
         background: tw`bg-blue-900 border-blue-400`,
-        infoBackground: tw`bg-blue-900`,
+        infoBackground: tw`bg-blue-950`,
     },
     {
-        title: 'Secrets',
+        title: 'secrets',
         onPress: ({navigation}) => navigation.navigate(ROUTES.SecretsRoute),
         managerName: 'secretsManager',
         countFunctionName: 'length',
-        zeroLength: ['No Secrets', 'Add a secret to get started.'],
-        background: tw`bg-purple-900 border-purple-400`,
-        infoBackground: tw`bg-purple-900`,
+        zeroLength: ['No Secrets', 'Add secrets to securely store them.'],
+        background: tw`bg-green-900 border-green-400`,
+        infoBackground: tw`bg-green-950`,
     },
     {
-        title: 'Recoveries',
+        title: 'recoveries',
         onPress: ({navigation}) => navigation.navigate(ROUTES.RecoverSplitRoute),
         managerName: 'recoverSplitsManager',
         countFunctionName: 'length',
         zeroLength: ['No Recoveries', 'Create a recovery with your contacts so you can recover your vault!'],
-        background: tw`bg-green-900 border-green-400`,
-        infoBackground: tw`bg-slate-800`,
+        background: tw`bg-purple-900 border-purple-400`,
+        infoBackground: tw`bg-purple-950`,
     },
     {
-        title: 'Guardians',
+        title: 'guardianships',
         onPress: ({navigation}) => navigation.navigate(ROUTES.RecoverSplitRoute),
         managerName: 'guardiansManager',
         countFunctionName: 'length',
-        zeroLength: ['No Guardians', 'Have your contacts use your in their recoveries so you can be their guardian.'],
-        background: tw`bg-slate-700 border-slate-300`,
-        infoBackground: tw`bg-slate-800`,
+        zeroLength: ['No guardianships', 'Have your contacts use you in their recovery scheme so you can be their guardian.'],
+        // zeroLength: null,
+        background: tw`bg-cyan-900 border-slate-300`,
+        infoBackground: tw`bg-cyan-950`,
     }
 ]
 
-const tileStyle = tw`flex w-full px-4 pt-2 mb-4 border-b-4`
-const tileTextStyle = tw`text-white text-5xl font-bold italic `
+const tileStyle = tw`flex w-full px-4 py-4 border-b-4`
+const tileTextStyle = tw`text-white text-3xl font-bold italic capitalize`
 
 const WizardTile: React.FC<WizardTileProps> = ({navigation, manager, tile}) => {
     const count = manager[tile.managerName][tile.countFunctionName]
@@ -89,7 +90,7 @@ const WizardTile: React.FC<WizardTileProps> = ({navigation, manager, tile}) => {
                 <View style={tw`flex-grow-1`} />
                 <Text style={tileTextStyle}>{tile.title}</Text>
             </View>
-            { count === 0 && <View style={tw`-my-2`}>
+            { count === 0 && tile.zeroLength && <View style={tw`-mb-4`}>
                 <Info header={tile.zeroLength[0]} msg={tile.zeroLength[1]} containerStyle={tile.infoBackground} />
                 {/* <Text style={ds.textSm}>{tile.zeroLength[0]}</Text>
                 <Text style={ds.textSm}>{tile.zeroLength[1]}</Text> */}
@@ -112,12 +113,12 @@ const ProfileHeaderRow = ({vault, navigation}) => {
     const headerRow = <>
         <Pressable onPressOut={() => navigation.navigate(ROUTES.ProfileRoute)}>
             <View style={tw`flex flex-row mb-4`}>
-                <View style={[ds.mediumCircle, tw`bg-purple-700 mr-4`]}>
+                <View style={[ds.mdCircle, tw`bg-purple-700 mr-4`]}>
                     <Icon name='person' size={34} color='white' />
                 </View>
-                <View style={tw`flex flex-column items-start justify-center`}>
+                <View style={tw`flex flex-col items-start justify-center`}>
                     <Text style={tw`text-white text-2xl font-bold`}>{vault.name}</Text>
-                    {shortCode && <Pressable onPress={() => copy()} style={tw`flex-row items-center mt-1`}>
+                    {shortCode.length > 0 && <Pressable onPress={() => copy()} style={tw`flex-row items-center mt-1`}>
                         <View style={tw`flex flex-row items-center bg-slate-600 p-1 rounded-lg `}>
                             <Text style={tw`text-cyan-400 mr-2`}>{shortCode}</Text>
                             <Icon name='copy-outline' size={15} color='rgb(34, 211, 238)' />
