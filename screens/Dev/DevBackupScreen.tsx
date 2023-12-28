@@ -10,7 +10,7 @@ import { useSessionContext } from '../../contexts/SessionContext';
 import VaultManager from '../../managers/VaultManager';
 import Vault from '../../models/Vault';
 import ContactsManager from '../../managers/ContactsManager';
-import BackupManager from '../../managers/BackupManager';
+import BackupUtil from '../../managers/BackupUtil';
 
 const getManifest = (vault: Vault) => {
     console.log('getManifest');
@@ -47,23 +47,23 @@ const getObjects = (vault: Vault, pks: string[]) => {
     });
 
 }
-const logMissingRemotePks = async (backupManager: BackupManager) => {
-    const remotePks = backupManager.fetchManifest()
-    const localPks = backupManager.compileLocalPks()
+const logMissingRemotePks = async (backupUtil: BackupUtil) => {
+    const remotePks = backupUtil.fetchManifest()
+    const localPks = backupUtil.compileLocalPks()
     console.log('localPks', localPks)
     console.log('remotePks', await remotePks)
-    const missingPks = backupManager.getMissingRemotePks()
+    const missingPks = backupUtil.getMissingRemotePks()
     console.log('missingPks', missingPks)
 }
-const uploadMissing = async (backupManager: BackupManager) => {
-    await logMissingRemotePks(backupManager)
-    backupManager.backupMissingObjects()
+const uploadMissing = async (backupUtil: BackupUtil) => {
+    await logMissingRemotePks(backupUtil)
+    backupUtil.backupMissingObjects()
 }
 
 
 const DevBackupScreen = () => {
     const { vault, manager } = useSessionContext();
-    const backupManager = manager.backupManager
+    const backupUtil = manager.backupUtil
 
 
     return (
@@ -82,15 +82,15 @@ const DevBackupScreen = () => {
             <View>
                 <Text style={ds.text2xl}>Backup Manager</Text>
             </View>
-            <Pressable onPress={() => manager.backupManager.compileLocalPks()} style={[ds.button, ds.purpleButton, tw`w-full`]}>
+            <Pressable onPress={() => manager.backupUtil.compileLocalPks() } style={[ds.button, ds.purpleButton, tw`w-full`]}>
                 <Text style={ds.buttonText}>Compile Local Pks</Text>
             </Pressable>
             <View style={tw`h-4`} />
-            <Pressable onPress={() => logMissingRemotePks(backupManager)} style={[ds.button, ds.greenButton, tw`w-full`]}>
+            <Pressable onPress={() => logMissingRemotePks(backupUtil)} style={[ds.button, ds.greenButton, tw`w-full`]}>
                 <Text style={ds.buttonText}>logMissingRemotePks</Text>
             </Pressable>
             <View style={tw`h-4`} />
-            <Pressable onPress={() => uploadMissing(backupManager)} style={[ds.button, ds.greenButton, tw`w-full`]}>
+            <Pressable onPress={() => uploadMissing(backupUtil)} style={[ds.button, ds.greenButton, tw`w-full`]}>
                 <Text style={ds.buttonText}>Upload Missing</Text>
             </Pressable>
             <View style={tw`h-4`} />

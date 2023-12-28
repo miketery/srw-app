@@ -11,7 +11,7 @@ import { Message, OutboundMessageDict } from './Message';
 import { MessageTypes } from '../managers/MessagesManager';
 import Vault from './Vault';
 import { ContactAccept, ContactInvite } from './MessagePayload';
-import { ContactPk } from './types'
+import { ContactPk, Model, ModelDict } from './types'
 
 export enum ContactState {
     INIT = 'INIT',
@@ -24,7 +24,7 @@ export enum ContactState {
     BLOCKED = 'BLOCKED',
 }
 
-interface ContactDict {
+interface ContactDict extends ModelDict {
     pk: ContactPk,
     vaultPk: string,
     did: string,
@@ -41,7 +41,7 @@ interface ContactDict {
     metadata?: any
 }
 
-class Contact {
+class Contact implements Model {
     pk: ContactPk
     vaultPk: string
     did: string // TODO: change to DID

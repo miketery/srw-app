@@ -1,7 +1,7 @@
 import base58 from 'bs58';
 
 import { PublicKey, VerifyKey } from '../lib/nacl';
-import SS, { StoredType } from '../services/StorageService';
+import { StoredType } from '../services/StorageService';
 
 import Vault from '../models/Vault';
 import Contact, { ContactState } from '../models/Contact';
@@ -10,49 +10,19 @@ import { MessageTypes } from './MessagesManager';
 import { ContactAccept } from '../models/MessagePayload';
 import { ContactPk } from '../models/types';
 
-class ContactsManager {
-    private _contacts: {[pk: ContactPk]: Contact};
-    private _vault: Vault;
+import TypeManager from './TypeManager'
 
+class ContactsManager extends TypeManager {
     constructor(vault: Vault, contacts: {[pk: ContactPk]: Contact} = {}) { 
         console.log('[ContactsManager.constructor] ' + vault.pk)
-        this._contacts = contacts; 
-        this._vault = vault;
+        super(vault, contacts, StoredType.contact, Contact)
     }
-    clear() { this._contacts = {}; }
-    async deleteContact(contact: Contact): Promise<void> {
-        await SS.delete(contact.pk);
-        delete this._contacts[contact.pk];
-    }
-    async saveContact(contact: Contact): Promise<void> {
-        await SS.save(contact.pk, contact.toDict())
-        this._contacts[contact.pk] = contact;
-    }
-    async saveAll(): Promise<void[]> {
-        return await Promise.all(Object.values(this._contacts).map(c => this.saveContact(c)));
-    }
-    async loadContacts(): Promise<{[pk: ContactPk]: Contact}> {
-        const contacts: {[pk: ContactPk]: Contact} = {};
-        const contactsData = await SS.getAll(StoredType.contact, this._vault.pk);
-        for (let contactData of Object.values(contactsData)) {
-            const c = Contact.fromDict(contactData, this._vault);
-            contacts[c.pk] = c;
-        }
-        this._contacts = contacts;
-        return contacts;
-    }
-    getContacts(): {[pk: ContactPk]: Contact} {
-        return this._contacts;
-    }
-    getContactsArray(): Contact[] {
-        return Object.values(this._contacts);
-    }
-    getContact = (pk: ContactPk): Contact => {
-        if(pk in this._contacts)
-            return this._contacts[pk];
-        throw new Error(`Contact not found: ${pk}`);
-    }
-    getObject = this.getContact
+    getContact = this.get
+    deleteContact = this.delete
+    getContactsArray = this.getAllArray
+    loadContacts = this.load
+    saveContact = this.save
+    ////
     getContactByDid(did: string): Contact {
         const contact = this.getContactsArray().find(contact => contact.did === did);
         if (!contact) {
@@ -66,15 +36,6 @@ class ContactsManager {
             throw new Error(`Contact not found: ${name}`);
         }
         return contact;
-    }
-    get vault(): Vault {
-        return this._vault;
-    }
-    get length(): number {
-        return Object.keys(this._contacts).length;
-    }
-    get index(): ContactPk[] {
-        return Object.keys(this._contacts);
     }
     printContacts(): void {
         console.log('[ContactsManager.printContacts] ' + this.length + ' contacts for ' + this.vault.name)

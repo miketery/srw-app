@@ -22,7 +22,7 @@ type FileManifest = {
     }[]
 }
 
-class BackupManager {
+class BackupUtil {
     _vault: Vault;
     _manager: VaultManager;
 
@@ -65,7 +65,7 @@ class BackupManager {
         const objects = pksMissing.map(pk => {
             const managerName = kindToManager[pkToStoredType(pk)]
             console.log(pk, managerName, pkToStoredType(pk))
-            return this._manager[managerName].getObject(pk)
+            return this._manager[managerName].get(pk)
         })
         return Promise.resolve(true)
     }
@@ -90,4 +90,4 @@ class BackupManager {
 
 }
 
-export default BackupManager;
+export default BackupUtil;
