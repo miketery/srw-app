@@ -31,6 +31,18 @@ class GuardiansManager extends TypeManager<Guardian> {
         this.saveGuardian(guardian)
         return guardian
     }
+    async load(): Promise<{[pk: string]: Guardian}> {
+        const guardians: {string?: Guardian} = {};
+        const guardiansData = await SS.getAll(
+            StoredType.guardian, this.vault.pk);
+        for (let recoverSplitData of Object.values(guardiansData)) {
+            const c = Guardian.fromDict(recoverSplitData,
+                this._contactsManager.getContact, this.vault.sender);
+            guardians[c.pk] = c;
+        }
+        this.setAll(guardians);
+        return guardians;
+    }   
     loadGuardians = this.load
     deleteGuardian = this.delete
     getGuardian = this.get
