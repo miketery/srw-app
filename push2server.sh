@@ -15,7 +15,7 @@ cp .env tmp.current.env
 echo "Doing a $ENV build"
 cp $ENV.env .env # make prod .env before build
 expo build:web -c
-cp multi_app.html web-build/multi_app.html
+cp webtestpages/multi_app.html web-build/multi_app.html
 tar -cf $TARBALL web-build
 
 echo "Pushing to $SERVER:$DIR"
