@@ -17,11 +17,11 @@ const notificationTypeStyleMap: { [k in string]: {
 }} = {
     'contact.request': {
         background: tw`bg-xmidblue`,
-        icon: 'person-add-outline',
+        icon: 'person-add',
     },
     'contact.accept': {
         background: tw`bg-green-800`,
-        icon: 'person-add-outline',
+        icon: 'person-add',
     },
     'app.test': {
         background: tw`bg-xmidpurple`,
@@ -41,15 +41,15 @@ const notificationTypeStyleMap: { [k in string]: {
     },
     'recoverSplit.invite': {
         background: tw`bg-xmidblue`,
-        icon: 'shield-outline',
+        icon: 'shield',
     },
     'recoverSplit.accept': {
         background: tw`bg-green-800`,
-        icon: 'shield-outline',
+        icon: 'shield',
     },
     'recoverSplit.decline': {
         background: tw`bg-xred`,
-        icon: 'shield-outline',
+        icon: 'shield',
     },
     'recoverCombine.manifest': {
         background: tw`bg-xmidblue`,
@@ -57,15 +57,15 @@ const notificationTypeStyleMap: { [k in string]: {
     },
     'recoverCombine.request': {
         background: tw`bg-xmidblue`,
-        icon: 'shield-outline',
+        icon: 'shield',
     },
     'recoverCombine.accept': {
         background: tw`bg-green-800`,
-        icon: 'shield-outline',
+        icon: 'shield',
     },
     'recoverCombine.decline': {
         background: tw`bg-xred`,
-        icon: 'shield-outline',
+        icon: 'shield',
     },
 }
 
@@ -96,7 +96,7 @@ function NotificationRow(props: { notification: Notification, manager: VaultMana
     const { title, short_text, detailed_text } = notification.data
     const iconStyle = [
         notificationTypeStyleMap[notification.type].background,
-        ds.smallCircle
+        ds.smCircle
     ]
     const icon = notificationTypeStyleMap[notification.type].icon
     let actions = []

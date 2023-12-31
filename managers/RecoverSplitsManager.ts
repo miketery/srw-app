@@ -9,58 +9,44 @@ import { RecoverSplitResponse } from '../models/MessagePayload'
 import { Message } from '../models/Message'
 import ContactsManager from './ContactsManager'
 import Contact from '../models/Contact'
+import TypeManager from './TypeManager'
 
-class RecoverSplitsManager {
-    private _vault: Vault;
-    private _recoverSplits: {string?: RecoverSplit}
+class RecoverSplitsManager extends TypeManager<RecoverSplit> {
     private _contactsManager: ContactsManager;
 
     constructor(vault: Vault, recoverSplits: {[pk: string]: RecoverSplit} = {},
             contactsManager: ContactsManager) { 
         console.log('[RecoverSplitsManager.constructor] ' + vault.pk)
-        this._vault = vault;
-        this._recoverSplits = recoverSplits;
+        super(vault, recoverSplits, StoredType.recoverSplit, RecoverSplit)
         this._contactsManager = contactsManager;
     }
     get contactsManager(): ContactsManager { return this._contactsManager; }
-    clear() { this._recoverSplits = {}; }
-    createRecoverSplit(name: string, description: string): RecoverSplit {
+    async createRecoverSplit(name: string, description: string): Promise<RecoverSplit> {
         const recoverSplit = RecoverSplit.create(name, description,
-            this._vault, this._contactsManager.getContact) // auto saves in FSM
-        this._recoverSplits[recoverSplit.pk] = recoverSplit;
+            this.vault, this._contactsManager.getContact) // auto saves in FSM
+        await this.save(recoverSplit);
         return recoverSplit
     }
-    async saveRecoverSplit(recoverSplit: RecoverSplit): Promise<void> {
-        await SS.save(recoverSplit.pk, recoverSplit.toDict())
-        this._recoverSplits[recoverSplit.pk] = recoverSplit;
-    }
-    async loadRecoverSplits(): Promise<{[pk: string]: RecoverSplit}> {
+    async load(): Promise<{[pk: string]: RecoverSplit}> {
         const recoverSplits: {string?: RecoverSplit} = {};
         const recoverSplitsData = await SS.getAll(
-            StoredType.recoverSplit, this._vault.pk);
+            StoredType.recoverSplit, this.vault.pk);
         for (let recoverSplitData of Object.values(recoverSplitsData)) {
-            const c = RecoverSplit.fromDict(recoverSplitData, this._vault,
+            const c = RecoverSplit.fromDict(recoverSplitData, this.vault,
                 this._contactsManager.getContact);
             recoverSplits[c.pk] = c;
         }
-        this._recoverSplits = recoverSplits;
+        this.setAll(recoverSplits)
         return recoverSplits;
     }
-    async deleteRecoverSplit(recoverSplit: RecoverSplit): Promise<void> {
-        await SS.delete(recoverSplit.pk);
-        delete this._recoverSplits[recoverSplit.pk];
-    }
-    getRecoverSplits(): {[pk: string]: RecoverSplit} {
-        return this._recoverSplits;
-    }
-    getRecoverSplitsArray(): RecoverSplit[] {
-        return Object.values(this._recoverSplits);
-    }
-    getRecoverSplit(pk: string): RecoverSplit {
-        if(pk in this._recoverSplits)
-            return this._recoverSplits[pk];
-        throw new Error(`[RecoverSplitManager] not found: ${pk}`);
-    }
+    saveRecoverSplit = this.save
+    loadRecoverSplits = this.load
+    deleteRecoverSplit = this.delete
+    getRecoverSplit = this.get
+    getRecoverSplits = this.getAll
+    getRecoverSplitsArray = this.getAllArray
+
+    //
     async submitRecoverSplit(recoverSplit: RecoverSplit, callback: () => void): Promise<void> {
         console.log('[RecoverSplitsManager.submitRecoverSplit]', recoverSplit.name)    
         recoverSplit.fsm.send('SUBMIT', {callback})

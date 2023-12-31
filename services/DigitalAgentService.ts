@@ -6,7 +6,7 @@ import MockMessageQueue from './MockMessageQueue';
 import { OutboundMessageDict } from '../models/Message';
 
 export type SenderFunction = (message: OutboundMessageDict) => Promise<any>;
-export type GetMessagesFunction = (after?: number) => Promise<OutboundMessageDict[]>;
+export type FetchMessagesFunction = (after?: number) => Promise<OutboundMessageDict[]>;
 
 class DigitalAgentService {
     static digital_agent_host: string = BASE;
@@ -81,15 +81,15 @@ class DigitalAgentService {
                 return await this.sendMessage(vault, message)
         }
     }
-    static getGetMessagesFunction(vault: Vault): GetMessagesFunction {
+    static getFetchMessagesFunction(vault: Vault): FetchMessagesFunction {
         return async (after?: number) => {
             if(MOCK)
-                return MockMessageQueue.getMessages(vault.did)
+                return MockMessageQueue.fetchMessages(vault.did)
             else
-                return await this.getMessages(vault, after)
+                return await this.fetchMessages(vault, after)
         }
     }
-    static async getMessages(vault: Vault, after?: number): Promise<any> {
+    static async fetchMessages(vault: Vault, after?: number): Promise<any> {
         const payload = {
             'after': after,
             'sig_ts': Math.floor(Date.now() / 1000)
@@ -97,12 +97,12 @@ class DigitalAgentService {
         const signed_payload = vault.signPayload(payload);
         const response = await axios.post(this.digital_agent_host + ENDPOINTS.GET_MESSAGES, signed_payload)
         .catch((error) => {
-            console.log('[DigitalAgentService.getMessages]', error)
+            console.log('[DigitalAgentService.fetchMessages]', error)
             throw new Error(error);
         });
         if(!response)
             return false
-        DEBUG && console.log('[getMessages]', response)
+        DEBUG && console.log('[fetchMessages]', response)
         if (response['status'] == 200) {
             return response['data'];
         }
@@ -146,13 +146,12 @@ class DigitalAgentService {
             }
         }
     }
-    static async getFileManifest(vault: Vault): Promise<any> {
-        // TODO not tested or verified could be all wrong...
+    static async getBackupManifest(vault: Vault): Promise<false|string[]> {
         const payload = {
             'sig_ts': Math.floor(Date.now() / 1000)
         }
         const signed_payload = vault.signPayload(payload);
-        const response = await axios.post(this.digital_agent_host + ENDPOINTS.GET_FILE_MANIFEST, signed_payload)
+        const response = await axios.post(this.digital_agent_host + ENDPOINTS.GET_BACKUP_MANIFEST, signed_payload)
         .catch((error) => {
             console.log('[DigitalAgentService.getFileManifest]', error)
             throw new Error(error);
@@ -160,6 +159,43 @@ class DigitalAgentService {
         if(!response)
             return false
         console.log('[getFileManifest]', response)
+        if (response['status'] == 200) {
+            return response['data'];
+        }
+    }
+    static async uploadObjects(vault: Vault, objects: object[]) {
+        console.log(objects)
+        const payload = {
+            'objects': objects,
+            'sig_ts': Math.floor(Date.now() / 1000)
+        }
+        const signed_payload = vault.signPayload(payload);
+        const response = await axios.post(this.digital_agent_host + ENDPOINTS.UPLOAD_FILES, signed_payload)
+        .catch((error) => {
+            console.log('[DigitalAgentService.uploadFiles]', error)
+            throw new Error(error);
+        });
+        if(!response)
+            return false
+        console.log('[uploadFiles]', response)
+        if (response['status'] == 202) {
+            return response['data'];
+        }
+    }
+    static async getObjects(vault: Vault, pks: string[]) {
+        const payload = {
+            'pks': pks,
+            'sig_ts': Math.floor(Date.now() / 1000)
+        }
+        const signed_payload = vault.signPayload(payload);
+        const response = await axios.post(this.digital_agent_host + ENDPOINTS.GET_FILES, signed_payload)
+        .catch((error) => {
+            console.log('[DigitalAgentService.getFiles]', error)
+            throw new Error(error);
+        });
+        if(!response)
+            return false
+        console.log('[getFiles]', response)
         if (response['status'] == 200) {
             return response['data'];
         }

@@ -11,6 +11,7 @@ import { Message, OutboundMessageDict } from './Message';
 import { MessageTypes } from '../managers/MessagesManager';
 import Vault from './Vault';
 import { ContactAccept, ContactInvite } from './MessagePayload';
+import { ContactPk, Model, ModelDict } from './types'
 
 export enum ContactState {
     INIT = 'INIT',
@@ -23,8 +24,8 @@ export enum ContactState {
     BLOCKED = 'BLOCKED',
 }
 
-interface ContactDict {
-    pk: string,
+interface ContactDict extends ModelDict {
+    pk: ContactPk,
     vaultPk: string,
     did: string,
     name: string,
@@ -40,8 +41,8 @@ interface ContactDict {
     metadata?: any
 }
 
-class Contact {
-    pk: string
+class Contact implements Model {
+    pk: ContactPk
     vaultPk: string
     did: string // TODO: change to DID
     name: string
@@ -57,7 +58,7 @@ class Contact {
     fsm: any
 
     constructor(
-            pk: string,
+            pk: ContactPk,
             vaultPk: string,
             did: string,
             name: string,
@@ -183,7 +184,7 @@ class Contact {
             contact_public_key: this.b58_public_key,
         }
         const message = Message.forContact(this, data,
-            MessageTypes.contact.invite, '0.0.1');
+            MessageTypes.contact.invite, '0.1');
         // null the sender sub key because we're not using it (even though
         // the contact will receive it inside the encrypted msg, will use in future
         message.sender.sub_public_key = Uint8Array.from([])

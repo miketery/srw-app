@@ -166,7 +166,8 @@ type RecoverSplitCreateScreenProps = {
 const RecoverSplitCreateScreen: React.FC<RecoverSplitCreateScreenProps> = (props) => {
     const [step, setStep] = useState<number>(0)
     const [name, setName] = useState<string>('')
-    const [participants, setParticipants] = useState<ContactPk[]>([]) // ['c__bob', 'c__charlie', 'c__dan']
+    const [participants, setParticipants] = useState<ContactPk[]>([])
+    // const [participants, setParticipants] = useState<ContactPk[]>(['c__bob', 'c__charlie', 'c__dan'])
     const [contacts, setContacts] = useState<Contact[]>([])
     const [threshold, setThreshold] = useState<number>(2)
     const [shares, setShares] = useState<{[contactPk: string]: number}>({})
@@ -187,7 +188,7 @@ const RecoverSplitCreateScreen: React.FC<RecoverSplitCreateScreenProps> = (props
 
     const createRecoverSplit = async () => {
         setIsSubmitting(true)
-        const recoverSplit = props.recoverSplitsManager.createRecoverSplit(
+        const recoverSplit = await props.recoverSplitsManager.createRecoverSplit(
             'Base Recovery Plan', 'Description'
         )
         for (const pk of participants) {

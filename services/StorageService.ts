@@ -26,7 +26,7 @@ export const StoredTypePrefix: { [k in StoredType]: string } = {
 const PrefixToStoredType: { string: StoredType} = Object.fromEntries(
     Object.keys(StoredTypePrefix).map((k) => [StoredTypePrefix[k], StoredType[k]])
 )
-const pkToStoredType = (pk: string): StoredType => PrefixToStoredType[pk.slice(0,3)]
+export const pkToStoredType = (pk: string): StoredType => PrefixToStoredType[pk.slice(0,3)]
 
 const state_template = {
     initialized: false,

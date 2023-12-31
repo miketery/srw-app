@@ -46,7 +46,7 @@ async function RecoverPlanCreate(
     // alice creates recovery w/ Bob and Charlie and Dan
     const { alice } = vaultsAndManagers
     const recoverSplitManager = new RecoverSplitsManager(alice.vault, {}, alice.contactsManager)
-    const recoverSplit = recoverSplitManager.createRecoverSplit(
+    const recoverSplit = await recoverSplitManager.createRecoverSplit(
         'RP_01 - test', 'testing')
     recoverSplit.addRecoverSplitParty(alice.contacts['bob'], 1, true)
     recoverSplit.addRecoverSplitParty(alice.contacts['charlie'], 1, false)
@@ -91,7 +91,7 @@ async function RecoverPlanFullFlow(
     deleteAllRecoveryRelated()
     const { alice, bob, charlie, dan } = vaultsAndManagers
     const recoverSplitManager = new RecoverSplitsManager(alice.vault, {}, alice.contactsManager)
-    const recoverSplit: RecoverSplit = recoverSplitManager.createRecoverSplit(
+    const recoverSplit: RecoverSplit = await recoverSplitManager.createRecoverSplit(
         'RP_01 - test', 'RP Dev Test')
     recoverSplit.addRecoverSplitParty(alice.contacts['bob'], 1, true)
     recoverSplit.addRecoverSplitParty(alice.contacts['charlie'], 1, false)
@@ -114,7 +114,7 @@ async function RecoverPlanFullFlow(
     // user fetch request and send accept
     const getRequestAndAccept = async (user, accept, originUser, originRecoverSplitManager: RecoverSplitsManager) => {
         const name = user.vault.name
-        const request = (await user.vault.getMessages())[0] as InboundMessageDict
+        const request = (await user.vault.fetchMessages())[0] as InboundMessageDict
         const guardianManager = new GuardiansManager(user.vault, {}, user.contactsManager)
         await new Promise(r => setTimeout(r, 300))
         guardianManager.processGuardianRequest(Message.inbound(request, user.vault))
@@ -122,7 +122,7 @@ async function RecoverPlanFullFlow(
         const guardian = Object.values(guardianManager.getGuardians())[0]
         const response = accept ? 'accepted' : 'declined'
         guardianManager.acceptGuardian(guardian.pk, () => console.log(name, response, guardian.toDict()))
-        const msgForRecoverSplit = (await originUser.vault.getMessages())[0] as InboundMessageDict
+        const msgForRecoverSplit = (await originUser.vault.fetchMessages())[0] as InboundMessageDict
         originRecoverSplitManager.processRecoverSplitResponse(Message.inbound(msgForRecoverSplit, originUser.vault))
     }
     await getRequestAndAccept(bob, true, alice, recoverSplitManager)
@@ -152,6 +152,17 @@ const testShamir = () => {
     const b = secrets.combine([shares2[0], shares2[1]])
     console.log(b)
 }
+
+const test = async (vaultsAndManagers) => {
+    const { alice, bob, charlie, dan } = vaultsAndManagers
+    const cm = alice.contactsManager
+    const recoverSplitManager = new RecoverSplitsManager(alice.vault, {}, cm)
+    const abc = await recoverSplitManager.createRecoverSplit('RP_01 - test', 'RP Dev Test')
+    await new Promise(r => setTimeout(r, 300))
+    console.log(cm.getContact('c__dan'))
+    // FAILRS
+    console.log(abc.getContact('c__dan'))
+}   
 
 type DevRecoverSplitScreenProps = {
     route: {
@@ -203,6 +214,12 @@ const DevRecoverSplitScreen: React.FC<DevRecoverSplitScreenProps> = (props) => {
             <Pressable style={[ds.button, ds.blueButton, tw`mt-4 w-full`]}
                     onPress={() => testShamir()}>
                 <Text style={ds.buttonText}>test</Text>
+            </Pressable>
+        </View>
+        <View>
+            <Pressable style={[ds.button, ds.redButton, tw`mt-4 w-full`]}
+                    onPress={() => test(vaultsAndManagers)}>
+                <Text style={ds.buttonText}>Test</Text>
             </Pressable>
         </View>
         <View>

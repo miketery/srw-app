@@ -5,6 +5,7 @@ import ContactsManager from './ContactsManager';
 import SecretsManager from './SecretsManager';
 import RecoverSplitsManager from './RecoverSplitsManager';
 import GuardiansManager from './GuardiansManager';
+import BackupUtil from './BackupUtil'
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DigitalAgentService from '../services/DigitalAgentService';
@@ -19,19 +20,21 @@ interface SessionDict {
 }
 
 class VaultManager {
-    // private static _instance: VaultManager;
     private _vaults: {string?: Vault};
     private _currentVault: Vault | null;
     private _secretsManager: SecretsManager | null;
     private _contactsManager: ContactsManager | null;
     private _recoverSplitsManager: RecoverSplitsManager | null;
+    // TODO recoverCombineManager
     private _guardiansManager: GuardiansManager | null;
-
+    
     private _notificationsManager: NotificationsManager | null;
     private _messagesManager: InboundMessageManager | null;
+    private _backupUtil: BackupUtil | null;
+    
     private _session: SessionDict;
-
-    private _recoverCombine: RecoverCombine | null;
+    
+    private _recoverCombine: RecoverCombine | null; // when recovering vault...
 
     constructor(vaults: {string?: Vault} = {}) {
         this._vaults = vaults;
@@ -137,6 +140,8 @@ class VaultManager {
             this._currentVault);
         this._messagesManager = new InboundMessageManager(
             this._currentVault, this);
+        this._backupUtil = new BackupUtil(
+            this._currentVault, this);
         await Promise.all([
             // recoverVaultLoad(),
             this._secretsManager.loadSecrets(),
@@ -158,6 +163,7 @@ class VaultManager {
         if (Object.keys(this._vaults).includes(new_vault.pk))
             throw new Error(`Vault with Verify Key ${new_vault.pk} already exists`);
         if (save) {
+            console.log('[VaultManager.createVault] saving vault')
             await this.saveVault(new_vault);
             // check that saved
             const vault_data = await SS.get(new_vault.pk);
@@ -238,6 +244,11 @@ class VaultManager {
         if (!this._messagesManager)
             throw new Error('Messages Manager not set');
         return this._messagesManager;
+    }
+    get backupUtil(): BackupUtil {
+        if (!this._backupUtil)
+            throw new Error('Backup Manager not set');
+        return this._backupUtil;
     }
     // recoverVault
     get recoverCombine(): RecoverCombine {

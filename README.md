@@ -72,9 +72,9 @@ Using [XState](https://xstate.js.org/docs/guides/introduction-to-state-machines-
 ### Screens / UI Overview
 
 - [App](./App.js), the main app component, handles top level routing
-- [SplashScreen](./screens/SplashScreen.js), initilization of the app (TODO: show logo)
-- [LandingScreen](./screens/LandingScreen.js), if no vault setup allow user to create vault or start recovery
-  - [VaultCreateScreen](./screens/VaultCreateScreen.js), create a new vault
+- [SplashScreen](./screens/Start/SplashScreen.js), initilization of the app (TODO: show logo)
+- [LandingScreen](./screens/Start/LandingScreen.js), if no vault setup allow user to create vault or start recovery
+  - [VaultCreateScreen](./screens/Start/VaultCreateScreen.js), create a new vault
   - [VaultRecoverInitScreen](./screens/RecoverVault/RecoverInitScreen.tsx), initilize a recovery (i.e. create vault with recovery flag so can begin recoverCombine)
 - [HomeNav](./screens/HomeNav.js), container for app if user is accessing a vault
   - [TabBarNav](./screens/TabBarNav.js), container for the main tabs

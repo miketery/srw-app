@@ -12,15 +12,17 @@ import { DevButton } from '../../components/Button';
 
 function ContactRow({contact, navigation}: {contact: Contact, navigation: any}) {
     const { name, did, state } = contact
-    return <Pressable style={tw`flex flex-row items-center py-1 mb-1`}
+    return <Pressable style={tw`border-b border-slate-400`}
             onPressOut={() => navigation.navigate(ROUTES.ContactViewRoute, {contactPk: contact.pk})}>
-        <View style={tw`mr-2`}>
-            <ContactIcon />
-        </View>
-        <View style={tw`flex flex-row items-center`}>
-            {ContactStateText(state)}
-            <Text style={ds.textLg}>{name}</Text>
-            {/* <Text style={ds.text}>{did.slice(0, 25)}...</Text> */}
+        <View style={tw`flex flex-row items-center py-2`}>
+            <View style={tw`mr-2`}>
+                <ContactIcon md={true} />
+            </View>
+            <View style={tw`flex flex-row items-center`}>
+                {ContactStateText(state)}
+                <Text style={ds.textLg}>{name}</Text>
+                {/* <Text style={ds.text}>{did.slice(0, 25)}...</Text> */}
+            </View>
         </View>
     </Pressable>
 }

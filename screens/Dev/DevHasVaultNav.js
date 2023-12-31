@@ -6,11 +6,13 @@ import { Message, Sender, Receiver } from '../../models/Message'
 import { MessageTypes } from '../../managers/MessagesManager'
 
 import { ROUTES } from '../../config';
-import DevDigitalAgentScreen from './DevDigitalAgentScreen';
 import ds from '../../assets/styles';
 import tw from '../../lib/tailwind';
 import { GoBackButton } from '../../components';
 import MainContainer from '../../components/MainContainer'
+
+import DevDigitalAgentScreen from './DevDigitalAgentScreen';
+import DevBackupScreen from './DevBackupScreen';
 
 
 async function TestMessage(vault) {
@@ -78,6 +80,10 @@ export function DevHasVaultNav({navigation, fetching, start, clear}) {
                         onPress={() => navigation.navigate(ROUTES.DevDigitalAgentRoute)}>
                         <Text style={ds.buttonText}>Digital Agent</Text>
                     </Pressable>
+                    <Pressable style={[ds.button, ds.blueButton, tw`w-full mt-4`]}
+                        onPress={() => navigation.navigate(ROUTES.DevBackupRoute)}>
+                        <Text style={ds.buttonText}>Backup Dev</Text>
+                    </Pressable>
                     <Pressable style={[ds.button, ds.purpleButton, tw`w-full mt-4`]}
                         onPress={() => loadTestNotifications(manager)}>
                         <Text style={ds.buttonText}>Load Notifications</Text>
@@ -92,5 +98,11 @@ export function DevHasVaultNav({navigation, fetching, start, clear}) {
             {props => 
                 <DevDigitalAgentScreen {...props} />}
         </Stack.Screen>
+        
+        <Stack.Screen name={ROUTES.DevBackupRoute} options={{title:'Backup Testing'}}>
+            {props => 
+                <DevBackupScreen {...props} />}
+        </Stack.Screen>
+        
     </Stack.Navigator>
 }

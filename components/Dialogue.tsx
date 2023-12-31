@@ -42,12 +42,14 @@ type DialogueProps = {
     warning?: string,
     details?: string,
     toggle?: () => void,
+    containerStyle?: any,
 }
 
 export function Dialogue(props: DialogueProps) {
     const [toggle, setToggle] = React.useState(false)
     const msg = props.error || props.warning || props.msg
-    return <View style={[container_style, map[props.type].container]}>
+    const containerStyle = [container_style, props.containerStyle ? props.containerStyle : map[props.type].container]
+    return <View style={containerStyle}>
         <View>
             <Text style={icon_style}>
                 <Icon name={map[props.type].icon} size={icon_size} />
@@ -85,6 +87,7 @@ type DialogueTypeProps = {
     warning?: string,
     details?: string,
     toggle?: () => void,
+    containerStyle?: any,
 }
 
 export const Success = (props: DialogueTypeProps) => <Dialogue type='Success' {...props} />

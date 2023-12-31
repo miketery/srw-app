@@ -43,7 +43,7 @@ async function RecoverPlanFullFlow(
     deleteAllRecoveryRelated()
     const { alice, bob, charlie, dan } = vaultsAndManagers
     const recoverSplitManager = new RecoverSplitsManager(alice.vault, {}, alice.contactsManager)
-    const recoverSplit: RecoverSplit = recoverSplitManager.createRecoverSplit(
+    const recoverSplit: RecoverSplit = await recoverSplitManager.createRecoverSplit(
         'RP_01 - test', 'RP Dev Test')
     recoverSplit.addRecoverSplitParty(alice.contacts['bob'], 1, true)
     recoverSplit.addRecoverSplitParty(alice.contacts['charlie'], 1, false)
@@ -66,7 +66,7 @@ async function RecoverPlanFullFlow(
     // user fetch request and send accept
     const getRequestAndAccept = async (user, accept, originUser, originRecoverSplitManager: RecoverSplitsManager) => {
         const name = user.vault.name
-        const request = (await user.vault.getMessages())[0] as InboundMessageDict
+        const request = (await user.vault.fetchMessages())[0] as InboundMessageDict
         const guardianManager = new GuardiansManager(user.vault, {}, user.contactsManager)
         await new Promise(r => setTimeout(r, 300))
         guardianManager.processGuardianRequest(Message.inbound(request, user.vault))
@@ -74,7 +74,7 @@ async function RecoverPlanFullFlow(
         const guardian = Object.values(guardianManager.getGuardians())[0]
         const response = accept ? 'accepted' : 'declined'
         guardianManager.acceptGuardian(guardian.pk, () => console.log(name, response, guardian.toDict()))
-        const msgForRecoverSplit = (await originUser.vault.getMessages())[0] as InboundMessageDict
+        const msgForRecoverSplit = (await originUser.vault.fetchMessages())[0] as InboundMessageDict
         originRecoverSplitManager.processRecoverSplitResponse(Message.inbound(msgForRecoverSplit, originUser.vault))
         return guardianManager
     }
@@ -170,7 +170,7 @@ async function recoverCombineFsmFlow(
     recoverCombine.fsm.send('SEND_REQUESTS')
     await new Promise(r => setTimeout(r, 500))
     const gerReqeustAndAccept = async (vault: Vault, guardiansManager: GuardiansManager, recoverCombine: RecoverCombine) => {
-        const request = (await vault.getMessages())[0] as InboundMessageDict
+        const request = (await vault.fetchMessages())[0] as InboundMessageDict
         console.log(request)
         const {guardian, metadata} = await guardiansManager.processRecoverCombineRequest(Message.inbound(request, vault))
         console.log('GUARDIAN', guardian.toDict())
@@ -184,7 +184,7 @@ async function recoverCombineFsmFlow(
     }
     partys.map((user, i) => gerReqeustAndAccept(user.vault, guardiansManagers[i], recoverCombine))
     await new Promise(r => setTimeout(r, 500))
-    const responses = await recoverCombine.vault.getMessages()
+    const responses = await recoverCombine.vault.fetchMessages()
     console.log(responses)
     for(let response of responses) {
         recoverCombine.processRecoverCombineResponse(Message.inbound(response as InboundMessageDict, recoverCombine.vault))

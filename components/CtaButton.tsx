@@ -1,7 +1,7 @@
+import React from 'react';
 import { Pressable, Text } from 'react-native';
 
 import ds from '../assets/styles';
-import React from 'react';
 
 const colorMap = {
     blue: {background: 'linear-gradient(115deg, #3A50F7 40%, #35F9F9 100%)'},
