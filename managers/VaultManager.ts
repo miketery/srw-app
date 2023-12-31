@@ -20,7 +20,6 @@ interface SessionDict {
 }
 
 class VaultManager {
-    // private static _instance: VaultManager;
     private _vaults: {string?: Vault};
     private _currentVault: Vault | null;
     private _secretsManager: SecretsManager | null;

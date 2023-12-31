@@ -48,7 +48,9 @@ abstract class TypeManager<T extends Model> {
         this._objects = objects
     }
     get(pk: Pk): T {
-        return this._objects[pk]
+        if(pk in this._objects)
+            return this._objects[pk]
+        throw new Error(`[TypeManager.${this.storedType}] not found: ${pk}`)
     }
     getAll(): {[Pk: string]: T} {
         return this._objects

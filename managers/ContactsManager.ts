@@ -1,7 +1,7 @@
 import base58 from 'bs58';
 
 import { PublicKey, VerifyKey } from '../lib/nacl';
-import { StoredType } from '../services/StorageService';
+import SS, { StoredType } from '../services/StorageService';
 
 import Vault from '../models/Vault';
 import Contact, { ContactState } from '../models/Contact';
@@ -19,11 +19,21 @@ class ContactsManager extends TypeManager<Contact> {
         // this.get = this.get.bind(this);
         this.getContact = this.getContact.bind(this);
     }
+    saveContact = this.save
     getContact = this.get
+    async load(): Promise<{string?: Contact}> {
+        const contacts: {string?: Contact} = {};
+        const contactsData = await SS.getAll(StoredType.contact, this.vault.pk);
+        for (let contactData of Object.values(contactsData)) {
+            const c = Contact.fromDict(contactData, this.vault);
+            contacts[c.pk] = c;
+        }
+        this.setAll(contacts);
+        return contacts;
+    }
+    loadContacts = this.load
     deleteContact = this.delete
     getContactsArray = this.getAllArray
-    loadContacts = this.load
-    saveContact = this.save
     ////
     getContactByDid(did: string): Contact {
         const contact = this.getContactsArray().find(contact => contact.did === did);

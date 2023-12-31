@@ -12,8 +12,6 @@ import Contact from '../models/Contact'
 import TypeManager from './TypeManager'
 
 class RecoverSplitsManager extends TypeManager<RecoverSplit> {
-    // private _vault: Vault;
-    // private _recoverSplits: {string?: RecoverSplit}
     private _contactsManager: ContactsManager;
 
     constructor(vault: Vault, recoverSplits: {[pk: string]: RecoverSplit} = {},
@@ -29,11 +27,6 @@ class RecoverSplitsManager extends TypeManager<RecoverSplit> {
         await this.save(recoverSplit);
         return recoverSplit
     }
-    saveRecoverSplit = this.save
-    // async saveRecoverSplit(recoverSplit: RecoverSplit): Promise<void> {
-    //     await SS.save(recoverSplit.pk, recoverSplit.toDict())
-    //     this._recoverSplits[recoverSplit.pk] = recoverSplit;
-    // }
     async load(): Promise<{[pk: string]: RecoverSplit}> {
         const recoverSplits: {string?: RecoverSplit} = {};
         const recoverSplitsData = await SS.getAll(
@@ -44,30 +37,16 @@ class RecoverSplitsManager extends TypeManager<RecoverSplit> {
             recoverSplits[c.pk] = c;
         }
         this.setAll(recoverSplits)
-        // this._objects = recoverSplits
         return recoverSplits;
     }
+    saveRecoverSplit = this.save
     loadRecoverSplits = this.load
     deleteRecoverSplit = this.delete
-    // async deleteRecoverSplit(recoverSplit: RecoverSplit): Promise<void> {
-    //     await SS.delete(recoverSplit.pk);
-    //     delete this._recoverSplits[recoverSplit.pk];
-    // }
-    getRecoverSplits = this.getAll
-    // getRecoverSplits(): {[pk: string]: RecoverSplit} {
-    //     return this._recoverSplits;
-    // }
-    getRecoverSplitsArray = this.getAllArray
-    // getRecoverSplitsArray(): RecoverSplit[] {
-    //     return Object.values(this._recoverSplits);
-    // }
     getRecoverSplit = this.get
-    // getRecoverSplit(pk: string): RecoverSplit {
-    //     if(pk in this._recoverSplits)
-    //         return this._recoverSplits[pk];
-    //     throw new Error(`[RecoverSplitManager] not found: ${pk}`);
-    // }
+    getRecoverSplits = this.getAll
+    getRecoverSplitsArray = this.getAllArray
 
+    //
     async submitRecoverSplit(recoverSplit: RecoverSplit, callback: () => void): Promise<void> {
         console.log('[RecoverSplitsManager.submitRecoverSplit]', recoverSplit.name)    
         recoverSplit.fsm.send('SUBMIT', {callback})

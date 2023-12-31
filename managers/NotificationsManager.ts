@@ -32,21 +32,7 @@ class NotificationsManager extends TypeManager<Notification> {
     }
     deleteNotification = this.delete
     saveNotification = this.save
-    // async saveNotification(notification: Notification): Promise<void> {
-    //     await SS.save(notification.pk, notification.toDict())
-    //     this._notifications[notification.pk] = notification;
-    // }
     loadNotifications = this.load
-    // async loadNotifications(): Promise<void> {
-    //     console.log('[NotificationsManager.loadNotifications]')
-    //     const notifications = {};
-    //     const data = await SS.getAll(StoredType.notification, this._vault.pk);
-    //     for (let notification_data of Object.values(data)) {
-    //         const n = Notification.fromDict(notification_data);
-    //         notifications[n.pk] = n;
-    //     }
-    //     this._notifications = notifications;
-    // }
     getNotificationsArray = this.getAllArray
     get notifications() {
         return this.getAll();

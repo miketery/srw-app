@@ -13,8 +13,6 @@ import { ManifestDict } from '../models/RecoverSplit'
 import TypeManager from './TypeManager'
 
 class GuardiansManager extends TypeManager<Guardian> {
-    // private _vault: Vault;
-    // private _guardians: {string?: Guardian}
     private _contactsManager: ContactsManager;
 
     constructor(vault: Vault, guardians: {[pk: string]: Guardian} = {},

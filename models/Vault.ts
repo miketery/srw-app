@@ -8,7 +8,7 @@ import { SigningKey, VerifyKey, PrivateKey, PublicKey, SignedMessage } from '../
 import { signMsg, signingKeyFromWords, encryptionKeyFromWords, getRandom } from '../lib/utils'
 import SS, { StoredType, StoredTypePrefix } from '../services/StorageService';
 import { entropyToMnemonic } from 'bip39';
-import DigitalAgentService, { GetMessagesFunction, SenderFunction } from '../services/DigitalAgentService';
+import DigitalAgentService, { FetchMessagesFunction, SenderFunction } from '../services/DigitalAgentService';
 
 export type VaultDict = {
     pk: string,
@@ -47,7 +47,7 @@ export default class Vault {
 
     // digital agent interface
     private _sender: SenderFunction
-    private _getMessages: GetMessagesFunction
+    private _fetchMessages: FetchMessagesFunction
 
     constructor(
             uuid: string,
@@ -75,7 +75,7 @@ export default class Vault {
         this.recovery = recovery;
 
         this._sender = DigitalAgentService.getSendMessageFunction(this);
-        this._getMessages = DigitalAgentService.getGetMessagesFunction(this);
+        this._fetchMessages = DigitalAgentService.getFetchMessagesFunction(this);
     }
     get pk(): string {
         return StoredTypePrefix[StoredType.vault] + this.b58_verify_key;
@@ -98,8 +98,8 @@ export default class Vault {
     get sender(): SenderFunction {
         return this._sender;
     }
-    get getMessages(): GetMessagesFunction {
-        return this._getMessages;
+    get fetchMessages(): FetchMessagesFunction {
+        return this._fetchMessages;
     }
     static async create(name: string, email: string, display_name: string,
             digital_agent_host: string, words: string, recovery: boolean): Promise<Vault> {

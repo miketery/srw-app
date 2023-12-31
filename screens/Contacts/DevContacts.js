@@ -48,7 +48,7 @@ async function ContactRequestFlowBasic() {
     // bob_cm.acceptContactRequest(bob_contact.did, () => console.log('CALLBACK'))
     bob_contact.fsm.send('REQUEST', {callback: () => console.log('Sending request, CALLBACK')})
     await new Promise(r => setTimeout(r, 300));
-    const contact_request = (await bob_vault.getMessages())[0]
+    const contact_request = (await bob_vault.fetchMessages())[0]
     console.log('[DevContacts] contact_request', contact_request) // encrypted
 
     console.log('\n###################### B3 - bob_cm.process_inbound_contactRequest()')
@@ -61,7 +61,7 @@ async function ContactRequestFlowBasic() {
     // alice_contact.fsm.send('ACCEPT')
     await new Promise(r => setTimeout(r, 1000));
     bob_cm.printContacts()
-    const response = (await alice_vault.getMessages())[0]
+    const response = (await alice_vault.fetchMessages())[0]
     console.log('[DevContacts] accept_response', response) // encrypted
 
     console.log('\n###################### A5 - alice_cm.process_inbound_accept_contact_request_response()')
@@ -89,12 +89,12 @@ async function ContactFullFlow(manager) {
     const bobContact =  await aliceContactManager.addContact('Bob', bobVault.did, 
         bobVault.public_key, bobVault.verify_key, Uint8Array.from([]), '')
     aliceContactManager.sendContactRequest(bobContact, () => console.log('CALLBACK on request send'))
-    const contactRequest = (await bobVault.getMessages())[0]
+    const contactRequest = (await bobVault.fetchMessages())[0]
     console.log(contactRequest)
     const bobContactManager = new ContactsManager(bobVault)
     const aliceContact = await bobContactManager.processContactRequest(Message.inbound(contactRequest, bobVault))
     bobContactManager.acceptContactRequest(aliceContact.did, () => console.log('CALLBACK'))
-    manager.messagesManager.getMessages()
+    manager.messagesManager.fetchMessages()
 }
 
 export default function DevContacts(props) {

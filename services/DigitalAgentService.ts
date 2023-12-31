@@ -6,7 +6,7 @@ import MockMessageQueue from './MockMessageQueue';
 import { OutboundMessageDict } from '../models/Message';
 
 export type SenderFunction = (message: OutboundMessageDict) => Promise<any>;
-export type GetMessagesFunction = (after?: number) => Promise<OutboundMessageDict[]>;
+export type FetchMessagesFunction = (after?: number) => Promise<OutboundMessageDict[]>;
 
 class DigitalAgentService {
     static digital_agent_host: string = BASE;
@@ -81,15 +81,15 @@ class DigitalAgentService {
                 return await this.sendMessage(vault, message)
         }
     }
-    static getGetMessagesFunction(vault: Vault): GetMessagesFunction {
+    static getFetchMessagesFunction(vault: Vault): FetchMessagesFunction {
         return async (after?: number) => {
             if(MOCK)
-                return MockMessageQueue.getMessages(vault.did)
+                return MockMessageQueue.fetchMessages(vault.did)
             else
-                return await this.getMessages(vault, after)
+                return await this.fetchMessages(vault, after)
         }
     }
-    static async getMessages(vault: Vault, after?: number): Promise<any> {
+    static async fetchMessages(vault: Vault, after?: number): Promise<any> {
         const payload = {
             'after': after,
             'sig_ts': Math.floor(Date.now() / 1000)
@@ -97,12 +97,12 @@ class DigitalAgentService {
         const signed_payload = vault.signPayload(payload);
         const response = await axios.post(this.digital_agent_host + ENDPOINTS.GET_MESSAGES, signed_payload)
         .catch((error) => {
-            console.log('[DigitalAgentService.getMessages]', error)
+            console.log('[DigitalAgentService.fetchMessages]', error)
             throw new Error(error);
         });
         if(!response)
             return false
-        DEBUG && console.log('[getMessages]', response)
+        DEBUG && console.log('[fetchMessages]', response)
         if (response['status'] == 200) {
             return response['data'];
         }
