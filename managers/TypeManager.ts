@@ -5,25 +5,26 @@ import SS, { StoredType } from "../services/StorageService"
 
 type Objects = {Pk?: Model}
 
-class TypeManager {
+abstract class TypeManager<T extends Model> {
     storedType: StoredType
     typeModel: any 
 
     private _vault: Vault
-    private _objects: Objects
+    private _objects: {[Pk: string]: T}
 
-    constructor(vault: Vault, objects: Objects = {}, storedType: StoredType, typeModel: any) {
+    constructor(vault: Vault, objects: {[Pk: string]: T} = {}, storedType: StoredType, typeModel: any) {
         this._vault = vault
         this._objects = objects
         this.storedType = storedType
         this.typeModel = typeModel
     }
+    // abstract create(name: string, description: string): T
     clear() { this._objects = {}; }
-    async delete(object: Model): Promise<void> {
+    async delete(object: T): Promise<void> {
         await SS.delete(object.pk)
         delete this._objects[object.pk]
     }
-    async save(object: Model): Promise<void> {
+    async save(object: T): Promise<void> {
         await SS.save(object.pk, object.toDict())
         this._objects[object.pk] = object
     }
@@ -33,7 +34,7 @@ class TypeManager {
                 o => this.save(o))
         )
     }
-    async load(): Promise<Objects> {
+    async load(): Promise<{[Pk: string]: T}> {
         const objects = {}
         const objectsData = await SS.getAll(this.storedType, this._vault.pk)
         for (let objData of Object.values(objectsData)) {
@@ -43,13 +44,16 @@ class TypeManager {
         this._objects = objects
         return this._objects
     }
-    get(pk: Pk): Model {
+    setAll(objects: {[Pk: string]: T}) {
+        this._objects = objects
+    }
+    get(pk: Pk): T {
         return this._objects[pk]
     }
-    getAll(): Objects {
+    getAll(): {[Pk: string]: T} {
         return this._objects
     }
-    getAllArray(): Model[] {
+    getAllArray(): T[] {
         return Object.values(this._objects)
     }
     get vault(): Vault {

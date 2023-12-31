@@ -43,7 +43,7 @@ async function RecoverPlanFullFlow(
     deleteAllRecoveryRelated()
     const { alice, bob, charlie, dan } = vaultsAndManagers
     const recoverSplitManager = new RecoverSplitsManager(alice.vault, {}, alice.contactsManager)
-    const recoverSplit: RecoverSplit = recoverSplitManager.createRecoverSplit(
+    const recoverSplit: RecoverSplit = await recoverSplitManager.createRecoverSplit(
         'RP_01 - test', 'RP Dev Test')
     recoverSplit.addRecoverSplitParty(alice.contacts['bob'], 1, true)
     recoverSplit.addRecoverSplitParty(alice.contacts['charlie'], 1, false)

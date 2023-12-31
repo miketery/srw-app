@@ -12,10 +12,12 @@ import { ContactPk } from '../models/types';
 
 import TypeManager from './TypeManager'
 
-class ContactsManager extends TypeManager {
+class ContactsManager extends TypeManager<Contact> {
     constructor(vault: Vault, contacts: {[pk: ContactPk]: Contact} = {}) { 
         console.log('[ContactsManager.constructor] ' + vault.pk)
         super(vault, contacts, StoredType.contact, Contact)
+        // this.get = this.get.bind(this);
+        this.getContact = this.getContact.bind(this);
     }
     getContact = this.get
     deleteContact = this.delete

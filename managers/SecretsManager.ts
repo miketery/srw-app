@@ -1,11 +1,11 @@
 import Secret, { SecretType } from '../models/Secret'
-import SS, { StoredType } from '../services/StorageService'
+import { StoredType } from '../services/StorageService'
 
 import Vault from '../models/Vault';
 import { SecretPk } from '../models/types';
 import TypeManager from './TypeManager';
 
-class SecretsManager extends TypeManager {
+class SecretsManager extends TypeManager<Secret> {
     constructor(vault: Vault, secrets: {[pk: SecretPk]: Secret} = {}) { 
         console.log('[SecretsManager.constructor] ' + vault.pk)
         super(vault, secrets, StoredType.secret, Secret)
