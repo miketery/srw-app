@@ -21,7 +21,6 @@ class RecoverSplitsManager extends TypeManager<RecoverSplit> {
         console.log('[RecoverSplitsManager.constructor] ' + vault.pk)
         super(vault, recoverSplits, StoredType.recoverSplit, RecoverSplit)
         this._contactsManager = contactsManager;
-        console.log('XXYY_01', this._contactsManager.getContact('c__dan'))
     }
     get contactsManager(): ContactsManager { return this._contactsManager; }
     async createRecoverSplit(name: string, description: string): Promise<RecoverSplit> {
