@@ -33,7 +33,7 @@ export default function ContactsNavigator({navigation}) {
         </Stack.Screen>
         <Stack.Screen name={ROUTES.ContactViewRoute} options={{title: 'View Contact'}}>
             {props => <ContactViewScreen {...props} 
-                contactsManager={manager.contactsManager} vault={vault} />}
+                contactsManager={manager.contactsManager} />}
         </Stack.Screen>
         {/* <Stack.Screen name='ContactEditRoute' options={{title: 'Edit Contact'}}>
             {props => 

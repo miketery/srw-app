@@ -10,60 +10,45 @@ import { Message } from '../models/Message'
 import { MessageTypes } from './MessagesManager'
 import { RecoverSplitInvite, RecoverCombineRequest } from '../models/MessagePayload'
 import { ManifestDict } from '../models/RecoverSplit'
+import TypeManager from './TypeManager'
 
-class GuardiansManager {
-    private _vault: Vault;
-    private _guardians: {string?: Guardian}
+class GuardiansManager extends TypeManager<Guardian> {
     private _contactsManager: ContactsManager;
 
     constructor(vault: Vault, guardians: {[pk: string]: Guardian} = {},
             contactsManager: ContactsManager) { 
         console.log('[GuardiansManager.constructor] ' + vault.pk)
-        this._vault = vault;
-        this._guardians = guardians;
+        super(vault, guardians, StoredType.guardian, Guardian)
         this._contactsManager = contactsManager;
     }
-    clear() { this._guardians = {}; }
+    saveGuardian = this.save
     createGuardian(name: string, description: string, manifest: ManifestDict,
             shares: string[], contactPk: string): Guardian {
-        const recoverSplit = Guardian.create(name, description,
-            this._vault.pk, manifest, shares, contactPk,
+        const guardian = Guardian.create(name, description,
+            this.vault.pk, manifest, shares, contactPk,
             this._contactsManager.getContact,
-            this._vault.sender) // auto saves in FSM
-        this._guardians[recoverSplit.pk] = recoverSplit;
-        return recoverSplit
+            this.vault.sender) // auto saves in FSM
+        this.saveGuardian(guardian)
+        return guardian
     }
-    async saveGuardian(guardian: Guardian): Promise<void> {
-        await guardian.save()
-        this._guardians[guardian.pk] = guardian;
-    }
-    async loadGuardians(): Promise<{[pk: string]: Guardian}> {
+    async load(): Promise<{[pk: string]: Guardian}> {
         const guardians: {string?: Guardian} = {};
         const guardiansData = await SS.getAll(
-            StoredType.guardian, this._vault.pk);
+            StoredType.guardian, this.vault.pk);
         for (let recoverSplitData of Object.values(guardiansData)) {
             const c = Guardian.fromDict(recoverSplitData,
-                this._contactsManager.getContact, this._vault.sender);
+                this._contactsManager.getContact, this.vault.sender);
             guardians[c.pk] = c;
         }
-        this._guardians = guardians;
+        this.setAll(guardians);
         return guardians;
-    }
-    async deleteGuardian(recoverSplit: Guardian): Promise<void> {
-        await SS.delete(recoverSplit.pk);
-        delete this._guardians[recoverSplit.pk];
-    }
-    getGuardians(): {[pk: string]: Guardian} {
-        return this._guardians;
-    }
-    getGuardiansArray(): Guardian[] {
-        return Object.values(this._guardians);
-    }
-    getGuardian(pk: string): Guardian {
-        if(pk in this._guardians)
-            return this._guardians[pk];
-        throw new Error(`[GuardiansManager] not found: ${pk}`);
-    }
+    }   
+    loadGuardians = this.load
+    deleteGuardian = this.delete
+    getGuardian = this.get
+    getGuardians = this.getAll
+    getGuardiansArray = this.getAllArray
+    ////
     async processGuardianRequest(message: Message, callback?: () => void)
             : Promise<{guardian: Guardian, contact: Contact}> {
         console.log('[GuardiansManager.processGuardianRequest]')
@@ -96,21 +81,21 @@ class GuardiansManager {
         if(message.type_name !== MessageTypes.recoverCombine.request) {
             throw new Error(`96 Invalid message type: ${message.type_name} should be ${MessageTypes.recoverCombine.request}`)
         }
-        message.decrypt(this._vault.private_key)
+        message.decrypt(this.vault.private_key)
         const data = message.getData() as RecoverCombineRequest
-        const guardian = this.getGuardiansArray().filter((g) => g.manifest.recoverSplitPk === data.recoverSplitPk)[0]
+        const guardian = this.getGuardiansArray().filter((g: Guardian) => g.manifest.recoverSplitPk === data.recoverSplitPk)[0]
         const metadata = {verify_key: data.verify_key, public_key: data.public_key}
         return {guardian, metadata}
     }
     //
     async respondRecoverCombine(response: 'accept' | 'decline', metadata: {guardianPk: string, verify_key: string, public_key: string}, callback: () => void): Promise<void> {
         console.log('[GuardiansManager.acceptRecoverCombine]')
-        const guardian = this.getGuardian(metadata.guardianPk)
+        const guardian = this.getGuardian(metadata.guardianPk) as Guardian
         const msg = guardian.recoverCombineResponseMsg(response, {
             did: `did:arx:${metadata.verify_key}`,
             verify_key: base58.decode(metadata.verify_key),
             public_key: base58.decode(metadata.public_key)})
-        await this._vault.sender(msg)
+        await this.vault.sender(msg)
         callback()
     }
 }

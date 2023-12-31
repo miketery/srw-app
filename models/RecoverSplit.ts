@@ -231,10 +231,6 @@ class RecoverSplit {
         this.fsm.start(this._state)
         this.fsm.send('') // force check of guards
     }
-    // getContact(pk: string): Contact {
-    //     console.log('[RecoverSplit.getContact]', pk)
-    //     return this._contactsManager.getContact(pk)
-    // }
     get state(): RecoverSplitState {
         return this.fsm.getSnapshot().value
     }
@@ -293,7 +289,11 @@ class RecoverSplit {
         return 'RecoverSplit<' + [this.pk, this.name, this.state].join(', ') + '>'
     }
     get totalShares(): number {
-        return this.recoverSplitPartys.map(p => p.numShares).reduce((a, b) => a + b)
+        try {
+            return this.recoverSplitPartys.map(p => p.numShares).reduce((a, b) => a + b)
+        } catch (error) {
+            return 0
+        }
     }
     get totalParties(): number {
         return this.recoverSplitPartys.length

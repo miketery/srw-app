@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Text, View, Image } from 'react-native'
 import { CommonActions } from '@react-navigation/native'
 
@@ -14,26 +14,25 @@ import { GoBackButton } from '../../components'
 import StartContainer from '../../components/StartContainer'
 import { AnimatedLabelInput } from '../../components/Input'
 import CtaButton from '../../components/CtaButton'
+import Vault from '../../models/Vault'
 
 const inputContainer = tw`mb-6`
 
-export default function VaultCreateScreen(props) {
+export default function VaultCreateScreen({navigation}: {navigation: any}): React.FC {
     const {setVault, setManager} = useSessionContext();
 
-    const [name, setName] = useState('');
-    const [displayName, setDisplayName] = useState('');
-    const [email, setEmail] = useState('');
-    const [createLoading, setCreateLoading] = useState(false);
-    const [errors, setErrors] = useState({});
+    const [name, setName] = useState<string>('');
+    const [displayName, setDisplayName] = useState<string>('');
+    const [email, setEmail] = useState<string>('');
+    const [createLoading, setCreateLoading] = useState<boolean>(false);
+    const [errors, setErrors] = useState<{[k: string]: string}>({});
 
-    const navigation = props.navigation
-
-    const finishSubmit = (vault) => {
+    const finishSubmit = (vault: Vault) => {
         console.log('[VaultCreateScreen.finishSubmit] ' + vault.pk)
         navigation.dispatch(CommonActions.reset(primary_route()))
     }
     const checkForm = () => {
-        const errors = {}
+        const errors: {[k: string]: string} = {}
         if (!name || trimAndLower(name) === '') {
             errors.name = 'Name is required'
         }
@@ -56,8 +55,8 @@ export default function VaultCreateScreen(props) {
         setTimeout(async () => {
             try {
                 const vaultManager = new VaultManager()
-                const vault = await vaultManager.createVault(
-                    name, email, displayName, '', '', false)
+                const vault: Vault = await vaultManager.createVault(
+                    name, email, displayName, '', '', true)
                 await vaultManager.initManagers()
                 setVault(vaultManager.currentVault)
                 setManager(vaultManager)
@@ -81,10 +80,8 @@ export default function VaultCreateScreen(props) {
             <View style={inputContainer}>
                 {/* <Text style={ds.label}>Name</Text> */}
                 <AnimatedLabelInput
-                    style={ds.input}
                     label="Name"
                     // placeholder="Alice Allison"
-                    placeholderTextColor="#888"
                     value={name}
                     onChangeText={setName}
                     error={'name' in errors}
@@ -94,10 +91,8 @@ export default function VaultCreateScreen(props) {
             <View style={inputContainer}>
                 {/* <Text style={ds.label}>Display Name</Text> */}
                 <AnimatedLabelInput
-                    style={ds.input}
                     label="Display Name"
                     // placeholder="Ali"
-                    placeholderTextColor="#888"
                     value={displayName}
                     onChangeText={setDisplayName}
                     error={'displayName' in errors}
@@ -107,10 +102,8 @@ export default function VaultCreateScreen(props) {
             <View style={inputContainer}>
                 {/* <Text style={ds.label}>Email</Text> */}
                 <AnimatedLabelInput
-                    style={ds.input}
                     label="Email"
                     // placeholder="alice@arxsky.com"
-                    placeholderTextColor="#888"
                     value={email}
                     onChangeText={setEmail}
                     error={'email' in errors}

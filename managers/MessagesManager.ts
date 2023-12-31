@@ -9,7 +9,7 @@
 
 
 */
-import DigitalAgentService, { GetMessagesFunction } from "../services/DigitalAgentService";
+import { FetchMessagesFunction } from "../services/DigitalAgentService";
 import { Message, InboundMessageDict } from "../models/Message";
 import SS, { StoredType } from "../services/StorageService";
 import Vault from "../models/Vault";
@@ -183,13 +183,13 @@ class InboundMessageManager {
     private _manager: VaultManager;
     private _inbound_messages: {string? : Message};
     private _last: LastReceivedStateDict;
-    private _getMessages: GetMessagesFunction;
+    private _fetchMessages: FetchMessagesFunction;
  
     constructor(vault: Vault, manager: VaultManager, last?: LastReceivedStateDict) {
         this._vault = vault;
         this._manager = manager;
         this._inbound_messages = {};
-        this._getMessages = vault.getMessages;
+        this._fetchMessages = vault.fetchMessages;
         if(last)
             this._last = last;
         else
@@ -199,32 +199,15 @@ class InboundMessageManager {
             }
     }
     startFetchInterval(interval = 1500): any {
-        return setInterval(this.getMessages, interval);
+        return setInterval(this.fetchMessages, interval);
     }
-    getMessages = async () => {
-        const messages = await this._getMessages()
+    fetchMessages = async () => {
+        const messages = await this._fetchMessages()
         messages.forEach(async (message) => {
             const msg = Message.inbound(message as InboundMessageDict, this._vault)
             await this.saveMessage(msg)
             this.processMessage(msg)
         })
-        // const messages = await DigitalAgentService.getMessages(this._vault, this._last.timestamp)
-        // if(!messages)
-        //     return false
-        // console.log('[InboundManager.getMessages]', messages.length)
-        // if(messages.length > 0){
-        //     this._last = {
-        //         'timestamp': messages[0]['created'],
-        //         'uuid': messages[0]['uuid']
-        //     }
-        // }
-        // const promises: Promise<void>[] = []
-        // for(const message of messages){
-        //     const msg = Message.inbound(message)
-        //     promises.push(this.saveMessage(msg))
-        //     this._inbound_messages[msg.pk] = msg
-        // }
-        // return messages.length
     }
     async saveMessage(message: Message): Promise<void> {
         this._inbound_messages[message.pk] = message
@@ -267,6 +250,9 @@ class InboundMessageManager {
             promises.push(this.processMessage(message))
         }
         return promises
+    }
+    get length(): number {
+        return Object.keys(this._inbound_messages).length;
     }
 }
 

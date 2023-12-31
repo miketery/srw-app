@@ -10,8 +10,8 @@ const MockMessageQueue = {
         Messages[message.receiver.did].push(message)
         return true
     },
-    getMessages: (did: string): OutboundMessageDict[] => {
-        console.log('[MockMessageQueue.getMessages]', did)
+    fetchMessages: (did: string): OutboundMessageDict[] => {
+        console.log('[MockMessageQueue.fetchMessages]', did)
         if (!Messages[did])
             return []
         const response = Messages[did]

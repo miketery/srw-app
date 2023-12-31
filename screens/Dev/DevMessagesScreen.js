@@ -14,7 +14,7 @@ import MainContainer from '../../components/MainContainer'
 async function sendTestMessages(vaults, contacts) {
     const alice = vaults.alice
     const bob_contact = Object.values(contacts.alice).filter(x => x.name == 'bob')[0] // alice has bob as a contact
-    const msg = Message.forContact(bob_contact, 'Hello Bob', 'text', '0.0.1')
+    const msg = Message.forContact(bob_contact, 'Hello Bob', 'text', '0.1')
     msg.encryptBox(bob_contact.private_key)
     const from_alice = msg.outboundFinal()
     console.log('Msg from alice', from_alice)

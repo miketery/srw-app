@@ -32,7 +32,7 @@ function SecretsListScreen(props) {
 
     return <MainContainer header={header} buttonRow={buttonRow}>
         {secrets.map((secret) => {
-            return <Pressable key={secret.pk}
+            return <Pressable key={secret.pk} style={tw`border-b border-slate-400`}
                     onPressOut={() => props.navigation.navigate(ROUTES.SecretViewRoute, {secretPk: secret.pk})}>
                 <SecretRow key={secret.pk} secret={secret} />
             </Pressable>

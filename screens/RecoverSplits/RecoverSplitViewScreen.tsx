@@ -140,7 +140,7 @@ export const RecoverSplitRow = ({recoverSplit}: {recoverSplit: RecoverSplit}) =>
 const PartyRow: React.FC<{party: RecoverSplitParty}> = ({party}) => {
     return <View style={tw`flex-row items-center justify-start pb-2 mb-2 border-b border-purple-200 border-dashed`}>
         <View style={tw`mr-2`}>
-            {ContactIcon()}
+            <ContactIcon md={true} />
         </View>
         <View style={tw`flex-col`}>
             <Text style={tw`text-white`}>{party.name}</Text>

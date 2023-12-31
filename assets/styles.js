@@ -39,9 +39,9 @@ const ds = StyleSheet.create({
     ctaButton: tw`py-2 rounded-full bg-sky-600 w-full content-center justify-center items-center`,
     createButton: tw`py-2 rounded-full bg-midpurple w-full content-center justify-center items-center`,
 
-    largeCircle: tw`h-20 w-20 rounded-full items-center justify-center`,
-    mediumCircle: tw`h-16 w-16 rounded-full items-center justify-center`,
-    smallCircle: tw`h-11 w-11 rounded-full items-center justify-center`,
+    lgCircle: tw`h-20 w-20 rounded-full items-center justify-center`,
+    mdCircle: tw`h-16 w-16 rounded-full items-center justify-center`,
+    smCircle: tw`h-11 w-11 rounded-full items-center justify-center`,
 
     buttonArrow: tw`items-center w-10 rounded-md p-2 bg-slate-600`,
 

@@ -20,13 +20,11 @@ type ContactViewScreenProps = {
     }
 }
 
-export const ContactIcon = (big=false) => {
-    const style = [
-        tw`bg-purple-400`,
-        big ? ds.largeCircle :ds.smallCircle,
-    ]
+export const ContactIcon = ({lg, md}: {lg?: boolean, md?: boolean}) => {
+    const style = [tw`bg-blue-900`, lg ? ds.lgCircle : md ? ds.mdCircle : ds.smCircle]
+    const size = lg ? 44 : md ? 32 : 20
     return <View style={style}>
-        <Icon name='person-outline' size={big ? 32 : 20} color='white' style={tw`text-center`} />
+        <Icon name='person' size={size} color='white' style={tw`text-center`} />
     </View>
 }
 
@@ -53,7 +51,7 @@ const ContactCard = ({contact}: {contact: Contact}) => {
     return <View>
         <View style={tw`flex flex-row items-center py-1 mb-1`}>
             <View style={tw`mr-2`}>
-                {ContactIcon(true)}
+                <ContactIcon lg={true} />
             </View>
             <View>
                 <View style={tw`flex flex-row items-center`}>
