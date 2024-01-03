@@ -12,7 +12,7 @@ import { useSessionContext } from '../../contexts/SessionContext'
 
 import { test_vaults } from '../../testdata/testVaults'
 import MainContainer from '../../components/MainContainer'
-import { ContactStateText } from './ContactViewScreen'
+import { ContactStatePill } from './ContactViewScreen'
 
 /**
  * Test Contact Flow Messages
@@ -126,11 +126,9 @@ export default function DevContacts(props) {
             </Pressable>
         </View>
         <View style={tw`flex flex-col items-start`}>
-            {ContactStateText(ContactState.INIT)}
-            {ContactStateText(ContactState.INBOUND)}
-            {ContactStateText(ContactState.PENDING)}
-            {ContactStateText(ContactState.BLOCKED)}
-            {ContactStateText(ContactState.ARCHIVED)}
+            {Object.values(ContactState).map((state, idx) => {
+                <ContactStatePill state={state} key={idx} />
+            })}
         </View>
     </MainContainer>
 }

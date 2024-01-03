@@ -13,6 +13,7 @@ import RecoverSplitsNav from './RecoverSplits'
 
 import NotificationsListScreen from './NotificationsListScreen';
 import { DevHasVaultNav } from './Dev'
+import { NotificationTypes } from '../models/Notification';
 
 const Tab = createBottomTabNavigator();
 
@@ -67,7 +68,7 @@ export default function HomeNavTest({props}) {
                 return { headerShown: route.name in TAB_BAR_ROUTES ? TAB_BAR_ROUTES[route.name].header : false}
         }}>
             <Tab.Screen name={ROUTES.MainHubRoute} >
-                {(props) => <MainHub {...props} />}
+                {(props) => <MainHub {...props} notifications={notifications} />}
             </Tab.Screen>
             {!vault?.recovery && <>
                 <Tab.Screen name={ROUTES.ContactsRoute} >

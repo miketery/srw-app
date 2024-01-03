@@ -102,18 +102,18 @@ function NotificationRow(props: { notification: Notification, manager: VaultMana
     let actions = []
     if(Object.keys(actionMap).includes(notification.type))
         actions = actionMap[notification.type]
-    if(DEV)
-        actions = [consoleLogAction, ...actions]
+    // if(DEV )
+    //     actions = [consoleLogAction, ...actions]
     return <View style={tw`flex flex-row items-start mb-1 pt-2 pb-4 border-b border-slate-400 w-full`}>
         <View style={iconStyle}>
             <Icon name={icon} size={22} color='white' style={tw`text-center`} />
         </View>
-        <View style={tw`flex flex-col ml-2 grow-1 -mt-1`}>
+        <View style={tw`flex flex-column ml-2 shrink -mt-1 w-full`}>
             <View style={tw`mr-1`}>
                 <Text style={ds.textLg}>{title}</Text>
             </View>
-            <View style={tw``}>
-                <Text style={ds.text}>{detailed_text}</Text>
+            <View style={tw`flex flex-row`}>
+                <Text style={[ds.text]}>{detailed_text}</Text>
             </View>
             <View style={tw`flex flex-row justify-end w-full mt-2`}>
                 <NotificationActions actions={actions} notification={notification} manager={manager} />
@@ -129,9 +129,9 @@ const NotificationsListScreen = ({notifications}: {notifications: Notification[]
     const buttonRow = <></>
 
     return <MainContainer header={header} buttonRow={buttonRow} color={'blue'}>
-        <View>
+        {/* <View>
             <Text style={ds.text}>These are auto generated every few seconds at random</Text>
-        </View>
+        </View> */}
         <View>
             {notifications.map((notification) => {
                 return <NotificationRow 

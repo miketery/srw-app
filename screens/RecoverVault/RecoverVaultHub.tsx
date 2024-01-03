@@ -6,12 +6,14 @@ import RecoverVaultUtil from '../../managers/RecoverVaultUtil'
 import RecoverCombine, { RecoverCombineState } from '../../models/RecoverCombine'
 import { ROUTES } from '../../config'
 import { Error } from '../../components'
+import { ShortCode } from '../MainHubScreen'
 
 
-const RecoverVaultStatus = ({recoverCombine}: {recoverCombine: RecoverCombine}) => {
+const RecoverVaultStatus = ({recoverCombine, shortCode}: {recoverCombine: RecoverCombine, shortCode: string}) => {
     console.log('XXX', RecoverCombineState)
     return <View>
         <Text style={ds.text}>Get participant to share the manifest</Text>
+        <ShortCode shortCode={shortCode} />
         <Text style={ds.text}>{recoverCombine.state}</Text>
         <View>
             {recoverCombine.combinePartys.map((party, i) => {
@@ -24,7 +26,7 @@ const RecoverVaultStatus = ({recoverCombine}: {recoverCombine: RecoverCombine}) 
     </View>
 }
 
-export default function RecoverVaultHubScreen({navigation, vault, manager}) {
+export default function RecoverVaultHubScreen({navigation, vault, manager, notifications}) {
     // fetch RecoverCombine
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -38,7 +40,7 @@ export default function RecoverVaultHubScreen({navigation, vault, manager}) {
             setLoading(false)
         }
         fetchRecoverCombine()
-    }, [])
+    }, [notifications])
 
     const recoverVault = async () => {
         try {
@@ -59,7 +61,7 @@ export default function RecoverVaultHubScreen({navigation, vault, manager}) {
 
     return <View>
         <Text style={ds.textXl}>Recover Progress</Text>
-        {recoverCombine !== null && <RecoverVaultStatus recoverCombine={recoverCombine} />}
+        {recoverCombine !== null && <RecoverVaultStatus recoverCombine={recoverCombine} shortCode={vault.short_code} />}
         {recoverCombine.state === RecoverCombineState.MANIFEST_LOADED && <View>
             <Pressable style={[ds.buttonSm, ds.purpleButton]} onPress={() => recoverCombine.fsm.send('SEND_REQUESTS')}>
                 <Text style={ds.buttonTextSm}>Send Requests for Shares</Text>

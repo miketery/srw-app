@@ -28,7 +28,7 @@ export const ContactIcon = ({lg, md}: {lg?: boolean, md?: boolean}) => {
     </View>
 }
 
-export const ContactStateText = (state: string) => {
+export const ContactStatePill = ({state}: {state: ContactState}) => {
     const style = tw`text-sm mr-2 px-2 rounded-full bg-slate-600 `
     switch (state) {
         case ContactState.INIT:
@@ -49,15 +49,13 @@ export const ContactStateText = (state: string) => {
 const ContactCard = ({contact}: {contact: Contact}) => {
     const { name, did, state } = contact
     return <View>
-        <View style={tw`flex flex-row items-center py-1 mb-1`}>
+        <View style={tw`flex flex-row items-center py-2`}>
             <View style={tw`mr-2`}>
-                <ContactIcon lg={true} />
+                <ContactIcon md={true} />
             </View>
-            <View>
-                <View style={tw`flex flex-row items-center`}>
-                    {ContactStateText(state)}
-                    <Text style={ds.textLg}>{name}</Text>
-                </View>
+            <View style={tw`flex flex-row items-center justify-between grow-1`}>
+                <Text style={ds.textLg}>{name}</Text>
+                <ContactStatePill state={state} />
             </View>
         </View>
         <View style={tw`flex flex-row items-center py-1 mb-1`}>
