@@ -14,7 +14,7 @@ import MainContainer from '../../components/MainContainer';
 import { ContactIcon } from '../Contacts/ContactViewScreen'
 
 
-const RecoverSplitStateStyle = {
+const RecoverSplitStateStyle: {[k in RecoverSplitState]: {label: string, text, bg}} = {
     [RecoverSplitState.START]: {
         label: 'Start',
         text: tw`text-slate-200`,
@@ -130,11 +130,6 @@ export const RecoverSplitRow = ({recoverSplit}: {recoverSplit: RecoverSplit}) =>
                 </View>
             </View>
         </View>
-        {/* <View style={tw`flex-col`}>
-            {recoverSplit.recoverSplitPartys.map((party, index) => {
-                return <Text key={index} style={ds.text}>{party.name} {party.state}</Text>
-            })}
-        </View> */}
     </View>
 }
 const RecoverSplitPartyStateStyle = {
@@ -214,7 +209,7 @@ const RecoverSplitDetails: React.FC<{recoverSplit: RecoverSplit}> = ({recoverSpl
             <Text></Text>
         </View>
         <View style={tw`flex-col`}>
-            <Text style={tw`text-white text-2xl border-b border-purple-200 border-dashed mb-2 pb-2`}>Participants ({recoverSplit.totalParties})</Text>
+            <Text style={tw`text-white text-2xl border-b border-purple-200 border-dashed mb-2 pb-2`}>Your Guardians ({recoverSplit.totalParties})</Text>
             {recoverSplit.recoverSplitPartys.map((party, index) => {
                 return <PartyRow key={index} party={party} />
             })}

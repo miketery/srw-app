@@ -45,6 +45,10 @@ export function DevNoVaultNav({navigation}) {
                         <View style={tw`h-6`} />
                         <CtaButton onPressOut={() => props.navigation.navigate(ROUTES.VaultCreateRoute)}
                             label="TEST CTA" />
+                        <CtaButton onPressOut={() => props.navigation.navigate(ROUTES.VaultCreateRoute)}
+                            label="TEST CTA" color='purple' />
+                        <CtaButton onPressOut={() => props.navigation.navigate(ROUTES.VaultCreateRoute)}
+                            label="TEST CTA" color='green' />
                     </View>
                 </View>
                 <GoBackButton onPressOut={() => navigation.goBack()} />

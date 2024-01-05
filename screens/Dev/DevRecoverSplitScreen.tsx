@@ -230,16 +230,16 @@ const DevRecoverSplitScreen: React.FC<DevRecoverSplitScreenProps> = (props) => {
         </View>
         <View style={tw`flex flex-col items-start`}>
             {Object.values(RecoverSplitState).map((state, index) => {
-                return <>
-                <Text key={index} style={ds.text}>{state}</Text>
-                <RecoverSplitStateText state={state} />
-                </>
+                return <View key={index}>
+                    <Text key={index} style={ds.text}>{state}</Text>
+                    <RecoverSplitStateText state={state} />
+                </View>
             })}
             {Object.values(RecoverSplitPartyState).map((state, index) => {
-                return <>
-                <Text key={index} style={ds.text}>{state}</Text>
-                <PartyStatePill state={state} />
-                </>
+                return <View key={index}>
+                    <Text style={ds.text}>{state}</Text>
+                    <PartyStatePill state={state} />
+                </View>
             })}
         </View>
     </MainContainer>
