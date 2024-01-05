@@ -54,6 +54,7 @@ type SecretFormProps = {
     secretsManager: SecretsManager,
     create: boolean, // lets be explicit if create (even if can infer)
     secret?: Secret, // if secret provided then we are updating
+    toggleDelete?: () => void,
 }
 
 const SecretForm = (props: SecretFormProps) => {
@@ -155,7 +156,7 @@ const SecretForm = (props: SecretFormProps) => {
     return <MainContainer header={header} buttonRow={buttonRow} color={'blue'}>       
         {step === 0 && <SecretTypePicker onClick={setSecretTypeAndNextStep} />}
         {step === 1 && <>
-            <View style={tw`flex-row items-center mb-4`}>
+            <View style={tw`flex-row items-center my-2 mb-2`}>
                 <SecretIcon secretType={secretType} big={true} />
                 {props.create && 
                 <Pressable onPressOut={() => setStep(0)}>
@@ -200,6 +201,14 @@ const SecretForm = (props: SecretFormProps) => {
                     onChangeText={setPassword}
                     password={true} />
             </>}
+            {props.create === false && props.toggleDelete && <View style={tw`flex flex-row justify-end`}>
+                <Pressable onPressOut={props.toggleDelete}>
+                    <View style={[ds.buttonXs, ds.redButton, tw`flex flex-row`]}>
+                        <Text style={ds.buttonTextSm}>Delete?</Text>
+                        <Icon name='trash' size={16} color='white' style={tw`text-center`} />
+                    </View>
+                </Pressable>
+            </View>}
         </>}
     </MainContainer>
 }
