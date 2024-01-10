@@ -11,7 +11,7 @@ import { GoBackButton } from '../../components';
 import RecoverSplit, { RecoverSplitParty, RecoverSplitPartyState, RecoverSplitState } from '../../models/RecoverSplit'
 import RecoverSplitsManager from '../../managers/RecoverSplitsManager'
 import MainContainer from '../../components/MainContainer';
-import { ContactIcon } from '../Contacts/ContactViewScreen'
+import { GuardianIcon } from './GuardianViewScreen'
 
 
 const RecoverSplitStateStyle: {[k in RecoverSplitState]: {label: string, text, bg}} = {
@@ -182,7 +182,7 @@ export const PartyStatePill = ({state}: {state: RecoverSplitPartyState}) => {
 const PartyRow: React.FC<{party: RecoverSplitParty}> = ({party}) => {
     return <View style={tw`flex-row items-center justify-start pb-2 mb-2 border-b border-purple-200 border-dashed`}>
         <View style={tw`mr-2`}>
-            <ContactIcon md={true} />
+            <GuardianIcon md={true} />
         </View>
         <View style={tw`flex-col`}>
             <Text style={tw`text-white`}>{party.name}</Text>

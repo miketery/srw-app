@@ -20,7 +20,7 @@ type ContactViewScreenProps = {
     }
 }
 
-export const ContactIcon = ({lg, md}: {lg?: boolean, md?: boolean}) => {
+export const ContactIcon = ({lg, md}: {lg?: boolean, md?: boolean}) => { // TODO_BADGE
     const style = [tw`bg-blue-900`, lg ? ds.lgCircle : md ? ds.mdCircle : ds.smCircle]
     const size = lg ? 44 : md ? 32 : 20
     return <View style={style}>
@@ -28,7 +28,7 @@ export const ContactIcon = ({lg, md}: {lg?: boolean, md?: boolean}) => {
     </View>
 }
 
-export const ContactStatePill = ({state}: {state: ContactState}) => {
+export const ContactStatePill = ({state}: {state: ContactState}) => { // TODO
     const style = tw`text-sm mr-2 px-2 rounded-full bg-slate-600 `
     switch (state) {
         case ContactState.INIT:

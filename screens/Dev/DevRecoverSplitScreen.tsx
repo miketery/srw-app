@@ -23,6 +23,8 @@ import { InboundMessageDict, Message } from '../../models/Message'
 import { GoBackButton, LoadingScreen } from '../../components'
 import MainContainer from '../../components/MainContainer';
 import { PartyStatePill, RecoverSplitStateText } from '../RecoverSplits/RecoverSplitViewScreen';
+import { GuardianState } from '../../models/Guardian';
+import { GuardianStatePill } from '../RecoverSplits/GuardianViewScreen';
 
 /**
  * Test Recover Split Flow
@@ -228,17 +230,26 @@ const DevRecoverSplitScreen: React.FC<DevRecoverSplitScreenProps> = (props) => {
                 <Text style={ds.buttonText}>Delete</Text>
             </Pressable>
         </View>
-        <View style={tw`flex flex-col items-start`}>
+        <View style={tw`flex flex-col items-start`}>        
+            <Text style={ds.textLg}>RecoverSplitState</Text>
             {Object.values(RecoverSplitState).map((state, index) => {
                 return <View key={index}>
                     <Text key={index} style={ds.text}>{state}</Text>
                     <RecoverSplitStateText state={state} />
                 </View>
             })}
+            <Text style={ds.textLg}>RecoverSplitPartyState</Text>
             {Object.values(RecoverSplitPartyState).map((state, index) => {
                 return <View key={index}>
                     <Text style={ds.text}>{state}</Text>
                     <PartyStatePill state={state} />
+                </View>
+            })}
+            <Text style={ds.textLg}>GuardianState</Text>
+            {Object.values(GuardianState).map((state, index) => {
+                return <View key={index}>
+                    <Text style={ds.text}>{state}</Text>
+                    <GuardianStatePill state={state} />
                 </View>
             })}
         </View>

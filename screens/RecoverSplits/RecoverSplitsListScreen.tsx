@@ -13,13 +13,8 @@ import MainContainer from '../../components/MainContainer';
 
 import { RecoverSplitRow } from './RecoverSplitViewScreen'
 import { DevButton } from '../../components/Button'
+import { GuardianRow } from './GuardianViewScreen'
 
-const GuardianRow = ({guardian}: {guardian: Guardian}) => {
-    return <View style={[ds.row, tw`flex-col`]}>
-        <Text style={ds.text}>{guardian.contact.name}</Text>
-        <Text style={ds.text}>{guardian.state}</Text>
-    </View>
-}
 
 type RecoverSplitListProps = {
     navigation: any,
