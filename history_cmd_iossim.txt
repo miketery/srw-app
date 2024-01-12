@@ -1,0 +1,51 @@
+git clone https://github.com/nmohnblatt/zk-jargon-decoder.git
+mkdir ios-srw
+cd ios-srw
+git clone git@github.com:miketery/srw-app.git .
+# sudo chown -R 501:20 "/Users/mike/.npm"
+npm install -g eas-cli
+eas login
+eas build:configure
+vi eas.json
+npm i
+eas build -p ios --profile preview
+react-native run-ios
+cat ~/.zshrc
+expo start
+npm i --save react-native-crypto
+npm i --save react-native-randombytes
+react-native link react-native-randombytes
+npm install -g react-native-cli
+react-native
+react-native link react-native-randombytes
+
+react-native init
+react-native init arxsky
+sudo gem install cocoapods
+ruby -v
+brew upgrade ruby
+ruby -v
+sudo gem install cocoapods
+rbenv
+brew install rbenv
+rbenv install 3.2.2
+rbenv global 3.2.2
+sudo gem install cocoapods
+brew install cocoapods
+expo start
+react-native link react-native-randombytes
+react-native init arxsky
+react-native link react-native-randombytes
+react-native link
+npx react-native-asset react-native-randombytes
+expo run
+npm i --save-dev tradle/rn-nodeify
+./node_modules/.bin/rn-nodeify --hack --install\
+npx expo install
+npx expo start
+npx react-native-asset react-native-randombytes
+npx react-native link
+npx react-native-asset link
+npx react-native-asset
+npm i stream
+npx expo run:ios

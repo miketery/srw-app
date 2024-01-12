@@ -11,7 +11,7 @@ import { RecoverCombineRequest, RecoverCombineResponse } from './MessagePayload'
 import secrets from '../lib/secretsGrempe';
 import { PublicKey, VerifyKey } from '../lib/nacl';
 import base58 from 'bs58';
-import { MessageTypes } from '../managers/MessagesManager';
+import { MessageTypes } from '../managers/MessageTypes';
 import { base64toBytes, hexToBytes, open_sealed_box } from '../lib/utils';
 import { SenderFunction } from '../services/DigitalAgentService';
 

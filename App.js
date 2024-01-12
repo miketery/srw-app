@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-web';
+import { SafeAreaView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 
 // import { StyleSheet, Text, View } from 'react-native';
@@ -31,7 +31,7 @@ console.error = (...args) => { if (args[0].includes('BackHandler ')) {} else { o
 
 export default function App() {
     return (<SessionContextProvider>
-        <SafeAreaView style={tw`bg-midnight h-full w-full`}>
+        <SafeAreaView style={tw`bg-xmidnight h-full w-full`}>
             <NavigationContainer>
                 <Stack.Navigator initialRouteName={ROUTES.SplashRoute}
                     screenOptions={({route}) => {
@@ -55,9 +55,6 @@ export default function App() {
                     </Stack.Screen>
                     <Stack.Screen name={ROUTES.HomeNavRoute}>
                         {props => <HomeNav {...props} />}
-                    </Stack.Screen>
-                    <Stack.Screen name={ROUTES.RecoverVaultRoute}>
-                        {props => <RecoverInitScreen {...props} />}
                     </Stack.Screen>
                 </Stack.Navigator>
             </NavigationContainer>

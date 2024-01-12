@@ -1,0 +1,2 @@
+eas build -p ios --profile preview # build remote eas
+npx expo run:ios # local for simulator

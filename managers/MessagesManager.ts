@@ -16,31 +16,10 @@ import Vault from "../models/Vault";
 import { NotificationData, NotificationTypes } from "../models/Notification";
 import VaultManager from "./VaultManager";
 import RecoverVaultUtil from "./RecoverVaultUtil";
+import { MessageTypes } from "./MessageTypes";
 
 type processMapType = {
     [key: string]: (message: Message, vault: Vault, m: VaultManager) => Promise<boolean>
-}
-
-export const MessageTypes = {
-    'contact': {
-        'invite': 'msg.contact.invite',
-        'accept': 'msg.contact.accept'
-    },
-    'app': {
-        'test': 'msg.app.test',
-        'info': 'msg.app.info',
-        'alert': 'msg.app.alert',
-        'warning': 'msg.app.warning',
-    },
-    'recoverSplit': {
-        'invite': 'msg.recoverSplit.invite',
-        'response': 'msg.recoverSplit.response',
-    },
-    'recoverCombine': {
-        'manifest': 'msg.recoverCombine.manifest',
-        'request': 'msg.recoverCombine.request',
-        'response': 'msg.recoverCombine.response',
-    },
 }
 
 // if return true will delete message
