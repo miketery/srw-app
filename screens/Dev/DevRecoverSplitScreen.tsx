@@ -12,7 +12,7 @@ import RecoverSplitsManager from '../../managers/RecoverSplitsManager'
 import getVaultsAndManagers from '../../testdata/genData'
 
 import { useSessionContext } from '../../contexts/SessionContext'
-import RecoverSplit, { RecoverSplitState } from '../../models/RecoverSplit'
+import RecoverSplit, { RecoverSplitPartyState, RecoverSplitState } from '../../models/RecoverSplit'
 import { bytesToHex } from '../../lib/utils'
 
 import SS, { StoredType } from '../../services/StorageService'
@@ -22,7 +22,9 @@ import GuardiansManager from '../../managers/GuardiansManager'
 import { InboundMessageDict, Message } from '../../models/Message'
 import { GoBackButton, LoadingScreen } from '../../components'
 import MainContainer from '../../components/MainContainer';
-import { RecoverSplitStateText } from '../RecoverSplits/RecoverSplitViewScreen';
+import { PartyStatePill, RecoverSplitStateText } from '../RecoverSplits/RecoverSplitViewScreen';
+import { GuardianState } from '../../models/Guardian';
+import { GuardianStatePill } from '../RecoverSplits/GuardianViewScreen';
 
 /**
  * Test Recover Split Flow
@@ -228,31 +230,28 @@ const DevRecoverSplitScreen: React.FC<DevRecoverSplitScreenProps> = (props) => {
                 <Text style={ds.buttonText}>Delete</Text>
             </Pressable>
         </View>
-        <View style={tw`flex flex-col items-start`}>
-            
-            <Text style={ds.text}>{RecoverSplitState.START}</Text>
-            {RecoverSplitStateText(RecoverSplitState.START)}
-            
-            <Text style={ds.text}>{RecoverSplitState.SPLITTING_KEY}</Text>
-            {RecoverSplitStateText(RecoverSplitState.SPLITTING_KEY)}
-
-            <Text style={ds.text}>{RecoverSplitState.READY_TO_SEND_INVITES}</Text>
-            {RecoverSplitStateText(RecoverSplitState.READY_TO_SEND_INVITES)}
-
-            <Text style={ds.text}>{RecoverSplitState.SENDING_INVITES}</Text>
-            {RecoverSplitStateText(RecoverSplitState.SENDING_INVITES)}
-
-            <Text style={ds.text}>{RecoverSplitState.WAITING_ON_PARTICIPANTS}</Text>
-            {RecoverSplitStateText(RecoverSplitState.WAITING_ON_PARTICIPANTS)}
-
-            <Text style={ds.text}>{RecoverSplitState.READY}</Text>
-            {RecoverSplitStateText(RecoverSplitState.READY)}
-
-            <Text style={ds.text}>{RecoverSplitState.FINAL}</Text>
-            {RecoverSplitStateText(RecoverSplitState.FINAL)}
-
-            <Text style={ds.text}>{RecoverSplitState.ARCHIVED}</Text>
-            {RecoverSplitStateText(RecoverSplitState.ARCHIVED)}
+        <View style={tw`flex flex-col items-start`}>        
+            <Text style={ds.textLg}>RecoverSplitState</Text>
+            {Object.values(RecoverSplitState).map((state, index) => {
+                return <View key={index}>
+                    <Text key={index} style={ds.text}>{state}</Text>
+                    <RecoverSplitStateText state={state} />
+                </View>
+            })}
+            <Text style={ds.textLg}>RecoverSplitPartyState</Text>
+            {Object.values(RecoverSplitPartyState).map((state, index) => {
+                return <View key={index}>
+                    <Text style={ds.text}>{state}</Text>
+                    <PartyStatePill state={state} />
+                </View>
+            })}
+            <Text style={ds.textLg}>GuardianState</Text>
+            {Object.values(GuardianState).map((state, index) => {
+                return <View key={index}>
+                    <Text style={ds.text}>{state}</Text>
+                    <GuardianStatePill state={state} />
+                </View>
+            })}
         </View>
     </MainContainer>
 }

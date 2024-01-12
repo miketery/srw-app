@@ -67,16 +67,19 @@ const RecoverSplitMachine = createMachine({
             ]
         },
         READY: {
+            entry: ['save'],
             on: {
                 FINALIZE: "FINAL"
             }
         },
         FINAL: {
+            entry: ['save'],
             on: {
                 ARCHIVE: "ARCHIVED"
             }
         },
         ARCHIVED: {
+            entry: ['save'],
             on: {
                 RESTORE: 'FINAL'
             }

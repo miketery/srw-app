@@ -22,7 +22,7 @@ export function DevNoVaultNav({navigation}) {
 
     return <Stack.Navigator screenOptions={{headerShown: false}} navigation={navigation} initialRouteName={ROUTES.DefaultRoute}>
         <Stack.Screen name={ROUTES.DefaultRoute} options={{title:'Dev Test'}}>
-            {props => <StartContainer header="Dev Test" imageStyle={{opacity: 0.33}}>
+            {props => <StartContainer header="Dev Test" imageStyle={{opacity: 1}}>
                 <View style={[ds.col, tw`flex-grow-1`]}>
                     <Pressable style={[ds.button, ds.blueButton, tw`mt-4`]} onPress={() => console.log('Pressed')}>
                         <Text style={ds.buttonText}>Test</Text>
@@ -45,6 +45,10 @@ export function DevNoVaultNav({navigation}) {
                         <View style={tw`h-6`} />
                         <CtaButton onPressOut={() => props.navigation.navigate(ROUTES.VaultCreateRoute)}
                             label="TEST CTA" />
+                        <CtaButton onPressOut={() => props.navigation.navigate(ROUTES.VaultCreateRoute)}
+                            label="TEST CTA" color='purple' />
+                        <CtaButton onPressOut={() => props.navigation.navigate(ROUTES.VaultCreateRoute)}
+                            label="TEST CTA" color='green' />
                     </View>
                 </View>
                 <GoBackButton onPressOut={() => navigation.goBack()} />

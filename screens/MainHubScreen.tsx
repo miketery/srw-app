@@ -16,7 +16,8 @@ import VaultManager from '../managers/VaultManager'
 import { Info } from '../components'
 
 type MainHubScreenProps = {
-    navigation: any
+    navigation: any,
+    notifications: any
 }
 
 type Tile = {
@@ -98,18 +99,25 @@ const WizardTile: React.FC<WizardTileProps> = ({navigation, manager, tile}) => {
         </View>
     </Pressable>
 }
-
-
-const ProfileHeaderRow = ({vault, navigation}) => {
+export const ShortCode = ({shortCode}: {shortCode: string}) => {
     const [copied, setCopied] = React.useState(false)
-    const shortCode = vault.short_code
-
     const copy = () => {
         Clipboard.setString(shortCode)
         setCopied(true)
         setTimeout(() => setCopied(false), 1000)
     }
+    if(shortCode.length > 0)
+        return <Pressable onPress={() => copy()} style={tw`flex-row items-center mt-1`}>
+            <View style={tw`flex flex-row items-center bg-slate-600 p-1 rounded-lg `}>
+                <Text style={tw`text-cyan-400 mr-2`}>{shortCode}</Text>
+                <Icon name='copy-outline' size={15} color='rgb(34, 211, 238)' />
+            </View>
+            {copied && <Text style={tw`text-white text-xs ml-2`}>Copied!</Text>}
+        </Pressable>
+    return null
+}
 
+const ProfileHeaderRow = ({vault, navigation}) => {
     const headerRow = <>
         <Pressable onPressOut={() => navigation.navigate(ROUTES.ProfileRoute)}>
             <View style={tw`flex flex-row mb-4`}>
@@ -118,13 +126,7 @@ const ProfileHeaderRow = ({vault, navigation}) => {
                 </View>
                 <View style={tw`flex flex-col items-start justify-center`}>
                     <Text style={tw`text-white text-2xl font-bold`}>{vault.name}</Text>
-                    {shortCode.length > 0 && <Pressable onPress={() => copy()} style={tw`flex-row items-center mt-1`}>
-                        <View style={tw`flex flex-row items-center bg-slate-600 p-1 rounded-lg `}>
-                            <Text style={tw`text-cyan-400 mr-2`}>{shortCode}</Text>
-                            <Icon name='copy-outline' size={15} color='rgb(34, 211, 238)' />
-                        </View>
-                        {copied && <Text style={tw`text-white text-xs ml-2`}>Copied!</Text>}
-                    </Pressable>}
+                    <ShortCode shortCode={vault.short_code} />
                 </View>
             </View>
         </Pressable>
@@ -133,7 +135,7 @@ const ProfileHeaderRow = ({vault, navigation}) => {
 }
 
 
-const MainHubScreen: React.FC<MainHubScreenProps> = ({navigation}) => {
+const MainHubScreen: React.FC<MainHubScreenProps> = ({navigation, notifications}) => {
     const {vault, manager} = useSessionContext()
 
     const recoveryMode = vault.recovery
@@ -148,7 +150,8 @@ const MainHubScreen: React.FC<MainHubScreenProps> = ({navigation}) => {
         <RecoverVaultHub 
             vault={vault}
             manager={manager}
-            navigation={navigation}/>
+            navigation={navigation}
+            notifications={notifications} />
     </MainContainer>
 
     return <MainContainer color='blue' header={null} buttonRow={buttonRow}>

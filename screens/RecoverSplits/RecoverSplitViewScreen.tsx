@@ -8,13 +8,13 @@ import ds from '../../assets/styles'
 import tw from '../../lib/tailwind'
 import { GoBackButton } from '../../components';
 
-import RecoverSplit, { RecoverSplitParty, RecoverSplitState } from '../../models/RecoverSplit'
+import RecoverSplit, { RecoverSplitParty, RecoverSplitPartyState, RecoverSplitState } from '../../models/RecoverSplit'
 import RecoverSplitsManager from '../../managers/RecoverSplitsManager'
 import MainContainer from '../../components/MainContainer';
-import { ContactIcon } from '../Contacts/ContactViewScreen'
+import { GuardianIcon } from './GuardianViewScreen'
 
 
-const RecoverSplitStateStyle = {
+const RecoverSplitStateStyle: {[k in RecoverSplitState]: {label: string, text, bg}} = {
     [RecoverSplitState.START]: {
         label: 'Start',
         text: tw`text-slate-200`,
@@ -57,7 +57,7 @@ const RecoverSplitStateStyle = {
     }
 }
 
-export const RecoverSplitStateText = (state: RecoverSplitState) => {
+export const RecoverSplitStateText = ({state}: {state: RecoverSplitState}) => {
     const viewStyle = [
         tw`px-2 rounded-full`,
         RecoverSplitStateStyle[state].bg
@@ -107,7 +107,7 @@ export const RecoverSplitRow = ({recoverSplit}: {recoverSplit: RecoverSplit}) =>
                 <Text style={ds.text}>{recoverSplit.name}</Text>
             </View>
             <View style={tw`mt-1`}>
-                {RecoverSplitStateText(recoverSplit.state)}
+                <RecoverSplitStateText state={recoverSplit.state} />
             </View>
             <View style={tw`mt-1 flex-row items-start`}>
                 <View style={tw`px-2 mr-2 flex-row`}>
@@ -130,17 +130,59 @@ export const RecoverSplitRow = ({recoverSplit}: {recoverSplit: RecoverSplit}) =>
                 </View>
             </View>
         </View>
-        {/* <View style={tw`flex-col`}>
-            {recoverSplit.recoverSplitPartys.map((party, index) => {
-                return <Text key={index} style={ds.text}>{party.name} {party.state}</Text>
-            })}
-        </View> */}
     </View>
 }
+const RecoverSplitPartyStateStyle = {
+    [RecoverSplitPartyState.START]: {
+        label: 'Ready to invite',
+        text: tw`text-blue-400`,
+        bg: tw`bg-slate-600`,
+    },
+    [RecoverSplitPartyState.SENDING_INVITE]: {
+        label: 'Sending',
+        text: tw`text-orange-400`,
+        bg: tw`bg-slate-600`,
+    },
+    [RecoverSplitPartyState.PENDING]: {
+        label: 'Pending',
+        text: tw`text-yellow-400`,
+        bg: tw`bg-slate-600`,
+    },
+    [RecoverSplitPartyState.ACCEPTED]: {
+        label: 'Accepted',
+        text: tw`text-green-400`,
+        bg: tw`bg-slate-600`,
+    },
+    [RecoverSplitPartyState.DECLINED]: {
+        label: 'Declined',
+        text: tw`text-red-400`,
+        bg: tw`bg-slate-600`,
+    },
+    [RecoverSplitPartyState.FINAL]: {
+        label: 'Final',
+        text: tw`text-green-600 font-bold`,
+        bg: tw`bg-slate-600`,
+    }
+}
+
+export const PartyStatePill = ({state}: {state: RecoverSplitPartyState}) => {
+    const viewStyle = [
+        tw`px-2 rounded-full`,
+        RecoverSplitPartyStateStyle[state].bg
+    ]
+    const textStyle = [
+        tw`text-sm`,
+        RecoverSplitPartyStateStyle[state].text
+    ]
+    return <View style={viewStyle}>
+        <Text style={textStyle}>{RecoverSplitPartyStateStyle[state].label}</Text>
+    </View>
+}
+
 const PartyRow: React.FC<{party: RecoverSplitParty}> = ({party}) => {
     return <View style={tw`flex-row items-center justify-start pb-2 mb-2 border-b border-purple-200 border-dashed`}>
         <View style={tw`mr-2`}>
-            <ContactIcon md={true} />
+            <GuardianIcon md={true} />
         </View>
         <View style={tw`flex-col`}>
             <Text style={tw`text-white`}>{party.name}</Text>
@@ -152,7 +194,7 @@ const PartyRow: React.FC<{party: RecoverSplitParty}> = ({party}) => {
             </View>
         </View>
         <View style={tw`grow-1`} />
-        <Text style={ds.text}>{party.state}</Text>
+        <PartyStatePill state={party.state} />
     </View>
 }
 
@@ -167,7 +209,7 @@ const RecoverSplitDetails: React.FC<{recoverSplit: RecoverSplit}> = ({recoverSpl
             <Text></Text>
         </View>
         <View style={tw`flex-col`}>
-            <Text style={tw`text-white text-2xl border-b border-purple-200 border-dashed mb-2 pb-2`}>Participants ({recoverSplit.totalParties})</Text>
+            <Text style={tw`text-white text-2xl border-b border-purple-200 border-dashed mb-2 pb-2`}>Your Guardians ({recoverSplit.totalParties})</Text>
             {recoverSplit.recoverSplitPartys.map((party, index) => {
                 return <PartyRow key={index} party={party} />
             })}

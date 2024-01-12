@@ -13,6 +13,7 @@ import RecoverSplitsNav from './RecoverSplits'
 
 import NotificationsListScreen from './NotificationsListScreen';
 import { DevHasVaultNav } from './Dev'
+import { NotificationTypes } from '../models/Notification';
 
 const Tab = createBottomTabNavigator();
 
@@ -24,12 +25,8 @@ export default function HomeNavTest({props}) {
     const [ messagesFetchInterval, setMessagesFetchInterval ] = useState(null)
     const [ notificationsHook, setnotificationsHook ] = useState(null)
 
-    const clear = () => {
-        console.log('[HomeNav.clear] unset fetchInterval and notificationsHook', messagesFetchInterval)
-        if (messagesFetchInterval) {
-            clearInterval(messagesFetchInterval)
-            setMessagesFetchInterval(null)
-        }
+    const clearNotificationHook = () => {
+        console.log('[HomeNav.clearNotificationHook] unset notificationsHook', notificationsHook)
         if (notificationsHook) {
             const notificationsManager = manager.notificationsManager
             notificationsManager.removeCallback(notificationsHook)
@@ -37,9 +34,16 @@ export default function HomeNavTest({props}) {
         }
     }
     const startMessagesFetchInterval = (interval = 1500) => {
-        const fetchInterval = manager.messagesManager.startFetchInterval(interval)
-        console.log('SETTING fetchInterval', fetchInterval)
-        setMessagesFetchInterval(fetchInterval)
+        const intervalId = manager.messagesManager.startFetchInterval(interval)
+        console.log('SETTING fetchInterval', intervalId)
+        setMessagesFetchInterval(intervalId)
+    }
+    const stopMessagesFetchInterval = () => {
+        console.log('CLEARING fetchInterval', messagesFetchInterval)
+        if (messagesFetchInterval) {            
+            clearInterval(messagesFetchInterval)
+            setMessagesFetchInterval(null)
+        }
     }
     const setupNotifications = () => {
         const notificationsManager = manager.notificationsManager
@@ -49,11 +53,12 @@ export default function HomeNavTest({props}) {
     }
 
     useEffect(() => {
-        console.log('[HomeNav] useEffect; setupNitifcations()' + (FETCH ? ' && startMessagesFetchInterval()' : ''))
+        console.log('[HomeNav] useEffect; setupNotifications()' + (FETCH ? ' && startMessagesFetchInterval()' : ''))
         setupNotifications()
         FETCH && startMessagesFetchInterval()
         return () => {
-            clear()
+            stopMessagesFetchInterval()
+            clearNotificationHook()
         }
     }, [])
 
@@ -67,7 +72,7 @@ export default function HomeNavTest({props}) {
                 return { headerShown: route.name in TAB_BAR_ROUTES ? TAB_BAR_ROUTES[route.name].header : false}
         }}>
             <Tab.Screen name={ROUTES.MainHubRoute} >
-                {(props) => <MainHub {...props} />}
+                {(props) => <MainHub {...props} notifications={notifications} />}
             </Tab.Screen>
             {!vault?.recovery && <>
                 <Tab.Screen name={ROUTES.ContactsRoute} >
@@ -93,11 +98,10 @@ export default function HomeNavTest({props}) {
             {DEV && <Tab.Screen name={ROUTES.DevHasVaultRoute} >
                 {(props) => <DevHasVaultNav {...props}
                     fetching={messagesFetchInterval} 
-                    clear={clear}
+                    clear={stopMessagesFetchInterval}
                     start={() => {
-                        clear()
+                        // stopMessagesFetchInterval()
                         startMessagesFetchInterval()
-                        setupNotifications()
                     }} 
                 />}
             </Tab.Screen>}
