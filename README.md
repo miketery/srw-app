@@ -2,16 +2,16 @@
 
 ## Overview
 
-This is a privacy perserving and self-custory Wallet / Vault application with social recovery. The goal is to enable digital user ownership by supporting [self-sovereign identity (SSI)](https://en.wikipedia.org/wiki/Self-sovereign_identity) or User Owner Identity.
+This is a privacy preserving and self-custody Wallet / Vault application with social recovery. The goal is to enable digital user ownership by supporting [self-sovereign identity (SSI)](https://en.wikipedia.org/wiki/Self-sovereign_identity) or User Owner Identity.
 
 The wallet creates a digital identity using public key cryptography. The private key is then self custodied - i.e. no reliance on a third party.
 The public key maps to a DID (Decentralized Identifier) (ref: [W3C DID](https://www.w3.org/TR/did-core/)).
 
 Since this solution is self custody there needs to be a recovery mechanism. this is where social recovery comes in. This leverages threshold cryptography. We use [Shamir Secret Sharing](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing).
 
-The wallet works in tandum with the digital agent, which is the online component of the wallet.
-It facilitates the transmition of messages between peers (i.e. other users with wallets).
-Another term for the digital agent is [Decentrzlied Web Node (DWN)](https://identity.foundation/decentralized-web-node/spec/).
+The wallet works in tandem with the digital agent, which is the online component of the wallet.
+It facilitates the transmission of messages between peers (i.e. other users with wallets).
+Another term for the digital agent is [Decentralized Web Node (DWN)](https://identity.foundation/decentralized-web-node/spec/).
 
 ## Development
 
@@ -75,10 +75,10 @@ Using [XState](https://xstate.js.org/docs/guides/introduction-to-state-machines-
 ### Screens / UI Overview
 
 - [App](./App.js), the main app component, handles top level routing
-- [SplashScreen](./screens/Start/SplashScreen.js), initilization of the app (TODO: show logo)
+- [SplashScreen](./screens/Start/SplashScreen.js), initialization of the app (TODO: show logo)
 - [LandingScreen](./screens/Start/LandingScreen.js), if no vault setup allow user to create vault or start recovery
   - [VaultCreateScreen](./screens/Start/VaultCreateScreen.tsx), create a new vault
-  - [VaultRecoverInitScreen](./screens/RecoverVault/RecoverInitScreen.tsx), initilize a recovery (i.e. create vault with recovery flag so can begin recoverCombine)
+  - [VaultRecoverInitScreen](./screens/RecoverVault/RecoverInitScreen.tsx), initialize a recovery (i.e. create vault with recovery flag so can begin recoverCombine)
 - [HomeNav](./screens/HomeNav.js), container for app if user is accessing a vault
   - [TabBarNav](./screens/TabNavBar.js), container for the main tabs
   - [MainHubScreen](./screens/MainHubScreen.tsx)
