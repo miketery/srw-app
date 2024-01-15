@@ -15,7 +15,13 @@ import ContactsManager from '../../managers/ContactsManager'
 import StartContainer from '../../components/StartContainer'
 import { GoBackButton } from '../../components'
 import SecretsManager from '../../managers/SecretsManager'
+import GuardiansManager from '../../managers/GuardiansManager'
 import { AddManyTestSecrets } from '../Secrets/DevSecrets'
+import Guardian from '../../models/Guardian'
+
+import { aliceRecoveryPlan, guardiansForAlice } from '../../testdata/test_recoveryPlan'
+import RecoverSplitsManager from '../../managers/RecoverSplitsManager'
+import RecoverSplit from '../../models/RecoverSplit'
 
 const loadVault = (key, navigation) => {
     console.log('loadVault', key, test_vaults[key].name)
@@ -36,6 +42,15 @@ const loadFull = async (key, navigation) => {
     await contactsManager.saveAll()
     const secretsManager = new SecretsManager(vault)
     await AddManyTestSecrets(secretsManager)
+    if(['bob', 'charlie', 'dan'].includes(test_vaults[key].name)) {
+        const guardiansManager = new GuardiansManager(vault)
+        const guardian = Guardian.fromDict(guardiansForAlice[test_vaults[key].name])
+        await guardiansManager.saveGuardian(guardian)
+    } else {
+        const recoverSplitManager = new RecoverSplitsManager(vault, contactsManager)
+        const recoverSplit = RecoverSplit.fromDict(aliceRecoveryPlan)
+        await recoverSplitManager.saveRecoverSplit(recoverSplit)
+    }
     navigation.dispatch(CommonActions.reset({routes: [{name: ROUTES.SplashRoute}]}));
 }
 

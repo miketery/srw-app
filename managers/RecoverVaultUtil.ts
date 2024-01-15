@@ -2,7 +2,7 @@ import { Message } from "../models/Message";
 import RecoverCombine from "../models/RecoverCombine";
 import Vault from "../models/Vault";
 import SS, { StoredType } from "../services/StorageService";
-import { MessageTypes } from "./MessagesManager";
+import { MessageTypes } from "./MessageTypes";
 
 class RecoverVaultUtil {
     // uses a RecoverCombine to recover a vault

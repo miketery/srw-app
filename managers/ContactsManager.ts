@@ -6,7 +6,7 @@ import SS, { StoredType } from '../services/StorageService';
 import Vault from '../models/Vault';
 import Contact, { ContactState } from '../models/Contact';
 import { Message } from '../models/Message';
-import { MessageTypes } from './MessagesManager';
+import { MessageTypes } from './MessageTypes';
 import { ContactAccept } from '../models/MessagePayload';
 import { ContactPk } from '../models/types';
 

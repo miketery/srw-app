@@ -7,7 +7,7 @@ import { ROUTES } from '../../config';
 import MainContainer from '../../components/MainContainer';
 import Contact from '../../models/Contact';
 
-import { ContactIcon, ContactStateText } from './ContactViewScreen';
+import { ContactIcon, ContactStatePill } from './ContactViewScreen';
 import { DevButton } from '../../components/Button';
 
 function ContactRow({contact, navigation}: {contact: Contact, navigation: any}) {
@@ -18,9 +18,9 @@ function ContactRow({contact, navigation}: {contact: Contact, navigation: any}) 
             <View style={tw`mr-2`}>
                 <ContactIcon md={true} />
             </View>
-            <View style={tw`flex flex-row items-center`}>
-                {ContactStateText(state)}
+            <View style={tw`flex flex-row items-center justify-between grow-1`}>
                 <Text style={ds.textLg}>{name}</Text>
+                <ContactStatePill state={state} />
                 {/* <Text style={ds.text}>{did.slice(0, 25)}...</Text> */}
             </View>
         </View>

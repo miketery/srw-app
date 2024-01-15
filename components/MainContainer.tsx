@@ -21,7 +21,7 @@ const MainContainer = ({ children, buttonRow, header, color }: MainContainerProp
     const gradient = colorGradient[color] || colorGradient.blue
     return<View style={[ds.mainContainerPtGradient, gradient]}>
         <View style={[tw`h-full`]}>
-            <ScrollView style={[ds.mainBody, tw`pt-14 pb-20`]}>
+            <ScrollView style={[ds.mainBody, tw`pt-14 pb-25`]}>
                 {header && <View style={ds.headerRow}>
                     <Text style={ds.header}>{header}</Text>
                 </View>}

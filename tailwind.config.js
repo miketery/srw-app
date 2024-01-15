@@ -6,7 +6,7 @@ module.exports = {
     theme: {
       extend: {
         colors: {
-          'midnight': '#0d1020',
+          'xmidnight': '#0d1020',
           'xdarkblue': '#282D46',
 
           // secondary

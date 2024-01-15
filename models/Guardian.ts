@@ -5,7 +5,7 @@ import SS, { StoredTypePrefix } from '../services/StorageService';
 import GuardianMachine from '../machines/GuardianMachine';
 import { Message, OutboundMessageDict } from "./Message";
 import Contact from "./Contact";
-import { MessageTypes } from "../managers/MessagesManager";
+import { MessageTypes } from "../managers/MessageTypes";
 import { RecoverCombineManifest, RecoverCombineResponse, RecoverSplitResponse } from "./MessagePayload";
 import { SenderFunction } from "../services/DigitalAgentService";
 import { ManifestDict } from "./RecoverSplit";

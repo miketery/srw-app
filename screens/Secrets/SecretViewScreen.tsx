@@ -97,8 +97,9 @@ const SecretHistory: React.FC<SecretHistoryProps> = (props) => {
 
 }
 
-const SecretCard = ({ secret }: { secret: Secret }) => {
+const SecretCard = ({ secret }: { secret: Secret }) => {    
     const { description, data, secretType, history, created, updated } = secret
+    const [showPassword, setShowPassword] = useState(false)
     return <View>
         <SecretRow secret={secret} />
         <View style={tw`mb-4 pb-4 border-b border-slate-400`}>
@@ -121,13 +122,18 @@ const SecretCard = ({ secret }: { secret: Secret }) => {
                     </Pressable> 
                 </View>
                 <View style={[ds.col, tw`w-full mb-4`]}>
-                    <Text style={[ds.text, tw`mb-1`]}>
-                        Password
-                    </Text>
+                    <View style={tw`flex flex-row mb-1 items-center`}>
+                        <Text style={[ds.text, tw`mr-2`]}>
+                            Password
+                        </Text>
+                        <Pressable onPress={() => setShowPassword(!showPassword)}>
+                            <Text style={[ds.textXs, tw`italic text-cyan-400`]}>{showPassword ? 'Hide' : 'Show'}</Text>
+                        </Pressable>
+                    </View>
                     <Pressable style={[ds.xinput, tw`flex-row items-center justify-between border-slate-600`]}
                         onPress={() => Clipboard.setString(data.password)}>
                         <Text style={ds.textLg}>
-                            {data.password}
+                            {showPassword ? data.password : '*'.repeat(data.password.length)}
                         </Text>
                         <Text style={[ds.text, tw`self-center pl-4`]}>
                             <Icon name='copy-outline' size={24} />
@@ -136,13 +142,18 @@ const SecretCard = ({ secret }: { secret: Secret }) => {
                 </View>
             </> : 
             <View style={[ds.col, tw`w-full mb-4`]}>
-                <Text style={[ds.text, tw`mb-1`]}>
-                    Secret Data
-                </Text>
+                    <View style={tw`flex flex-row mb-1 items-center`}>
+                        <Text style={[ds.text, tw`mr-2`]}>
+                            Secret Data
+                        </Text>
+                        <Pressable onPress={() => setShowPassword(!showPassword)}>
+                            <Text style={[ds.textXs, tw`italic text-cyan-400`]}>{showPassword ? 'Hide' : 'Show'}</Text>
+                        </Pressable>
+                    </View>
                 <Pressable style={[ds.xinput, tw`flex-row items-center justify-between border-slate-600 w-full`]}
                     onPress={() => Clipboard.setString(data.secret)}>
                     <Text style={[ds.textLg, tw`w-full pr-10 -mr-10`, {wordBreak: 'all'}]}>
-                        {data.secret}
+                        {showPassword ? data.secret : '*'.repeat(data.secret.length)}
                     </Text>
                     <Text style={[ds.text, tw`self-center pl-4`]}>
                         <Icon name='copy-outline' size={24} />
@@ -150,10 +161,10 @@ const SecretCard = ({ secret }: { secret: Secret }) => {
                 </Pressable>
             </View>}
         </View>
-        <SecretHistory history={history} secretType={secretType} />
-        <View style={tw`self-end my-2`}>
-            <Text style={ds.textXs}>Date {updated === created ? 'created' : 'modified'} {formatDate(updated)}</Text>
+        <View style={tw`self-end`}>
+            <Text style={ds.textXs}>Last {updated === created ? 'created' : 'modified'} {formatDate(updated)}</Text>
         </View>
+        <SecretHistory history={history} secretType={secretType} />
     </View>
 }
 

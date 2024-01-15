@@ -8,7 +8,7 @@ import { VerifyKey, PrivateKey, PublicKey } from '../lib/nacl';
 import SS, { StoredTypePrefix } from '../services/StorageService';
 import ContactMachine from '../machines/ContactMachine';
 import { Message, OutboundMessageDict } from './Message';
-import { MessageTypes } from '../managers/MessagesManager';
+import { MessageTypes } from '../managers/MessageTypes';
 import Vault from './Vault';
 import { ContactAccept, ContactInvite } from './MessagePayload';
 import { ContactPk, Model, ModelDict } from './types'

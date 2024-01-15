@@ -1,13 +1,16 @@
 import { View, Text, Pressable } from 'react-native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-
-import { useSessionContext } from '../../contexts/SessionContext'
-import { Message, Sender, Receiver } from '../../models/Message'
-import { MessageTypes } from '../../managers/MessagesManager'
+import { CommonActions } from '@react-navigation/native'
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 import { ROUTES } from '../../config';
 import ds from '../../assets/styles';
 import tw from '../../lib/tailwind';
+
+import { useSessionContext } from '../../contexts/SessionContext'
+import { Message, Sender, Receiver } from '../../models/Message'
+import { MessageTypes } from '../../managers/MessageTypes'
+
 import { GoBackButton } from '../../components';
 import MainContainer from '../../components/MainContainer'
 
@@ -42,9 +45,10 @@ function loadTestNotifications(manager) {
 function deleteAllLocalStorage(navigation, clear) {
     console.log('DeleteAllLocalStorage')
     clear()
-    localStorage.clear()
-    // window.location.reload()
-    navigation.navigate(ROUTES.SplashRoute)
+    AsyncStorage.clear()
+    // TODO: should be reset route
+    const splash = CommonActions.reset({routes: [{name: ROUTES.SplashRoute}]});
+    navigation.dispatch(splash)
 }
 
 const Stack = createNativeStackNavigator();

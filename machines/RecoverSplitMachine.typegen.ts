@@ -19,7 +19,7 @@
           services: never;
         };
         eventsCausingActions: {
-          "save": "" | "SEND_INVITES" | "SENT" | "SPLIT_KEY" | "done.invoke.splitKeyId" | "error.platform.splitKeyId" | "xstate.init";
+          "save": "" | "ARCHIVE" | "FINALIZE" | "RESTORE" | "SEND_INVITES" | "SENT" | "SPLIT_KEY" | "done.invoke.splitKeyId" | "error.platform.splitKeyId" | "forceReady" | "xstate.init";
 "sendInvites": "SEND_INVITES";
         };
         eventsCausingDelays: {

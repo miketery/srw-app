@@ -5,8 +5,11 @@ import ds from '../assets/styles';
 
 const colorMap = {
     blue: {background: 'linear-gradient(115deg, #3A50F7 40%, #35F9F9 100%)'},
-    green: {background: 'linear-gradient(115deg, #30974A 40%, #30D7AA 100%)'},
+    green: {background: 'linear-gradient(115deg, #007E11 40%, #D0FF22 100%)'},
+    purple: {background: 'linear-gradient(115deg, #6A00BD 40%, #F53059 100%)'},
 }
+// green: {background: 'linear-gradient(115deg, #30974A 40%, #30D7AA 100%)'},
+
 
 // props for CtaButton
 type CtaButtonProps = {

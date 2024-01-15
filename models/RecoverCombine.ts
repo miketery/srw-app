@@ -11,7 +11,7 @@ import { RecoverCombineRequest, RecoverCombineResponse } from './MessagePayload'
 import secrets from '../lib/secretsGrempe';
 import { PublicKey, VerifyKey } from '../lib/nacl';
 import base58 from 'bs58';
-import { MessageTypes } from '../managers/MessagesManager';
+import { MessageTypes } from '../managers/MessageTypes';
 import { base64toBytes, hexToBytes, open_sealed_box } from '../lib/utils';
 import { SenderFunction } from '../services/DigitalAgentService';
 
@@ -24,7 +24,7 @@ export enum RecoverCombineState {
     FINAL = 'FINAL'
 }
 
-enum CombinePartyState {
+export enum CombinePartyState {
     START = 'START',
     SENDING_REQUEST = 'SENDING_REQUEST',
     PENDING = 'PENDING',
@@ -134,6 +134,9 @@ export class CombineParty {
         message.encryptBox(this.recoverCombine.vault.private_key)
         return message.outboundFinal();
     }
+    get numShares(): number {
+        return this.shares.length;
+    }
 }
 
 class RecoverCombine {
@@ -184,6 +187,9 @@ class RecoverCombine {
     }
     get sender(): SenderFunction {
         return this.vault.sender
+    }
+    get totalParties(): number {
+        return this.manifest?.recoverSplitPartys.length || 0;
     }
     static create(vault: Vault, manifest: ManifestDict | null): RecoverCombine {
         const pk = StoredTypePrefix.recoverCombine + uuidv4();

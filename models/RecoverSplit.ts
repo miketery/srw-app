@@ -10,7 +10,7 @@ import Contact from "./Contact";
 import { SenderFunction } from "../services/DigitalAgentService";
 import Vault from "./Vault";
 import { Message , OutboundMessageDict } from "./Message";
-import { MessageTypes } from "../managers/MessagesManager";
+import { MessageTypes } from "../managers/MessageTypes";
 import { RecoverSplitInvite } from "./MessagePayload";
 import nacl from "tweetnacl-sealed-box";
 

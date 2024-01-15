@@ -12,7 +12,7 @@ export const MyTextInput = (props) => {
             style={ds.input}
             placeholder={placeholder}
             placeholderTextColor={tw.color('gray-400')}
-            placeholderStyle={tw`italic`}
+            // placeholderStyle={tw`italic`}
             value={value}
             onChangeText={onChangeText}
         />
