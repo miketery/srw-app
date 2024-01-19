@@ -12,7 +12,7 @@ const ds = StyleSheet.create({
     mainBody: tw`bg-xdarkblue p-3 h-100`,
 
     headerRow: tw`flex-row justify-between items-center mb-2`,
-    header: tw`text-slate-200 text-3xl pb-3`,
+    header: tw`text-slate-200 text-3xl`,
     
     text: tw`text-slate-200 text-base`,
     textSm: tw`text-slate-200 text-sm`,

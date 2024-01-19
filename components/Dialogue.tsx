@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import tw from '../lib/tailwind'
 import ds from '../assets/styles'
 
-const container_style = tw`flex flex-row border p-2 items-center my-4 rounded-xl`
+const container_style = tw`flex flex-row border p-2 items-center my-2 rounded-xl`
 const text_style = tw`text-slate-200`
 const bold_style = [tw`font-bold`, text_style]
 const icon_style = [tw`px-2 mr-2`, text_style]
