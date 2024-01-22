@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { ToastContainer } from 'react-toastify';
 
 // import { StyleSheet, Text, View } from 'react-native';
 
@@ -58,6 +59,18 @@ export default function App() {
                     </Stack.Screen>
                 </Stack.Navigator>
             </NavigationContainer>
+            <ToastContainer
+                position="top-right"
+                autoClose={1200}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="dark"
+            />
             <StatusBar style="auto" />
         </SafeAreaView>
     </SessionContextProvider>);

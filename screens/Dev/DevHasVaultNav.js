@@ -2,6 +2,8 @@ import { View, Text, Pressable } from 'react-native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { CommonActions } from '@react-navigation/native'
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import { ROUTES } from '../../config';
 import ds from '../../assets/styles';
@@ -32,6 +34,17 @@ async function TestMessage(vault) {
     msg.encryptBox(vault.private_key)
     const outbound = msg.outboundFinal()
     vault.sender(outbound)
+}
+const TestToast = () => {
+    toast.success('Hello')
+}
+const TestToastB = () => {
+    // Toast.show({
+    //     type: 'error',
+    //     text1: 'Hello',
+    //     text2: 'This is some something 👋'
+    // });
+    toast.error('Hello')
 }
 
 function loadTestNotifications(manager) {
@@ -78,6 +91,14 @@ export function DevHasVaultNav({navigation, fetching, start, clear}) {
                         <Pressable style={[ds.button, ds.blueButton, tw`w-full mb-4`]}
                             onPress={() => TestMessage(vault)}>
                             <Text style={ds.buttonText}>App.Test Self Message</Text>
+                        </Pressable>
+                        <Pressable style={[ds.button, ds.blueButton, tw`w-full mb-4`]}
+                            onPress={() => TestToast()}>
+                            <Text style={ds.buttonText}>TestToast</Text>
+                        </Pressable>
+                        <Pressable style={[ds.button, ds.blueButton, tw`w-full mb-4`]}
+                            onPress={() => TestToastB()}>
+                            <Text style={ds.buttonText}>TestToast</Text>
                         </Pressable>
                     </View>
                     <Pressable style={[ds.button, ds.greenButton, tw`w-full mt-4`]}
