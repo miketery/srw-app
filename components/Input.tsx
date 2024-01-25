@@ -37,10 +37,10 @@ export const XTextInput = (props: XTextInputProps) => {
 
     const style = [
         ds.xinput,
-        isFocused ? tw`border-2 border-cyan-400`: null,
-        error ? tw`border-2 border-red-600`: null,
+        isFocused ? tw`border border-cyan-400`: null,
+        error ? tw`border border-red-600`: null,
         // when not border-2, we need to add margin to compensate
-        isFocused || error ? null : {marginVertical: '1px', marginHorizontal: '1px'},
+        // isFocused || error ? null : {marginVertical: '1', marginHorizontal: '1'},
         multiline ? tw`h-30` : null,
     ]
     
@@ -106,10 +106,10 @@ export const AnimatedLabelInput = (props: AnimatedLabelInputProps) => {
     };
     const style = [
         ds.animatedInput,
-        isFocused ? tw`border-2 border-cyan-400`: null,
-        error ? tw`border-2 border-red-600`: null,
+        isFocused ? tw`border border-cyan-400`: null,
+        error ? tw`border border-red-600`: null,
         // when not border-2, we need to add margin to compensate
-        isFocused || error ? null : {marginVertical: '1px', marginHorizontal: '1px'},
+        // isFocused || error ? null : {marginVertical: '1', marginHorizontal: '1'},
     ]
   
     return (

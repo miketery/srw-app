@@ -12,10 +12,12 @@ const Stack = createNativeStackNavigator();
 
 import ds from '../../assets/styles'
 import tw from '../../lib/tailwind';
-import { GoBackButton } from '../../components';
+import { Error, GoBackButton, Info, Warning, Success } from '../../components';
 import { AnimatedLabelInput, XTextInput } from '../../components/Input';
 import StartContainer from '../../components/StartContainer';
 import CtaButton from '../../components/CtaButton';
+
+const lorum = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ac nisl dapibus, ullamcorper eros a, tristique metus.'
 
 export function DevNoVaultNav({navigation}) {
     const [name, setName] = useState('');
@@ -50,6 +52,11 @@ export function DevNoVaultNav({navigation}) {
                         <CtaButton onPressOut={() => props.navigation.navigate(ROUTES.VaultCreateRoute)}
                             label="TEST CTA" color='green' />
                     </View>
+                    <Info msg={lorum}  />
+                    <Warning msg={lorum} />
+                    <Error msg={lorum}  />
+                    <Success msg={lorum} />
+
                 </View>
                 <GoBackButton onPressOut={() => navigation.goBack()} />
             </StartContainer>}

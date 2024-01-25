@@ -2,8 +2,7 @@ import { View, Text, Pressable } from 'react-native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { CommonActions } from '@react-navigation/native'
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import Toast from 'react-native-toast-message';
 
 import { ROUTES } from '../../config';
 import ds from '../../assets/styles';
@@ -36,15 +35,10 @@ async function TestMessage(vault) {
     vault.sender(outbound)
 }
 const TestToast = () => {
-    toast.success('Hello')
+    Toast.show({type:'success', text1: 'Success', text2: 'Detailed'})
 }
 const TestToastB = () => {
-    // Toast.show({
-    //     type: 'error',
-    //     text1: 'Hello',
-    //     text2: 'This is some something 👋'
-    // });
-    toast.error('Hello')
+    Toast.show({type:'error', text1: 'Error', text2: 'Hello world'})
 }
 
 function loadTestNotifications(manager) {

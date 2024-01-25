@@ -15,7 +15,7 @@ import RecoverVaultUtil from '../../managers/RecoverVaultUtil'
 import RecoverCombine, { CombineParty, CombinePartyState, RecoverCombineState } from '../../models/RecoverCombine'
 import { StepsLine } from '../../components/StepLine'
 import CtaButton from '../../components/CtaButton'
-import { Success } from '../../components/Dialogue'
+import { Success, Warning } from '../../components/Dialogue'
 
 
 const RecoverCombineStateStyle: {[k in RecoverCombineState]: {label: string, text, bg}} = {
@@ -126,7 +126,6 @@ const RecoverCombineStatePill = ({state}: {state: RecoverCombineState}) => {
 }
 
 const RecoverVaultStatus = ({recoverCombine, shortCode}: {recoverCombine: RecoverCombine, shortCode: string}) => {
-    console.log('XXX', RecoverCombineState)
     return <View>
         <View style={tw`flex flex-row items-center justify-start my-2`}>
             <Text style={[ds.text, tw`mr-2`]}>Recovery Status</Text>
@@ -136,6 +135,7 @@ const RecoverVaultStatus = ({recoverCombine, shortCode}: {recoverCombine: Recove
             <Text style={ds.text}>Get participant to share the manifest, provide one of your guardians the short code.</Text>
             <View style={tw`mt-2`}>
                 <ShortCode shortCode={shortCode} />
+                {shortCode === '' ? <Warning msg={'Possible network error, check your connection and reload the application.'} /> : null}
             </View>
         </View>}
         {recoverCombine.state !== RecoverCombineState.START && <View>
@@ -183,6 +183,9 @@ export default function RecoverVaultHubScreen({navigation, vault, manager, notif
         </View>
 
     return <View>
+        <View style={[ds.headerRow, tw`justify-center border-b-2 border-t-2 py-3 border-yellow-400`]}>
+            <Text style={[ds.header, tw`text-yellow-400`]}>⚠️ Recovering Vault ⚠️</Text>    
+        </View>
         <StepsLine 
             totalSteps={Object.values(RecoverCombineState).length} 
             currentStep={Object.values(RecoverCombineState).indexOf(recoverCombine.state) + 1} />
