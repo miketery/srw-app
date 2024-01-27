@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Text, View, Pressable } from 'react-native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import Toast from 'react-native-toast-message';
 
 import { ROUTES } from '../../config';
 
@@ -18,6 +19,16 @@ import StartContainer from '../../components/StartContainer';
 import CtaButton from '../../components/CtaButton';
 
 const lorum = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ac nisl dapibus, ullamcorper eros a, tristique metus.'
+
+const toastSuccess = () => {
+    Toast.show({type:'success', text1: 'Success', text2: 'Hello world'})
+}
+const toastError = () => {
+    Toast.show({type:'error', text1: 'Error', text2: 'Hello world'})
+}
+const toastInfo = () => {
+    Toast.show({type:'info', text1: 'Info', text2: 'Hello world'})
+}
 
 export function DevNoVaultNav({navigation}) {
     const [name, setName] = useState('');
@@ -45,12 +56,12 @@ export function DevNoVaultNav({navigation}) {
                         <XTextInput label="Test" placeholder="Test" />
                         <AnimatedLabelInput label="Test" value={name} onChangeText={setName} />
                         <View style={tw`h-6`} />
-                        <CtaButton onPressOut={() => props.navigation.navigate(ROUTES.VaultCreateRoute)}
-                            label="TEST CTA" />
-                        <CtaButton onPressOut={() => props.navigation.navigate(ROUTES.VaultCreateRoute)}
-                            label="TEST CTA" color='purple' />
-                        <CtaButton onPressOut={() => props.navigation.navigate(ROUTES.VaultCreateRoute)}
-                            label="TEST CTA" color='green' />
+                        <CtaButton onPressOut={() => toastSuccess()}
+                            label="Success Toast" />
+                        <CtaButton onPressOut={() => toastError()}
+                            label="Error Toast" color='purple' />
+                        <CtaButton onPressOut={() => toastInfo()}
+                            label="Info Toast" color='green' />
                     </View>
                     <Info msg={lorum}  />
                     <Warning msg={lorum} />

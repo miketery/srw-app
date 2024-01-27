@@ -14,10 +14,10 @@ async function DeleteAllSecrets(secretsManager) {
 }
 async function AddTestSecrets(secretsManager) {
     const secret = await Secret.create(
-        SecretType.Text,
+        SecretType.key,
         'Test Text Secret',
         'This is a test secret',
-        'Secret Data',
+        {"secret": "Secret Data"},
         secretsManager.vault.pk)
     return secretsManager.saveSecret(secret)
 }
