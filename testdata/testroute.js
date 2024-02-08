@@ -35,9 +35,9 @@ const switch_routes = {
   ],
   [ROUTES.DevHasVaultRoute]: [
     {name: ROUTES.DefaultRoute},
-    {name: ROUTES.DevGeneralRoute},
+    // {name: ROUTES.DevGeneralRoute},
     // {name: ROUTES.DevDigitalAgentRoute},
-    {name: ROUTES.DevBackupRoute},
+    // {name: ROUTES.DevBackupRoute},
   ],
   [ROUTES.HomeNavRoute]: [
     {name: ROUTES.MainHubRoute}

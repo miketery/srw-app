@@ -139,14 +139,13 @@ const MainHubScreen: React.FC<MainHubScreenProps> = ({navigation, notifications}
     const {vault, manager} = useSessionContext()
 
     const recoveryMode = vault.recovery
-    const recoveryHeader = '⚠️ Recovering Vault ⚠️'
 
     const buttonRow = <>
         <DevButton onPressOut={() => navigation.navigate(ROUTES.DevHasVaultRoute)} />
         <View style={tw`flex-grow-1`} />
     </>
 
-    if(recoveryMode) return <MainContainer color='blue' header={recoveryHeader} buttonRow={buttonRow}>
+    if(recoveryMode) return <MainContainer color='blue' buttonRow={buttonRow}>
         <RecoverVaultHub 
             vault={vault}
             manager={manager}

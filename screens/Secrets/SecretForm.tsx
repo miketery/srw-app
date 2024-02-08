@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Pressable, Text, View } from 'react-native';
 import { CommonActions } from "@react-navigation/native";
 import Icon from 'react-native-vector-icons/Ionicons'
+import Toast from "react-native-toast-message";
 
 import ds from '../../assets/styles';
 import tw from '../../lib/tailwind';
@@ -126,6 +127,7 @@ const SecretForm = (props: SecretFormProps) => {
         
         const secret = await props.secretsManager.createSecret(
             secretType, title, description, data);
+        Toast.show({text1: 'Success!', text2: `'${title}' was created and saved.`})
         props.navigation.dispatch(CommonActions.reset(viewRoute(secret.pk)));
     }
 

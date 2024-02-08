@@ -2,8 +2,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-
-// import { StyleSheet, Text, View } from 'react-native';
+import Toast from 'react-native-toast-message';
+import toastConfig from './components/toastConfig'
 
 import tw from './lib/tailwind'
 import { ROUTES, DEV } from './config';
@@ -58,6 +58,7 @@ export default function App() {
                     </Stack.Screen>
                 </Stack.Navigator>
             </NavigationContainer>
+            <Toast config={toastConfig} visibilityTime={3000} />
             <StatusBar style="auto" />
         </SafeAreaView>
     </SessionContextProvider>);

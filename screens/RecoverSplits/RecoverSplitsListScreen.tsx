@@ -14,6 +14,7 @@ import MainContainer from '../../components/MainContainer';
 import { RecoverSplitRow } from './RecoverSplitViewScreen'
 import { DevButton } from '../../components/Button'
 import { GuardianRow } from './GuardianViewScreen'
+import { Info } from '../../components'
 
 
 type RecoverSplitListProps = {
@@ -48,7 +49,7 @@ const RecoverSplitList: React.FC<RecoverSplitListProps> = (props) => {
     </>
 
     return <MainContainer header={header} buttonRow={buttonRow}>
-        <View>
+        <View style={tw`mb-2`}>
             {recoverSplits.map((recoverSplit, index) => {
                 return <Pressable key={index} onPress={() => 
                         props.navigation.navigate(
@@ -57,6 +58,7 @@ const RecoverSplitList: React.FC<RecoverSplitListProps> = (props) => {
                     <RecoverSplitRow recoverSplit={recoverSplit} />
                 </Pressable>
             })}
+            {recoverSplits.length == 0 && <Info msg={'No Recovery Plans, create one once you have sufficient contacts.'} />}
         </View>
         <View style={ds.headerRow}>
             <Text style={ds.header}>You are a Guardian for</Text>

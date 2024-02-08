@@ -2,7 +2,7 @@ export {
     Loading, LoadingScreen, 
     Error, ErrorScreen,
     Info, InfoScreen, 
-    Warning, WarningScreen
+    Warning, WarningScreen, Success,
 } from './Dialogue'
 export { GoBackButton } from './GoBackButton'
 export { TopGradient, BottomGradient } from './Gradients'

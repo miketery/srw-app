@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import { Text, View, Image } from 'react-native'
 import { CommonActions } from '@react-navigation/native'
+import Toast from 'react-native-toast-message';
 
-import ds from '../../assets/styles'
 import { primary_route } from '../../config'
+import ds from '../../assets/styles'
 import tw from '../../lib/tailwind'
 
 import { useSessionContext } from '../../contexts/SessionContext'
@@ -60,6 +61,7 @@ export default function VaultCreateScreen({navigation}: {navigation: any}): Reac
                 await vaultManager.initManagers()
                 setVault(vaultManager.currentVault)
                 setManager(vaultManager)
+                Toast.show({text1: 'Success', text2: 'Congratulations your vault has been created!'})
                 finishSubmit(vault)
             } catch (err) {
                 console.log(err)

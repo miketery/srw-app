@@ -1,18 +1,20 @@
 import { Text, View, Pressable } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import Icon from 'react-native-vector-icons/Ionicons'
+import base58 from 'bs58'
 
 import ds from '../../assets/styles'
 import tw from '../../lib/tailwind'
-import GuardiansManager from '../../managers/GuardiansManager'
-import { GoBackButton, Info, MyTextInput, Warning } from '../../components'
-import Guardian, { GuardianState } from '../../models/Guardian';
-import DigitalAgentService from '../../services/DigitalAgentService'
-import Vault from '../../models/Vault'
-import base58 from 'bs58'
+
+import { GoBackButton, Info, Warning } from '../../components'
 import { LoadingScreen, Success } from '../../components/Dialogue'
 import MainContainer from '../../components/MainContainer'
 import { XTextInput } from '../../components/Input'
+
+import Vault from '../../models/Vault'
+import Guardian, { GuardianState } from '../../models/Guardian';
+import DigitalAgentService from '../../services/DigitalAgentService'
+import GuardiansManager from '../../managers/GuardiansManager'
 
 
 export const GuardianIcon = ({lg, md}: {lg?: boolean, md?: boolean}) => { // TODO_BADGE
@@ -54,15 +56,37 @@ export const GuardianRow = ({guardian}: {guardian: Guardian}) => {
     </View>
 }
 
-const GuardianInfo = ({guardian}: {guardian: Guardian}) => {
-    return <View>
-        <View style={[ds.row, tw`flex-col`]}>
-            <Text style={ds.text}>{guardian.name}</Text>
-            <Text style={ds.text}>{guardian.contact.name}</Text>
-            <Text style={ds.text}>{guardian.state}</Text>
-        </View>
-    </View>
+
+const HoldButton = ({afterHold, label, duration}: {
+    afterHold: () => void, label: string, duration: number}) => {
+    const [holdTimer, setHoldTimer] = useState(null);
+    const [counter, setCounter] = useState(duration);
+
+    const handlePressIn = () => {
+        const timer = setInterval(() => {
+            setCounter((c) => {
+                if (c === 1) {
+                    handlePressOut();
+                    setTimeout(() => afterHold(), 100);
+                    return duration;
+                } else {
+                    return c - 1;
+                }
+            });
+        }, 1000);
+        setHoldTimer(timer);
+    };
+    const handlePressOut = () => {
+        clearInterval(holdTimer);
+        setHoldTimer(null);
+        setCounter(duration);
+    }
+    return <Pressable style={[ds.button, ds.orangeButton, tw`self-center mt-2 w-full`]} 
+            onPressIn={handlePressIn} onPressOut={handlePressOut}>
+        <Text style={ds.text}>{holdTimer ? `Hold for ${counter}...` : label}</Text>
+    </Pressable>
 }
+
 
 const ShareManifestForm = ({guardian, vault}: {guardian: Guardian, vault: Vault}) => {
     const [toggle, setToggle] = useState(false)
@@ -112,20 +136,22 @@ const ShareManifestForm = ({guardian, vault}: {guardian: Guardian, vault: Vault}
         setLoading(false)    
     }
 
+    const infomsg = `If ${guardian.contact.name} is trying to recover their vault, ` +
+        `they will send you a short code to which you can share the manifest. ` +
+        `The manifest is used by the party trying to recover their vault to request shares from their guardians.`
+
     return <View>
         <Warning header='Danger Zone!' containerStyle={tw`bg-darkred border-red-400`}
             msg={'Do not share the manifest with anyone you do not trust. ' +
             'Confirm you are sending the Manifest to the intended person. ' +
             'Do this in person or use multiple channels. For example, if not in person, then use email and a phone call.'}
             />
-        <Text style={ds.textSm}>
-            If {guardian.contact.name} is trying to recover their vault, they will send you a short code to which you can share the manifest.
-        </Text>
-        <Pressable style={[ds.buttonSm, ds.blueButton, tw`self-center mt-2`]} onPressOut={() => setToggle(!toggle)}>
-            <Text style={ds.textXs}>Share Manifest</Text>
-        </Pressable>
+        <Info header={'Info'} msg={infomsg} />
+        {!toggle && <HoldButton afterHold={() => setToggle(true)}
+            label={'Hold for 3s to Continue'}
+            duration={3} />}
         {toggle && <View style={[tw`mt-2`]}>
-            {error && <Warning msg={error} />}
+            {error && <Warning header={'Error'} msg={error} />}
             {notFound && <Info header={'Not found'} msg={'Make sure the short code is correct'} />}
             {complete ? 
                 <View>
@@ -137,7 +163,7 @@ const ShareManifestForm = ({guardian, vault}: {guardian: Guardian, vault: Vault}
                 </View> :
                 <View>
                     <XTextInput placeholder="a2c4e6" label={'Short Code'} value={shortCode} onChangeText={setShortCode} />
-                    <Pressable style={[ds.button, !loading ? ds.blueButton : null, tw`w-full`]}
+                    <Pressable style={[ds.button, !loading ? ds.redButton : null, tw`w-full`]}
                             onPress={() => !loading && sendManifest()}>
                         <Text style={ds.buttonText}>{loading ? 'Loading...' : 'Send Manifest'}</Text>
                     </Pressable>

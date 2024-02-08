@@ -39,6 +39,8 @@ export const secretTypeStyleMap: { [k in SecretType]: {
 }
 
 export function SecretIcon({secretType}: {secretType: SecretType, big?: boolean}) {
+    if(!Object.keys(secretTypeStyleMap).includes(secretType))
+        secretType = SecretType.key // if not in map default to key
     const icon = secretTypeStyleMap[secretType].icon
     const style = [
         ds.mdCircle,

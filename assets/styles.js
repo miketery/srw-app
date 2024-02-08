@@ -12,7 +12,7 @@ const ds = StyleSheet.create({
     mainBody: tw`bg-xdarkblue p-3 h-100`,
 
     headerRow: tw`flex-row justify-between items-center mb-2`,
-    header: tw`text-slate-200 text-3xl pb-3`,
+    header: tw`text-slate-200 text-3xl`,
     
     text: tw`text-slate-200 text-base`,
     textSm: tw`text-slate-200 text-sm`,
@@ -67,7 +67,7 @@ const ds = StyleSheet.create({
     row: tw`flex flex-row rounded-lg p-3 mb-2 bg-slate-700`,
     col: tw`flex flex-col items-stretch`,
     buttonRow: tw`w-full flex-row justify-between items-center my-2`,
-    buttonRowB: tw`-mt-16 items-end pb-4 flex-row px-3 h-11`,
+    buttonRowB: tw`-mt-16 items-end pb-4 flex-row px-3`,
     
     rowEnd: tw`flex-row justify-end`,
     rowStart: tw`flex-row justify-start`,
