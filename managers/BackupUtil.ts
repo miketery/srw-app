@@ -3,6 +3,7 @@ import DigitalAgentService from "../services/DigitalAgentService";
 import Vault from "../models/Vault";
 import { Pk } from "../models/types";
 import { pkToStoredType } from "../services/StorageService";
+import { bytesToBase64 } from "../lib/utils";
 
 const kindToManager = {
     'contact': 'contactsManager',
@@ -68,6 +69,16 @@ class BackupUtil {
             return this._manager[managerName].get(pk)
         })
         return Promise.resolve(true)
+    }
+    uploadObject(object: any) {
+        const objectBytes = Buffer.from(JSON.stringify(object), 'utf-8');
+        const encryptedBytes = this._vault.encryptPayload(objectBytes)
+        return DigitalAgentService.uploadObject(
+            this._vault,
+            bytesToBase64(encryptedBytes),
+            'create',
+            object.pk
+        )
     }
     // async compileLocalManifest(): Promise<boolean> {
     //     const kinds = Object.keys(managerToKind)

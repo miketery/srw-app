@@ -39,6 +39,8 @@ export const ENDPOINTS = {
     UPLOAD_FILES: '/backup/upload/',
     GET_FILES: '/backup/get/',
     DELETE_FILES: '/backup/delete/',
+
+    UPLOAD_FILE_NEW: '/backup/upload_new/',
 }
 
 DEBUG && console.log('DEBUG: ', {

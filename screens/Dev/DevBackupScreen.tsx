@@ -59,12 +59,17 @@ const uploadMissing = async (backupUtil: BackupUtil) => {
     await logMissingRemotePks(backupUtil)
     backupUtil.backupMissingObjects()
 }
+const uploadSingle = async (backupUtil: BackupUtil, contactsManager: ContactsManager) => {
+    console.log('uploadSingle');
+    const object = contactsManager.getContactsArray()[0].toDict()
+    console.log(object)
+    backupUtil.uploadObject(object)
+}
 
 
 const DevBackupScreen = () => {
     const { vault, manager } = useSessionContext();
     const backupUtil = manager.backupUtil
-
 
     return (
         <MainContainer buttonRow={null} header='Dev Backup'>
@@ -92,6 +97,10 @@ const DevBackupScreen = () => {
             <View style={tw`h-4`} />
             <Pressable onPress={() => uploadMissing(backupUtil)} style={[ds.button, ds.greenButton, tw`w-full`]}>
                 <Text style={ds.buttonText}>Upload Missing</Text>
+            </Pressable>
+            <View style={tw`h-4`} />
+            <Pressable onPress={() => uploadSingle(backupUtil, manager.contactsManager)} style={[ds.button, ds.blueButton, tw`w-full`]}>
+                <Text style={ds.buttonText}>Upload Single</Text>
             </Pressable>
             <View style={tw`h-4`} />
             

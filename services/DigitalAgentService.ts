@@ -200,6 +200,26 @@ class DigitalAgentService {
             return response['data'];
         }
     }
+    static async uploadObject(vault: Vault, data: string, eventType: string, pk: string) {
+        const payload = {
+            'data': data,
+            'event_type': eventType,
+            'client_object_pk': pk,
+            'sig_ts': Math.floor(Date.now() / 1000)
+        }
+        const signed_payload = vault.signPayload(payload);
+        const response = await axios.post(this.digital_agent_host + ENDPOINTS.UPLOAD_FILE_NEW, signed_payload)
+        .catch((error) => {
+            console.log('[DigitalAgentService.uploadFile]', error)
+            throw new Error(error);
+        });
+        if(!response)
+            return false
+        console.log('[uploadFile]', response)
+        if (response['status'] == 202) {
+            return response['data'];
+        }
+    }
 }
 
 export default DigitalAgentService;

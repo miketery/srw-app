@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 // Import the required classes, modules or types here
 import { SigningKey, VerifyKey, PrivateKey, PublicKey, SignedMessage } from '../lib/nacl';
-import { signMsg, signingKeyFromWords, encryptionKeyFromWords, getRandom } from '../lib/utils'
+import { signMsg, signingKeyFromWords, encryptionKeyFromWords, getRandom, sealed_box } from '../lib/utils'
 import SS, { StoredType, StoredTypePrefix } from '../services/StorageService';
 import { entropyToMnemonic } from 'bip39';
 import DigitalAgentService, { FetchMessagesFunction, SenderFunction } from '../services/DigitalAgentService';
@@ -153,6 +153,9 @@ export default class Vault {
             'signed': Buffer.from(signed).toString('base64'),
             'verify_key': this.b58_verify_key
         };
+    }
+    encryptPayload(payload: Uint8Array): Uint8Array {
+        return sealed_box(payload, this.public_key);
     }
     sign(data: any): SignedMessage {
         return signMsg(data, this.signing_key);

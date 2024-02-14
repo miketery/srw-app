@@ -13,7 +13,22 @@ export const hash = function(m: Uint8Array) {return nacl.hash(m)} // sha512
 
 export const base64toBytes = (s: string) => Uint8Array.from(atob(s), c => c.charCodeAt(0))
 export const bytesToBase64 = (b: Uint8Array) => btoa(String.fromCharCode.apply(null, b))
-
+// export function bytesToBase64(byteArray: Uint8Array): string {
+//     let binaryString = '';
+//     for (let i = 0; i < byteArray.length; i++) {
+//         binaryString += String.fromCharCode(byteArray[i]);
+//     }
+//     return typeof btoa === 'function' ? btoa(binaryString) : Buffer.from(binaryString, 'binary').toString('base64');
+// }
+// export function base64toBytes(base64: string): Uint8Array {
+//     const binaryString = typeof atob === 'function' ? atob(base64) : Buffer.from(base64, 'base64').toString('binary');
+//     const len = binaryString.length;
+//     const bytes = new Uint8Array(len);
+//     for (let i = 0; i < len; i++) {
+//         bytes[i] = binaryString.charCodeAt(i);
+//     }
+//     return bytes;
+// }
 // https://github.com/facebook/react-native/issues/29195#issuecomment-648157628
 // export const toBase64 = (input) => Buffer.from(input, 'utf-8').toString('base64')  
 // export const fromBase64 = (encoded) => Buffer.from(encoded, 'base64').toString('utf8')
