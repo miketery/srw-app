@@ -14,11 +14,11 @@ import BackupUtil from '../../managers/BackupUtil';
 
 const getManifest = (vault: Vault) => {
     console.log('getManifest');
-    DAS.getBackupManifest(vault).then((res) => {
-        console.log('getBackupManifest res', res);
-    }).catch((err) => {
-        console.log('getBackupManifest err', err);
-    });
+    // DAS.getBackupManifest(vault).then((res) => {
+    //     console.log('getBackupManifest res', res);
+    // }).catch((err) => {
+    //     console.log('getBackupManifest err', err);
+    // });
 }
 
 const uploadContacts = (vault: Vault, manager: VaultManager) => {
@@ -31,11 +31,11 @@ const uploadContacts = (vault: Vault, manager: VaultManager) => {
         }
     })
     console.log(objecst)
-    DAS.uploadObjects(vault, objecst).then((res) => {
-        console.log('uploadContacts res', res);
-    }).catch((err) => {
-        console.log('uploadContacts err', err);
-    });
+    // DAS.uploadObjects(vault, objecst).then((res) => {
+    //     console.log('uploadContacts res', res);
+    // }).catch((err) => {
+    //     console.log('uploadContacts err', err);
+    // });
 }
 
 const getObjects = (vault: Vault, pks: string[]) => {
@@ -64,6 +64,11 @@ const uploadSingle = async (backupUtil: BackupUtil, contactsManager: ContactsMan
     const object = contactsManager.getContactsArray()[0].toDict()
     console.log(object)
     backupUtil.uploadObject(object)
+}
+const getBackupEvents = async (BackupUtil: BackupUtil) => {
+    console.log('getBackupEvents');
+    const events = await DAS.getBackupEvents(BackupUtil._vault)
+    console.log(events)
 }
 
 
@@ -101,6 +106,10 @@ const DevBackupScreen = () => {
             <View style={tw`h-4`} />
             <Pressable onPress={() => uploadSingle(backupUtil, manager.contactsManager)} style={[ds.button, ds.blueButton, tw`w-full`]}>
                 <Text style={ds.buttonText}>Upload Single</Text>
+            </Pressable>
+            <View style={tw`h-4`} />
+            <Pressable onPress={() => getBackupEvents(backupUtil)} style={[ds.button, ds.blueButton, tw`w-full`]}>
+                <Text style={ds.buttonText}>Get Backup Events</Text>
             </Pressable>
             <View style={tw`h-4`} />
             

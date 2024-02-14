@@ -146,42 +146,25 @@ class DigitalAgentService {
             }
         }
     }
-    static async getBackupManifest(vault: Vault): Promise<false|string[]> {
-        const payload = {
-            'sig_ts': Math.floor(Date.now() / 1000)
-        }
-        const signed_payload = vault.signPayload(payload);
-        const response = await axios.post(this.digital_agent_host + ENDPOINTS.GET_BACKUP_MANIFEST, signed_payload)
-        .catch((error) => {
-            console.log('[DigitalAgentService.getFileManifest]', error)
-            throw new Error(error);
-        });
-        if(!response)
-            return false
-        console.log('[getFileManifest]', response)
-        if (response['status'] == 200) {
-            return response['data'];
-        }
-    }
-    static async uploadObjects(vault: Vault, objects: object[]) {
-        console.log(objects)
-        const payload = {
-            'objects': objects,
-            'sig_ts': Math.floor(Date.now() / 1000)
-        }
-        const signed_payload = vault.signPayload(payload);
-        const response = await axios.post(this.digital_agent_host + ENDPOINTS.UPLOAD_FILES, signed_payload)
-        .catch((error) => {
-            console.log('[DigitalAgentService.uploadFiles]', error)
-            throw new Error(error);
-        });
-        if(!response)
-            return false
-        console.log('[uploadFiles]', response)
-        if (response['status'] == 202) {
-            return response['data'];
-        }
-    }
+    // static async uploadObjects(vault: Vault, objects: object[]) {
+    //     console.log(objects)
+    //     const payload = {
+    //         'objects': objects,
+    //         'sig_ts': Math.floor(Date.now() / 1000)
+    //     }
+    //     const signed_payload = vault.signPayload(payload);
+    //     const response = await axios.post(this.digital_agent_host + ENDPOINTS.UPLOAD_FILES, signed_payload)
+    //     .catch((error) => {
+    //         console.log('[DigitalAgentService.uploadFiles]', error)
+    //         throw new Error(error);
+    //     });
+    //     if(!response)
+    //         return false
+    //     console.log('[uploadFiles]', response)
+    //     if (response['status'] == 202) {
+    //         return response['data'];
+    //     }
+    // }
     static async getObjects(vault: Vault, pks: string[]) {
         const payload = {
             'pks': pks,
@@ -217,6 +200,25 @@ class DigitalAgentService {
             return false
         console.log('[uploadFile]', response)
         if (response['status'] == 202) {
+            return response['data'];
+        }
+    }
+    static async getBackupEvents(vault: Vault) {
+        const payload = {
+            'sig_ts': Math.floor(Date.now() / 1000),
+            'after': 0,
+            'before': Math.floor(Date.now() / 1000)
+        }
+        const signed_payload = vault.signPayload(payload);
+        const response = await axios.post(this.digital_agent_host + ENDPOINTS.GET_EVENTS, signed_payload)
+        .catch((error) => {
+            console.log('[DigitalAgentService.getEvents]', error)
+            throw new Error(error);
+        });
+        if(!response)
+            return false
+        console.log('[getEvents]', response)
+        if (response['status'] == 200) {
             return response['data'];
         }
     }
