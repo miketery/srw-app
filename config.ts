@@ -5,6 +5,7 @@ import {
     env_mock,
     env_fetch,
     env_mockdata,
+    env_backup,
 } from '@env';
 
 // const env_dev = 'true'
@@ -14,11 +15,11 @@ import {
 export const DEV = env_dev === 'true'
 export const DEBUG = env_debug === 'true'
 export const LOCAL = env_local === 'true'
-// export const MOCK = false
+
 export const MOCK = env_mock === 'true'
 export const MOCKDATA = env_mockdata === 'true'
-// export const FETCH = true
-export const FETCH = env_fetch === 'true'
+export const FETCH = env_fetch === 'true' // poll for new messages
+export const BACKUP = env_backup === 'true' // backup service
 
 export const SPLASH_ANIMATE_TIME = DEBUG ? 100 : 666
 

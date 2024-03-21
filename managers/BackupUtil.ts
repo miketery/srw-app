@@ -13,62 +13,21 @@ const kindToManager = {
     'guardian': 'guardiansManager',
 }
 
-type FileManifest = {
-    [kind: string]: {
-        [pk: string]: {
-            kind: string,
-            hash: string,
-            size: number,
-        }
-    }[]
+type BackupState = {
+    lastBackup: number,
+    toBackup: string[],
+    vaultPk: string,
 }
 
 class BackupUtil {
     _vault: Vault;
     _manager: VaultManager;
 
-    lastBackup: number;
-
-    // localManifest: FileManifest;
-    // remoteManifest: FileManifest;
-    localPks: Pk[]
-    remotePks: Pk[]
+    state: BackupState;
 
     constructor(vault: Vault, manager: VaultManager) {
         this._vault = vault;
         this._manager = manager;
-    }
-    async fetchManifest(): Promise<Pk[]|false> {
-        try {
-            const fileManifest = await DigitalAgentService.getBackupManifest(this._vault)
-            if(!fileManifest)
-                throw new Error('No file manifest')
-            this.remotePks = fileManifest
-            return this.remotePks
-        } catch (e) {
-            console.log(e)
-        }
-        return false
-    }
-    compileLocalPks(): Pk[] {
-        const pks = Object.values(kindToManager).map(m => {
-            console.log(m, 'getting index')
-            return this._manager[m].index
-        }).flat().filter(x => x !== undefined)
-        this.localPks = pks
-        return pks
-    }
-    getMissingRemotePks(): Pk[] {
-        return this.localPks.filter(pk => !this.remotePks.includes(pk))
-    }
-    backupMissingObjects(): Promise<boolean> {
-        const pksMissing = this.getMissingRemotePks();
-        const objects = pksMissing.map(pk => {
-            const managerName = kindToManager[pkToStoredType(pk)]
-            console.log(pk, managerName, pkToStoredType(pk))
-            return this._manager[managerName].get(pk)
-        })
-        return Promise.resolve(true)
     }
     uploadObject(object: any) {
         const objectBytes = Buffer.from(JSON.stringify(object), 'utf-8');
@@ -80,24 +39,16 @@ class BackupUtil {
             object.pk
         )
     }
-    // async compileLocalManifest(): Promise<boolean> {
-    //     const kinds = Object.keys(managerToKind)
-    //     const manifest: FileManifest = {}
-    //     for(let kind of kinds) {
-    //         const manager = this._manager[managerToKind[kind]]
-    //         const items = await manager.getItems()
-    //         manifest[kind] = items.map(item => {
-    //             return {
-    //                 kind: kind,
-    //                 pk: item.pk,
-    //                 hash: item.hash,
-    //                 size: item.size,
-    //             }
-    //         })
-    //     }
-    //     this.localManifest = manifest
-    //     return true
-    // }
+    getObjects(pks: string[]): Promise<any|false> {
+        return DigitalAgentService.getObjects(this._vault, pks);
+    }
+    getEvents(opts: {after?: number, before?: number, pk?: Pk}) {
+        return DigitalAgentService.getBackupEvents(this._vault, {
+            after: 0,
+            before: Math.floor(Date.now() / 1000),
+            ...opts, // if passed will overwrite after and before
+        });
+    }
 
 }
 

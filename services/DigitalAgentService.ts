@@ -165,7 +165,7 @@ class DigitalAgentService {
     //         return response['data'];
     //     }
     // }
-    static async getObjects(vault: Vault, pks: string[]) {
+    static async getObjects(vault: Vault, pks: string[]): Promise<any|false> {
         const payload = {
             'pks': pks,
             'sig_ts': Math.floor(Date.now() / 1000)
@@ -203,11 +203,10 @@ class DigitalAgentService {
             return response['data'];
         }
     }
-    static async getBackupEvents(vault: Vault) {
+    static async getBackupEvents(vault: Vault, opts: {after: number, before: number, pk?: string}) {
         const payload = {
             'sig_ts': Math.floor(Date.now() / 1000),
-            'after': 0,
-            'before': Math.floor(Date.now() / 1000)
+            ...opts,
         }
         const signed_payload = vault.signPayload(payload);
         const response = await axios.post(this.digital_agent_host + ENDPOINTS.GET_EVENTS, signed_payload)
